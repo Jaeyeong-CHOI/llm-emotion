@@ -874,6 +874,7 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- planned_sample_temperature_top1_share: `{preflight_summary.get('planned_sample_temperature_top1_share', 0.0)}`",
         f"- planned_sample_temperature_top2_share: `{preflight_summary.get('planned_sample_temperature_top2_share', 0.0)}`",
         f"- planned_sample_temperature_top3_share: `{preflight_summary.get('planned_sample_temperature_top3_share', 0.0)}`",
+        f"- planned_sample_temperature_top3_over_uniform_ratio: `{preflight_summary.get('planned_sample_temperature_top3_over_uniform_ratio', 0.0)}`",
         f"- planned_sample_temperature_entropy: `{preflight_summary.get('planned_sample_temperature_entropy', 0.0)}`",
         f"- unique_selected_scenario_labels: `{preflight_summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{preflight_summary.get('unique_selected_scenario_tags', 0)}`",
@@ -1184,6 +1185,12 @@ def main():
         type=float,
         default=0.0,
         help="fail if top-3 temperatures account for more than this planned-sample share (0 disables)",
+    )
+    ap.add_argument(
+        "--max-planned-sample-temperature-top3-over-uniform-ratio",
+        type=float,
+        default=0.0,
+        help="fail if top-3 temperature share exceeds this multiple of uniform top-3 share baseline (0 disables)",
     )
     ap.add_argument(
         "--max-planned-sample-temperature-share-gap",
@@ -2846,6 +2853,11 @@ def main():
         else 0.0
     )
     uniform_temperature_share = round(1.0 / max(1, len(planned_sample_temperature_shares)), 4)
+    uniform_temperature_top3_share = round(min(3, len(planned_sample_temperature_shares)) * uniform_temperature_share, 4)
+    planned_sample_temperature_top3_over_uniform_ratio = round(
+        planned_sample_temperature_top3_share / max(1e-9, uniform_temperature_top3_share),
+        4,
+    )
     planned_sample_temperature_over_uniform_ratio_by_temperature = {
         temp: round(share / max(1e-9, uniform_temperature_share), 4)
         for temp, share in planned_sample_temperature_shares.items()
@@ -2998,6 +3010,14 @@ def main():
         raise RuntimeError(
             "planned_sample_temperature_top3_share="
             f"{planned_sample_temperature_top3_share} > max_planned_sample_temperature_top3_share={args.max_planned_sample_temperature_top3_share}"
+        )
+    if (
+        args.max_planned_sample_temperature_top3_over_uniform_ratio
+        and planned_sample_temperature_top3_over_uniform_ratio > args.max_planned_sample_temperature_top3_over_uniform_ratio
+    ):
+        raise RuntimeError(
+            "planned_sample_temperature_top3_over_uniform_ratio="
+            f"{planned_sample_temperature_top3_over_uniform_ratio} > max_planned_sample_temperature_top3_over_uniform_ratio={args.max_planned_sample_temperature_top3_over_uniform_ratio}"
         )
     if (
         args.max_planned_sample_temperature_share_gap

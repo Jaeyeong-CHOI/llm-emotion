@@ -1904,6 +1904,33 @@
       "n": 28,
       "seed": 9242,
       "repeats": 2
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_top3_uniform_v93",
+      "description": "v9.3 unknown-year query 재쏠림 복구 + countervoice tail-temperature mesh + top3-over-uniform tripwire smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_query_gap_tabletop_v93",
+        "prompt_bank_countervoice_tail_temperature_mesh_v93",
+        "runner_temperature_top3_uniformity_repair_v93",
+        "screening_unknown_year_known_year_query_alignment_patch_v92"
+      ],
+      "persona_ids": [
+        "unknown_year_query_balance_operator_v93",
+        "temperature_top3_uniformity_guard_v93",
+        "unknown_year_alignment_triager_v92",
+        "temperature_top3_pressure_auditor_v92"
+      ],
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "n": 28,
+      "seed": 9301,
+      "repeats": 2
     }
   ]
 }

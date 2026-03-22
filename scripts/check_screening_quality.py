@@ -327,6 +327,7 @@ def main():
     ap.add_argument("--min-manual-qc-review-traceable-known-query-known-year-count", type=int, default=3)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-top1-query-share", type=float, default=0.65)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-top2-query-share", type=float, default=0.9)
+    ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-top3-query-share", type=float, default=0.97)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-unknown-year-query-coverage", type=int, default=2)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-unknown-year-query-entropy", type=float, default=0.35)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-vs-known-year-query-js-divergence", type=float, default=0.35)
@@ -813,6 +814,20 @@ def main():
         if manual_qc_review_traceable_known_query_unknown_year_rows
         else 0.0
     )
+    manual_qc_review_traceable_known_query_unknown_year_top3_query_share = (
+        round(
+            sum(
+                sorted(
+                    (int(v or 0) for v in manual_qc_review_traceable_known_query_unknown_year_query_counts.values()),
+                    reverse=True,
+                )[:3]
+            )
+            / max(1, manual_qc_review_traceable_known_query_unknown_year_rows),
+            4,
+        )
+        if manual_qc_review_traceable_known_query_unknown_year_rows
+        else 0.0
+    )
     manual_qc_review_traceable_known_query_unknown_year_query_coverage = sum(
         1
         for _, v in manual_qc_review_traceable_known_query_unknown_year_query_counts.items()
@@ -1292,6 +1307,15 @@ def main():
             "threshold": f"<={args.max_manual_qc_review_traceable_known_query_unknown_year_top2_query_share}",
         },
         {
+            "name": "manual_qc_review_traceable_known_query_unknown_year_top3_query_share_ceiling",
+            "status": "pass"
+            if manual_qc_review_traceable_known_query_unknown_year_top3_query_share
+            <= args.max_manual_qc_review_traceable_known_query_unknown_year_top3_query_share
+            else "fail",
+            "observed": manual_qc_review_traceable_known_query_unknown_year_top3_query_share,
+            "threshold": f"<={args.max_manual_qc_review_traceable_known_query_unknown_year_top3_query_share}",
+        },
+        {
             "name": "manual_qc_review_traceable_known_query_unknown_year_query_coverage_floor",
             "status": "pass"
             if manual_qc_review_traceable_known_query_unknown_year_query_coverage
@@ -1675,6 +1699,7 @@ def main():
             "known_query_known_year_count": manual_qc_review_traceable_known_query_known_year_count,
             "known_query_unknown_year_top1_query_share": manual_qc_review_traceable_known_query_unknown_year_top1_query_share,
             "known_query_unknown_year_top2_query_share": manual_qc_review_traceable_known_query_unknown_year_top2_query_share,
+            "known_query_unknown_year_top3_query_share": manual_qc_review_traceable_known_query_unknown_year_top3_query_share,
             "known_query_unknown_year_query_coverage": manual_qc_review_traceable_known_query_unknown_year_query_coverage,
             "known_query_unknown_year_query_entropy": manual_qc_review_traceable_known_query_unknown_year_query_entropy,
             "known_query_unknown_vs_known_year_query_js_divergence": manual_qc_review_traceable_known_query_unknown_vs_known_year_query_js_divergence,
@@ -1783,6 +1808,7 @@ def main():
             "manual_qc_review_traceable_known_query_known_year_count": manual_qc_review_traceable_known_query_known_year_count,
             "manual_qc_review_traceable_known_query_unknown_year_top1_query_share": manual_qc_review_traceable_known_query_unknown_year_top1_query_share,
             "manual_qc_review_traceable_known_query_unknown_year_top2_query_share": manual_qc_review_traceable_known_query_unknown_year_top2_query_share,
+            "manual_qc_review_traceable_known_query_unknown_year_top3_query_share": manual_qc_review_traceable_known_query_unknown_year_top3_query_share,
             "manual_qc_review_traceable_known_query_unknown_year_query_coverage": manual_qc_review_traceable_known_query_unknown_year_query_coverage,
             "manual_qc_review_traceable_known_query_unknown_year_query_entropy": manual_qc_review_traceable_known_query_unknown_year_query_entropy,
             "manual_qc_review_traceable_known_query_unknown_vs_known_year_query_js_divergence": manual_qc_review_traceable_known_query_unknown_vs_known_year_query_js_divergence,
