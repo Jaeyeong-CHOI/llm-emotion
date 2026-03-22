@@ -2147,6 +2147,33 @@
       "n": 28,
       "seed": 10101,
       "repeats": 2
+    },
+    {
+      "id": "screening_prompt_runner_top3_ratio_top5_uniform_v102",
+      "description": "v10.2 unknown-year top3/global top3 ratio guard + top3 counterbalance mesh + temperature top5 uniformity guard smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_top3_ratio_guard_v102",
+        "prompt_bank_top3_ratio_counterbalance_patch_v102",
+        "runner_temperature_top5_uniformity_tripwire_v102",
+        "screening_unknown_year_group_tail_ratio_floor_v101"
+      ],
+      "persona_ids": [
+        "unknown_year_top3_ratio_triager_v102",
+        "top3_counterbalance_mesh_architect_v102",
+        "temperature_top5_uniformity_guard_v102",
+        "unknown_year_group_tail_ratio_warden_v101"
+      ],
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "n": 28,
+      "seed": 10201,
+      "repeats": 2
     }
   ]
 }

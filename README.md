@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year top3/global top3 ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top3-over-global-top3-ratio`)를 추가해, top1/top2가 통과해도 top3 누적 과점이 남는 케이스를 fail-fast로 차단합니다.
+- Prompt bank expanded to `v10.2` with **unknown-year top3 ratio guard / top3 counterbalance mesh / temperature top5 uniformity tripwire** 시나리오와 신규 페르소나(`unknown_year_top3_ratio_triager_v102`, `top3_counterbalance_mesh_architect_v102`, `temperature_top5_uniformity_guard_v102`)를 추가했습니다.
+- Experiment runner preflight에 **temperature top5 share + top5-over-uniform guardrail** (`--max-planned-sample-temperature-top5-share`, `--max-planned-sample-temperature-top5-over-uniform-ratio`)을 추가해, top4는 통과해도 top5 누적 집중이 높은 배치를 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year query-group tail floor/global tail ratio floor 가드**(`--min-manual-qc-review-traceable-known-query-unknown-year-group-tail-share`, `--min-manual-qc-review-traceable-known-query-unknown-year-group-tail-over-global-group-tail-ratio`)를 추가해, top2 과점이 완화돼 보여도 query-group tail이 baseline 대비 수축하는 케이스를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v10.1` with **unknown-year group tail ratio floor / tail-ratio mesh patch / temperature floor-gap tripwire** 시나리오와 신규 페르소나(`unknown_year_group_tail_ratio_warden_v101`, `tail_ratio_mesh_curator_v101`, `temperature_floor_gap_auditor_v101`)를 추가했습니다.
 - Experiment runner preflight에 **temperature floor-bin share-gap guardrail** (`--max-planned-sample-temperature-floor-bin-share-gap`)을 추가해, floor-bin 개수는 통과했지만 내부 온도 share 편차가 큰 배치를 사전에 차단합니다.
@@ -68,7 +71,7 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 - Screening quality gate continues to track **review evidence-link decay share** (`--max-manual-qc-review-evidence-link-decay-share`) to fail fast when review 근거의 문장-링크 연결이 약화됩니다.
 
 ## Repository structure
-- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v101.md`)
+- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v102.md`)
 - `queries/`: retrieval queries and screening rules
 - `prompts/`: Korean prompt bank and scenario source material
 - `scripts/`: literature sync, dataset generation, analysis, experiment runner

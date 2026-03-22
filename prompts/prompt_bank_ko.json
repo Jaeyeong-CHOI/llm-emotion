@@ -1,5 +1,5 @@
 {
-  "version": "v10.1",
+  "version": "v10.2",
   "language": "ko",
   "scenarios": [
     {
@@ -4389,6 +4389,51 @@
       "domain": "experiment_ops",
       "emotion_axis": "stability",
       "difficulty": "advanced"
+    },
+    {
+      "id": "screening_unknown_year_top3_ratio_guard_v102",
+      "label": "screening",
+      "text": "manual QC review의 unknown-year traceable known-query에서 top3 query share를 계산하고, global known-query top3 share 대비 비율을 점검하라. top1/top2가 통과해도 top3 비율 과열이 남으면 경고하고 query 확장 플랜을 제시하라.",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_concentration",
+        "top3_ratio",
+        "guardrail"
+      ],
+      "domain": "literature_screening",
+      "emotion_axis": "quality_control",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "prompt_bank_top3_ratio_counterbalance_patch_v102",
+      "label": "prompt_bank",
+      "text": "프롬프트 뱅크에서 unknown-year 관련 query 증거가 top3 query에 과집중되는 패턴을 완화하도록 counterbalance 시나리오를 설계하라. query-group, domain, 난이도 축을 교차해 최소 4개 확장안을 제시하라.",
+      "tags": [
+        "prompt_bank",
+        "counterbalance",
+        "unknown_year",
+        "top3_ratio",
+        "query_diversity"
+      ],
+      "domain": "prompt_design",
+      "emotion_axis": "diversity",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "runner_temperature_top5_uniformity_tripwire_v102",
+      "label": "runner",
+      "text": "preflight에서 planned-sample temperature 분포의 top5 share와 top5-over-uniform ratio를 함께 계산하라. top4 기준은 통과하지만 top5 누적 집중이 높으면 실행을 보류하고 재배분 가이드를 출력하라.",
+      "tags": [
+        "runner",
+        "temperature",
+        "preflight",
+        "top5_share",
+        "uniform_ratio"
+      ],
+      "domain": "experiment_ops",
+      "emotion_axis": "stability",
+      "difficulty": "advanced"
     }
   ],
   "personas": [
@@ -6615,6 +6660,43 @@
         "temperature",
         "floor_bin",
         "share_gap",
+        "guardrail"
+      ]
+    },
+    {
+      "id": "unknown_year_top3_ratio_triager_v102",
+      "name": "Unknown-year Top3 Ratio Triager",
+      "style": "unknown-year query 분포를 top3 누적 비율까지 점검해 가려진 과집중을 조기에 분류한다.",
+      "tone": "차분하고 정밀함",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "top3_ratio",
+        "triage"
+      ]
+    },
+    {
+      "id": "top3_counterbalance_mesh_architect_v102",
+      "name": "Top3 Counterbalance Mesh Architect",
+      "style": "top3 query 집중을 완화하도록 countervoice 프롬프트를 축별로 재배치해 증거 다양성을 회복한다.",
+      "tone": "체계적이고 설계 지향",
+      "tags": [
+        "prompt_bank",
+        "counterbalance",
+        "mesh",
+        "query_diversity"
+      ]
+    },
+    {
+      "id": "temperature_top5_uniformity_guard_v102",
+      "name": "Temperature Top5 Uniformity Guard",
+      "style": "top4를 넘어 top5 누적 집중과 균등 baseline 대비 과열을 함께 감시해 온도 예산 왜곡을 막는다.",
+      "tone": "엄격하고 실험운영 중심",
+      "tags": [
+        "runner",
+        "temperature",
+        "top5_share",
+        "uniform_ratio",
         "guardrail"
       ]
     }
