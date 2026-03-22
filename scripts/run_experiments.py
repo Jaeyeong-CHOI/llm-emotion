@@ -1387,6 +1387,12 @@ def main():
         help="fail if a run id owns more than this share of all failed cells; 0 disables",
     )
     ap.add_argument(
+        "--max-timeout-failure-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if a run id owns more than this share of timeout failures (failed_*timeout* statuses); 0 disables",
+    )
+    ap.add_argument(
         "--quarantine-json",
         default="",
         help="optional JSON path for failed run-cell quarantine candidates (defaults to <outdir>/quarantine_candidates.json)",
@@ -2792,6 +2798,23 @@ def main():
         analysis_retries_total=analysis_retries_total,
         failed_cells_total=failed_cells,
     )
+    timeout_failure_statuses = {
+        "failed_run_timeout",
+        "failed_generation_timeout",
+        "failed_analysis_timeout",
+    }
+    timeout_failures_by_run_id: dict[str, int] = {}
+    timeout_failures_total = 0
+    for run_row in runs:
+        status = str(run_row.get("status") or "")
+        if "timeout" not in status and "timeout_after_seconds=" not in str(run_row.get("error") or ""):
+            continue
+        run_id = str(run_row.get("id") or "")
+        if not run_id:
+            continue
+        timeout_failures_total += 1
+        timeout_failures_by_run_id[run_id] = timeout_failures_by_run_id.get(run_id, 0) + 1
+
     budget_violations = []
     if args.max_attempt_over_selection_ratio:
         overpressured = [
@@ -2892,6 +2915,18 @@ def main():
         ]
         if overfailed_share:
             budget_violations.append({"rule": "max_failed_cell_share_per_run_id", "threshold": args.max_failed_cell_share_per_run_id, "violations": overfailed_share})
+    if args.max_timeout_failure_share_per_run_id and timeout_failures_total > 0:
+        over_timeout_share = [
+            f"{run_id}:{round(count / timeout_failures_total, 4)}"
+            for run_id, count in sorted(timeout_failures_by_run_id.items())
+            if (count / timeout_failures_total) > args.max_timeout_failure_share_per_run_id
+        ]
+        if over_timeout_share:
+            budget_violations.append({
+                "rule": "max_timeout_failure_share_per_run_id",
+                "threshold": args.max_timeout_failure_share_per_run_id,
+                "violations": over_timeout_share,
+            })
     write_json(budget_report_json_path, budget_report)
     write_budget_report_markdown(budget_report_md_path, budget_report)
     write_json(
@@ -3082,6 +3117,7 @@ def main():
         "stage_total_attempt_imbalance_ratio": stage_total_attempt_imbalance_ratio,
         "max_failure_over_selection_ratio": args.max_failure_over_selection_ratio,
         "max_failed_cell_share_per_run_id": args.max_failed_cell_share_per_run_id,
+        "max_timeout_failure_share_per_run_id": args.max_timeout_failure_share_per_run_id,
         "require_freeze_artifacts": args.require_freeze_artifact,
         "freeze_artifacts": freeze_artifacts,
         "run_preflight": run_preflight_rows,

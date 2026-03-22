@@ -76,6 +76,24 @@ def effective_query_count(mapping: dict[str, int]) -> float:
     return round(2 ** entropy, 4)
 
 
+def js_divergence(lhs: dict[str, int], rhs: dict[str, int]) -> float:
+    keys = {k for k, v in lhs.items() if int(v or 0) > 0} | {k for k, v in rhs.items() if int(v or 0) > 0}
+    if not keys:
+        return 0.0
+    lhs_total = sum(int(lhs.get(k, 0) or 0) for k in keys)
+    rhs_total = sum(int(rhs.get(k, 0) or 0) for k in keys)
+    if lhs_total <= 0 or rhs_total <= 0:
+        return 0.0
+
+    def _kl(a: dict[str, float], b: dict[str, float]) -> float:
+        return sum(pa * math.log2(pa / max(pb, 1e-12)) for k, pa in a.items() if pa > 0 for pb in [b.get(k, 1e-12)])
+
+    p = {k: int(lhs.get(k, 0) or 0) / lhs_total for k in keys}
+    q = {k: int(rhs.get(k, 0) or 0) / rhs_total for k in keys}
+    m = {k: 0.5 * (p[k] + q[k]) for k in keys}
+    return round(0.5 * _kl(p, m) + 0.5 * _kl(q, m), 4)
+
+
 def write_json(path: Path, payload: dict):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -135,6 +153,7 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_review_traceable_known_query_top_share: `{payload['summary']['manual_qc_review_traceable_known_query_top_share']}`",
             f"- manual_qc_review_traceable_known_query_top2_share: `{payload['summary']['manual_qc_review_traceable_known_query_top2_share']}`",
             f"- manual_qc_review_traceable_known_query_top3_share: `{payload['summary']['manual_qc_review_traceable_known_query_top3_share']}`",
+            f"- manual_qc_review_traceable_known_query_js_divergence: `{payload['summary']['manual_qc_review_traceable_known_query_js_divergence']}`",
             f"- manual_qc_review_traceable_known_query_tail_share: `{payload['summary']['manual_qc_review_traceable_known_query_tail_share']}`",
             f"- manual_qc_review_traceable_known_query_effective_count: `{payload['summary']['manual_qc_review_traceable_known_query_effective_count']}`",
             f"- manual_qc_review_traceable_known_query_bottom_share: `{payload['summary']['manual_qc_review_traceable_known_query_bottom_share']}`",
@@ -263,6 +282,7 @@ def main():
     ap.add_argument("--max-manual-qc-review-traceable-known-query-top-share", type=float, default=0.7)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-top2-share", type=float, default=0.9)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-top3-share", type=float, default=0.95)
+    ap.add_argument("--max-manual-qc-review-traceable-known-query-js-divergence", type=float, default=0.35)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-tail-share", type=float, default=0.15)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-bottom2-share", type=float, default=0.08)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-effective-count", type=float, default=3.0)
@@ -636,6 +656,15 @@ def main():
         if review_traceable_known_query_rows
         else 0.0
     )
+    global_known_query_counts = {
+        k: int(v or 0)
+        for k, v in manual_qc_source_query_counts.items()
+        if str(k).strip().lower() != "unknown" and int(v or 0) > 0
+    }
+    manual_qc_review_traceable_known_query_js_divergence = js_divergence(
+        manual_qc_review_traceable_known_query_counts,
+        global_known_query_counts,
+    )
     review_to_include_ratio = round(review_count / max(1, include_count), 4)
     high_risk_qc_rows = sum(1 for row in manual_qc_rows if float(row.get("risk_score") or 0.0) >= 5.0)
     manual_qc_high_risk_share = pct(high_risk_qc_rows, len(manual_qc_rows))
@@ -867,6 +896,15 @@ def main():
             else "fail",
             "observed": manual_qc_review_traceable_known_query_top3_share,
             "threshold": f"<={args.max_manual_qc_review_traceable_known_query_top3_share}",
+        },
+        {
+            "name": "manual_qc_review_traceable_known_query_js_divergence_ceiling",
+            "status": "pass"
+            if manual_qc_review_traceable_known_query_js_divergence
+            <= args.max_manual_qc_review_traceable_known_query_js_divergence
+            else "fail",
+            "observed": manual_qc_review_traceable_known_query_js_divergence,
+            "threshold": f"<={args.max_manual_qc_review_traceable_known_query_js_divergence}",
         },
         {
             "name": "manual_qc_review_traceable_known_query_tail_share_floor",
@@ -1361,6 +1399,7 @@ def main():
             "manual_qc_review_traceable_known_query_top_share": manual_qc_review_traceable_known_query_top_share,
             "manual_qc_review_traceable_known_query_top2_share": manual_qc_review_traceable_known_query_top2_share,
             "manual_qc_review_traceable_known_query_top3_share": manual_qc_review_traceable_known_query_top3_share,
+            "manual_qc_review_traceable_known_query_js_divergence": manual_qc_review_traceable_known_query_js_divergence,
             "manual_qc_review_traceable_known_query_tail_share": manual_qc_review_traceable_known_query_tail_share,
             "manual_qc_review_traceable_known_query_effective_count": manual_qc_review_traceable_known_query_effective_count,
             "manual_qc_review_traceable_known_query_bottom_share": manual_qc_review_traceable_known_query_bottom_share,

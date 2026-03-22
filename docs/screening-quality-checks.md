@@ -88,3 +88,4 @@ python3 scripts/check_screening_quality.py \
 - `search_openalex.py`가 생성하는 `manual_qc_queue_balanced_min_per_label` 필드를 읽어 라벨별 최소 샘플 목표 충족 여부를 gate로 검사합니다.
 
 - `manual_qc_review_traceable_known_query_top3_share <= 0.95` (review traceable known-query 분포가 상위 3개 query에 과도하게 잠기지 않도록 점검)
+- `manual_qc_review_traceable_known_query_js_divergence <= 0.35` (review traceable known-query 분포가 전체 manual QC known-query 분포와 과도하게 이탈하지 않도록 점검)

@@ -1,5 +1,5 @@
 {
-  "version": "v7.7",
+  "version": "v7.8",
   "language": "ko",
   "scenarios": [
     {
@@ -2777,6 +2777,49 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 resume에서 run-id는 같지만 metadata axis(domain/emotion/difficulty) 일부가 달라 뒤늦게 재실행했던 경험을 7~10문장으로 회고하라. 어떤 축이 어긋났는지, 왜 초기에 감지하지 못했는지, 현재의 metadata tripwire와 재개 조건을 수치로 포함하라."
+    },
+    {
+      "id": "screening_query_distribution_shift_triage_v78",
+      "label": "스크리닝 query 분포 드리프트 triage",
+      "prompt": "manual QC review 큐에서 traceable known-query 분포가 전체 known-query 분포와 멀어질 때, 쏠림 원인(단일 query 과열/브리지 근거 부족/unknown query 누수)을 분해해 복구 액션 3개를 제시하라. 각 액션은 즉시 실행 커맨드, 기대 지표 변화, 실패 시 롤백 포인트를 포함하라.",
+      "tags": [
+        "screening",
+        "query_distribution",
+        "drift",
+        "triage",
+        "traceability"
+      ],
+      "domain": "research_ops",
+      "emotion_axis": "calm-urgent",
+      "difficulty": "hard"
+    },
+    {
+      "id": "prompt_bank_countervoice_false_negative_backfill_v78",
+      "label": "countervoice false-negative backfill",
+      "prompt": "프롬프트 뱅크에서 countervoice 페르소나가 놓치기 쉬운 false-negative 패턴(완곡한 비판, 조건부 반례, 문화권별 완충 표현)을 3개 제시하고, 각각에 대해 새로운 질문 템플릿/예시 입력/실패 신호를 설계하라.",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "false_negative",
+        "coverage"
+      ],
+      "domain": "prompt_design",
+      "emotion_axis": "analytical-cautious",
+      "difficulty": "medium"
+    },
+    {
+      "id": "runner_timeout_hotspot_containment_v78",
+      "label": "러너 timeout hotspot containment",
+      "prompt": "실험 러너에서 timeout 실패가 특정 run id에 집중될 때 탐지-완화-재시도 정책을 설계하라. timeout share, stage별 timeout 원인, budget 대비 영향도를 함께 보고하고 fail-fast 기준치를 제안하라.",
+      "tags": [
+        "runner",
+        "timeout",
+        "budget",
+        "fail_fast"
+      ],
+      "domain": "experiment_ops",
+      "emotion_axis": "focused-resilient",
+      "difficulty": "hard"
     }
   ],
   "personas": [
@@ -4344,6 +4387,42 @@
         "governance"
       ],
       "instruction": "당신은 실험 재개 전에 metadata axis 일관성을 우선 감시하는 운영자 성향이 있으며, domain/emotion/difficulty 축 불일치가 있으면 즉시 중단하고 복구 순서를 명시한다."
+    },
+    {
+      "id": "query_distribution_shift_auditor_v78",
+      "name": "Query Distribution Shift Auditor",
+      "style": "분포 관찰과 숫자 근거를 우선하는 감사자",
+      "instruction": "분포 차이(특히 review traceable known-query vs 전체 known-query)를 수치로 제시하고, 임계치 초과 시 즉시 실행 가능한 조치부터 제안한다.",
+      "style_tags": [
+        "distribution",
+        "audit",
+        "evidence",
+        "fail_fast"
+      ]
+    },
+    {
+      "id": "countervoice_gap_hunter_v78",
+      "name": "Countervoice Gap Hunter",
+      "style": "조용한 반례를 집요하게 찾는 회의적 분석가",
+      "instruction": "표면적으로 안정적인 결과에서도 반례 누락 가능성을 먼저 점검하고, 누락이 확인되면 프롬프트/샘플링 보강안을 우선 제안한다.",
+      "style_tags": [
+        "countervoice",
+        "skeptical",
+        "coverage",
+        "repair"
+      ]
+    },
+    {
+      "id": "timeout_budget_sentinel_v78",
+      "name": "Timeout Budget Sentinel",
+      "style": "시간 예산과 실패 집중도를 동시에 감시하는 운영자",
+      "instruction": "timeout 실패가 run id별로 편중되는지 추적하고, share가 임계치를 넘기기 전에 중단/완화 규칙을 제안한다.",
+      "style_tags": [
+        "runner",
+        "timeout",
+        "budget",
+        "operations"
+      ]
     }
   ],
   "temperatures": [
