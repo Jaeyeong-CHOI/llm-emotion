@@ -1,5 +1,5 @@
 {
-  "version": "v10.5",
+  "version": "v10.6",
   "language": "ko",
   "scenarios": [
     {
@@ -4619,6 +4619,74 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 러너 preflight에서 top6 guardrail은 통과했지만 top7 누적 share와 uniform 대비 비율이 경고를 내며 batch 다양성이 저하된 사건을 7~10문장으로 회고하라. top7 share/top7-over-uniform ratio를 어떻게 해석했는지, fail-fast 기준과 재계획 절차를 수치와 함께 정리하라."
+    },
+    {
+      "id": "screening_unknown_year_top6_ratio_guard_v106",
+      "label": "review",
+      "tags": [
+        "research",
+        "screening",
+        "unknown_year",
+        "query_balance",
+        "top6_ratio",
+        "quality_gate"
+      ],
+      "domains": [
+        "literature_screening",
+        "quality_control"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "fairness",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable-known-query 표본에서 unknown-year 구간의 query top6 누적 점유율이 global known-query top6 대비 과열되는지 7~10문장으로 점검하라. top1~top6 누적 점유율과 global 대비 top-k ratio 변화를 함께 기록하고, top5는 통과하지만 top6에서 실패하는 패턴을 복구할 쿼리 확장/재샘플링 순서를 제시하라."
+    },
+    {
+      "id": "prompt_bank_top6_tail_counterbalance_patch_v106",
+      "label": "deprivation",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "tail_balance",
+        "top6",
+        "repair"
+      ],
+      "domains": [
+        "prompt_engineering",
+        "dataset_design"
+      ],
+      "emotion_axes": [
+        "frustration",
+        "reflection",
+        "stability"
+      ],
+      "difficulty": "medium",
+      "prompt": "프롬프트 뱅크에서 상위 query 6개 과대표집으로 tail 다양성이 약화된 상황을 가정하고, countervoice 패치 전략을 6~9문장으로 설명하라. top6 편중을 줄이기 위해 어떤 태그/도메인 조합을 보강했는지와, 패치 이후 점검할 실패 모드 및 재검증 체크리스트를 포함하라."
+    },
+    {
+      "id": "runner_temperature_top8_uniformity_tripwire_v106",
+      "label": "deprivation",
+      "tags": [
+        "runner",
+        "temperature",
+        "top8_share",
+        "uniform_ratio",
+        "tripwire"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "control",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 러너 preflight에서 top7 guardrail은 통과했지만 top8 누적 share와 uniform 대비 비율이 경고를 내며 온도축 다양성이 붕괴된 사건을 7~10문장으로 회고하라. top8 share/top8-over-uniform ratio를 해석한 근거와 fail-fast 기준, 그리고 재시도 전 예산 재배분 절차를 수치 중심으로 정리하라."
     }
   ],
   "personas": [
@@ -6931,6 +6999,19 @@
         "runner",
         "temperature",
         "top7_share",
+        "uniform_ratio",
+        "guardrail"
+      ]
+    },
+    {
+      "id": "temperature_top8_uniformity_guard_v106",
+      "name": "Temperature Top8 Uniformity Guard",
+      "style": "top8 누적 온도 점유율과 균등 baseline 대비 과열 비율을 함께 감시해 장기 tail 붕괴를 조기 차단한다.",
+      "tone": "엄격하고 재현성 중심",
+      "tags": [
+        "runner",
+        "temperature",
+        "top8_share",
         "uniform_ratio",
         "guardrail"
       ]

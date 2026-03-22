@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year top6 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top6-query-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-top6-over-global-top6-ratio`)를 추가해, top5 통과 이후 남는 누적 과점을 fail-fast로 차단합니다.
+- Prompt bank expanded to `v10.6` with **unknown-year top6 ratio guard / top6 tail counterbalance patch / temperature top8 uniformity tripwire** 시나리오와 신규 페르소나(`temperature_top8_uniformity_guard_v106`)를 추가했습니다.
+- Experiment runner preflight에 **temperature top8 share + top8-over-uniform guardrail** (`--max-planned-sample-temperature-top8-share`, `--max-planned-sample-temperature-top8-over-uniform-ratio`)을 추가해, top7는 통과해도 상위 8개 온도 누적 집중이 과도한 배치를 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year top5 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top5-query-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-top5-over-global-top5-ratio`)를 추가해, top4까지 통과해도 남는 누적 과점을 fail-fast로 차단합니다.
 - Prompt bank expanded to `v10.5` with **unknown-year top5 ratio guard / top5 tail counterbalance patch / temperature top7 uniformity tripwire** 시나리오와 신규 페르소나(`temperature_top7_uniformity_guard_v105`)를 추가했습니다.
 - Experiment runner preflight에 **temperature top7 share + top7-over-uniform guardrail** (`--max-planned-sample-temperature-top7-share`, `--max-planned-sample-temperature-top7-over-uniform-ratio`)을 추가해, top6는 통과해도 상위 7개 온도 누적 집중이 과도한 배치를 사전에 차단합니다.
