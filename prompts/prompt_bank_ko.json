@@ -1,5 +1,5 @@
 {
-  "version": "v9.0",
+  "version": "v9.1",
   "language": "ko",
   "scenarios": [
     {
@@ -3670,6 +3670,73 @@
       ],
       "difficulty": "hard",
       "prompt": "runner preflight에서 temperature top1은 통과했지만 top2 share가 과열되어 실행을 중단한 사건을 7~10문장으로 설명하라. top1/top2/entropy 기준을 함께 적고, run 분리와 재실행 승인 조건을 단계별로 제시하라."
+    },
+    {
+      "id": "screening_unknown_year_top2_concentration_relief_v91",
+      "label": "anxiety",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_distribution",
+        "top2",
+        "traceability"
+      ],
+      "domains": [
+        "literature_review",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC에서 year=unknown review traceable known-query가 상위 2개 질의에 과집중된 징후를 발견한 상황을 7~10문장으로 서술하라. top1/top2/entropy를 함께 보고 진단하는 절차와 분산 회복 액션(질의 재가중, tail backfill, 증거 링크 재검증)을 단계별로 제시하라."
+    },
+    {
+      "id": "prompt_bank_multiaxis_countervoice_mesh_v91",
+      "label": "resolve",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "multiaxis",
+        "coverage",
+        "mesh"
+      ],
+      "domains": [
+        "prompt_engineering",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "repair",
+        "agency",
+        "vigilance"
+      ],
+      "difficulty": "medium",
+      "prompt": "프롬프트 뱅크에서 scenario tag·domain·emotion axis가 서로 독립적으로 분산되지 않아 countervoice가 특정 축에만 몰린 문제를 6~9문장으로 정리하라. 축별 최소 커버리지와 회전 원칙을 숫자로 제안하고, false-negative를 줄이는 샘플링 재배치 계획을 제시하라."
+    },
+    {
+      "id": "runner_temperature_uniform_pressure_guard_v91",
+      "label": "deprivation",
+      "tags": [
+        "runner",
+        "temperature",
+        "preflight",
+        "uniformity",
+        "tripwire"
+      ],
+      "domains": [
+        "runner",
+        "experiment_ops",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "runner preflight에서 top1/top2는 통과했지만 temperature 간 share gap이 커서 사실상 단일 밴드 압력이 발생한 사건을 7~10문장으로 설명하라. uniform 대비 과부하 비율을 함께 계산해 중단/분할 실행 기준을 제시하라."
     }
   ],
   "personas": [
@@ -5556,6 +5623,39 @@
         "operations"
       ],
       "instruction": "당신은 preflight에서 temperature top1뿐 아니라 top2 share를 함께 감시해, 표면적 다양성 뒤의 온도 편중을 조기에 차단한다."
+    },
+    {
+      "id": "unknown_year_top2_dispersion_coach_v91",
+      "style_tags": [
+        "screening",
+        "unknown_year",
+        "top2",
+        "query_dispersion",
+        "operations"
+      ],
+      "instruction": "당신은 unknown-year review 질의가 상위 2개에 몰리면 즉시 분산 회복 플랜을 세우고, top1뿐 아니라 top2 집중도와 엔트로피를 같이 감시한다."
+    },
+    {
+      "id": "multiaxis_countervoice_mesh_curator_v91",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "multiaxis",
+        "coverage",
+        "rotation"
+      ],
+      "instruction": "당신은 tag·domain·emotion axis를 격자처럼 맞춰 countervoice를 배치하며, 한 축 과밀이 보이면 교차축 로테이션으로 빈 구간을 먼저 메운다."
+    },
+    {
+      "id": "temperature_uniformity_tripwire_auditor_v91",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "uniformity",
+        "preflight",
+        "risk_control"
+      ],
+      "instruction": "당신은 temperature top1/top2 통과 여부만 보지 않고 균등 대비 과부하 비율과 share gap까지 점검해 숨은 온도 편중을 조기에 차단한다."
     }
   ],
   "temperatures": [

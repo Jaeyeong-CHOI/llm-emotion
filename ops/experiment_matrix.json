@@ -1854,6 +1854,31 @@
         1.0
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_top2_uniform_v91",
+      "description": "v9.1 unknown-year top2 분산 복구 + prompt multiaxis mesh + runner temperature uniform pressure guard smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "unknown_year_top2_dispersion_coach_v91",
+        "multiaxis_countervoice_mesh_curator_v91",
+        "temperature_uniformity_tripwire_auditor_v91",
+        "unknown_year_entropy_recovery_coach_v90"
+      ],
+      "scenario_ids": [
+        "screening_unknown_year_top2_concentration_relief_v91",
+        "prompt_bank_multiaxis_countervoice_mesh_v91",
+        "runner_temperature_uniform_pressure_guard_v91",
+        "screening_unknown_year_entropy_backfill_v90"
+      ],
+      "n": 24,
+      "seed": 491,
+      "temperatures": [
+        0.1,
+        0.5,
+        1.0
+      ],
+      "repeats": 1
     }
   ]
 }

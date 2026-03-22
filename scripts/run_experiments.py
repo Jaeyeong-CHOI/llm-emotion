@@ -502,6 +502,10 @@ def write_preflight_markdown(path: Path, payload: dict):
         f"- unique_selected_personas: `{summary.get('unique_selected_personas', 0)}`",
         f"- unique_selected_temperatures: `{summary.get('unique_selected_temperatures', 0)}`",
         f"- selected_temperature_span: `{summary.get('selected_temperature_span', 0.0)}`",
+        f"- planned_sample_temperature_top1_share: `{summary.get('planned_sample_temperature_top1_share', 0.0)}`",
+        f"- planned_sample_temperature_top2_share: `{summary.get('planned_sample_temperature_top2_share', 0.0)}`",
+        f"- planned_sample_temperature_share_gap: `{summary.get('planned_sample_temperature_share_gap', 0.0)}`",
+        f"- max_planned_sample_temperature_over_uniform_ratio: `{summary.get('max_planned_sample_temperature_over_uniform_ratio', 0.0)}`",
         f"- unique_selected_scenario_labels: `{summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{summary.get('unique_selected_scenario_tags', 0)}`",
         f"- unique_selected_scenario_domains: `{summary.get('unique_selected_scenario_domains', 0)}`",
@@ -1171,6 +1175,18 @@ def main():
         type=float,
         default=0.0,
         help="fail if top-2 temperatures account for more than this planned-sample share (0 disables)",
+    )
+    ap.add_argument(
+        "--max-planned-sample-temperature-share-gap",
+        type=float,
+        default=0.0,
+        help="fail if max(temperature_share)-min(temperature_share) exceeds this value (0 disables)",
+    )
+    ap.add_argument(
+        "--max-planned-sample-temperature-over-uniform-ratio",
+        type=float,
+        default=0.0,
+        help="fail if any temperature share exceeds this multiple of uniform share (0 disables)",
     )
     ap.add_argument(
         "--require-min-selected-scenario-tags",
@@ -2811,6 +2827,20 @@ def main():
         sum(sorted(planned_sample_temperature_shares.values(), reverse=True)[:2]),
         4,
     )
+    planned_sample_temperature_share_gap = (
+        round(max(planned_sample_temperature_shares.values()) - min(planned_sample_temperature_shares.values()), 4)
+        if len(planned_sample_temperature_shares) > 1
+        else 0.0
+    )
+    uniform_temperature_share = round(1.0 / max(1, len(planned_sample_temperature_shares)), 4)
+    planned_sample_temperature_over_uniform_ratio_by_temperature = {
+        temp: round(share / max(1e-9, uniform_temperature_share), 4)
+        for temp, share in planned_sample_temperature_shares.items()
+    }
+    max_planned_sample_temperature_over_uniform_ratio = max(
+        planned_sample_temperature_over_uniform_ratio_by_temperature.values(),
+        default=0.0,
+    )
     planned_sample_over_selection_ratio_by_run_id = {
         run_id: round(
             planned_sample_shares.get(run_id, 0.0) / max(1e-9, selected_cell_shares.get(run_id, 0.0)),
@@ -2947,6 +2977,22 @@ def main():
         raise RuntimeError(
             "planned_sample_temperature_top2_share="
             f"{planned_sample_temperature_top2_share} > max_planned_sample_temperature_top2_share={args.max_planned_sample_temperature_top2_share}"
+        )
+    if (
+        args.max_planned_sample_temperature_share_gap
+        and planned_sample_temperature_share_gap > args.max_planned_sample_temperature_share_gap
+    ):
+        raise RuntimeError(
+            "planned_sample_temperature_share_gap="
+            f"{planned_sample_temperature_share_gap} > max_planned_sample_temperature_share_gap={args.max_planned_sample_temperature_share_gap}"
+        )
+    if (
+        args.max_planned_sample_temperature_over_uniform_ratio
+        and max_planned_sample_temperature_over_uniform_ratio > args.max_planned_sample_temperature_over_uniform_ratio
+    ):
+        raise RuntimeError(
+            "max_planned_sample_temperature_over_uniform_ratio="
+            f"{max_planned_sample_temperature_over_uniform_ratio} > max_planned_sample_temperature_over_uniform_ratio={args.max_planned_sample_temperature_over_uniform_ratio}"
         )
     if args.require_min_selected_scenario_tags and len(aggregate_scenario_tags) < args.require_min_selected_scenario_tags:
         raise RuntimeError(
@@ -3123,6 +3169,10 @@ def main():
         "planned_sample_temperature_entropy": planned_sample_temperature_entropy,
         "planned_sample_temperature_top1_share": planned_sample_temperature_top1_share,
         "planned_sample_temperature_top2_share": planned_sample_temperature_top2_share,
+        "planned_sample_temperature_share_gap": planned_sample_temperature_share_gap,
+        "uniform_temperature_share": uniform_temperature_share,
+        "planned_sample_temperature_over_uniform_ratio_by_temperature": planned_sample_temperature_over_uniform_ratio_by_temperature,
+        "max_planned_sample_temperature_over_uniform_ratio": max_planned_sample_temperature_over_uniform_ratio,
         "planned_sample_temperature_shares": planned_sample_temperature_shares,
         "unique_selected_scenario_labels": len(aggregate_scenario_labels),
         "unique_selected_scenario_tags": len(aggregate_scenario_tags),
@@ -3480,6 +3530,8 @@ def main():
         "min_planned_sample_temperature_entropy": args.min_planned_sample_temperature_entropy,
         "max_planned_sample_temperature_top1_share": args.max_planned_sample_temperature_top1_share,
         "max_planned_sample_temperature_top2_share": args.max_planned_sample_temperature_top2_share,
+        "max_planned_sample_temperature_share_gap": args.max_planned_sample_temperature_share_gap,
+        "max_planned_sample_temperature_over_uniform_ratio": args.max_planned_sample_temperature_over_uniform_ratio,
         "require_prompt_bank_version": args.require_prompt_bank_version,
         "resume_verify_hashes": args.resume_verify_hashes,
         "resume_verified": resume_verified,
