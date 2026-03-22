@@ -53,7 +53,9 @@ python3 scripts/search_openalex.py \
   --screening-rules queries/screening_rules.json \
   --out refs/openalex_results.jsonl \
   --report-out results/lit_search_report.json \
-  --audit-out results/lit_screening_audit.json
+  --audit-out results/lit_screening_audit.json \
+  --manual-qc-limit 60 \
+  --manual-qc-csv results/manual_qc_queue.csv
 ```
 
 `results/lit_search_report.json` now includes:
@@ -73,6 +75,8 @@ python3 scripts/search_openalex.py \
 - high-score excludes that still miss LLM concept evidence
 - compact reasons for fast adjudication during title/abstract screening
 - same quality-alert slices mirrored in audit output for reviewer workload planning
+
+`--manual-qc-csv results/manual_qc_queue.csv` exports the ranked triage queue in spreadsheet-ready form (`rank`, `risk_score`, `label`, `title`, `openalex_id`, `doi`, `source_query`, reason columns) for reproducible human screening handoff.
 
 ## Why this helps
 - Better recall on lexical variants without giving up reproducibility

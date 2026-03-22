@@ -290,6 +290,7 @@ def main():
     ap.add_argument("--selection-csv", default="", help="optional CSV path for selected scenario/persona counts")
     ap.add_argument("--require-min-scenarios", type=int, default=0, help="fail if a run selects fewer than this many scenarios")
     ap.add_argument("--require-min-personas", type=int, default=0, help="fail if a run selects fewer than this many personas")
+    ap.add_argument("--require-min-temperature-count", type=int, default=0, help="fail if a run uses fewer than this many temperatures")
     ap.add_argument("--fail-on-missing-run-id", action="store_true", help="fail when --include-run-id contains unknown ids")
     ap.add_argument("--manifest-markdown", action="store_true", help="emit a human-readable manifest summary markdown")
     ap.add_argument("--require-min-run-cells", type=int, default=0, help="fail if selected run cells are fewer than this minimum")
@@ -389,6 +390,10 @@ def main():
         if args.require_min_personas and prompt_summary["persona_count"] < args.require_min_personas:
             raise RuntimeError(
                 f"{run_id}: persona_count={prompt_summary['persona_count']} < require_min_personas={args.require_min_personas}"
+            )
+        if args.require_min_temperature_count and len(temperatures) < args.require_min_temperature_count:
+            raise RuntimeError(
+                f"{run_id}: temperature_count={len(temperatures)} < require_min_temperature_count={args.require_min_temperature_count}"
             )
 
         if args.require_min_condition_cells and condition_cells < args.require_min_condition_cells:
@@ -556,6 +561,7 @@ def main():
         "selected_run_cells": selected_run_cells,
         "selected_total_samples": selected_total_samples,
         "require_min_condition_cells": args.require_min_condition_cells,
+        "require_min_temperature_count": args.require_min_temperature_count,
         "require_min_total_samples": args.require_min_total_samples,
         "require_min_run_ids": args.require_min_run_ids,
         "duration_seconds": total_duration_seconds,

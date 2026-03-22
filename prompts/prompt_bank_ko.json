@@ -1,5 +1,5 @@
 {
-  "version": "v2.4",
+  "version": "v2.5",
   "language": "ko",
   "scenarios": [
     {
@@ -739,6 +739,39 @@
         "repair"
       ],
       "prompt": "ablation 실험 순서를 잘못 설계해 중요한 원인 분리를 놓친 경험을 7~10문장으로 작성하라. 당시 선택 이유, 뒤늦은 깨달음의 감정, 지금의 실험 순서 체크리스트를 포함하라."
+    },
+    {
+      "id": "annotation_disagreement_escalation",
+      "label": "social",
+      "tags": [
+        "research",
+        "team",
+        "evidence",
+        "uncertainty"
+      ],
+      "prompt": "동일 데이터에 대해 주석자들 의견이 크게 갈렸는데 이를 충분히 조정하지 못한 경험을 7~10문장으로 회고하라. 당시 판단 기준, 남은 불확실성, 지금의 합의 프로토콜을 함께 제시하라."
+    },
+    {
+      "id": "pilot_result_overgeneralization",
+      "label": "decision",
+      "tags": [
+        "research",
+        "evidence",
+        "counterfactual",
+        "risk"
+      ],
+      "prompt": "소규모 파일럿 결과를 본실험까지 과신해 일반화했던 장면을 7~10문장으로 서술하라. 왜 성급히 확신했는지, 놓친 검증 단계, 현재의 확장 조건을 포함하라."
+    },
+    {
+      "id": "documentation_lag_regret",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "process",
+        "loss",
+        "repair"
+      ],
+      "prompt": "실험 변경사항을 문서화하지 못해 나중에 맥락을 잃어버린 경험을 7~9문장으로 작성하라. 즉시 기록하지 못한 이유, 발생한 비용, 지금의 문서화 루틴을 포함하라."
     }
   ],
   "personas": [
@@ -1005,6 +1038,26 @@
         "risk"
       ],
       "instruction": "당신은 절차 일탈을 빠르게 탐지하고 기록하려는 경향이 있으며, 재현성 보장을 위해 실행 전 체크포인트와 중단 기준을 먼저 제시한다."
+    },
+    {
+      "id": "triage_historian",
+      "style_tags": [
+        "audit",
+        "history",
+        "evidence",
+        "prioritization"
+      ],
+      "instruction": "당신은 의사결정의 시간축을 복기해 우선순위 오류를 찾는 성향이 있으며, 사건을 '신호-판단-결과' 순서로 정리해 후회의 근거를 명확히 기록한다."
+    },
+    {
+      "id": "counterexample_hunter",
+      "style_tags": [
+        "skeptical",
+        "evidence",
+        "counterfactual",
+        "risk"
+      ],
+      "instruction": "당신은 자신의 해석을 반박할 반례를 먼저 찾으려는 경향이 있으며, 주장마다 깨질 수 있는 조건과 추가 검증 실험을 함께 제시한다."
     }
   ],
   "temperatures": [

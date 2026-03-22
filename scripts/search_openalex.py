@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import csv
 import json
 import math
 import re
@@ -729,6 +730,9 @@ def collect_manual_qc_queue(rows: List[Dict], include_th: float, review_th: floa
             {
                 "title": row.get("title"),
                 "year": row.get("year"),
+                "openalex_id": row.get("id"),
+                "doi": row.get("doi"),
+                "source_query": row.get("query"),
                 "label": label,
                 "score": score,
                 "confidence": confidence,
@@ -780,6 +784,46 @@ def summarize_label_gate_conflicts(rows: List[Dict]) -> Dict[str, int]:
     return out
 
 
+def write_manual_qc_csv(path: Path, queue: List[Dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fields = [
+        "rank",
+        "label",
+        "risk_score",
+        "score",
+        "confidence",
+        "priority",
+        "year",
+        "title",
+        "openalex_id",
+        "doi",
+        "source_query",
+        "risk_reasons",
+        "screening_reasons",
+    ]
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+        for idx, row in enumerate(queue, start=1):
+            writer.writerow(
+                {
+                    "rank": idx,
+                    "label": row.get("label"),
+                    "risk_score": row.get("risk_score"),
+                    "score": row.get("score"),
+                    "confidence": row.get("confidence"),
+                    "priority": row.get("priority"),
+                    "year": row.get("year"),
+                    "title": row.get("title"),
+                    "openalex_id": row.get("openalex_id"),
+                    "doi": row.get("doi"),
+                    "source_query": row.get("source_query"),
+                    "risk_reasons": ";".join(row.get("risk_reasons") or []),
+                    "screening_reasons": ";".join(row.get("screening_reasons") or []),
+                }
+            )
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
@@ -789,6 +833,7 @@ def main():
     ap.add_argument("--audit-out", default="", help="optional JSON path for borderline/manual-QC screening candidates")
     ap.add_argument("--manual-qc-limit", type=int, default=40, help="max size of ranked manual QC queue")
     ap.add_argument("--manual-qc-per-label", type=int, default=10, help="max manual QC candidates per label bucket")
+    ap.add_argument("--manual-qc-csv", default="", help="optional CSV path for ranked manual QC triage queue")
     args = ap.parse_args()
 
     cfg = json.loads(Path(args.config).read_text(encoding="utf-8"))
@@ -884,6 +929,14 @@ def main():
         }
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"report: {report_path}")
+
+    if args.manual_qc_csv:
+        include_th = float(rules.get("threshold_include", 3.0))
+        review_th = float(rules.get("threshold_review", include_th / 2))
+        queue = collect_manual_qc_queue(ordered, include_th, review_th, limit=args.manual_qc_limit)
+        csv_path = Path(args.manual_qc_csv)
+        write_manual_qc_csv(csv_path, queue)
+        print(f"manual_qc_csv: {csv_path}")
 
     if args.audit_out:
         audit_path = Path(args.audit_out)
