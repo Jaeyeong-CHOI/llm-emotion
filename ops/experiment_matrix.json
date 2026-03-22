@@ -841,6 +841,31 @@
         "budget_pressure_dispatcher",
         "cell_budget_fairness_operator"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_attempt_pressure_v51",
+      "n": 12,
+      "seed": 34141,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_review_traceability_rescue",
+        "screening_alias_semantic_bridge_gap",
+        "prompt_bank_countervoice_gap_replay",
+        "runner_attempt_pressure_ratio_tripwire",
+        "runner_budget_pressure_handoff"
+      ],
+      "persona_ids": [
+        "review_traceability_arbiter",
+        "semantic_bridge_triager",
+        "attempt_pressure_balancer",
+        "countervoice_coverage_archivist"
+      ]
     }
   ]
 }

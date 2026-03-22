@@ -101,6 +101,10 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_review_confidence_entropy: `{payload['summary']['manual_qc_review_confidence_entropy']}`",
             f"- traceable_reason_rows: `{payload['summary']['traceable_reason_rows']}`",
             f"- screening_reason_traceability_share: `{payload['summary']['screening_reason_traceability_share']}`",
+            f"- include_traceable_reason_rows: `{payload['summary']['include_traceable_reason_rows']}`",
+            f"- include_reason_traceability_share: `{payload['summary']['include_reason_traceability_share']}`",
+            f"- review_traceable_reason_rows: `{payload['summary']['review_traceable_reason_rows']}`",
+            f"- review_reason_traceability_share: `{payload['summary']['review_reason_traceability_share']}`",
             f"- manual_qc_bridge_signal_rows: `{payload['summary']['manual_qc_bridge_signal_rows']}`",
             f"- manual_qc_bridge_signal_share: `{payload['summary']['manual_qc_bridge_signal_share']}`",
             f"- manual_qc_label_counts: `{payload['summary']['manual_qc_label_counts']}`",
@@ -168,6 +172,8 @@ def main():
     ap.add_argument("--min-manual-qc-review-confidence-bins", type=int, default=2)
     ap.add_argument("--min-manual-qc-review-confidence-entropy", type=float, default=0.4)
     ap.add_argument("--min-screening-reason-traceability-share", type=float, default=0.6)
+    ap.add_argument("--min-include-reason-traceability-share", type=float, default=0.7)
+    ap.add_argument("--min-review-reason-traceability-share", type=float, default=0.7)
     ap.add_argument("--min-manual-qc-bridge-signal-share", type=float, default=0.2)
     ap.add_argument("--max-manual-qc-unknown-query-share", type=float, default=0.20)
     ap.add_argument("--min-manual-qc-review-source-groups", type=int, default=2)
@@ -237,14 +243,22 @@ def main():
     manual_qc_review_source_group_counts: dict[str, int] = {}
     empty_screening_reason_rows = 0
     bridge_signal_rows = 0
+    include_traceable_reason_rows = 0
+    review_traceable_reason_rows = 0
+    traceability_tokens = ("include_hits=", "title_hits=", "query_overlap=", "bridge_sentence_hits=", "high_priority=")
     for row in manual_qc_rows:
         label = str(row.get("label") or "").strip().lower() or "unknown"
         manual_qc_label_counts[label] = manual_qc_label_counts.get(label, 0) + 1
         reason_field = str(row.get("screening_reasons") or "")
+        row_is_traceable = any(token in reason_field for token in traceability_tokens)
         if not reason_field.strip():
             empty_screening_reason_rows += 1
         if "bridge_sentence_hits=" in reason_field:
             bridge_signal_rows += 1
+        if label == "include" and row_is_traceable:
+            include_traceable_reason_rows += 1
+        if label == "review" and row_is_traceable:
+            review_traceable_reason_rows += 1
         source_group = str(row.get("source_group") or "").strip().lower() or "unknown"
         source_query = str(row.get("source_query") or "").strip().lower() or "unknown"
         review_confidence = str(row.get("confidence") or "").strip().lower() or "unknown"
@@ -290,13 +304,14 @@ def main():
         else 0.0
     )
     empty_screening_reason_share = pct(empty_screening_reason_rows, len(manual_qc_rows))
-    traceability_tokens = ("include_hits=", "title_hits=", "query_overlap=", "bridge_sentence_hits=", "high_priority=")
     traceable_reason_rows = sum(
         1
         for row in manual_qc_rows
         if any(token in str(row.get("screening_reasons") or "") for token in traceability_tokens)
     )
     screening_reason_traceability_share = pct(traceable_reason_rows, len(manual_qc_rows))
+    include_reason_traceability_share = pct(include_traceable_reason_rows, manual_qc_include_rows)
+    review_reason_traceability_share = pct(review_traceable_reason_rows, manual_qc_review_rows)
     manual_qc_bridge_signal_share = pct(bridge_signal_rows, len(manual_qc_rows))
     unknown_query_rows = int(manual_qc_source_query_counts.get("unknown", 0) or 0)
     manual_qc_unknown_query_share = pct(unknown_query_rows, len(manual_qc_rows))
@@ -493,6 +508,22 @@ def main():
             "threshold": f">={args.min_screening_reason_traceability_share}",
         },
         {
+            "name": "include_reason_traceability_share_floor",
+            "status": "pass"
+            if include_reason_traceability_share >= args.min_include_reason_traceability_share
+            else "fail",
+            "observed": include_reason_traceability_share,
+            "threshold": f">={args.min_include_reason_traceability_share}",
+        },
+        {
+            "name": "review_reason_traceability_share_floor",
+            "status": "pass"
+            if review_reason_traceability_share >= args.min_review_reason_traceability_share
+            else "fail",
+            "observed": review_reason_traceability_share,
+            "threshold": f">={args.min_review_reason_traceability_share}",
+        },
+        {
             "name": "manual_qc_bridge_signal_share_floor",
             "status": "pass" if manual_qc_bridge_signal_share >= args.min_manual_qc_bridge_signal_share else "fail",
             "observed": manual_qc_bridge_signal_share,
@@ -602,6 +633,11 @@ def main():
         {"label": "manual_qc_source_groups", "value": top_items(manual_qc_source_group_counts, limit=6)},
         {"label": "manual_qc_source_queries", "value": top_items(manual_qc_source_query_counts, limit=6)},
         {"label": "manual_qc_review_confidence_distribution", "value": top_items(review_confidence_counts, limit=5)},
+        {"label": "label_traceability_share", "value": {
+            "include": include_reason_traceability_share,
+            "review": review_reason_traceability_share,
+            "overall": screening_reason_traceability_share,
+        }},
         {"label": "manual_qc_year_distribution", "value": top_items(manual_qc_year_counts, limit=8)},
         {"label": "balanced_qc_by_confidence", "value": balanced_summary.get("by_confidence") or {}},
         {"label": "top_borderline_review_risk", "value": top_items(triage_risk, limit=4)},
@@ -656,6 +692,10 @@ def main():
             "manual_qc_review_confidence_entropy": manual_qc_review_confidence_entropy,
             "traceable_reason_rows": traceable_reason_rows,
             "screening_reason_traceability_share": screening_reason_traceability_share,
+            "include_traceable_reason_rows": include_traceable_reason_rows,
+            "include_reason_traceability_share": include_reason_traceability_share,
+            "review_traceable_reason_rows": review_traceable_reason_rows,
+            "review_reason_traceability_share": review_reason_traceability_share,
             "manual_qc_bridge_signal_rows": bridge_signal_rows,
             "manual_qc_bridge_signal_share": manual_qc_bridge_signal_share,
             "manual_qc_review_confidence_counts": review_confidence_counts,

@@ -1,5 +1,5 @@
 {
-  "version": "v5.0",
+  "version": "v5.1",
   "language": "ko",
   "scenarios": [
     {
@@ -1740,6 +1740,42 @@
         "systems"
       ],
       "prompt": "실험 러너에서 특정 run id가 예산과 시도 횟수를 과도하게 가져가 다른 셀의 실행 기회를 압박했던 상황을 7~10문장으로 회고하라. 어떤 점유율 지표를 봤는지, 중단 또는 handoff 결정을 어떻게 내렸는지, 후속 재현 절차를 포함하라."
+    },
+    {
+      "id": "screening_review_traceability_rescue",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "traceability",
+        "review",
+        "audit"
+      ],
+      "prompt": "선행연구 스크리닝에서 review로 남긴 논문들의 근거가 너무 추상적이라 재검토 우선순위가 흔들렸던 사례를 7~10문장으로 회고하라. 어떤 문장 근거가 비어 있었는지, review 라벨에 어떤 traceability 규칙을 추가했는지, 재현 가능한 handoff 메모 형식을 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_gap_replay",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "coverage",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크를 확장한 뒤 주장-반대관점 짝이 끊긴 축을 뒤늦게 재구성해야 했던 경험을 7~9문장으로 작성하라. 어떤 축이 빠졌는지, replay 기준을 어떻게 정했는지, 다음 버전에서 coverage debt를 줄이는 규칙을 포함하라."
+    },
+    {
+      "id": "runner_attempt_pressure_ratio_tripwire",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "budget_pressure",
+        "fairness",
+        "systems"
+      ],
+      "prompt": "실험 러너에서 선택된 셀 비중보다 시도 비중이 훨씬 커진 run id를 뒤늦게 발견해 배치 공정성이 흔들린 사건을 7~10문장으로 회고하라. selected_cell_share와 attempt_share를 어떻게 비교했는지, 비율 tripwire를 어떤 기준으로 정했는지, 후속 격리 또는 재배치 절차를 포함하라."
     }
   ],
   "personas": [
@@ -2666,6 +2702,26 @@
         "systems"
       ],
       "instruction": "당신은 run id별 예산 압박과 시도 점유율을 보고 배치 중단·handoff·재개 순서를 정하는 성향이 있으며, 점유율 상한과 후속 실행 조건을 명시한다."
+    },
+    {
+      "id": "review_traceability_arbiter",
+      "style_tags": [
+        "screening",
+        "traceability",
+        "review",
+        "documentation"
+      ],
+      "instruction": "당신은 review 라벨의 근거 밀도를 우선 점검하는 성향이 있으며, 보류 판단마다 핵심 문장 근거와 재검토 트리거가 빠지면 즉시 handoff 메모를 보강한다."
+    },
+    {
+      "id": "attempt_pressure_balancer",
+      "style_tags": [
+        "runner",
+        "budget_pressure",
+        "fairness",
+        "planning"
+      ],
+      "instruction": "당신은 선택 셀 점유율 대비 시도 점유율의 과열을 먼저 보는 성향이 있으며, attempt pressure ratio가 높아지면 즉시 격리·재분배·재개 기준을 수치로 남긴다."
     }
   ],
   "temperatures": [
