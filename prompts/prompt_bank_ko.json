@@ -1,5 +1,5 @@
 {
-  "version": "v9.1",
+  "version": "v9.2",
   "language": "ko",
   "scenarios": [
     {
@@ -3737,6 +3737,73 @@
       ],
       "difficulty": "hard",
       "prompt": "runner preflight에서 top1/top2는 통과했지만 temperature 간 share gap이 커서 사실상 단일 밴드 압력이 발생한 사건을 7~10문장으로 설명하라. uniform 대비 과부하 비율을 함께 계산해 중단/분할 실행 기준을 제시하라."
+    },
+    {
+      "id": "screening_unknown_year_known_year_query_alignment_patch_v92",
+      "label": "research_ops",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "known_year",
+        "query_alignment",
+        "audit"
+      ],
+      "domains": [
+        "literature_review",
+        "screening_ops"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "regret"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query 집합에서 year=unknown과 known-year 구간의 query 분포가 얼마나 어긋나는지 점검하라. top query 과집중을 낮추고 tail query를 보강하는 복구 순서를 3단계로 제시하라. 각 단계마다 예상 리스크와 중단 기준을 수치로 명시하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_year_query_stagger_v92",
+      "label": "prompt_engineering",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "year-query",
+        "stagger",
+        "coverage"
+      ],
+      "domains": [
+        "prompt_engineering",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "repair",
+        "agency",
+        "vigilance"
+      ],
+      "difficulty": "medium",
+      "prompt": "countervoice 시나리오를 year-tail query 복구 목표에 맞춰 재배치하라. 동일 태그가 연속적으로 몰리지 않도록 stagger 규칙을 정의하고, 누락된 축(domain/emotion axis/temperature)을 우선순위와 함께 채워라. 변경 전후 커버리지 차이를 간단 표로 요약하라."
+    },
+    {
+      "id": "runner_temperature_top3_pressure_tripwire_v92",
+      "label": "runner_ops",
+      "tags": [
+        "runner",
+        "temperature",
+        "top3",
+        "preflight",
+        "risk_control"
+      ],
+      "domains": [
+        "runner",
+        "experiment_ops",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "regret"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 preflight에서 planned sample의 temperature top1/top2뿐 아니라 top3 누적 점유율까지 점검하라. 다양성이 있어 보이지만 상위 온도 3개에 예산이 과집중되는 경우를 fail-fast로 차단하고, 재배치 시뮬레이션 2가지를 수치로 제시하라."
     }
   ],
   "personas": [
@@ -5656,6 +5723,39 @@
         "risk_control"
       ],
       "instruction": "당신은 temperature top1/top2 통과 여부만 보지 않고 균등 대비 과부하 비율과 share gap까지 점검해 숨은 온도 편중을 조기에 차단한다."
+    },
+    {
+      "id": "unknown_year_alignment_triager_v92",
+      "style_tags": [
+        "screening",
+        "unknown_year",
+        "known_year",
+        "query_alignment",
+        "triage"
+      ],
+      "instruction": "당신은 year=unknown 구간과 known-year 구간의 query 분포 괴리를 먼저 측정하는 triage 성향이 있으며, 괴리가 임계치를 넘으면 review 우선순위를 즉시 재정렬한다."
+    },
+    {
+      "id": "countervoice_stagger_mesh_curator_v92",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "stagger",
+        "multiaxis",
+        "coverage"
+      ],
+      "instruction": "당신은 countervoice 시나리오를 축별로 엇갈리게(stagger) 배치해 공백 구간을 줄이는 성향이 있으며, 도메인·감정축·온도축 겹침을 동시에 보고 회전 규칙을 남긴다."
+    },
+    {
+      "id": "temperature_top3_pressure_auditor_v92",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "top3_share",
+        "preflight",
+        "operations"
+      ],
+      "instruction": "당신은 preflight에서 top1/top2를 통과해도 top3 누적 점유율을 끝까지 감시하는 성향이 있으며, 숨은 온도 과집중을 수치로 드러내고 중단 조건을 명확히 제시한다."
     }
   ],
   "temperatures": [

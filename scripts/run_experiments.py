@@ -504,6 +504,7 @@ def write_preflight_markdown(path: Path, payload: dict):
         f"- selected_temperature_span: `{summary.get('selected_temperature_span', 0.0)}`",
         f"- planned_sample_temperature_top1_share: `{summary.get('planned_sample_temperature_top1_share', 0.0)}`",
         f"- planned_sample_temperature_top2_share: `{summary.get('planned_sample_temperature_top2_share', 0.0)}`",
+        f"- planned_sample_temperature_top3_share: `{summary.get('planned_sample_temperature_top3_share', 0.0)}`",
         f"- planned_sample_temperature_share_gap: `{summary.get('planned_sample_temperature_share_gap', 0.0)}`",
         f"- max_planned_sample_temperature_over_uniform_ratio: `{summary.get('max_planned_sample_temperature_over_uniform_ratio', 0.0)}`",
         f"- unique_selected_scenario_labels: `{summary.get('unique_selected_scenario_labels', 0)}`",
@@ -871,6 +872,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- planned_sample_top2_share: `{preflight_summary.get('planned_sample_top2_share', 0.0)}`",
         f"- planned_sample_entropy: `{preflight_summary.get('planned_sample_entropy', 0.0)}`",
         f"- planned_sample_temperature_top1_share: `{preflight_summary.get('planned_sample_temperature_top1_share', 0.0)}`",
+        f"- planned_sample_temperature_top2_share: `{preflight_summary.get('planned_sample_temperature_top2_share', 0.0)}`",
+        f"- planned_sample_temperature_top3_share: `{preflight_summary.get('planned_sample_temperature_top3_share', 0.0)}`",
         f"- planned_sample_temperature_entropy: `{preflight_summary.get('planned_sample_temperature_entropy', 0.0)}`",
         f"- unique_selected_scenario_labels: `{preflight_summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{preflight_summary.get('unique_selected_scenario_tags', 0)}`",
@@ -1175,6 +1178,12 @@ def main():
         type=float,
         default=0.0,
         help="fail if top-2 temperatures account for more than this planned-sample share (0 disables)",
+    )
+    ap.add_argument(
+        "--max-planned-sample-temperature-top3-share",
+        type=float,
+        default=0.0,
+        help="fail if top-3 temperatures account for more than this planned-sample share (0 disables)",
     )
     ap.add_argument(
         "--max-planned-sample-temperature-share-gap",
@@ -2827,6 +2836,10 @@ def main():
         sum(sorted(planned_sample_temperature_shares.values(), reverse=True)[:2]),
         4,
     )
+    planned_sample_temperature_top3_share = round(
+        sum(sorted(planned_sample_temperature_shares.values(), reverse=True)[:3]),
+        4,
+    )
     planned_sample_temperature_share_gap = (
         round(max(planned_sample_temperature_shares.values()) - min(planned_sample_temperature_shares.values()), 4)
         if len(planned_sample_temperature_shares) > 1
@@ -2977,6 +2990,14 @@ def main():
         raise RuntimeError(
             "planned_sample_temperature_top2_share="
             f"{planned_sample_temperature_top2_share} > max_planned_sample_temperature_top2_share={args.max_planned_sample_temperature_top2_share}"
+        )
+    if (
+        args.max_planned_sample_temperature_top3_share
+        and planned_sample_temperature_top3_share > args.max_planned_sample_temperature_top3_share
+    ):
+        raise RuntimeError(
+            "planned_sample_temperature_top3_share="
+            f"{planned_sample_temperature_top3_share} > max_planned_sample_temperature_top3_share={args.max_planned_sample_temperature_top3_share}"
         )
     if (
         args.max_planned_sample_temperature_share_gap
@@ -3169,6 +3190,7 @@ def main():
         "planned_sample_temperature_entropy": planned_sample_temperature_entropy,
         "planned_sample_temperature_top1_share": planned_sample_temperature_top1_share,
         "planned_sample_temperature_top2_share": planned_sample_temperature_top2_share,
+        "planned_sample_temperature_top3_share": planned_sample_temperature_top3_share,
         "planned_sample_temperature_share_gap": planned_sample_temperature_share_gap,
         "uniform_temperature_share": uniform_temperature_share,
         "planned_sample_temperature_over_uniform_ratio_by_temperature": planned_sample_temperature_over_uniform_ratio_by_temperature,
@@ -3530,6 +3552,7 @@ def main():
         "min_planned_sample_temperature_entropy": args.min_planned_sample_temperature_entropy,
         "max_planned_sample_temperature_top1_share": args.max_planned_sample_temperature_top1_share,
         "max_planned_sample_temperature_top2_share": args.max_planned_sample_temperature_top2_share,
+        "max_planned_sample_temperature_top3_share": args.max_planned_sample_temperature_top3_share,
         "max_planned_sample_temperature_share_gap": args.max_planned_sample_temperature_share_gap,
         "max_planned_sample_temperature_over_uniform_ratio": args.max_planned_sample_temperature_over_uniform_ratio,
         "require_prompt_bank_version": args.require_prompt_bank_version,

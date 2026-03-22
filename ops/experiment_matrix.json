@@ -1879,6 +1879,31 @@
         1.0
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_alignment_top3_v92",
+      "description": "unknown-year known-year query alignment + countervoice stagger + temperature top3 pressure tripwire",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_known_year_query_alignment_patch_v92",
+        "prompt_bank_countervoice_year_query_stagger_v92",
+        "runner_temperature_top3_pressure_tripwire_v92"
+      ],
+      "persona_ids": [
+        "unknown_year_alignment_triager_v92",
+        "countervoice_stagger_mesh_curator_v92",
+        "temperature_top3_pressure_auditor_v92"
+      ],
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "n": 28,
+      "seed": 9242,
+      "repeats": 2
     }
   ]
 }

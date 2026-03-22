@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year vs known-year query JS divergence 가드**(`--max-manual-qc-review-traceable-known-query-unknown-vs-known-year-query-js-divergence`)를 추가해, year 메타데이터 결측 구간이 known-year 분포와 과도하게 분리되는 케이스를 fail-fast로 차단합니다.
+- Prompt bank expanded to `v9.2` with **unknown-year/known-year query alignment patch / countervoice year-query stagger / temperature top3 pressure tripwire** scenarios plus new personas (`unknown_year_alignment_triager_v92`, `countervoice_stagger_mesh_curator_v92`, `temperature_top3_pressure_auditor_v92`).
+- Experiment runner preflight에 **planned-sample temperature top3 share guardrail** (`--max-planned-sample-temperature-top3-share`)를 추가해, top1/top2가 통과해도 상위 3개 온도에 예산이 잠기는 배치를 사전에 차단합니다.
 - Literature screening quality gate에 **review traceable known-query year-tail query coverage 가드**(`--min-manual-qc-review-traceable-known-query-year-tail-query-coverage`)를 추가해, year-tail 근거가 소수 query에만 몰리는 케이스를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v9.1` with **unknown-year top2 concentration relief / multiaxis countervoice mesh / temperature uniform pressure guard** scenarios plus new personas (`unknown_year_top2_dispersion_coach_v91`, `multiaxis_countervoice_mesh_curator_v91`, `temperature_uniformity_tripwire_auditor_v91`).
 - Literature screening quality gate에 **review traceable known-query unknown-year query concentration/entropy 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top1-query-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-top2-query-share`, `--min-manual-qc-review-traceable-known-query-unknown-year-query-coverage`, `--min-manual-qc-review-traceable-known-query-unknown-year-query-entropy`)를 추가해, year 메타데이터가 비어 있는 구간이 소수 query에 잠기거나 분산이 붕괴되는 케이스를 fail-fast로 차단합니다.
@@ -75,12 +78,28 @@ python3 scripts/generate_dataset.py \
 ## Experiment reproducibility
 - Run definitions live in `ops/experiment_matrix.json`
 
+### v9.2 스모크 프리플라이트 (2026-03-23)
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v92 --max-manual-qc-review-traceable-known-query-year-top1-share 0.70 --max-manual-qc-review-traceable-known-query-year-top2-share 0.90 --min-manual-qc-review-traceable-known-query-year-tail-share 0.10 --min-manual-qc-review-traceable-known-query-year-tail-count 3 --max-manual-qc-review-traceable-known-query-unknown-vs-known-year-query-js-divergence 0.30
+
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v92_plan --plan-only --include-run-id screening_prompt_runner_unknown_year_alignment_top3_v92 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v92.json --selection-csv results/selection_report_smoke_v92.csv --preflight-markdown --require-prompt-bank-version v9.2 --min-planned-sample-temperature-entropy 0.90 --max-planned-sample-temperature-top1-share 0.45 --max-planned-sample-temperature-top2-share 0.80 --max-planned-sample-temperature-top3-share 0.95 --manifest-note "preflight v92 unknown-known query alignment + temperature top3 guard"
+```
+
 ### v8.9 스모크 프리플라이트 (2026-03-23)
 
 ```bash
 python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v89 --max-manual-qc-review-traceable-known-query-year-top1-share 0.70 --max-manual-qc-review-traceable-known-query-year-top2-share 0.90 --min-manual-qc-review-traceable-known-query-year-tail-share 0.10 --min-manual-qc-review-traceable-known-query-year-tail-count 3 --min-manual-qc-review-traceable-known-query-year-entropy 0.45 --min-manual-qc-review-traceable-known-query-year-coverage 3 --max-manual-qc-review-traceable-known-query-unknown-year-share 0.20 --min-manual-qc-review-traceable-known-query-known-year-count 3
 
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v89_plan --plan-only --include-run-id screening_prompt_runner_year_query_persona_entropy_v87 --include-run-id screening_prompt_runner_selected_entropy_v88 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v89.json --selection-csv results/selection_report_smoke_v89.csv --preflight-markdown --require-prompt-bank-version v8.9 --require-min-selected-temperatures 3 --require-min-selected-temperature-span 0.7 --require-min-selected-scenario-tag-entropy 0.70 --require-min-selected-persona-style-tag-entropy 0.70 --require-min-scenario-tag-entropy 0.65 --require-min-persona-style-tag-entropy 0.65 --max-planned-sample-share-per-run-id 0.60 --max-planned-sample-share-gap-per-run-id 0.25 --manifest-note "preflight v88 unknown-year + selected entropy guard"
+```
+
+### v9.2 스모크 프리플라이트 (2026-03-23)
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v92 --max-manual-qc-review-traceable-known-query-year-top1-share 0.70 --max-manual-qc-review-traceable-known-query-year-top2-share 0.90 --min-manual-qc-review-traceable-known-query-year-tail-share 0.10 --min-manual-qc-review-traceable-known-query-year-tail-count 3 --max-manual-qc-review-traceable-known-query-unknown-vs-known-year-query-js-divergence 0.30
+
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v92_plan --plan-only --include-run-id screening_prompt_runner_unknown_year_alignment_top3_v92 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v92.json --selection-csv results/selection_report_smoke_v92.csv --preflight-markdown --require-prompt-bank-version v9.2 --min-planned-sample-temperature-entropy 0.90 --max-planned-sample-temperature-top1-share 0.45 --max-planned-sample-temperature-top2-share 0.80 --max-planned-sample-temperature-top3-share 0.95 --max-planned-sample-share-per-run-id 0.60 --manifest-note "preflight v92 unknown-known query alignment + temperature top3 guard"
 ```
 
 ### v8.9 스모크 프리플라이트 (2026-03-23)
