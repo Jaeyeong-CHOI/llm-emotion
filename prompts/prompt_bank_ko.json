@@ -1,5 +1,5 @@
 {
-  "version": "v9.6",
+  "version": "v9.7",
   "language": "ko",
   "scenarios": [
     {
@@ -4083,6 +4083,78 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 러너에서 top3/top4 temperature share는 통과했지만 HHI가 높아 특정 온도 구간에 예산이 잠긴 사건을 7~10문장으로 회고하라. temperature HHI를 어떻게 계산했고 어떤 임계치로 중단했는지, 재분배 후 재실행 조건을 수치로 포함하라."
+    },
+    {
+      "id": "screening_unknown_year_query_group_drift_brake_v97",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "unknown_year",
+        "query_group",
+        "drift",
+        "governance"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query에서 unknown-year raw query 분산은 통과했지만 query-group 기준으로는 특정 그룹에 재쏠림이 드러나 재스크리닝을 결정한 상황을 7~10문장으로 회고하라. raw query와 query-group을 왜 함께 봤는지, 어떤 group drift가 문제였는지, 보강 순서와 중단 기준을 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_persona_countervoice_fairness_lattice_v97",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "persona",
+        "fairness",
+        "lattice"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "regret",
+        "self_distancing",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 scenario 수는 충분했지만 persona 축이 countervoice 해석을 한쪽으로 끌어 fairness가 무너진 경험을 7~9문장으로 작성하라. 어떤 persona 조합이 과대표집됐는지, lattice를 어떻게 다시 짰는지, metadata 검증 규칙을 포함하라."
+    },
+    {
+      "id": "runner_temperature_tail_share_tripwire_v97",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "temperature",
+        "tail-coverage",
+        "tripwire",
+        "systems"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 러너에서 top1~top4 share와 HHI는 통과했지만 top2 바깥 temperature tail share가 너무 얇아 해석 견고성이 흔들린 사건을 7~10문장으로 회고하라. tail share를 어떻게 계산했고 어떤 임계치로 중단했는지, 재분배 후 재실행 조건을 수치로 포함하라."
     }
   ],
   "personas": [
@@ -6148,6 +6220,36 @@
         "governance"
       ],
       "instruction": "당신은 temperature 분포를 HHI로 감시하는 운영자 성향이 있으며, top-k share가 통과하더라도 concentration index가 임계치를 넘으면 즉시 중단·재배치·재개 조건을 수치로 남긴다."
+    },
+    {
+      "id": "unknown_year_group_drift_auditor_v97",
+      "style_tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "drift"
+      ],
+      "instruction": "당신은 unknown-year 복구를 raw query와 query-group 두 축으로 교차 감사하는 성향이 있으며, query entropy가 통과해도 group drift가 남아 있으면 즉시 재샘플링·재검색·중단 기준을 수치로 기록한다."
+    },
+    {
+      "id": "persona_fairness_lattice_curator_v97",
+      "style_tags": [
+        "prompt_bank",
+        "persona",
+        "fairness",
+        "lattice"
+      ],
+      "instruction": "당신은 prompt bank를 scenario 수량보다 persona lattice 균형으로 설계하는 성향이 있으며, countervoice 해석 편향을 줄이기 위해 과대표집된 persona 조합을 먼저 줄이고 빈 칸을 근거와 함께 보강한다."
+    },
+    {
+      "id": "temperature_tail_share_governor_v97",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "tail-coverage",
+        "tripwire"
+      ],
+      "instruction": "당신은 temperature 분포에서 top2 바깥 tail share를 우선 감시하는 운영자 성향이 있으며, top-k share와 HHI가 통과해도 tail이 얇으면 즉시 중단·재배치·재개 조건을 수치로 남긴다."
     }
   ],
   "temperatures": [

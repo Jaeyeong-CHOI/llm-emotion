@@ -2012,6 +2012,33 @@
       "n": 28,
       "seed": 9601,
       "repeats": 2
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_tail_v97",
+      "description": "v9.7 unknown-year query-group drift brake + persona fairness lattice + temperature tail-share tripwire smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_query_group_drift_brake_v97",
+        "prompt_bank_persona_countervoice_fairness_lattice_v97",
+        "runner_temperature_tail_share_tripwire_v97",
+        "screening_review_query_group_tail_global_baseline_guard_v96"
+      ],
+      "persona_ids": [
+        "unknown_year_group_drift_auditor_v97",
+        "persona_fairness_lattice_curator_v97",
+        "temperature_tail_share_governor_v97",
+        "query_group_baseline_guardian_v96"
+      ],
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "n": 28,
+      "seed": 9701,
+      "repeats": 2
     }
   ]
 }

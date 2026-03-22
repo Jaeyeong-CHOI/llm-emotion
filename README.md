@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year query-group drift guard**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top1-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-vs-global-known-query-group-js-divergence`)를 추가해, raw query 분산이 통과해도 query-group 기준으로 재쏠림이 남는 케이스를 fail-fast로 차단합니다.
+- Prompt bank expanded to `v9.7` with **unknown-year query-group drift brake / persona fairness lattice / temperature tail-share tripwire** 시나리오와 신규 페르소나(`unknown_year_group_drift_auditor_v97`, `persona_fairness_lattice_curator_v97`, `temperature_tail_share_governor_v97`)를 추가했습니다.
+- Experiment runner preflight에 **planned-sample temperature tail-share guardrail** (`--min-planned-sample-temperature-tail-share`)을 추가해, top-k share와 HHI가 통과해도 상위 2개 온도 바깥 tail budget이 너무 얇은 배치를 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year top1/global top1 비율 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top1-over-global-top1-ratio`)를 추가해, JS divergence가 통과해도 unknown-year 복구가 단일 query top1로 과수렴하는 패턴을 fail-fast로 차단합니다.
 - Prompt bank expanded to `v9.6` with **query-group global-baseline tail guard / countervoice cross-band mesh patch / temperature HHI tripwire** 시나리오와 신규 페르소나(`query_group_baseline_guardian_v96`, `crossband_mesh_curator_v96`, `temperature_hhi_governor_v96`)를 추가했습니다.
 - Experiment runner preflight에 **planned-sample temperature HHI guardrail** (`--max-planned-sample-temperature-hhi`)을 추가해, top-k share가 통과해도 온도축 concentration이 높을 때 실행을 사전에 차단합니다.
