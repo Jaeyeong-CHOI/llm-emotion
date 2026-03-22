@@ -318,6 +318,7 @@ def build_budget_report(
     selected_run_cells: int,
     generation_attempts_total: int,
     analysis_attempts_total: int,
+    failed_cells_total: int,
 ) -> dict:
     rows = []
     for run_id in sorted(selected_cells_by_run_id):
@@ -332,6 +333,10 @@ def build_budget_report(
                 "selected_cell_share": pct(selected_cells, selected_run_cells),
                 "successful_cells": int(successful_cells_by_run_id.get(run_id, 0) or 0),
                 "failed_cells": int(failed_cells_by_run_id.get(run_id, 0) or 0),
+                "failed_cell_share": pct(
+                    int(failed_cells_by_run_id.get(run_id, 0) or 0),
+                    failed_cells_total,
+                ),
                 "run_id_success_rate": pct(
                     int(successful_cells_by_run_id.get(run_id, 0) or 0),
                     selected_cells,
@@ -352,13 +357,22 @@ def build_budget_report(
                 )
                 if selected_cells > 0 and (generation_attempts_total + analysis_attempts_total) > 0 and selected_run_cells > 0
                 else 0.0,
+                "failure_over_selection_ratio": round(
+                    pct(int(failed_cells_by_run_id.get(run_id, 0) or 0), failed_cells_total)
+                    / max(pct(selected_cells, selected_run_cells), 0.0001),
+                    4,
+                )
+                if selected_cells > 0 and failed_cells_total > 0 and selected_run_cells > 0
+                else 0.0,
             }
         )
 
     max_selected = max(rows, key=lambda row: (row["selected_cell_share"], row["id"]), default=None)
     max_attempt = max(rows, key=lambda row: (row["combined_attempt_share"], row["id"]), default=None)
     max_failed = max(rows, key=lambda row: (row["failed_cells"], row["id"]), default=None)
+    max_failed_share = max(rows, key=lambda row: (row["failed_cell_share"], row["id"]), default=None)
     max_attempt_pressure = max(rows, key=lambda row: (row["attempt_over_selection_ratio"], row["id"]), default=None)
+    max_failure_pressure = max(rows, key=lambda row: (row["failure_over_selection_ratio"], row["id"]), default=None)
     return {
         "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
         "run_label": run_label,
@@ -373,8 +387,12 @@ def build_budget_report(
             "max_combined_attempt_share": (max_attempt or {}).get("combined_attempt_share", 0.0),
             "max_failed_cells_run_id": (max_failed or {}).get("id", ""),
             "max_failed_cells": (max_failed or {}).get("failed_cells", 0),
+            "max_failed_cell_share_run_id": (max_failed_share or {}).get("id", ""),
+            "max_failed_cell_share": (max_failed_share or {}).get("failed_cell_share", 0.0),
             "max_attempt_over_selection_ratio_run_id": (max_attempt_pressure or {}).get("id", ""),
             "max_attempt_over_selection_ratio": (max_attempt_pressure or {}).get("attempt_over_selection_ratio", 0.0),
+            "max_failure_over_selection_ratio_run_id": (max_failure_pressure or {}).get("id", ""),
+            "max_failure_over_selection_ratio": (max_failure_pressure or {}).get("failure_over_selection_ratio", 0.0),
         },
         "rows": rows,
     }
@@ -393,10 +411,12 @@ def write_budget_report_markdown(path: Path, payload: dict):
         f"- max_selected_cell_share: `{summary.get('max_selected_cell_share', 0.0)}` (`{summary.get('max_selected_cell_share_run_id', '')}`)",
         f"- max_combined_attempt_share: `{summary.get('max_combined_attempt_share', 0.0)}` (`{summary.get('max_combined_attempt_share_run_id', '')}`)",
         f"- max_attempt_over_selection_ratio: `{summary.get('max_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_attempt_over_selection_ratio_run_id', '')}`)",
+        f"- max_failure_over_selection_ratio: `{summary.get('max_failure_over_selection_ratio', 0.0)}` (`{summary.get('max_failure_over_selection_ratio_run_id', '')}`)",
         f"- max_failed_cells: `{summary.get('max_failed_cells', 0)}` (`{summary.get('max_failed_cells_run_id', '')}`)",
+        f"- max_failed_cell_share: `{summary.get('max_failed_cell_share', 0.0)}` (`{summary.get('max_failed_cell_share_run_id', '')}`)",
         "",
-        "| run_id | selected_cells | selected_share | success_rate | gen_attempts | gen_share | ana_attempts | ana_share | combined_share | attempt_pressure | failed_cells |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| run_id | selected_cells | selected_share | success_rate | gen_attempts | gen_share | ana_attempts | ana_share | combined_share | attempt_pressure | failed_cells | failed_share | failure_pressure |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in payload.get("rows") or []:
         lines.append(
@@ -405,7 +425,7 @@ def write_budget_report_markdown(path: Path, payload: dict):
             f"{row.get('generation_attempt_share', 0.0)} | {row.get('analysis_attempts', 0)} | "
             f"{row.get('analysis_attempt_share', 0.0)} | {row.get('combined_attempt_share', 0.0)} | "
             f"{row.get('attempt_over_selection_ratio', 0.0)} | "
-            f"{row.get('failed_cells', 0)} |"
+            f"{row.get('failed_cells', 0)} | {row.get('failed_cell_share', 0.0)} | {row.get('failure_over_selection_ratio', 0.0)} |"
         )
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -799,6 +819,12 @@ def main():
         type=float,
         default=0.0,
         help="fail if a run id consumes attempts at more than this multiple of its selected-cell share; 0 disables",
+    )
+    ap.add_argument(
+        "--max-failure-over-selection-ratio",
+        type=float,
+        default=0.0,
+        help="fail if a run id accumulates failed-cell share at more than this multiple of its selected-cell share; 0 disables",
     )
     ap.add_argument(
         "--quarantine-json",
@@ -1775,6 +1801,7 @@ def main():
         selected_run_cells=selected_run_cells,
         generation_attempts_total=generation_attempts_total,
         analysis_attempts_total=analysis_attempts_total,
+        failed_cells_total=failed_cells,
     )
     if args.max_attempt_over_selection_ratio:
         overpressured = [
@@ -1786,6 +1813,17 @@ def main():
             raise RuntimeError(
                 "run-id attempt-over-selection ratio above ceiling "
                 f"{args.max_attempt_over_selection_ratio}: {', '.join(overpressured)}"
+            )
+    if args.max_failure_over_selection_ratio:
+        overpressured_failures = [
+            f"{row.get('id')}:{row.get('failure_over_selection_ratio')}"
+            for row in budget_report.get("rows") or []
+            if float(row.get("failure_over_selection_ratio") or 0.0) > args.max_failure_over_selection_ratio
+        ]
+        if overpressured_failures:
+            raise RuntimeError(
+                "run-id failure-over-selection ratio above ceiling "
+                f"{args.max_failure_over_selection_ratio}: {', '.join(overpressured_failures)}"
             )
     write_json(budget_report_json_path, budget_report)
     write_budget_report_markdown(budget_report_md_path, budget_report)
@@ -1902,6 +1940,8 @@ def main():
         "combined_attempt_shares": combined_attempt_shares,
         "max_attempt_share_per_run_id": args.max_attempt_share_per_run_id,
         "max_selected_cell_share_per_run_id": args.max_selected_cell_share_per_run_id,
+        "max_attempt_over_selection_ratio": args.max_attempt_over_selection_ratio,
+        "max_failure_over_selection_ratio": args.max_failure_over_selection_ratio,
         "require_freeze_artifacts": args.require_freeze_artifact,
         "freeze_artifacts": freeze_artifacts,
         "run_preflight": run_preflight_rows,

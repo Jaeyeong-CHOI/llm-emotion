@@ -866,6 +866,31 @@
         "attempt_pressure_balancer",
         "countervoice_coverage_archivist"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_failure_pressure_v52",
+      "n": 12,
+      "seed": 35252,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_review_confidence_band_recovery",
+        "screening_review_traceability_rescue",
+        "prompt_bank_countervoice_entropy_backfill",
+        "runner_failure_pressure_tripwire",
+        "runner_attempt_pressure_ratio_tripwire"
+      ],
+      "persona_ids": [
+        "review_band_calibration_lead",
+        "review_traceability_arbiter",
+        "failure_pressure_governor",
+        "attempt_pressure_balancer"
+      ]
     }
   ]
 }

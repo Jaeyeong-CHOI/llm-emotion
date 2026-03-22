@@ -20,9 +20,9 @@ python3 scripts/check_screening_quality.py \
   --manual-qc-csv results/manual_qc_queue.csv \
   --out results/screening_quality_report.json \
   --out-md results/screening_quality_report.md \
-  --run-label screening_qc_v44 --min-balanced-min-per-label 2 --min-screening-reason-diversity 6 --max-top-screening-reason-share 0.65 \
+  --run-label screening_qc_v52 --min-balanced-min-per-label 2 --min-screening-reason-diversity 6 --max-top-screening-reason-share 0.65 \
   --min-screening-reason-entropy 0.55 --min-manual-qc-query-entropy 0.50 --min-manual-qc-risk-reason-entropy 0.45 \
-  --min-manual-qc-source-groups 3 --min-manual-qc-bridge-signal-share 0.20 --min-manual-qc-review-source-groups 2 \
+  --min-manual-qc-source-groups 3 --min-include-bridge-signal-share 0.20 --min-review-bridge-signal-share 0.0 --min-manual-qc-bridge-signal-share 0.20 --min-manual-qc-review-source-groups 2 \
   --max-manual-qc-review-group-dominance 0.70 --max-manual-qc-single-query-share 0.45 \
   --max-manual-qc-unknown-query-share 0.20 --max-empty-screening-reason-share 0.10
 ```
@@ -48,6 +48,8 @@ python3 scripts/check_screening_quality.py \
 - `manual_qc_query_entropy >= 0.50`
 - `manual_qc_risk_reason_entropy >= 0.45`
 - `review_to_include_ratio <= 5.0`
+- `include_bridge_signal_share >= 0.0` (필요 시 더 높은 floor로 강화)
+- `review_bridge_signal_share >= 0.0` (review 근거문장 bridge가 충분한 배치에서는 0.2+ 권장)
 - `manual_qc_high_risk_share <= 0.85`
 - `manual_qc_source_group_diversity >= 3`
 - `manual_qc_bridge_signal_share >= 0.20`
