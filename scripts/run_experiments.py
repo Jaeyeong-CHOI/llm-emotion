@@ -404,6 +404,11 @@ def build_budget_report(
             "generation_attempts_total": generation_attempts_total,
             "analysis_attempts_total": analysis_attempts_total,
             "combined_attempts_total": generation_attempts_total + analysis_attempts_total,
+            "stage_total_attempt_gap_share": round(
+                abs(generation_attempts_total - analysis_attempts_total)
+                / max(1, generation_attempts_total + analysis_attempts_total),
+                4,
+            ),
             "max_selected_cell_share_run_id": (max_selected or {}).get("id", ""),
             "max_selected_cell_share": (max_selected or {}).get("selected_cell_share", 0.0),
             "max_combined_attempt_share_run_id": (max_attempt or {}).get("id", ""),
@@ -444,6 +449,7 @@ def write_budget_report_markdown(path: Path, payload: dict):
         f"- max_analysis_attempt_over_selection_ratio: `{summary.get('max_analysis_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_analysis_attempt_over_selection_ratio_run_id', '')}`)",
         f"- max_failure_over_selection_ratio: `{summary.get('max_failure_over_selection_ratio', 0.0)}` (`{summary.get('max_failure_over_selection_ratio_run_id', '')}`)",
         f"- max_stage_attempt_share_gap: `{summary.get('max_stage_attempt_share_gap', 0.0)}` (`{summary.get('max_stage_attempt_share_gap_run_id', '')}`)",
+        f"- stage_total_attempt_gap_share: `{summary.get('stage_total_attempt_gap_share', 0.0)}`",
         f"- max_failed_cells: `{summary.get('max_failed_cells', 0)}` (`{summary.get('max_failed_cells_run_id', '')}`)",
         f"- max_failed_cell_share: `{summary.get('max_failed_cell_share', 0.0)}` (`{summary.get('max_failed_cell_share_run_id', '')}`)",
         "",
@@ -905,6 +911,12 @@ def main():
         type=float,
         default=0.0,
         help="fail if abs(generation_attempt_share-analysis_attempt_share) for any run id exceeds this value; 0 disables",
+    )
+    ap.add_argument(
+        "--max-stage-total-attempt-gap-share",
+        type=float,
+        default=0.0,
+        help="fail if abs(generation_attempts_total-analysis_attempts_total)/combined_attempts_total exceeds this value; 0 disables",
     )
     ap.add_argument(
         "--max-failure-over-selection-ratio",
@@ -1899,6 +1911,11 @@ def main():
         for run_id in sorted(selected_cells_by_run_id)
     }
     combined_attempts_total = generation_attempts_total + analysis_attempts_total
+    stage_total_attempt_gap_share = (
+        round(abs(generation_attempts_total - analysis_attempts_total) / combined_attempts_total, 4)
+        if combined_attempts_total > 0
+        else 0.0
+    )
     combined_attempt_shares = {
         run_id: pct(combined_attempts_by_run_id.get(run_id, 0), combined_attempts_total)
         for run_id in sorted(combined_attempts_by_run_id)
@@ -2009,6 +2026,11 @@ def main():
                 "run-id attempt share above ceiling "
                 f"{args.max_attempt_share_per_run_id}: {', '.join(overfilled)}"
             )
+    if args.max_stage_total_attempt_gap_share and stage_total_attempt_gap_share > args.max_stage_total_attempt_gap_share:
+        raise RuntimeError(
+            "stage total attempt gap share above ceiling "
+            f"{args.max_stage_total_attempt_gap_share}: observed={stage_total_attempt_gap_share}"
+        )
     summary = aggregate_metrics(all_metric_paths)
     run_id_summary = aggregate_by_run_id(run_metric_paths)
     preflight_summary = {
@@ -2254,6 +2276,8 @@ def main():
         "max_generation_attempt_over_selection_ratio": args.max_generation_attempt_over_selection_ratio,
         "max_analysis_attempt_over_selection_ratio": args.max_analysis_attempt_over_selection_ratio,
         "max_stage_attempt_share_gap_per_run_id": args.max_stage_attempt_share_gap_per_run_id,
+        "max_stage_total_attempt_gap_share": args.max_stage_total_attempt_gap_share,
+        "stage_total_attempt_gap_share": stage_total_attempt_gap_share,
         "max_failure_over_selection_ratio": args.max_failure_over_selection_ratio,
         "max_failed_cell_share_per_run_id": args.max_failed_cell_share_per_run_id,
         "require_freeze_artifacts": args.require_freeze_artifact,
