@@ -1,25 +1,15 @@
 {
-  "last_run": "2026-03-22T08:08:56",
-  "last_success": "2026-03-22T08:08:56",
+  "last_run": "2026-03-22T17:15:02",
+  "last_success": "2026-03-22T17:15:02",
   "last_error": null,
   "stats": {
     "papers_collected": 279,
     "evidence_rows": 279,
-    "mock_samples_generated": 87100,
+    "mock_samples_generated": 109500,
     "screen_include": 23,
     "screen_review": 79
   },
   "notes": [
-    "[2026-03-22T15:58:42] OK evidence_table",
-    "[2026-03-22T15:58:42] OK mock_generate",
-    "[2026-03-22T15:58:42] OK mock_analyze",
-    "[2026-03-22T07:12:29] OK smoke_py_compile",
-    "[2026-03-22T07:12:29] OK smoke_generate_filtered_prompt_bank",
-    "[2026-03-22T07:12:29] OK smoke_analyze_filtered_prompt_bank",
-    "[2026-03-22T07:12:29] OK smoke_run_experiments_plan_only",
-    "[2026-03-22T07:12:29] OK smoke_run_experiments_counterfactual_focus",
-    "[2026-03-22T07:12:29] OK smoke_screening_score_include_high",
-    "[2026-03-22T16:34:51] OK literature_search",
     "[2026-03-22T16:34:51] OK evidence_table",
     "[2026-03-22T16:34:52] OK mock_generate",
     "[2026-03-22T16:34:52] OK mock_analyze",
@@ -53,6 +43,12 @@
     "[2026-03-22T08:08:56] OK screening_manual_qc_queue_triage_risk",
     "[2026-03-22T08:08:56] OK prompt_bank_v23_expansion",
     "[2026-03-22T08:08:56] OK experiment_runner_min_total_samples",
-    "[2026-03-22T08:08:56] OK run_handoff_drift_v22_smoke"
+    "[2026-03-22T08:08:56] OK run_handoff_drift_v22_smoke",
+    "[2026-03-22T17:15:23] OK literature_search",
+    "[2026-03-22T17:15:23] OK evidence_table",
+    "[2026-03-22T17:15:23] OK mock_generate",
+    "[2026-03-22T17:15:24] OK mock_analyze",
+    "[2026-03-22T17:15:28] OK snapshot_cron_status",
+    "[2026-03-22T17:15:28] OK update_live_status"
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "version": "v2.3",
+  "version": "v2.4",
   "language": "ko",
   "scenarios": [
     {
@@ -706,6 +706,39 @@
         "research"
       ],
       "prompt": "협업 인계에서 체크리스트 항목 하나를 생략해 후속 작업이 어그러진 사건을 7~9문장으로 회고하라. 생략의 맥락, 책임 분배의 혼선, 현재의 인계 기준을 포함하라."
+    },
+    {
+      "id": "annotation_guideline_drift",
+      "label": "decision",
+      "tags": [
+        "research",
+        "evidence",
+        "counterfactual",
+        "audit"
+      ],
+      "prompt": "주석/평가 가이드라인이 버전마다 미묘하게 바뀌었는데 이를 늦게 인지한 경험을 7~10문장으로 회고하라. 당시 놓친 드리프트 신호, 잘못된 해석의 비용, 지금의 동기화 절차를 포함하라."
+    },
+    {
+      "id": "confidence_calibration_overclaim",
+      "label": "identity",
+      "tags": [
+        "research",
+        "uncertainty",
+        "ethics",
+        "long_horizon"
+      ],
+      "prompt": "불확실성이 큰 결과를 확신 있는 어조로 과장해 전달했던 순간을 7~9문장으로 서술하라. 왜 과장했는지, 신뢰에 어떤 비용이 생겼는지, 현재의 확신 캘리브레이션 규칙을 제시하라."
+    },
+    {
+      "id": "ablation_order_dependency_regret",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "evidence",
+        "near_miss",
+        "repair"
+      ],
+      "prompt": "ablation 실험 순서를 잘못 설계해 중요한 원인 분리를 놓친 경험을 7~10문장으로 작성하라. 당시 선택 이유, 뒤늦은 깨달음의 감정, 지금의 실험 순서 체크리스트를 포함하라."
     }
   ],
   "personas": [
@@ -953,6 +986,25 @@
         "repair"
       ],
       "instruction": "당신은 개인 실수보다 인수인계 신뢰성을 중점으로 보며, 누락 가능 지점을 체크리스트·확인 루프·책임 경계로 구조화해 설명하는 경향이 있다."
+    },
+    {
+      "id": "evidence_weighted_storyteller",
+      "style_tags": [
+        "evidence",
+        "narrative",
+        "calibration"
+      ],
+      "instruction": "당신은 감정 서사를 말할 때도 증거 강도를 함께 표기하려는 성향이 있으며, 주장마다 확신 수준과 반례 가능성을 짝지어 설명한다."
+    },
+    {
+      "id": "protocol_guard",
+      "style_tags": [
+        "process",
+        "reproducibility",
+        "accountability",
+        "risk"
+      ],
+      "instruction": "당신은 절차 일탈을 빠르게 탐지하고 기록하려는 경향이 있으며, 재현성 보장을 위해 실행 전 체크포인트와 중단 기준을 먼저 제시한다."
     }
   ],
   "temperatures": [

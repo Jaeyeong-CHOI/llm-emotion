@@ -8,6 +8,7 @@ import platform
 import shlex
 import statistics
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -294,10 +295,23 @@ def main():
     ap.add_argument("--require-min-run-cells", type=int, default=0, help="fail if selected run cells are fewer than this minimum")
     ap.add_argument("--require-min-condition-cells", type=int, default=0, help="fail if any run selects fewer than this many scenario×persona×temperature condition cells")
     ap.add_argument("--require-min-total-samples", type=int, default=0, help="fail if total selected samples (sum of n×condition_cells×repeats) is below this threshold")
+    ap.add_argument("--require-min-run-ids", type=int, default=0, help="fail if selected unique run ids are fewer than this minimum")
+    ap.add_argument("--manifest-note-file", default="", help="optional markdown/text file appended to manifest_note for reproducible run context")
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
     cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+
+    cli_invocation = shell_join([sys.executable, *sys.argv])
+
+    manifest_note = args.manifest_note
+    if args.manifest_note_file:
+        note_path = ROOT / args.manifest_note_file
+        if not note_path.exists():
+            raise FileNotFoundError(f"manifest note file not found: {note_path}")
+        note_body = note_path.read_text(encoding="utf-8").strip()
+        if note_body:
+            manifest_note = f"{manifest_note}\n\n{note_body}".strip() if manifest_note else note_body
 
     if args.list_run_ids:
         for exp in cfg.get("runs", []):
@@ -334,6 +348,7 @@ def main():
     selected_run_cells = 0
     selected_total_samples = 0
     include_run_ids = set(args.include_run_id)
+    selected_run_ids = set()
     executed_ids = []
 
     known_run_ids = {str(exp.get("id")) for exp in cfg.get("runs", []) if exp.get("id")}
@@ -348,6 +363,7 @@ def main():
         run_id = exp["id"]
         if include_run_ids and run_id not in include_run_ids:
             continue
+        selected_run_ids.add(run_id)
         n = int(exp.get("n", 20))
         seed = int(exp.get("seed", 42))
         temperatures = exp.get("temperatures", [0.2, 0.7])
@@ -496,6 +512,10 @@ def main():
         raise RuntimeError(
             f"selected_total_samples={selected_total_samples} < require_min_total_samples={args.require_min_total_samples}"
         )
+    if args.require_min_run_ids and len(selected_run_ids) < args.require_min_run_ids:
+        raise RuntimeError(
+            f"selected_run_ids={len(selected_run_ids)} < require_min_run_ids={args.require_min_run_ids}"
+        )
 
     summary = aggregate_metrics(all_metric_paths)
     run_id_summary = aggregate_by_run_id(run_metric_paths)
@@ -516,7 +536,9 @@ def main():
         "config_fingerprint": config_fingerprint(cfg),
         "run_label": label,
         "resume_mode": args.resume,
-        "manifest_note": args.manifest_note,
+        "manifest_note": manifest_note,
+        "manifest_note_file": args.manifest_note_file,
+        "cli_invocation": cli_invocation,
         "environment": {
             "python": platform.python_version(),
             "platform": platform.platform(),
@@ -526,7 +548,8 @@ def main():
         "summary": summary,
         "run_id_summary": run_id_summary,
         "snapshot_hashes": snapshot_hashes,
-        "selected_run_ids": sorted(include_run_ids),
+        "selected_run_ids": sorted(selected_run_ids),
+        "selected_run_id_count": len(selected_run_ids),
         "missing_run_ids": missing_run_ids,
         "plan_only": args.plan_only,
         "executed_run_keys": executed_ids,
@@ -534,6 +557,7 @@ def main():
         "selected_total_samples": selected_total_samples,
         "require_min_condition_cells": args.require_min_condition_cells,
         "require_min_total_samples": args.require_min_total_samples,
+        "require_min_run_ids": args.require_min_run_ids,
         "duration_seconds": total_duration_seconds,
         "reproduce_script": str(reproduce_script.relative_to(ROOT)),
         "runs": runs,

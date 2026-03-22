@@ -9,19 +9,19 @@
 
 ## Commands
 ```bash
-python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl --report-out results/lit_search_report.json --audit-out results/lit_screening_audit.json
+python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl --report-out results/lit_search_report.json --audit-out results/lit_screening_audit.json --manual-qc-limit 60 --manual-qc-per-label 12
 python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md
 
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --plan-only --manifest-note "weekly preflight" --require-min-total-samples 6000
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --plan-only --manifest-note "weekly preflight" --manifest-note-file docs/experiment-plan.md --require-min-run-ids 4 --require-min-total-samples 6000
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --strict-clean
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --resume
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_method_$(date -u +%Y%m%d) --include-run-id method_signal_v15 --strict-clean
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_accountability_$(date -u +%Y%m%d) --include-run-id accountability_tradeoff_v16 --strict-clean
 ```
 
-Each batch now emits `run_id_summary.csv` (aggregated across repeats/cells per run id), per-cell and batch `duration_seconds`, snapshot hashes in `manifest.json`, and a generated `reproduce.sh` script for one-command reruns. Selection reports/CSV now include `planned_samples`, and `--require-min-total-samples` can hard-fail undersized plans before execution.
+Each batch now emits `run_id_summary.csv` (aggregated across repeats/cells per run id), per-cell and batch `duration_seconds`, snapshot hashes in `manifest.json`, and a generated `reproduce.sh` script for one-command reruns. Selection reports/CSV include `planned_samples`, while `--require-min-total-samples` and `--require-min-run-ids` can hard-fail undersized or too-narrow plans before execution. Manifests also persist `cli_invocation`, merged `manifest_note` text, and `manifest_note_file` context for replayability.
 
-Literature screening reports now include `triage_risk` counters and a ranked `manual_qc_queue` for high-uncertainty decisions near include/review thresholds.
+Literature screening reports now include `triage_risk`, `label_gate_conflicts`, a ranked `manual_qc_queue`, and balanced `manual_qc_queue_by_label` buckets for high-uncertainty include/review/exclude triage.
 
 ## Validation log
 Smoke checks executed on `2026-03-22T07:06:35Z`:

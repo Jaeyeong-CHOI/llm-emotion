@@ -743,6 +743,43 @@ def collect_manual_qc_queue(rows: List[Dict], include_th: float, review_th: floa
     return queue[:limit]
 
 
+def collect_manual_qc_queue_by_label(rows: List[Dict], include_th: float, review_th: float, per_label_limit: int = 10) -> Dict[str, List[Dict]]:
+    full_queue = collect_manual_qc_queue(rows, include_th, review_th, limit=max(40, per_label_limit * 6))
+    out = {"include": [], "review": [], "exclude": []}
+    for row in full_queue:
+        label = str(row.get("label") or "exclude")
+        if label not in out:
+            continue
+        if len(out[label]) >= per_label_limit:
+            continue
+        out[label].append(row)
+    return out
+
+
+def summarize_label_gate_conflicts(rows: List[Dict]) -> Dict[str, int]:
+    out = {
+        "include_with_gate_failures": 0,
+        "review_with_gate_failures": 0,
+        "exclude_with_strong_signal": 0,
+    }
+    for row in rows:
+        label = row.get("screening_label")
+        score = float(row.get("screening_score") or 0.0)
+        features = row.get("screening_features") or {}
+        include_gate_ok = bool(features.get("include_gate_ok", True))
+        review_gate_ok = bool(features.get("review_gate_ok", True))
+        include_margin = float(features.get("include_margin", 0.0) or 0.0)
+
+        if label == "include" and (not include_gate_ok or not review_gate_ok):
+            out["include_with_gate_failures"] += 1
+        if label == "review" and (not include_gate_ok or not review_gate_ok):
+            out["review_with_gate_failures"] += 1
+        if label == "exclude" and score >= 2.0 and include_margin > -0.5:
+            out["exclude_with_strong_signal"] += 1
+
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
@@ -750,6 +787,8 @@ def main():
     ap.add_argument("--screening-rules", default="queries/screening_rules.json")
     ap.add_argument("--report-out", default="", help="optional JSON report path for retrieval/screening diagnostics")
     ap.add_argument("--audit-out", default="", help="optional JSON path for borderline/manual-QC screening candidates")
+    ap.add_argument("--manual-qc-limit", type=int, default=40, help="max size of ranked manual QC queue")
+    ap.add_argument("--manual-qc-per-label", type=int, default=10, help="max manual QC candidates per label bucket")
     args = ap.parse_args()
 
     cfg = json.loads(Path(args.config).read_text(encoding="utf-8"))
@@ -834,10 +873,14 @@ def main():
             "confidence": summarize_confidence(ordered),
             "llm_concept": summarize_llm_concept(ordered),
             "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
+            "label_gate_conflicts": summarize_label_gate_conflicts(ordered),
             "per_query": query_stats,
             "top_priority_titles": [r.get("title") for r in ordered[:10] if r.get("screening_priority") == "high"],
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
-            "manual_qc_queue": collect_manual_qc_queue(ordered, include_th, review_th),
+            "manual_qc_queue": collect_manual_qc_queue(ordered, include_th, review_th, limit=args.manual_qc_limit),
+            "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
+                ordered, include_th, review_th, per_label_limit=args.manual_qc_per_label
+            ),
         }
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"report: {report_path}")
@@ -857,10 +900,14 @@ def main():
                 "confidence": summarize_confidence(ordered),
                 "llm_concept": summarize_llm_concept(ordered),
                 "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
+                "label_gate_conflicts": summarize_label_gate_conflicts(ordered),
             },
             "borderline": collect_borderline(ordered, include_th, review_th),
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
-            "manual_qc_queue": collect_manual_qc_queue(ordered, include_th, review_th),
+            "manual_qc_queue": collect_manual_qc_queue(ordered, include_th, review_th, limit=args.manual_qc_limit),
+            "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
+                ordered, include_th, review_th, per_label_limit=args.manual_qc_per_label
+            ),
             "exclude_high_score_without_llm": [
                 {
                     "title": r.get("title"),
