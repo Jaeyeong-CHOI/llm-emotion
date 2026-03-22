@@ -1,5 +1,5 @@
 {
-  "version": "v2.7",
+  "version": "v2.8",
   "language": "ko",
   "scenarios": [
     {
@@ -860,6 +860,50 @@
         "uncertainty"
       ],
       "prompt": "수동 QC 큐가 특정 라벨/확신도에 쏠려 중요한 사례를 놓친 경험을 7~9문장으로 작성하라. 쏠림이 생긴 이유와 지금의 균형 샘플링 원칙을 포함하라."
+    },
+    {
+      "id": "screening_conflict_resolution_loop",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "counterfactual"
+      ],
+      "prompt": "중복 검색 결과에서 포함/제외 판단이 충돌해 우선순위를 잘못 정했던 경험을 7~10문장으로 회고하라. 충돌 신호를 놓친 이유, 당시 판단 근거, 현재의 충돌 해소 루프를 포함하라."
+    },
+    {
+      "id": "prompt_bank_version_drift",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "reproducibility",
+        "long_horizon"
+      ],
+      "prompt": "프롬프트 뱅크 버전 차이를 제대로 기록하지 않아 실험 해석이 흔들린 사건을 7~9문장으로 서술하라. 버전 드리프트가 왜 늦게 드러났는지와 지금의 기록 규칙을 포함하라."
+    },
+    {
+      "id": "runner_preflight_gate_miss",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "risk",
+        "repair"
+      ],
+      "prompt": "실험 실행 전 게이트 조건을 느슨하게 확인해 재실행 비용이 커진 경험을 7~10문장으로 회고하라. 놓친 게이트, 당시 일정 압박, 현재의 preflight 중단 기준을 함께 제시하라."
+    },
+    {
+      "id": "manual_qc_diversity_rebalance",
+      "label": "social",
+      "tags": [
+        "research",
+        "audit",
+        "prioritization",
+        "repair"
+      ],
+      "prompt": "수동 QC 큐를 재조정하면서 특정 그룹/확신도 편향을 바로잡았던 경험을 7~9문장으로 작성하라. 편향이 누적된 이유와 재균형 기준, 남은 위험을 포함하라."
     }
   ],
   "personas": [
@@ -1186,6 +1230,26 @@
         "systems"
       ],
       "instruction": "당신은 실험 러너의 신뢰성을 설계하는 관점을 가지며, 실패 지점의 복구 가능성과 상태 일관성 검증 절차를 우선순위로 정리하는 경향이 있다."
+    },
+    {
+      "id": "screening_conflict_mediator",
+      "style_tags": [
+        "audit",
+        "triage",
+        "calibration",
+        "repair"
+      ],
+      "instruction": "당신은 상충하는 스크리닝 신호를 중재하는 성향이 있으며, 판단 충돌이 생기면 근거 강도·라벨 안정성·재검토 우선순위를 함께 정리한다."
+    },
+    {
+      "id": "preflight_gate_keeper",
+      "style_tags": [
+        "process",
+        "reproducibility",
+        "risk",
+        "accountability"
+      ],
+      "instruction": "당신은 실행 전 게이트를 엄격히 점검하는 성향이 있으며, 통과/중단 기준을 명시하고 누락된 전제 조건이 있으면 즉시 실행을 보류한다."
     }
   ],
   "temperatures": [

@@ -521,6 +521,54 @@ def merge_rows(existing: Dict, new_row: Dict) -> Dict:
     return merged
 
 
+def attach_screening_stability(merged: Dict, raw_rows: List[Dict]) -> Dict:
+    labels = [str(r.get("screening_label") or "exclude") for r in raw_rows]
+    priorities = [str(r.get("screening_priority") or "low") for r in raw_rows]
+    confidences = [str(r.get("screening_confidence") or "low") for r in raw_rows]
+    groups = sorted({str(g).strip() for r in raw_rows for g in _query_set(r.get("group")) if str(g).strip()})
+    scores = [float(r.get("screening_score") or 0.0) for r in raw_rows]
+
+    label_counts: Dict[str, int] = {}
+    for lb in labels:
+        label_counts[lb] = label_counts.get(lb, 0) + 1
+
+    votes = sorted(label_counts.items(), key=lambda x: (-x[1], x[0]))
+    dominant_label = votes[0][0] if votes else "exclude"
+    conflict = len(label_counts) > 1
+    score_range = round((max(scores) - min(scores)) if scores else 0.0, 4)
+
+    merged["screening_stability"] = {
+        "source_count": len(raw_rows),
+        "dominant_label": dominant_label,
+        "label_counts": label_counts,
+        "priority_votes": sorted(set(priorities)),
+        "confidence_votes": sorted(set(confidences)),
+        "group_votes": groups,
+        "score_min": round(min(scores), 4) if scores else 0.0,
+        "score_max": round(max(scores), 4) if scores else 0.0,
+        "score_range": score_range,
+        "label_conflict": conflict,
+    }
+    return merged
+
+
+def summarize_screening_stability(rows: List[Dict]) -> Dict[str, int]:
+    out = {
+        "label_conflict": 0,
+        "high_score_variance": 0,
+        "single_source_only": 0,
+    }
+    for row in rows:
+        stability = row.get("screening_stability") or {}
+        if int(stability.get("source_count", 0) or 0) <= 1:
+            out["single_source_only"] += 1
+        if bool(stability.get("label_conflict", False)):
+            out["label_conflict"] += 1
+        if float(stability.get("score_range", 0.0) or 0.0) >= 1.5:
+            out["high_score_variance"] += 1
+    return out
+
+
 def summarize_labels(rows: List[Dict]) -> Dict[str, int]:
     out = {"include": 0, "review": 0, "exclude": 0}
     for r in rows:
@@ -738,6 +786,14 @@ def collect_manual_qc_queue(rows: List[Dict], include_th: float, review_th: floa
             risk += 0.4
             reasons.append("no_bridge_sentence")
 
+        stability = row.get("screening_stability") or {}
+        if bool(stability.get("label_conflict", False)):
+            risk += 1.1
+            reasons.append("dedup_label_conflict")
+        if float(stability.get("score_range", 0.0) or 0.0) >= 1.5:
+            risk += 0.8
+            reasons.append("dedup_high_score_variance")
+
         if risk <= 0:
             continue
 
@@ -756,6 +812,9 @@ def collect_manual_qc_queue(rows: List[Dict], include_th: float, review_th: floa
                 "risk_score": round(risk, 3),
                 "risk_reasons": reasons,
                 "screening_reasons": row.get("screening_reasons", [])[:6],
+                "dedup_source_count": int(stability.get("source_count", 0) or 0),
+                "dedup_label_conflict": bool(stability.get("label_conflict", False)),
+                "dedup_score_range": float(stability.get("score_range", 0.0) or 0.0),
             }
         )
 
@@ -880,6 +939,9 @@ def write_manual_qc_csv(path: Path, queue: List[Dict]) -> None:
         "doi",
         "source_query",
         "source_group",
+        "dedup_source_count",
+        "dedup_label_conflict",
+        "dedup_score_range",
         "risk_reasons",
         "screening_reasons",
     ]
@@ -901,6 +963,9 @@ def write_manual_qc_csv(path: Path, queue: List[Dict]) -> None:
                     "doi": row.get("doi"),
                     "source_query": row.get("source_query"),
                     "source_group": row.get("source_group"),
+                    "dedup_source_count": row.get("dedup_source_count"),
+                    "dedup_label_conflict": row.get("dedup_label_conflict"),
+                    "dedup_score_range": row.get("dedup_score_range"),
                     "risk_reasons": ";".join(row.get("risk_reasons") or []),
                     "screening_reasons": ";".join(row.get("screening_reasons") or []),
                 }
@@ -987,12 +1052,17 @@ def main():
             time.sleep(0.5)
 
     deduped: Dict = {}
+    dedup_sources: Dict = {}
     for r in rows:
         k = dedup_key(r)
+        dedup_sources.setdefault(k, []).append(r)
         if k not in deduped:
             deduped[k] = r
         else:
             deduped[k] = merge_rows(deduped[k], r)
+
+    for key, merged in list(deduped.items()):
+        deduped[key] = attach_screening_stability(merged, dedup_sources.get(key, [merged]))
 
     ordered = sorted(
         deduped.values(),
@@ -1047,6 +1117,7 @@ def main():
             "llm_concept": summarize_llm_concept(ordered),
             "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
             "label_gate_conflicts": summarize_label_gate_conflicts(ordered),
+            "screening_stability": summarize_screening_stability(ordered),
             "per_query": query_stats,
             "top_priority_titles": [r.get("title") for r in ordered[:10] if r.get("screening_priority") == "high"],
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
@@ -1080,6 +1151,7 @@ def main():
                 "llm_concept": summarize_llm_concept(ordered),
                 "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
                 "label_gate_conflicts": summarize_label_gate_conflicts(ordered),
+                "screening_stability": summarize_screening_stability(ordered),
             },
             "borderline": collect_borderline(ordered, include_th, review_th),
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),

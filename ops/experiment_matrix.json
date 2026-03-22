@@ -241,6 +241,31 @@
         "replication_guardian",
         "failure_mode_cartographer"
       ]
+    },
+    {
+      "id": "screening_runner_guard_v23",
+      "n": 12,
+      "seed": 8484,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_false_negative_regret",
+        "manual_qc_queue_overfocus",
+        "screening_conflict_resolution_loop",
+        "runner_preflight_gate_miss",
+        "prompt_bank_version_drift"
+      ],
+      "persona_ids": [
+        "screening_quality_guard",
+        "runner_reliability_architect",
+        "screening_conflict_mediator",
+        "preflight_gate_keeper"
+      ]
     }
   ]
 }

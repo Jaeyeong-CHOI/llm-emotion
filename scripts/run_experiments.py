@@ -46,6 +46,7 @@ def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set
     personas = bank.get("personas", [])
 
     selected_scenarios = []
+    selected_tags = set()
     for scenario in scenarios:
         row_tags = {str(tag).strip() for tag in scenario.get("tags", []) if str(tag).strip()}
         if scenario_ids and scenario.get("id") not in scenario_ids:
@@ -53,6 +54,7 @@ def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set
         if scenario_tags and not scenario_tags.issubset(row_tags):
             continue
         selected_scenarios.append(scenario)
+        selected_tags.update(row_tags)
 
     selected_personas = [persona for persona in personas if not persona_ids or persona.get("id") in persona_ids]
 
@@ -61,6 +63,8 @@ def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set
         "persona_count": len(selected_personas),
         "scenario_ids": [row.get("id") for row in selected_scenarios],
         "persona_ids": [row.get("id") for row in selected_personas],
+        "scenario_tag_count": len(selected_tags),
+        "scenario_tags": sorted(selected_tags),
     }
 
 
@@ -189,6 +193,8 @@ def write_selection_csv(path: Path, rows: list[dict]):
         "prompt_bank_fingerprint",
         "scenario_count",
         "persona_count",
+        "scenario_tag_count",
+        "scenario_tags",
         "scenario_ids",
         "persona_ids",
         "temperature_count",
@@ -200,7 +206,7 @@ def write_selection_csv(path: Path, rows: list[dict]):
         w.writeheader()
         for row in rows:
             out = {k: row.get(k) for k in keys}
-            for field in ("scenario_ids", "persona_ids"):
+            for field in ("scenario_tags", "scenario_ids", "persona_ids"):
                 value = out.get(field)
                 if isinstance(value, list):
                     out[field] = ",".join(str(v) for v in value)
@@ -310,6 +316,12 @@ def main():
         type=float,
         default=0.0,
         help="fail if max(temperature)-min(temperature) is below this minimum for any selected run",
+    )
+    ap.add_argument(
+        "--require-min-unique-scenario-tags",
+        type=int,
+        default=0,
+        help="fail if a selected run has fewer than this many unique scenario tags",
     )
     args = ap.parse_args()
 
@@ -427,6 +439,11 @@ def main():
             raise RuntimeError(
                 f"{run_id}: condition_cells={condition_cells} < require_min_condition_cells={args.require_min_condition_cells}"
             )
+        if args.require_min_unique_scenario_tags and prompt_summary["scenario_tag_count"] < args.require_min_unique_scenario_tags:
+            raise RuntimeError(
+                f"{run_id}: scenario_tag_count={prompt_summary['scenario_tag_count']} < "
+                f"require_min_unique_scenario_tags={args.require_min_unique_scenario_tags}"
+            )
 
         prompt_snapshot = snapshots_dir / f"{run_id}.prompt_bank.json"
         write_json(prompt_snapshot, bank)
@@ -442,6 +459,8 @@ def main():
                 "temperature_count": len(temperatures),
                 "condition_cells": condition_cells,
                 "planned_samples": planned_samples,
+                "scenario_tag_count": prompt_summary["scenario_tag_count"],
+                "scenario_tags": prompt_summary["scenario_tags"],
             }
         )
         run_preflight_rows.append(
@@ -454,6 +473,8 @@ def main():
                 "repeats": repeats,
                 "condition_cells": condition_cells,
                 "planned_samples": planned_samples,
+                "scenario_tag_count": prompt_summary["scenario_tag_count"],
+                "scenario_tags": prompt_summary["scenario_tags"],
             }
         )
 
@@ -618,6 +639,7 @@ def main():
         "require_min_planned_samples_per_run": args.require_min_planned_samples_per_run,
         "require_min_repeats": args.require_min_repeats,
         "require_min_temperature_span": args.require_min_temperature_span,
+        "require_min_unique_scenario_tags": args.require_min_unique_scenario_tags,
         "run_preflight": run_preflight_rows,
         "duration_seconds": total_duration_seconds,
         "reproduce_script": str(reproduce_script.relative_to(ROOT)),
@@ -656,7 +678,11 @@ def main():
             fp = row.get("prompt_bank_fingerprint", "")
             cc = row.get("condition_cells")
             tc = row.get("temperature_count")
-            print(f"selection {rid}: scenarios={sc}, personas={pc}, temps={tc}, condition_cells={cc}, prompt_bank_sha256={fp}")
+            st = row.get("scenario_tag_count")
+            print(
+                f"selection {rid}: scenarios={sc}, personas={pc}, tags={st}, temps={tc}, "
+                f"condition_cells={cc}, prompt_bank_sha256={fp}"
+            )
 
     ok_n = sum(1 for r in runs if r.get("status") == "ok")
     print(f"[OK] executed {ok_n}/{len(runs)} run cells -> {outdir}")

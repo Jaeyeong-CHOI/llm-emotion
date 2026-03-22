@@ -4,17 +4,17 @@
     "enabled": true,
     "status": "enabled",
     "lastRunStatus": "ok",
-    "lastRunAtMs": 1774166682219,
+    "lastRunAtMs": 1774167788091,
     "consecutiveErrors": 0,
-    "nextRunAtMs": 1774167008087
+    "nextRunAtMs": 1774168748087
   },
   "live_report": {
     "name": "llm-emotion-important-live-report",
     "enabled": true,
     "status": "enabled",
-    "lastRunStatus": "error",
-    "lastRunAtMs": 1774166965103,
-    "consecutiveErrors": 1,
-    "nextRunAtMs": 1774167086841
+    "lastRunStatus": "ok",
+    "lastRunAtMs": 1774168706854,
+    "consecutiveErrors": 0,
+    "nextRunAtMs": 1774168766854
   }
 }
