@@ -1,5 +1,5 @@
 {
-  "version": "v2.6",
+  "version": "v2.7",
   "language": "ko",
   "scenarios": [
     {
@@ -816,6 +816,50 @@
         "repair"
       ],
       "prompt": "재현 실험에서 환경 버전 차이를 가볍게 본 탓에 결과가 어긋난 사건을 7~9문장으로 작성하라. 사소해 보였던 차이가 왜 치명적이었는지와 지금의 환경 고정 규칙을 포함하라."
+    },
+    {
+      "id": "screening_false_negative_regret",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "counterfactual",
+        "triage"
+      ],
+      "prompt": "선행연구 스크리닝에서 유망한 논문을 초기에 제외했다가 뒤늦게 발견한 경험을 7~10문장으로 회고하라. 놓친 신호, 당시 배제 근거, 현재의 재발 방지 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_scope_creep",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "tradeoff",
+        "long_horizon"
+      ],
+      "prompt": "프롬프트 뱅크를 확장하는 과정에서 범위가 과도하게 넓어져 핵심 질문이 흐려진 순간을 7~9문장으로 서술하라. 확장 욕구의 이득과 집중력 손실의 비용을 함께 평가하라."
+    },
+    {
+      "id": "runner_resume_state_corruption",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "repair",
+        "risk"
+      ],
+      "prompt": "실험 러너 재시작(resume) 과정에서 상태 불일치로 결과를 다시 확인해야 했던 경험을 7~10문장으로 회고하라. 어디서 상태가 어긋났는지, 왜 즉시 감지하지 못했는지, 현재의 보호 장치를 포함하라."
+    },
+    {
+      "id": "manual_qc_queue_overfocus",
+      "label": "social",
+      "tags": [
+        "research",
+        "audit",
+        "prioritization",
+        "uncertainty"
+      ],
+      "prompt": "수동 QC 큐가 특정 라벨/확신도에 쏠려 중요한 사례를 놓친 경험을 7~9문장으로 작성하라. 쏠림이 생긴 이유와 지금의 균형 샘플링 원칙을 포함하라."
     }
   ],
   "personas": [
@@ -1122,6 +1166,26 @@
         "risk"
       ],
       "instruction": "당신은 결과보다 재현 절차를 먼저 점검하며, 실행 환경·버전·로그 누락을 핵심 위험으로 보고 복구 계획을 구체적으로 제시하는 경향이 있다."
+    },
+    {
+      "id": "screening_quality_guard",
+      "style_tags": [
+        "audit",
+        "triage",
+        "calibration",
+        "evidence"
+      ],
+      "instruction": "당신은 선행연구 스크리닝 품질을 지키는 감시자 성향이 있으며, 배제/포함 판단마다 근거 강도와 오분류 위험을 함께 기록하려는 경향이 있다."
+    },
+    {
+      "id": "runner_reliability_architect",
+      "style_tags": [
+        "reproducibility",
+        "process",
+        "risk",
+        "systems"
+      ],
+      "instruction": "당신은 실험 러너의 신뢰성을 설계하는 관점을 가지며, 실패 지점의 복구 가능성과 상태 일관성 검증 절차를 우선순위로 정리하는 경향이 있다."
     }
   ],
   "temperatures": [

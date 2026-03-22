@@ -748,6 +748,7 @@ def collect_manual_qc_queue(rows: List[Dict], include_th: float, review_th: floa
                 "openalex_id": row.get("id"),
                 "doi": row.get("doi"),
                 "source_query": row.get("query"),
+                "source_group": row.get("group"),
                 "label": label,
                 "score": score,
                 "confidence": confidence,
@@ -782,11 +783,22 @@ def collect_manual_qc_queue_balanced(
     limit: int = 40,
     per_label_limit: int = 10,
     per_confidence_limit: int = 8,
+    per_group_limit: int = 12,
 ) -> List[Dict]:
     ranked = collect_manual_qc_queue(rows, include_th, review_th, limit=max(limit * 4, 80))
     selected = []
     label_counts = {"include": 0, "review": 0, "exclude": 0}
     confidence_counts = {"high": 0, "medium": 0, "low": 0}
+    group_counts: Dict[str, int] = {}
+
+    def _norm_group(value) -> str:
+        if isinstance(value, list):
+            values = [str(v).strip() for v in value if str(v).strip()]
+            return values[0] if values else "unknown"
+        if isinstance(value, str):
+            value = value.strip()
+            return value if value else "unknown"
+        return "unknown"
 
     # First pass: balanced by both label and confidence to avoid review bias.
     for row in ranked:
@@ -800,9 +812,13 @@ def collect_manual_qc_queue_balanced(
             continue
         if confidence_counts.get(confidence, 0) >= per_confidence_limit:
             continue
+        group_name = _norm_group(row.get("source_group"))
+        if group_counts.get(group_name, 0) >= per_group_limit:
+            continue
         selected.append(row)
         label_counts[label] += 1
         confidence_counts[confidence] = confidence_counts.get(confidence, 0) + 1
+        group_counts[group_name] = group_counts.get(group_name, 0) + 1
 
     # Second pass: fill remaining slots with top-risk items while keeping label ceilings.
     for row in ranked:
@@ -815,8 +831,12 @@ def collect_manual_qc_queue_balanced(
             continue
         if label_counts[label] >= per_label_limit:
             continue
+        group_name = _norm_group(row.get("source_group"))
+        if group_counts.get(group_name, 0) >= per_group_limit:
+            continue
         selected.append(row)
         label_counts[label] += 1
+        group_counts[group_name] = group_counts.get(group_name, 0) + 1
 
     return selected
 
@@ -859,6 +879,7 @@ def write_manual_qc_csv(path: Path, queue: List[Dict]) -> None:
         "openalex_id",
         "doi",
         "source_query",
+        "source_group",
         "risk_reasons",
         "screening_reasons",
     ]
@@ -879,10 +900,32 @@ def write_manual_qc_csv(path: Path, queue: List[Dict]) -> None:
                     "openalex_id": row.get("openalex_id"),
                     "doi": row.get("doi"),
                     "source_query": row.get("source_query"),
+                    "source_group": row.get("source_group"),
                     "risk_reasons": ";".join(row.get("risk_reasons") or []),
                     "screening_reasons": ";".join(row.get("screening_reasons") or []),
                 }
             )
+
+
+def summarize_manual_qc_queue(queue: List[Dict]) -> Dict[str, Dict[str, int]]:
+    summary = {
+        "by_label": {},
+        "by_confidence": {},
+        "by_group": {},
+    }
+    for row in queue:
+        label = str(row.get("label") or "exclude")
+        confidence = str(row.get("confidence") or "low").lower()
+        group = row.get("source_group")
+        if isinstance(group, list):
+            group = next((str(v).strip() for v in group if str(v).strip()), "unknown")
+        else:
+            group = str(group or "unknown").strip() or "unknown"
+
+        summary["by_label"][label] = summary["by_label"].get(label, 0) + 1
+        summary["by_confidence"][confidence] = summary["by_confidence"].get(confidence, 0) + 1
+        summary["by_group"][group] = summary["by_group"].get(group, 0) + 1
+    return summary
 
 
 def main():
@@ -901,6 +944,12 @@ def main():
         help="max manual QC candidates per confidence bucket in balanced queue",
     )
     ap.add_argument("--manual-qc-csv", default="", help="optional CSV path for ranked manual QC triage queue")
+    ap.add_argument(
+        "--manual-qc-per-group",
+        type=int,
+        default=12,
+        help="max manual QC candidates per retrieval group in balanced queue",
+    )
     args = ap.parse_args()
 
     cfg = json.loads(Path(args.config).read_text(encoding="utf-8"))
@@ -977,6 +1026,7 @@ def main():
         limit=args.manual_qc_limit,
         per_label_limit=args.manual_qc_per_label,
         per_confidence_limit=args.manual_qc_per_confidence,
+        per_group_limit=args.manual_qc_per_group,
     )
 
     if args.report_out:
@@ -1002,6 +1052,7 @@ def main():
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
             "manual_qc_queue": ranked_manual_qc_queue,
             "manual_qc_queue_balanced": balanced_manual_qc_queue,
+            "manual_qc_queue_balanced_summary": summarize_manual_qc_queue(balanced_manual_qc_queue),
             "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
                 ordered, include_th, review_th, per_label_limit=args.manual_qc_per_label
             ),
@@ -1034,6 +1085,7 @@ def main():
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
             "manual_qc_queue": ranked_manual_qc_queue,
             "manual_qc_queue_balanced": balanced_manual_qc_queue,
+            "manual_qc_queue_balanced_summary": summarize_manual_qc_queue(balanced_manual_qc_queue),
             "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
                 ordered, include_th, review_th, per_label_limit=args.manual_qc_per_label
             ),

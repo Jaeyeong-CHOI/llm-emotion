@@ -304,6 +304,13 @@ def main():
         help="fail if any selected run id plans fewer than this many total samples (n × condition_cells × repeats)",
     )
     ap.add_argument("--manifest-note-file", default="", help="optional markdown/text file appended to manifest_note for reproducible run context")
+    ap.add_argument("--require-min-repeats", type=int, default=0, help="fail if a run config has fewer repeats than this minimum")
+    ap.add_argument(
+        "--require-min-temperature-span",
+        type=float,
+        default=0.0,
+        help="fail if max(temperature)-min(temperature) is below this minimum for any selected run",
+    )
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -355,6 +362,7 @@ def main():
     selected_run_cells = 0
     selected_total_samples = 0
     planned_samples_by_run: dict[str, int] = {}
+    run_preflight_rows: list[dict] = []
     include_run_ids = set(args.include_run_id)
     selected_run_ids = set()
     executed_ids = []
@@ -376,6 +384,17 @@ def main():
         seed = int(exp.get("seed", 42))
         temperatures = exp.get("temperatures", [0.2, 0.7])
         repeats = int(exp.get("repeats", 1))
+        if args.require_min_repeats and repeats < args.require_min_repeats:
+            raise RuntimeError(
+                f"{run_id}: repeats={repeats} < require_min_repeats={args.require_min_repeats}"
+            )
+        temp_span = 0.0
+        if temperatures:
+            temp_span = max(float(t) for t in temperatures) - min(float(t) for t in temperatures)
+        if args.require_min_temperature_span and temp_span < args.require_min_temperature_span:
+            raise RuntimeError(
+                f"{run_id}: temperature_span={round(temp_span, 4)} < require_min_temperature_span={args.require_min_temperature_span}"
+            )
         temp_csv = ",".join(str(t) for t in temperatures)
         prompt_bank = exp.get("prompt_bank", "prompts/prompt_bank_ko.json")
         scenario_ids = sorted(parse_csv_set(exp.get("scenario_ids")))
@@ -421,6 +440,18 @@ def main():
                 "scenario_ids": prompt_summary["scenario_ids"],
                 "persona_ids": prompt_summary["persona_ids"],
                 "temperature_count": len(temperatures),
+                "condition_cells": condition_cells,
+                "planned_samples": planned_samples,
+            }
+        )
+        run_preflight_rows.append(
+            {
+                "id": run_id,
+                "scenario_count": prompt_summary["scenario_count"],
+                "persona_count": prompt_summary["persona_count"],
+                "temperature_count": len(temperatures),
+                "temperature_span": round(temp_span, 4),
+                "repeats": repeats,
                 "condition_cells": condition_cells,
                 "planned_samples": planned_samples,
             }
@@ -585,6 +616,9 @@ def main():
         "require_min_total_samples": args.require_min_total_samples,
         "require_min_run_ids": args.require_min_run_ids,
         "require_min_planned_samples_per_run": args.require_min_planned_samples_per_run,
+        "require_min_repeats": args.require_min_repeats,
+        "require_min_temperature_span": args.require_min_temperature_span,
+        "run_preflight": run_preflight_rows,
         "duration_seconds": total_duration_seconds,
         "reproduce_script": str(reproduce_script.relative_to(ROOT)),
         "runs": runs,
