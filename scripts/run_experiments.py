@@ -3287,7 +3287,7 @@ def main():
         args.max_planned_sample_temperature_top8_share
         and planned_sample_temperature_top8_share > args.max_planned_sample_temperature_top8_share
     ):
-        preflight_errors.append(
+        raise RuntimeError(
             "planned_sample_temperature_top8_share="
             f"{planned_sample_temperature_top8_share} > max_planned_sample_temperature_top8_share={args.max_planned_sample_temperature_top8_share}"
         )
@@ -3295,7 +3295,7 @@ def main():
         args.max_planned_sample_temperature_top9_share
         and planned_sample_temperature_top9_share > args.max_planned_sample_temperature_top9_share
     ):
-        preflight_errors.append(
+        raise RuntimeError(
             "planned_sample_temperature_top9_share="
             f"{planned_sample_temperature_top9_share} > max_planned_sample_temperature_top9_share={args.max_planned_sample_temperature_top9_share}"
         )
@@ -3371,7 +3371,7 @@ def main():
         args.max_planned_sample_temperature_top8_over_uniform_ratio
         and planned_sample_temperature_top8_over_uniform_ratio > args.max_planned_sample_temperature_top8_over_uniform_ratio
     ):
-        preflight_errors.append(
+        raise RuntimeError(
             "planned_sample_temperature_top8_over_uniform_ratio="
             f"{planned_sample_temperature_top8_over_uniform_ratio} > max_planned_sample_temperature_top8_over_uniform_ratio={args.max_planned_sample_temperature_top8_over_uniform_ratio}"
         )
@@ -3379,7 +3379,7 @@ def main():
         args.max_planned_sample_temperature_top9_over_uniform_ratio
         and planned_sample_temperature_top9_over_uniform_ratio > args.max_planned_sample_temperature_top9_over_uniform_ratio
     ):
-        preflight_errors.append(
+        raise RuntimeError(
             "planned_sample_temperature_top9_over_uniform_ratio="
             f"{planned_sample_temperature_top9_over_uniform_ratio} > max_planned_sample_temperature_top9_over_uniform_ratio={args.max_planned_sample_temperature_top9_over_uniform_ratio}"
         )

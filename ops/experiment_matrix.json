@@ -2282,6 +2282,32 @@
       "n": 28,
       "seed": 10701,
       "repeats": 2
+    },
+    {
+      "id": "screening_prompt_runner_top8_top10_v108",
+      "n": 12,
+      "seed": 1080,
+      "repeats": 2,
+      "temperatures": [
+        0.1,
+        0.3,
+        0.5,
+        0.7,
+        0.9,
+        1.0
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_top8_ratio_guard_v108",
+        "prompt_bank_top8_tail_counterbalance_patch_v108",
+        "runner_temperature_top10_uniformity_tripwire_v108"
+      ],
+      "persona_ids": [
+        "screening_quality_guard",
+        "prompt_bank_curator",
+        "runner_reliability_architect",
+        "temperature_top10_uniformity_guard_v108"
+      ]
     }
   ]
 }

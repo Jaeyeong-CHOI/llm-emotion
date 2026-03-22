@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year top8 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top8-query-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-top8-over-global-top8-ratio`)를 추가해, top7 통과 이후 남는 누적 과점을 fail-fast로 차단합니다.
+- Experiment runner preflight의 temperature top8/top9 guardrail이 `preflight_errors` 누락 참조로 비정상 종료될 수 있던 경로를 제거하고, **top8/top9 share + over-uniform 임계치에서 즉시 RuntimeError로 fail-fast** 하도록 고쳤습니다.
+- Prompt bank expanded to `v10.8` with **unknown-year top8 ratio guard / top8 tail counterbalance patch / temperature top10 uniformity tripwire** 시나리오와 신규 페르소나(`temperature_top10_uniformity_guard_v108`)를 추가했습니다.
 - Literature screening quality gate에 **unknown-year top7 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top7-query-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-top7-over-global-top7-ratio`)를 추가해, top6 통과 이후 남는 누적 과점을 fail-fast로 차단합니다.
 - Prompt bank expanded to `v10.7` with **unknown-year top7 ratio guard / top7 tail counterbalance patch / temperature top9 uniformity tripwire** 시나리오와 신규 페르소나(`temperature_top9_uniformity_guard_v107`)를 추가했습니다.
 - Experiment runner preflight에 **temperature top9 share + top9-over-uniform guardrail** (`--max-planned-sample-temperature-top9-share`, `--max-planned-sample-temperature-top9-over-uniform-ratio`)을 추가해, top8은 통과해도 상위 9개 온도 누적 집중이 과도한 배치를 사전에 차단합니다.
@@ -86,7 +89,7 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 - Screening quality gate continues to track **review evidence-link decay share** (`--max-manual-qc-review-evidence-link-decay-share`) to fail fast when review 근거의 문장-링크 연결이 약화됩니다.
 
 ## Repository structure
-- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v104.md`)
+- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v108.md`)
 - `queries/`: retrieval queries and screening rules
 - `prompts/`: Korean prompt bank and scenario source material
 - `scripts/`: literature sync, dataset generation, analysis, experiment runner
