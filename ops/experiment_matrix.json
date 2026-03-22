@@ -566,6 +566,31 @@
         "prompt_balance_curator",
         "success_floor_operator"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_reliability_v40",
+      "n": 12,
+      "seed": 21919,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_keyword_semantic_shadow",
+        "screening_citation_bridge_backtracking",
+        "prompt_bank_negative_control_gap",
+        "runner_retry_tier_policy_shift",
+        "runner_preflight_success_floor_tripwire"
+      ],
+      "persona_ids": [
+        "retrieval_recall_mapper",
+        "citation_chain_auditor",
+        "prompt_balance_curator",
+        "retry_policy_strategist"
+      ]
     }
   ]
 }

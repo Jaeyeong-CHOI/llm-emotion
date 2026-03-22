@@ -4,10 +4,10 @@
 Test whether LLM outputs in loss and counterfactual scenarios exhibit language patterns that resemble human regret narratives, while keeping scenario selection reproducible and auditable.
 
 ## Current design updates
-- Prompt bank is now `v3.8`, adding recall/runner-safety scenarios (`screening_keyword_semantic_shadow`, `prompt_bank_recall_counterweight_injection`, `runner_preflight_success_floor_tripwire`) on top of prior multilingual/drift/recovery sets.
-- Persona bank now also includes `retrieval_recall_mapper` and `success_floor_operator` to probe retrieval-gap recall safeguards and successful-cell floor operations in batch execution.
+- Prompt bank is now `v3.9`, adding citation-trace / negative-control / retry-tier scenarios (`screening_citation_bridge_backtracking`, `prompt_bank_negative_control_gap`, `runner_retry_tier_policy_shift`) on top of prior recall/drift/recovery sets.
+- Persona bank now also includes `citation_chain_auditor` and `retry_policy_strategist` to probe citation-chain recall rescue and failure-type-aware retry operations.
 - Scenario rows carry `tags` and stable `id`s for reproducible focused subsets (`scenario_tags` and `scenario_ids`).
-- Experiment matrix now includes `screening_prompt_runner_autonomy_v39`, while runner supports aggregate batch-coverage gates (`--require-min-selected-scenarios`, `--require-min-selected-personas`, `--require-min-selected-scenario-tags`, `--require-min-selected-persona-style-tags`) plus `--continue-on-error`, `--max-failed-cells`, `--max-failure-streak`, `--require-min-successful-cells`, retry controls, JSONL command logs, and `--resume-verify-hashes`.
+- Experiment matrix now includes `screening_prompt_runner_reliability_v40`, while runner supports aggregate batch-coverage gates (`--require-min-selected-scenarios`, `--require-min-selected-personas`, `--require-min-selected-scenario-tags`, `--require-min-selected-persona-style-tags`) plus `--continue-on-error`, `--max-failed-cells`, `--max-failure-streak`, `--require-min-successful-cells`, `--require-min-success-rate`, retry controls, JSONL command logs, and `--resume-verify-hashes`.
 
 ## Experimental factors
 - Prompt condition: control, deprivation/loss, counterfactual, social, identity, moral, regulation
@@ -93,3 +93,18 @@ Observed results (v39):
 - `screening_qc_v38`: `status=pass`, `quality_score=100.0`, 신규 `balanced_min_per_label_floor` 게이트 포함 보고서 생성 확인
 - `smoke_v39_plan`: 6개 run id preflight 통과(`selected_run_cells=12`, `selected_total_samples=8640`), prompt bank `v3.8` 고정 및 selection report(JSON/CSV) 생성
 - `smoke_v39_exec`: subset 실행에서 1개 run cell 성공(`successful_cells=1`)으로 `--require-min-successful-cells` 가드레일 동작 검증
+
+## Smoke validation (v40 reliability loop)
+Executed on `2026-03-22`:
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v40 --min-balanced-review-rows 6 --min-manual-qc-include-rows 2 --max-manual-qc-label-dominance 0.75
+printf '%s\n' screening_precision_rebalance_v35 prompt_runner_resilience_v35 screening_prompt_replay_v36 screening_prompt_runner_hardening_v37 screening_prompt_runner_resilience_v38 screening_prompt_runner_autonomy_v39 screening_prompt_runner_reliability_v40 > /tmp/llm_emotion_run_ids_v40.txt
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v40_plan --plan-only --run-id-file /tmp/llm_emotion_run_ids_v40.txt --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v40.json --selection-csv results/selection_report_smoke_v40.csv --require-min-scenarios 4 --require-min-personas 4 --require-min-unique-scenario-tags 4 --require-min-unique-persona-style-tags 7 --require-min-temperature-count 2 --require-min-temperature-span 0.3 --require-min-repeats 1 --require-min-condition-cells 48 --require-min-run-cells 14 --require-min-run-ids 7 --require-min-total-samples 10000 --require-min-planned-samples-per-run 1100 --require-min-selected-scenarios 24 --require-min-selected-personas 19 --require-min-selected-scenario-tags 16 --require-min-selected-persona-style-tags 17 --require-prompt-bank-version v3.9 --require-freeze-artifact refs/openalex_results.jsonl --require-freeze-artifact results/lit_search_report.json --require-freeze-artifact results/screening_quality_report.json --manifest-note "preflight v40"
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v40_exec --run-id-file /tmp/llm_emotion_run_ids_v40.txt --fail-on-missing-run-id --manifest-markdown --max-runs 1 --max-retries 1 --retry-backoff-seconds 1 --continue-on-error --max-failed-cells 1 --max-failure-rate 0.5 --max-failure-streak 1 --require-min-successful-cells 1 --require-min-success-rate 0.07 --execution-log-jsonl results/experiments/smoke_v40_exec/command_log.jsonl --require-min-total-samples 1000
+```
+
+Observed results (v40):
+- `screening_qc_v40`: `status=pass`, `quality_score=100.0`, 신규 수동 QC 게이트(`manual_qc_include_rows_floor`, `manual_qc_label_dominance_ceiling`) 계산/보고 확인
+- `smoke_v40_plan`: 7개 run id preflight 통과(`selected_run_cells=14`, `selected_total_samples=10080`), 신규 `screening_prompt_runner_reliability_v40` 포함 selection report(JSON/CSV) 생성
+- `smoke_v40_exec`: subset 실행에서 `successful_cells=1`, `success_rate=0.0714`로 `--require-min-success-rate` 가드레일 동작 검증

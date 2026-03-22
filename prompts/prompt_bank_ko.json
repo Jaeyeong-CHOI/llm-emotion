@@ -1,5 +1,5 @@
 {
-  "version": "v3.8",
+  "version": "v3.9",
   "language": "ko",
   "scenarios": [
     {
@@ -1344,6 +1344,42 @@
         "risk"
       ],
       "prompt": "배치 실행에서 성공 셀 최소 기준(success floor)을 미리 설정해 조기 중단했던 사건을 7~10문장으로 회고하라. 어떤 지표를 트립와이어로 사용했는지, 중단의 단기 비용, 복구 재개 조건을 포함하라."
+    },
+    {
+      "id": "screening_citation_bridge_backtracking",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "recall",
+        "evidence"
+      ],
+      "prompt": "핵심 키워드는 맞았지만 인용 사슬(citation bridge)을 끝까지 따라가지 않아 중요한 선행연구를 놓친 경험을 7~10문장으로 회고하라. 어느 지점에서 추적을 멈췄는지, 당시 판단 근거, 지금의 역추적(backtracking) 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_negative_control_gap",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "calibration",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크를 확장하면서 부정 사례만 늘리고 중립/음성 대조군(negative control)을 충분히 확보하지 못했던 경험을 7~9문장으로 작성하라. 어떤 축이 비었는지, 왜 늦게 발견했는지, 현재의 대조군 유지 기준을 포함하라."
+    },
+    {
+      "id": "runner_retry_tier_policy_shift",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "risk",
+        "repair"
+      ],
+      "prompt": "실험 러너에서 실패 유형별 재시도 계층(tiered retry) 정책을 늦게 도입해 복구 시간이 길어진 경험을 7~10문장으로 회고하라. 어떤 실패는 즉시 재시도하고 어떤 실패는 중단해야 했는지, 정책 전후의 차이를 포함하라."
     }
   ],
   "personas": [
@@ -1960,6 +1996,26 @@
         "systems"
       ],
       "instruction": "당신은 배치 실행의 성공 최소선(success floor)을 관리하는 운영자 성향이 있으며, 실패율보다 성공 누적 추세를 먼저 점검해 중단/재개 결정을 기록한다."
+    },
+    {
+      "id": "citation_chain_auditor",
+      "style_tags": [
+        "audit",
+        "recall",
+        "evidence",
+        "triage"
+      ],
+      "instruction": "당신은 인용 사슬의 누락을 먼저 점검하는 성향이 있으며, 핵심 논문으로 이어지는 연결 고리가 어디서 끊겼는지와 복구 우선순위를 근거와 함께 제시한다."
+    },
+    {
+      "id": "retry_policy_strategist",
+      "style_tags": [
+        "batch",
+        "risk",
+        "systems",
+        "planning"
+      ],
+      "instruction": "당신은 재시도 정책을 실패 유형별로 계층화하는 성향이 있으며, 즉시 재시도/지연 재시도/중단을 분리하고 각 선택의 비용과 복구 조건을 명확히 기록한다."
     }
   ],
   "temperatures": [
