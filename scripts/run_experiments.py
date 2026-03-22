@@ -302,6 +302,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- min_planned_samples: `{preflight_summary.get('min_planned_samples', 0)}`",
         f"- unique_selected_scenarios: `{preflight_summary.get('unique_selected_scenarios', 0)}`",
         f"- unique_selected_personas: `{preflight_summary.get('unique_selected_personas', 0)}`",
+        f"- unique_selected_scenario_tags: `{preflight_summary.get('unique_selected_scenario_tags', 0)}`",
+        f"- unique_selected_persona_style_tags: `{preflight_summary.get('unique_selected_persona_style_tags', 0)}`",
         "",
         "## Run-id summary",
         "",
@@ -471,6 +473,18 @@ def main():
         help="fail if the selected batch covers fewer than this many unique persona ids in total",
     )
     ap.add_argument(
+        "--require-min-selected-scenario-tags",
+        type=int,
+        default=0,
+        help="fail if the selected batch covers fewer than this many unique scenario tags in total",
+    )
+    ap.add_argument(
+        "--require-min-selected-persona-style-tags",
+        type=int,
+        default=0,
+        help="fail if the selected batch covers fewer than this many unique persona style tags in total",
+    )
+    ap.add_argument(
         "--require-prompt-bank-version",
         default="",
         help="fail if selected run prompt-bank version does not match this exact value",
@@ -509,6 +523,12 @@ def main():
         type=float,
         default=0.0,
         help="when --continue-on-error, stop batch if failed_cells/executed_or_failed exceeds this ratio (0 = no limit)",
+    )
+    ap.add_argument(
+        "--max-failure-streak",
+        type=int,
+        default=0,
+        help="when --continue-on-error, stop batch after this many consecutive failed cells (0 = no limit)",
     )
     args = ap.parse_args()
 
@@ -592,12 +612,15 @@ def main():
     executed = 0
     failed_cells = 0
     attempted_run_cells = 0
+    failure_streak = 0
     selected_run_cells = 0
     selected_total_samples = 0
     planned_samples_by_run: dict[str, int] = {}
     run_preflight_rows: list[dict] = []
     aggregate_scenario_ids: set[str] = set()
     aggregate_persona_ids: set[str] = set()
+    aggregate_scenario_tags: set[str] = set()
+    aggregate_persona_style_tags: set[str] = set()
     include_run_ids = set(args.include_run_id)
     if args.run_id_file:
         run_id_file = ROOT / args.run_id_file
@@ -671,6 +694,8 @@ def main():
         prompt_bank_versions.add(prompt_bank_version)
         aggregate_scenario_ids.update(prompt_summary["scenario_ids"])
         aggregate_persona_ids.update(prompt_summary["persona_ids"])
+        aggregate_scenario_tags.update(prompt_summary["scenario_tags"])
+        aggregate_persona_style_tags.update(prompt_summary["persona_style_tags"])
         condition_cells = prompt_summary["scenario_count"] * prompt_summary["persona_count"] * max(1, len(temperatures))
         planned_samples = n * condition_cells * max(1, repeats)
         planned_samples_by_run[run_id] = planned_samples
@@ -843,11 +868,19 @@ def main():
                 row["error"] = str(err).strip()
                 runs.append(row)
                 failed_cells += 1
+                failure_streak += 1
                 if not args.continue_on_error:
                     raise RuntimeError(f"generation failed for {run_key}: {err}")
                 if args.max_failed_cells > 0 and failed_cells >= args.max_failed_cells:
                     print(
                         f"[WARN] failed_cells reached max_failed_cells ({failed_cells}/{args.max_failed_cells}); stopping batch early"
+                    )
+                    stop_requested = True
+                    break
+                if args.max_failure_streak > 0 and failure_streak >= args.max_failure_streak:
+                    print(
+                        "[WARN] failure_streak reached max_failure_streak "
+                        f"({failure_streak}/{args.max_failure_streak}); stopping batch early"
                     )
                     stop_requested = True
                     break
@@ -877,11 +910,19 @@ def main():
                 row["dataset_sha256"] = maybe_file_sha256(dataset_path)
                 runs.append(row)
                 failed_cells += 1
+                failure_streak += 1
                 if not args.continue_on_error:
                     raise RuntimeError(f"analysis failed for {run_key}: {err2}")
                 if args.max_failed_cells > 0 and failed_cells >= args.max_failed_cells:
                     print(
                         f"[WARN] failed_cells reached max_failed_cells ({failed_cells}/{args.max_failed_cells}); stopping batch early"
+                    )
+                    stop_requested = True
+                    break
+                if args.max_failure_streak > 0 and failure_streak >= args.max_failure_streak:
+                    print(
+                        "[WARN] failure_streak reached max_failure_streak "
+                        f"({failure_streak}/{args.max_failure_streak}); stopping batch early"
                     )
                     stop_requested = True
                     break
@@ -900,6 +941,7 @@ def main():
             row["dataset_sha256"] = maybe_file_sha256(dataset_path)
             row["metrics_sha256"] = maybe_file_sha256(metrics_path)
             row["status"] = "ok"
+            failure_streak = 0
             runs.append(row)
             all_metric_paths.append(metrics_path)
             run_metric_paths.setdefault(run_id, []).append(metrics_path)
@@ -928,6 +970,16 @@ def main():
             "selected_unique_personas="
             f"{len(aggregate_persona_ids)} < require_min_selected_personas={args.require_min_selected_personas}"
         )
+    if args.require_min_selected_scenario_tags and len(aggregate_scenario_tags) < args.require_min_selected_scenario_tags:
+        raise RuntimeError(
+            "selected_unique_scenario_tags="
+            f"{len(aggregate_scenario_tags)} < require_min_selected_scenario_tags={args.require_min_selected_scenario_tags}"
+        )
+    if args.require_min_selected_persona_style_tags and len(aggregate_persona_style_tags) < args.require_min_selected_persona_style_tags:
+        raise RuntimeError(
+            "selected_unique_persona_style_tags="
+            f"{len(aggregate_persona_style_tags)} < require_min_selected_persona_style_tags={args.require_min_selected_persona_style_tags}"
+        )
     if args.require_min_planned_samples_per_run:
         underfilled = [
             f"{run_id}:{planned}"
@@ -953,6 +1005,8 @@ def main():
         "min_planned_samples": min((row.get("planned_samples", 0) for row in run_preflight_rows), default=0),
         "unique_selected_scenarios": len(aggregate_scenario_ids),
         "unique_selected_personas": len(aggregate_persona_ids),
+        "unique_selected_scenario_tags": len(aggregate_scenario_tags),
+        "unique_selected_persona_style_tags": len(aggregate_persona_style_tags),
     }
     snapshot_hashes = {
         "experiment_matrix": file_sha256(matrix_snapshot),
@@ -1011,6 +1065,8 @@ def main():
         "continue_on_error": args.continue_on_error,
         "max_failed_cells": args.max_failed_cells,
         "max_failure_rate": args.max_failure_rate,
+        "max_failure_streak": args.max_failure_streak,
+        "final_failure_streak": failure_streak,
         "stopped_early": stop_requested,
         "selected_run_cells": selected_run_cells,
         "selected_total_samples": selected_total_samples,
@@ -1024,6 +1080,8 @@ def main():
         "require_min_temperature_span": args.require_min_temperature_span,
         "require_min_unique_scenario_tags": args.require_min_unique_scenario_tags,
         "require_min_unique_persona_style_tags": args.require_min_unique_persona_style_tags,
+        "require_min_selected_scenario_tags": args.require_min_selected_scenario_tags,
+        "require_min_selected_persona_style_tags": args.require_min_selected_persona_style_tags,
         "require_prompt_bank_version": args.require_prompt_bank_version,
         "resume_verify_hashes": args.resume_verify_hashes,
         "resume_verified": resume_verified,

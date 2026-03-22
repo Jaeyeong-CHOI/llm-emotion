@@ -1,5 +1,5 @@
 {
-  "version": "v3.6",
+  "version": "v3.7",
   "language": "ko",
   "scenarios": [
     {
@@ -1278,6 +1278,39 @@
         "repair"
       ],
       "prompt": "manifest 필드 누락을 패치한 뒤 실험을 재시작하면서 상태 일관성을 복구했던 사건을 7~10문장으로 회고하라. 무엇이 누락됐는지, 어떤 검증 순서로 재개했는지, 재발 방지 체크리스트를 포함하라."
+    },
+    {
+      "id": "screening_manual_qc_recall_rescue",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "recall"
+      ],
+      "prompt": "수동 QC에서 처음에는 낮은 우선순위였지만 재현율 관점에서 반드시 살려야 했던 논문을 구조한 경험을 7~10문장으로 회고하라. 어떤 신호가 재분류를 촉발했는지, 초기 판단의 맹점, 다음 라운드의 재현율 보호 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_prompt_polarity_balance",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "calibration"
+      ],
+      "prompt": "프롬프트 뱅크가 부정 정서 쪽으로 과도하게 기울어 비교 실험 해석이 왜곡될 뻔한 경험을 7~9문장으로 작성하라. 편향 징후를 어떻게 감지했는지, 균형 복구 기준, 버전 기록 규칙을 포함하라."
+    },
+    {
+      "id": "runner_failure_streak_circuit_breaker",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "risk"
+      ],
+      "prompt": "실험 러너에서 연속 실패가 누적되자 회로 차단(circuit breaker) 기준으로 배치를 중단했던 경험을 7~10문장으로 회고하라. 어떤 실패 패턴을 연속 실패로 판정했는지, 중단 직전 신호, 복구 재개 조건을 포함하라."
     }
   ],
   "personas": [
@@ -1844,6 +1877,36 @@
         "accountability"
       ],
       "instruction": "당신은 재시작 복구 운영자 성향이 있으며, manifest·로그·산출물 해시를 대조해 일관성이 확인될 때만 실행을 재개한다."
+    },
+    {
+      "id": "recall_safety_analyst",
+      "style_tags": [
+        "audit",
+        "recall",
+        "triage",
+        "calibration"
+      ],
+      "instruction": "당신은 스크리닝 미탐 비용을 우선 점검하는 성향이 있으며, 경계선 사례에서 재현율 손실 위험을 먼저 계량해 재검토 순서를 제시한다."
+    },
+    {
+      "id": "prompt_balance_curator",
+      "style_tags": [
+        "process",
+        "balance",
+        "documentation",
+        "calibration"
+      ],
+      "instruction": "당신은 프롬프트 분포의 정서·도메인 편향을 먼저 점검하는 성향이 있으며, 항목 추가/삭제마다 균형 근거와 버전 메모를 함께 남긴다."
+    },
+    {
+      "id": "failure_streak_controller",
+      "style_tags": [
+        "batch",
+        "risk",
+        "systems",
+        "repair"
+      ],
+      "instruction": "당신은 연속 실패 패턴을 조기 차단하는 운영자 성향이 있으며, 중단 임계치·복구 조건·재개 순서를 분리해 기록한다."
     }
   ],
   "temperatures": [

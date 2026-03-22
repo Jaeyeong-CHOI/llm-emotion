@@ -4,10 +4,10 @@
 Test whether LLM outputs in loss and counterfactual scenarios exhibit language patterns that resemble human regret narratives, while keeping scenario selection reproducible and auditable.
 
 ## Current design updates
-- Prompt bank is now `v3.6`, adding hardening scenarios (`screening_borderline_confidence_flip`, `prompt_bank_duplicate_cluster_cleanup`, `runner_resume_after_manifest_patch`) on top of prior multilingual/drift/recovery sets.
-- Persona bank now also includes `screening_recall_guardian`, `prompt_overlap_pruner`, and `resume_recovery_operator` to probe recall-preserving screening, semantic-overlap pruning policy, and resume-state recovery discipline.
+- Prompt bank is now `v3.7`, adding hardening scenarios (`screening_manual_qc_recall_rescue`, `prompt_bank_prompt_polarity_balance`, `runner_failure_streak_circuit_breaker`) on top of prior multilingual/drift/recovery sets.
+- Persona bank now also includes `recall_safety_analyst`, `prompt_balance_curator`, and `failure_streak_controller` to probe recall-preserving screening, prompt-polarity balancing policy, and failure-streak stop/recovery discipline.
 - Scenario rows carry `tags` and stable `id`s for reproducible focused subsets (`scenario_tags` and `scenario_ids`).
-- Experiment matrix now includes `screening_prompt_replay_v36` and `screening_prompt_runner_hardening_v37`, while runner supports aggregate batch-coverage gates (`--require-min-selected-scenarios`, `--require-min-selected-personas`) plus `--continue-on-error`, `--max-failed-cells`, retry controls, JSONL command logs, and `--resume-verify-hashes`.
+- Experiment matrix now includes `screening_prompt_replay_v36`, `screening_prompt_runner_hardening_v37`, and `screening_prompt_runner_resilience_v38`, while runner supports aggregate batch-coverage gates (`--require-min-selected-scenarios`, `--require-min-selected-personas`, `--require-min-selected-scenario-tags`, `--require-min-selected-persona-style-tags`) plus `--continue-on-error`, `--max-failed-cells`, `--max-failure-streak`, retry controls, JSONL command logs, and `--resume-verify-hashes`.
 
 ## Experimental factors
 - Prompt condition: control, deprivation/loss, counterfactual, social, identity, moral, regulation

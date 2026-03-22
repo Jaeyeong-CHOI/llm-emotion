@@ -951,7 +951,7 @@ def collect_manual_qc_queue(rows: List[Dict], include_th: float, review_th: floa
 
 
 def collect_manual_qc_queue_by_label(rows: List[Dict], include_th: float, review_th: float, per_label_limit: int = 10) -> Dict[str, List[Dict]]:
-    full_queue = collect_manual_qc_queue(rows, include_th, review_th, limit=max(40, per_label_limit * 6))
+    full_queue = collect_manual_qc_queue(rows, include_th, review_th, limit=max(len(rows), 40, per_label_limit * 6))
     out = {"include": [], "review": [], "exclude": []}
     for row in full_queue:
         label = str(row.get("label") or "exclude")
@@ -973,7 +973,7 @@ def collect_manual_qc_queue_balanced(
     per_confidence_limit: int = 8,
     per_group_limit: int = 12,
 ) -> List[Dict]:
-    ranked = collect_manual_qc_queue(rows, include_th, review_th, limit=max(limit * 4, 80))
+    ranked = collect_manual_qc_queue(rows, include_th, review_th, limit=max(len(rows), limit * 4, 80))
     selected = []
     selected_keys = set()
     label_counts = {"include": 0, "review": 0, "exclude": 0}
