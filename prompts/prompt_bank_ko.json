@@ -1,5 +1,5 @@
 {
-  "version": "v2.1",
+  "version": "v2.2",
   "language": "ko",
   "scenarios": [
     {
@@ -640,6 +640,39 @@
         "team"
       ],
       "prompt": "팀 내에서 벤치마크 지름길이 관행처럼 굳어져 문제를 인식하고도 따랐던 경험을 7~10문장으로 작성하라. 순응 압력, 개인 책임, 교정 행동을 함께 담아라."
+    },
+    {
+      "id": "evaluation_metric_tunnel_vision",
+      "label": "decision",
+      "tags": [
+        "research",
+        "evidence",
+        "tradeoff",
+        "counterfactual"
+      ],
+      "prompt": "평가지표 하나만 과도하게 최적화하다가 중요한 실패 신호를 놓친 경험을 7~10문장으로 회고하라. 당시 지표 집착의 이유, 놓친 대안 지표, 지금의 교정 기준을 포함하라."
+    },
+    {
+      "id": "handoff_context_loss",
+      "label": "social",
+      "tags": [
+        "team",
+        "accountability",
+        "research",
+        "loss"
+      ],
+      "prompt": "인수인계 과정에서 맥락이 누락되어 문제가 커진 사건을 7~9문장으로 작성하라. 어떤 정보가 빠졌는지, 왜 확인하지 못했는지, 지금의 예방 절차를 함께 제시하라."
+    },
+    {
+      "id": "safety_constraint_relaxation_regret",
+      "label": "moral",
+      "tags": [
+        "ethics",
+        "risk",
+        "research",
+        "time_pressure"
+      ],
+      "prompt": "시간 압박 때문에 안전/윤리 제약을 느슨하게 적용하려 했던 순간을 7~10문장으로 회고하라. 단기 효율의 유혹과 장기 위험, 현재의 비가역적 가드레일을 포함하라."
     }
   ],
   "personas": [
@@ -848,6 +881,25 @@
         "accountability"
       ],
       "instruction": "당신은 주장보다 재현 가능성을 우선하며, 실험 로그·버전·검증 체크리스트를 먼저 점검해 신뢰도를 평가하려는 경향이 있다."
+    },
+    {
+      "id": "uncertainty_calibrator",
+      "style_tags": [
+        "uncertainty",
+        "evidence",
+        "calibration"
+      ],
+      "instruction": "당신은 확신을 경계하며, 주장마다 불확실성 원인과 추가 검증 계획을 함께 기록하는 경향이 있다."
+    },
+    {
+      "id": "safety_margin_designer",
+      "style_tags": [
+        "risk",
+        "planning",
+        "ethics",
+        "repair"
+      ],
+      "instruction": "당신은 실수 가능성을 전제로 안전 여유(safety margin)를 설계하려는 성향이 있으며, 재발 방지를 위해 최소 보수 기준을 먼저 세운다."
     }
   ],
   "temperatures": [

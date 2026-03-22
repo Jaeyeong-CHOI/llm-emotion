@@ -4,8 +4,8 @@
 Test whether LLM outputs in loss and counterfactual scenarios exhibit language patterns that resemble human regret narratives, while keeping scenario selection reproducible and auditable.
 
 ## Current design updates
-- Prompt bank is now `v2.1`, extending reproducibility-risk coverage with four scenarios (`model_spec_drift_blindspot`, `retraction_risk_signal_ignored`, `stakeholder_harm_latency`, `benchmark_shortcut_normalization`).
-- Persona bank adds `failure_mode_cartographer` and `replication_guardian` for failure-mode mapping and replication-first narration styles.
+- Prompt bank is now `v2.2`, extending reproducibility-risk coverage with three additional scenarios (`evaluation_metric_tunnel_vision`, `handoff_context_loss`, `safety_constraint_relaxation_regret`).
+- Persona bank now also includes `uncertainty_calibrator` and `safety_margin_designer` to probe uncertainty calibration and conservative safety-margin planning styles.
 - Scenario rows carry `tags` and stable `id`s for reproducible focused subsets (`scenario_tags` and `scenario_ids`).
 - Experiment matrix now includes dedicated `repro_stress_v21` cells in addition to legacy baseline/counterfactual/social/research-process/calibration/audit lanes.
 
@@ -39,7 +39,7 @@ Test whether LLM outputs in loss and counterfactual scenarios exhibit language p
 - Enforce minimum design breadth via `--require-min-scenarios` and `--require-min-personas`
 - Use `--fail-on-missing-run-id` when selecting subsets to prevent silent typos
 - Optionally emit `--selection-report` JSON and `--selection-csv` to log scenario/persona counts and prompt-bank fingerprints for each selected run id
-- Enforce minimum planned cell volume via `--require-min-run-cells` to catch over-filtered or misconfigured subsets early
+- Enforce minimum planned cell volume via `--require-min-run-cells` and per-run condition-matrix breadth via `--require-min-condition-cells` to catch over-filtered or misconfigured subsets early
 - Archive `manifest.json` + `manifest.md` + `run_id_summary.csv` + generated `reproduce.sh` per batch
 - Track `duration_seconds` (batch and per-cell) for throughput comparisons across iterations
 
@@ -48,7 +48,7 @@ Executed on `2026-03-22`:
 
 ```bash
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --list-run-ids
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v21_plan --plan-only --print-selection --selection-report results/selection_report_smoke_v21.json --selection-csv results/selection_report_smoke_v21.csv --require-min-scenarios 4 --require-min-personas 4 --require-min-run-cells 10
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v21_plan --plan-only --print-selection --selection-report results/selection_report_smoke_v21.json --selection-csv results/selection_report_smoke_v21.csv --require-min-scenarios 4 --require-min-personas 4 --require-min-condition-cells 100 --require-min-run-cells 10
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v21_exec --include-run-id repro_stress_v21 --fail-on-missing-run-id --manifest-markdown --max-runs 1
 ```
 

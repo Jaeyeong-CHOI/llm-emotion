@@ -605,6 +605,53 @@ def summarize_include_guard(rows: List[Dict]) -> Dict[str, int]:
     return out
 
 
+def collect_quality_alerts(rows: List[Dict], include_th: float, review_th: float) -> Dict[str, List[Dict]]:
+    def compact(row: Dict, extra: Dict | None = None) -> Dict:
+        payload = {
+            "title": row.get("title"),
+            "year": row.get("year"),
+            "score": row.get("screening_score"),
+            "label": row.get("screening_label"),
+            "confidence": row.get("screening_confidence"),
+            "priority": row.get("screening_priority"),
+            "reasons": row.get("screening_reasons", [])[:6],
+        }
+        if extra:
+            payload.update(extra)
+        return payload
+
+    include_gate_fail_near = []
+    review_gate_fail_near = []
+    llm_only_weak_method = []
+
+    for row in rows:
+        features = row.get("screening_features") or {}
+        score = float(row.get("screening_score") or 0.0)
+        method_hits = int(features.get("method_hits", 0) or 0)
+        review_hits = int(features.get("review_priority_hits", 0) or 0)
+        include_hits = int(features.get("include_hits", 0) or 0)
+        llm_hits = int(features.get("llm_concept_hits", 0) or 0)
+
+        if score >= (include_th - 0.6) and not features.get("include_gate_ok", True):
+            include_gate_fail_near.append(compact(row, {"include_gate_ok": False}))
+
+        if score >= review_th and not features.get("review_gate_ok", True):
+            review_gate_fail_near.append(compact(row, {"review_gate_ok": False}))
+
+        if llm_hits > 0 and include_hits >= 2 and method_hits == 0 and review_hits == 0:
+            llm_only_weak_method.append(compact(row, {"method_hits": method_hits, "review_hits": review_hits}))
+
+    include_gate_fail_near = sorted(include_gate_fail_near, key=lambda x: x.get("score", 0), reverse=True)[:30]
+    review_gate_fail_near = sorted(review_gate_fail_near, key=lambda x: x.get("score", 0), reverse=True)[:30]
+    llm_only_weak_method = sorted(llm_only_weak_method, key=lambda x: x.get("score", 0), reverse=True)[:30]
+
+    return {
+        "include_gate_fail_near_threshold": include_gate_fail_near,
+        "review_gate_fail_near_threshold": review_gate_fail_near,
+        "llm_signal_but_weak_method_evidence": llm_only_weak_method,
+    }
+
+
 def summarize_bridge_signal(rows: List[Dict]) -> Dict[str, int]:
     out = {"with_bridge_sentence": 0, "without_bridge_sentence": 0}
     for r in rows:
@@ -707,6 +754,7 @@ def main():
             "llm_concept": summarize_llm_concept(ordered),
             "per_query": query_stats,
             "top_priority_titles": [r.get("title") for r in ordered[:10] if r.get("screening_priority") == "high"],
+            "quality_alerts": collect_quality_alerts(ordered, float(rules.get("threshold_include", 3.0)), float(rules.get("threshold_review", float(rules.get("threshold_include", 3.0)) / 2))),
         }
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"report: {report_path}")
@@ -727,6 +775,7 @@ def main():
                 "llm_concept": summarize_llm_concept(ordered),
             },
             "borderline": collect_borderline(ordered, include_th, review_th),
+            "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
             "exclude_high_score_without_llm": [
                 {
                     "title": r.get("title"),

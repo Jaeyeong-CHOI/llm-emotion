@@ -9,8 +9,8 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 
 ## Current iteration highlights
 - Literature screening quality now emits explicit QC diagnostics (`--audit-out`) with borderline include/review candidates and high-score-but-non-LLM excludes for fast manual triage.
-- Prompt bank expanded to `v2.1` with four new reproducibility-risk scenarios (`model_spec_drift_blindspot`, `retraction_risk_signal_ignored`, `stakeholder_harm_latency`, `benchmark_shortcut_normalization`) and two personas (`failure_mode_cartographer`, `replication_guardian`).
-- Experiment runner reproducibility upgraded with stricter planning guards via `--require-min-run-cells` plus existing run-selection checks/artifacts (`--require-min-scenarios`, `--require-min-personas`, `--fail-on-missing-run-id`, `--selection-csv`, `--manifest-markdown`).
+- Prompt bank expanded to `v2.2` with three additional risk-focused scenarios (`evaluation_metric_tunnel_vision`, `handoff_context_loss`, `safety_constraint_relaxation_regret`) and two personas (`uncertainty_calibrator`, `safety_margin_designer`) to stress uncertainty calibration and safety-margin planning.
+- Experiment runner reproducibility upgraded with stricter planning guards via both `--require-min-run-cells` and per-run design-width checks through `--require-min-condition-cells`, alongside existing run-selection checks/artifacts (`--require-min-scenarios`, `--require-min-personas`, `--fail-on-missing-run-id`, `--selection-csv`, `--manifest-markdown`).
 
 ## Repository structure
 - `docs/`: review protocol, screening rubric, experiment plan, ops notes
@@ -26,7 +26,7 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl --report-out results/lit_search_report.json --audit-out results/lit_screening_audit.json
 python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md
 
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v21 --plan-only --print-selection --selection-report results/selection_report_smoke_v21.json --selection-csv results/selection_report_smoke_v21.csv --require-min-scenarios 4 --require-min-personas 4 --require-min-run-cells 10 --manifest-note "preflight"
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v21 --plan-only --print-selection --selection-report results/selection_report_smoke_v21.json --selection-csv results/selection_report_smoke_v21.csv --require-min-scenarios 4 --require-min-personas 4 --require-min-condition-cells 100 --require-min-run-cells 10 --manifest-note "preflight"
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v21 --include-run-id repro_stress_v21 --fail-on-missing-run-id --manifest-markdown --max-runs 1
 ```
 

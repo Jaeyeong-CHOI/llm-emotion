@@ -128,6 +128,8 @@ def write_runs_csv(path: Path, runs: list[dict]):
         "persona_ids",
         "scenario_count",
         "persona_count",
+        "temperature_count",
+        "condition_cells",
         "prompt_bank_fingerprint",
         "dataset",
         "metrics",
@@ -187,6 +189,8 @@ def write_selection_csv(path: Path, rows: list[dict]):
         "persona_count",
         "scenario_ids",
         "persona_ids",
+        "temperature_count",
+        "condition_cells",
     ]
     with path.open("w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=keys)
@@ -286,6 +290,7 @@ def main():
     ap.add_argument("--fail-on-missing-run-id", action="store_true", help="fail when --include-run-id contains unknown ids")
     ap.add_argument("--manifest-markdown", action="store_true", help="emit a human-readable manifest summary markdown")
     ap.add_argument("--require-min-run-cells", type=int, default=0, help="fail if selected run cells are fewer than this minimum")
+    ap.add_argument("--require-min-condition-cells", type=int, default=0, help="fail if any run selects fewer than this many scenario×persona×temperature condition cells")
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -351,6 +356,7 @@ def main():
         prompt_bank_path = ROOT / prompt_bank
         bank = load_prompt_bank(prompt_bank_path)
         prompt_summary = summarize_prompt_bank(bank, set(scenario_ids), set(scenario_tags), set(persona_ids))
+        condition_cells = prompt_summary["scenario_count"] * prompt_summary["persona_count"] * max(1, len(temperatures))
         if prompt_summary["scenario_count"] == 0:
             raise RuntimeError(f"{run_id}: no scenarios selected from {prompt_bank}")
         if prompt_summary["persona_count"] == 0:
@@ -364,6 +370,11 @@ def main():
                 f"{run_id}: persona_count={prompt_summary['persona_count']} < require_min_personas={args.require_min_personas}"
             )
 
+        if args.require_min_condition_cells and condition_cells < args.require_min_condition_cells:
+            raise RuntimeError(
+                f"{run_id}: condition_cells={condition_cells} < require_min_condition_cells={args.require_min_condition_cells}"
+            )
+
         prompt_snapshot = snapshots_dir / f"{run_id}.prompt_bank.json"
         write_json(prompt_snapshot, bank)
         selection_rows.append(
@@ -375,6 +386,8 @@ def main():
                 "persona_count": prompt_summary["persona_count"],
                 "scenario_ids": prompt_summary["scenario_ids"],
                 "persona_ids": prompt_summary["persona_ids"],
+                "temperature_count": len(temperatures),
+                "condition_cells": condition_cells,
             }
         )
 
@@ -397,6 +410,8 @@ def main():
                 "persona_ids": persona_ids,
                 "scenario_count": prompt_summary["scenario_count"],
                 "persona_count": prompt_summary["persona_count"],
+                "temperature_count": len(temperatures),
+                "condition_cells": condition_cells,
                 "prompt_bank_fingerprint": file_sha256(prompt_snapshot),
                 "dataset": str(dataset_path.relative_to(ROOT)),
                 "metrics": str(metrics_path.relative_to(ROOT)),
@@ -504,6 +519,7 @@ def main():
         "plan_only": args.plan_only,
         "executed_run_keys": executed_ids,
         "selected_run_cells": selected_run_cells,
+        "require_min_condition_cells": args.require_min_condition_cells,
         "duration_seconds": total_duration_seconds,
         "reproduce_script": str(reproduce_script.relative_to(ROOT)),
         "runs": runs,
@@ -539,7 +555,9 @@ def main():
             sc = row.get("scenario_count")
             pc = row.get("persona_count")
             fp = row.get("prompt_bank_fingerprint", "")
-            print(f"selection {rid}: scenarios={sc}, personas={pc}, prompt_bank_sha256={fp}")
+            cc = row.get("condition_cells")
+            tc = row.get("temperature_count")
+            print(f"selection {rid}: scenarios={sc}, personas={pc}, temps={tc}, condition_cells={cc}, prompt_bank_sha256={fp}")
 
     ok_n = sum(1 for r in runs if r.get("status") == "ok")
     print(f"[OK] executed {ok_n}/{len(runs)} run cells -> {outdir}")

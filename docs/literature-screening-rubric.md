@@ -66,11 +66,13 @@ python3 scripts/search_openalex.py \
 - include-guard pass/fail counts (overall + per-query)
 - per-query label/priority/method/bridge/confidence counts
 - top high-priority titles for manual screening
+- quality-alert slices for adjudication: include-gate failures near include threshold, review-gate failures above review threshold, and LLM-signal rows lacking method/review support
 
 `results/lit_screening_audit.json` adds manual-QC aids:
 - borderline `include` and `review` candidates near thresholds
 - high-score excludes that still miss LLM concept evidence
 - compact reasons for fast adjudication during title/abstract screening
+- same quality-alert slices mirrored in audit output for reviewer workload planning
 
 ## Why this helps
 - Better recall on lexical variants without giving up reproducibility
