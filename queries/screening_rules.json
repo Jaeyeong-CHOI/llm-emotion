@@ -1,0 +1,29 @@
+{
+  "include_any": [
+    "large language model",
+    "llm",
+    "counterfactual",
+    "regret",
+    "emotion",
+    "affect",
+    "anthropomorphism",
+    "theory of mind",
+    "mental state",
+    "self narrative"
+  ],
+  "high_priority": [
+    "regret",
+    "counterfactual",
+    "theory of mind",
+    "anthropomorphism",
+    "emotional attribution"
+  ],
+  "exclude_if_any": [
+    "speech recognition",
+    "medical imaging",
+    "protein",
+    "wireless sensor",
+    "autonomous vehicle perception"
+  ],
+  "threshold_include": 2
+}

@@ -21,8 +21,8 @@ We do **behavioral-linguistic comparison**, not claims about machine consciousne
 - `docs/experiment-plan.md`: hypotheses, design, metrics, stats plan
 - `docs/research-ops.md`: continuous research operations playbook
 - `queries/search_queries.json`: query groups for ongoing literature scans
-- `prompts/`: scenario templates and model prompts
-- `scripts/`: data generation + analysis + literature sync utilities
+- `prompts/`: scenario templates and expanded prompt bank (`prompt_bank_ko.json`)
+- `scripts/`: data generation + analysis + literature sync + reproducible experiment runner utilities
 - `refs/`: bibliography + machine-collected paper metadata
 - `data/`: collected generations + annotation files
 - `results/`: metrics and figures
@@ -30,14 +30,17 @@ We do **behavioral-linguistic comparison**, not claims about machine consciousne
 ## Quickstart
 ### 1) Systematic prior-work scan
 ```bash
-python3 scripts/search_openalex.py --config queries/search_queries.json --out refs/openalex_results.jsonl
+python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl
 python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md
 ```
 
 ### 2) Experiment pipeline smoke test
 ```bash
-python3 scripts/generate_dataset.py --out data/raw/mock_generations.jsonl --n 30
+python3 scripts/generate_dataset.py --out data/raw/mock_generations.jsonl --n 30 --seed 42 --prompt-bank prompts/prompt_bank_ko.json
 python3 scripts/analyze_regret_markers.py --in data/raw/mock_generations.jsonl --out results/mock_metrics.json
+
+# reproducible multi-run experiment bundle
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json
 ```
 
 ## Initial milestone checklist

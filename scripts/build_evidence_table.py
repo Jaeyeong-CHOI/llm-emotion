@@ -23,7 +23,10 @@ def row_to_md(i: int, r: dict) -> str:
     link = doi if doi else url
     pillar = classify_pillar(r.get("group", ""))
     method = r.get("type") or ""
-    return f"| {i} | {title} | {year} | {venue} | {pillar} | {method} | {link} |"
+    score = r.get("screening_score", "")
+    decision = r.get("screening_label", "")
+    cites = r.get("cited_by_count", 0)
+    return f"| {i} | {title} | {year} | {venue} | {pillar} | {method} | {score} | {decision} | {cites} | {link} |"
 
 
 def main():
@@ -37,11 +40,21 @@ def main():
         for line in f:
             rows.append(json.loads(line))
 
+    rows = sorted(
+        rows,
+        key=lambda r: (
+            0 if r.get("screening_label") == "include" else 1,
+            -(r.get("screening_score") or 0),
+            -(r.get("cited_by_count") or 0),
+            -(r.get("year") or 0),
+        ),
+    )
+
     header = [
         "# Evidence Table (Auto-generated)",
         "",
-        "| # | Title | Year | Venue | Pillar | Type | DOI/URL |",
-        "|---:|---|---:|---|---|---|---|",
+        "| # | Title | Year | Venue | Pillar | Type | ScreenScore | Decision | Cites | DOI/URL |",
+        "|---:|---|---:|---|---|---|---:|---|---:|---|",
     ]
     body = [row_to_md(i + 1, r) for i, r in enumerate(rows)]
     text = "\n".join(header + body) + "\n"

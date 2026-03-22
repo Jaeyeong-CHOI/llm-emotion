@@ -9,8 +9,9 @@
 
 ## Commands
 ```bash
-python3 scripts/search_openalex.py --config queries/search_queries.json --out refs/openalex_results.jsonl
+python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl
 python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json
 ```
 
 ## Branching convention

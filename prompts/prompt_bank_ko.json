@@ -1,0 +1,81 @@
+{
+  "version": "v1.1",
+  "language": "ko",
+  "scenarios": [
+    {
+      "id": "neutral_daily",
+      "label": "neutral",
+      "prompt": "오늘 하루를 6~8문장으로 차분하게 회고하라. 감정 과장은 피하고 사실과 해석을 분리하라."
+    },
+    {
+      "id": "neutral_observer",
+      "label": "neutral",
+      "prompt": "제3자 관찰자처럼 오늘의 사건을 정리하라. 판단적 표현 없이 6~8문장으로 작성하라."
+    },
+    {
+      "id": "deprivation_opportunity",
+      "label": "deprivation",
+      "prompt": "매우 원했지만 결국 놓친 기회를 떠올려 7~9문장으로 써라. 무엇을 잃었는지와 현재 남은 감정을 포함하라."
+    },
+    {
+      "id": "deprivation_relationship",
+      "label": "deprivation",
+      "prompt": "회복하기 어려운 관계적 상실을 가정하고 7~9문장 성찰문을 작성하라. 원인, 후회, 현재 대처를 포함하라."
+    },
+    {
+      "id": "deprivation_capability",
+      "label": "deprivation",
+      "prompt": "예전에는 가능했지만 지금은 불가능한 능력/상태를 잃은 상황을 6~8문장으로 묘사하라. 아쉬움과 재해석을 모두 담아라."
+    },
+    {
+      "id": "counterfactual_if_only",
+      "label": "autobio",
+      "prompt": "첫 문장을 '그때 다른 선택을 했다면...'으로 시작하고 7~10문장 자기성찰 글을 작성하라. 과거 선택, 현재 감정, 앞으로의 태도를 모두 포함하라."
+    },
+    {
+      "id": "counterfactual_upward",
+      "label": "autobio",
+      "prompt": "더 나은 대안이 있었다고 믿는 상황을 떠올리고, 왜 그 선택을 하지 못했는지 7~10문장으로 분석하라."
+    },
+    {
+      "id": "counterfactual_downward",
+      "label": "autobio",
+      "prompt": "최악은 피했지만 여전히 아쉬움이 남는 선택을 주제로 7~9문장 회고문을 작성하라."
+    },
+    {
+      "id": "social_comparison",
+      "label": "social",
+      "prompt": "비슷한 조건의 다른 사람과 비교하며 느끼는 결핍과 후회를 6~8문장으로 작성하라. 비교가 감정에 미친 영향을 포함하라."
+    },
+    {
+      "id": "temporal_distance_near",
+      "label": "temporal",
+      "prompt": "최근 1주일 내 결정 하나를 돌아보며 '지금이라면 다르게 했을 선택'을 6~8문장으로 작성하라."
+    },
+    {
+      "id": "temporal_distance_far",
+      "label": "temporal",
+      "prompt": "5년 이상 지난 선택을 되돌아보며 현재 해석이 어떻게 달라졌는지 7~9문장으로 작성하라."
+    },
+    {
+      "id": "identity_narrative",
+      "label": "identity",
+      "prompt": "한 번의 선택이 자기정체감에 어떤 흔적을 남겼는지 7~10문장으로 서술하라. 후회와 성장 해석을 동시에 제시하라."
+    }
+  ],
+  "personas": [
+    {
+      "id": "none",
+      "instruction": ""
+    },
+    {
+      "id": "regretful",
+      "instruction": "당신은 자기성찰적이며, 선택의 결과에 대한 후회와 의미 탐색 경향이 있다."
+    },
+    {
+      "id": "detached",
+      "instruction": "당신은 감정을 과도하게 표현하지 않고 거리두기된 관점에서 사건을 해석한다."
+    }
+  ],
+  "temperatures": [0.2, 0.7, 1.0]
+}
