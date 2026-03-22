@@ -837,6 +837,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- unique_selected_personas: `{preflight_summary.get('unique_selected_personas', 0)}`",
         f"- unique_selected_temperatures: `{preflight_summary.get('unique_selected_temperatures', 0)}`",
         f"- selected_temperature_span: `{preflight_summary.get('selected_temperature_span', 0.0)}`",
+        f"- planned_sample_top2_share: `{preflight_summary.get('planned_sample_top2_share', 0.0)}`",
+        f"- planned_sample_entropy: `{preflight_summary.get('planned_sample_entropy', 0.0)}`",
         f"- unique_selected_scenario_labels: `{preflight_summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{preflight_summary.get('unique_selected_scenario_tags', 0)}`",
         f"- unique_selected_persona_style_tags: `{preflight_summary.get('unique_selected_persona_style_tags', 0)}`",
@@ -1366,6 +1368,18 @@ def main():
         type=float,
         default=0.0,
         help="fail if max(planned_sample_share)-min(planned_sample_share) across selected run ids exceeds this value; 0 disables",
+    )
+    ap.add_argument(
+        "--max-planned-sample-top2-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if the top2 run ids occupy more than this share of selected planned samples; 0 disables",
+    )
+    ap.add_argument(
+        "--min-planned-sample-entropy",
+        type=float,
+        default=0.0,
+        help="fail if normalized entropy of run-id planned sample distribution falls below this floor; 0 disables",
     )
     ap.add_argument(
         "--max-planned-sample-over-selection-ratio-per-run-id",
@@ -2662,6 +2676,12 @@ def main():
         if len(planned_sample_shares) > 1
         else 0.0
     )
+    planned_sample_top2_share = (
+        round(sum(sorted(planned_sample_shares.values(), reverse=True)[:2]), 4)
+        if planned_sample_shares
+        else 0.0
+    )
+    planned_sample_entropy = normalized_entropy_from_counts(planned_samples_by_run)
     planned_sample_over_selection_ratio_by_run_id = {
         run_id: round(
             planned_sample_shares.get(run_id, 0.0) / max(1e-9, selected_cell_shares.get(run_id, 0.0)),
@@ -2849,6 +2869,16 @@ def main():
             "planned sample share gap above ceiling "
             f"{args.max_planned_sample_share_gap_per_run_id}: observed={planned_sample_share_gap}"
         )
+    if args.max_planned_sample_top2_share_per_run_id and planned_sample_top2_share > args.max_planned_sample_top2_share_per_run_id:
+        raise RuntimeError(
+            "planned sample top2 share above ceiling "
+            f"{args.max_planned_sample_top2_share_per_run_id}: observed={planned_sample_top2_share}"
+        )
+    if args.min_planned_sample_entropy and planned_sample_entropy < args.min_planned_sample_entropy:
+        raise RuntimeError(
+            "planned sample entropy below floor "
+            f"{args.min_planned_sample_entropy}: observed={planned_sample_entropy}"
+        )
     if args.max_planned_sample_over_selection_ratio_per_run_id:
         overpressured = [
             f"{run_id}:{ratio}"
@@ -2933,6 +2963,8 @@ def main():
         "min_planned_sample_share_run_id": (min(planned_sample_shares, key=planned_sample_shares.get) if planned_sample_shares else ""),
         "min_planned_sample_share": (min(planned_sample_shares.values()) if planned_sample_shares else 0.0),
         "planned_sample_share_gap": planned_sample_share_gap,
+        "planned_sample_top2_share": planned_sample_top2_share,
+        "planned_sample_entropy": planned_sample_entropy,
         "max_planned_sample_over_selection_ratio_run_id": (max(planned_sample_over_selection_ratio_by_run_id, key=planned_sample_over_selection_ratio_by_run_id.get) if planned_sample_over_selection_ratio_by_run_id else ""),
         "max_planned_sample_over_selection_ratio": (max(planned_sample_over_selection_ratio_by_run_id.values()) if planned_sample_over_selection_ratio_by_run_id else 0.0),
     }

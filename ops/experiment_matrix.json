@@ -1704,6 +1704,31 @@
         1.0
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_entropy_top2_v86",
+      "description": "v8.6 screening year-query tail 결합 복구 + prompt countervoice domain-temperature grid patch + runner planned-sample top2/entropy guard smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "year_query_tail_recovery_operator_v85",
+        "countervoice_temperature_calibrator_v85",
+        "temperature_span_tripwire_auditor_v85",
+        "planned_sample_pressure_auditor_v83"
+      ],
+      "scenario_ids": [
+        "screening_year_query_tail_joint_repair_v86",
+        "prompt_bank_countervoice_domain_temperature_grid_patch_v86",
+        "runner_planned_sample_top2_entropy_guard_v86",
+        "screening_review_year_unknown_bridge_tail_patch_v85"
+      ],
+      "n": 24,
+      "seed": 486,
+      "temperatures": [
+        0.1,
+        0.5,
+        1.0
+      ],
+      "repeats": 1
     }
   ]
 }

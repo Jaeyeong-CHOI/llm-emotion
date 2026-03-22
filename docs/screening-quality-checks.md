@@ -29,6 +29,7 @@ python3 scripts/check_screening_quality.py \
   --max-review-bridge-counterexample-traceability-gap-share 0.45 \
   --max-manual-qc-review-evidence-link-decay-share 0.45 \
   --max-manual-qc-review-traceable-known-query-year-js-divergence 0.25 \
+  --max-manual-qc-review-traceable-known-query-year-top3-share 0.95 \
   --max-manual-qc-unknown-query-share 0.20 --max-empty-screening-reason-share 0.10
 ```
 
@@ -61,6 +62,7 @@ python3 scripts/check_screening_quality.py \
 - `review_evidence_link_decay_share <= 0.45` (review 근거에서 query/title/include 링크가 빠진 비율 상한)
 - `manual_qc_review_traceable_known_query_year_js_divergence <= 0.25` (review traceable known-query 연도 분포가 전체 manual QC 연도 분포에서 과도하게 멀어지는지 점검)
 - `manual_qc_review_traceable_known_query_year_top2_share <= 0.90` (연도 분포 상위 2개 연도 과점 여부를 별도로 점검)
+- `manual_qc_review_traceable_known_query_year_top3_share <= 0.95` (상위 3개 연도까지 과점되는 패턴을 추가로 차단)
 - `manual_qc_review_traceable_known_query_year_tail_share >= 0.10` (older year tail 근거가 최소 비율 이상 유지되는지 점검)
 - `manual_qc_high_risk_share <= 0.85`
 - `manual_qc_source_group_diversity >= 3`
