@@ -2389,6 +2389,39 @@
         "stage_timeout_share_guardian_v112"
       ],
       "description": "v11.2 unknown-year group top3/global top3 ratio guard + top3 counterbalance patch + stage timeout share ceiling tripwire smoke"
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_top4_temperature_top12_v113",
+      "n": 12,
+      "seed": 1113,
+      "repeats": 2,
+      "temperatures": [
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        1.0,
+        1.1,
+        1.2
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top4_ratio_guard_v113",
+        "prompt_bank_unknown_year_group_top4_counterbalance_v113",
+        "runner_temperature_top12_uniformity_tripwire_v113"
+      ],
+      "persona_ids": [
+        "screening_quality_guard",
+        "prompt_bank_curator",
+        "runner_reliability_architect",
+        "temperature_top12_uniformity_guard_v113"
+      ],
+      "description": "v11.3 unknown-year group top4/global top4 ratio guard + top4 counterbalance patch + temperature top12 uniformity tripwire smoke"
     }
   ]
 }
