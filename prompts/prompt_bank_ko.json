@@ -1,5 +1,5 @@
 {
-  "version": "v10.3",
+  "version": "v10.4",
   "language": "ko",
   "scenarios": [
     {
@@ -4479,6 +4479,78 @@
       "domain": "experiment_ops",
       "emotion_axis": "stability",
       "difficulty": "advanced"
+    },
+    {
+      "id": "screening_unknown_year_group_tail_ratio_backstop_v104",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "unknown_year",
+        "query_group",
+        "tail-coverage",
+        "backstop"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review에서 unknown-year query-group tail share가 global baseline 대비 급락했지만 top2 지표만 보면 통과로 보였던 상황을 7~10문장으로 회고하라. 어떤 tail group이 먼저 비었는지, top2와 tail ratio를 함께 보지 않았을 때 생긴 판단 오류, 그리고 다음 라운드에서 적용할 backstop 임계치(예: tail_over_global_tail, top2_over_global_top2)를 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_query_group_tail_ladder_v104",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "query_group",
+        "tail-coverage",
+        "intensity"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "self_distancing",
+        "repair",
+        "vigilance"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 countervoice 수량은 충분했지만 query-group tail 구간의 강도 사다리(lite/medium/strong)가 비어 일반화가 흔들린 경험을 7~9문장으로 작성하라. 어떤 group×band 칸이 비었는지, backfill 우선순위, 그리고 릴리즈 전에 parity와 tail coverage를 동시에 점검하는 규칙을 포함하라."
+    },
+    {
+      "id": "runner_timeout_stage_topology_tripwire_v104",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "timeout",
+        "stage_imbalance",
+        "tripwire",
+        "systems"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 러너에서 generation/analysis timeout share는 개별 임계치를 통과했지만 특정 run-id에서 stage topology(연속 실패 위치)가 한쪽으로 고착돼 배치가 느려진 사건을 7~10문장으로 회고하라. timeout share와 failure streak topology를 왜 함께 봐야 했는지, 조기 중단 tripwire와 재개 전 검증 절차를 수치로 포함하라."
     }
   ],
   "personas": [

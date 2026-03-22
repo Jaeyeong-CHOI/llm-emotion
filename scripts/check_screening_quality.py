@@ -360,6 +360,7 @@ def main():
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-top1-query-share", type=float, default=0.65)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-top2-query-share", type=float, default=0.9)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-top3-query-share", type=float, default=0.97)
+    ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-top4-query-share", type=float, default=0.99)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-unknown-year-query-coverage", type=int, default=2)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-unknown-year-query-entropy", type=float, default=0.35)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-group-top1-share", type=float, default=0.75)
@@ -1578,6 +1579,15 @@ def main():
             else "fail",
             "observed": manual_qc_review_traceable_known_query_unknown_year_top3_query_share,
             "threshold": f"<={args.max_manual_qc_review_traceable_known_query_unknown_year_top3_query_share}",
+        },
+        {
+            "name": "manual_qc_review_traceable_known_query_unknown_year_top4_query_share_ceiling",
+            "status": "pass"
+            if manual_qc_review_traceable_known_query_unknown_year_top4_query_share
+            <= args.max_manual_qc_review_traceable_known_query_unknown_year_top4_query_share
+            else "fail",
+            "observed": manual_qc_review_traceable_known_query_unknown_year_top4_query_share,
+            "threshold": f"<={args.max_manual_qc_review_traceable_known_query_unknown_year_top4_query_share}",
         },
         {
             "name": "manual_qc_review_traceable_known_query_unknown_year_query_coverage_floor",

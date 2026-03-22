@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year top4 absolute share 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top4-query-share`)를 추가해, top1~top3가 통과해도 top4 누적 과점이 남는 케이스를 fail-fast로 차단합니다.
+- Prompt bank expanded to `v10.4` with **unknown-year group tail ratio backstop / countervoice query-group tail ladder / runner timeout topology tripwire** 시나리오를 추가했습니다 (`screening_unknown_year_group_tail_ratio_backstop_v104`, `prompt_bank_countervoice_query_group_tail_ladder_v104`, `runner_timeout_stage_topology_tripwire_v104`).
+- Experiment runner preflight의 **temperature top6 guardrail 실효성**을 보강해 `--max-planned-sample-temperature-top6-share`, `--max-planned-sample-temperature-top6-over-uniform-ratio` 임계치가 실제 fail-fast 체크와 설정 스냅샷에 모두 반영되도록 고정했습니다.
 - Literature screening quality gate에 **unknown-year top4/global top4 ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top4-over-global-top4-ratio`)를 추가해, top3까지는 통과해도 top4 누적 과점이 남는 케이스를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v10.3` with **unknown-year top4 ratio guard / top4 tail counterbalance patch / temperature top6 uniformity tripwire** 시나리오와 신규 페르소나(`unknown_year_top4_ratio_triager_v103`, `top4_tail_counterbalance_architect_v103`, `temperature_top6_uniformity_guard_v103`)를 추가했습니다.
 - Experiment runner preflight에 **temperature top6 share + top6-over-uniform guardrail** (`--max-planned-sample-temperature-top6-share`, `--max-planned-sample-temperature-top6-over-uniform-ratio`)을 추가해, top5는 통과해도 top6 누적 집중이 높은 배치를 사전에 차단합니다.
@@ -74,7 +77,7 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 - Screening quality gate continues to track **review evidence-link decay share** (`--max-manual-qc-review-evidence-link-decay-share`) to fail fast when review 근거의 문장-링크 연결이 약화됩니다.
 
 ## Repository structure
-- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v103.md`)
+- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v104.md`)
 - `queries/`: retrieval queries and screening rules
 - `prompts/`: Korean prompt bank and scenario source material
 - `scripts/`: literature sync, dataset generation, analysis, experiment runner
