@@ -8,9 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
-- Literature screening quality gate에 **review traceable known-query year concentration 가드**(`--max-manual-qc-review-traceable-known-query-year-top2-share`, `--min-manual-qc-review-traceable-known-query-year-tail-share`)를 추가해, year JS divergence만 통과하고 older year tail 근거가 비는 케이스를 fail-fast로 차단합니다.
-- Prompt bank expanded to `v8.3` with **review-year tail recovery / planned-sample pressure audit** scenarios plus new personas (`review_year_tail_safeguard_operator_v83`, `planned_sample_pressure_auditor_v83`).
-- Experiment runner now supports **planned-sample pressure ratio preflight guardrail** (`--max-planned-sample-over-selection-ratio-per-run-id`) in addition to share/gap guards, so run-id별 selected-cell 대비 실제 샘플 예산 압박을 함께 차단할 수 있습니다.
+- Literature screening quality gate에 **review traceable known-query year entropy/coverage 가드**(`--min-manual-qc-review-traceable-known-query-year-entropy`, `--min-manual-qc-review-traceable-known-query-year-coverage`)를 추가해, year top2/tail 비율이 통과하더라도 실질적인 연도 분산이 무너진 케이스를 fail-fast로 차단합니다.
+- Prompt bank expanded to `v8.4` with **year-tail counterexample rebalance / unknown-query bridge rescue / countervoice year-grid patch / selected-temperature floor audit** scenarios plus new personas (`review_year_tail_recovery_curator_v84`, `unknown_query_traceability_operator_v84`, `countervoice_year_grid_curator_v84`, `selected_temperature_floor_guard_v84`).
+- Experiment runner now supports **aggregate selected-temperature floor guardrail** (`--require-min-selected-temperatures`) so batch-level preflight에서 scenario/persona coverage는 충분해도 temperature 축이 과도하게 좁은 실행을 사전에 차단할 수 있습니다.
 - Literature screening quality gate에 **review known-query source-group tail-share floor 가드**(`--min-manual-qc-review-traceable-known-query-group-tail-share`)를 추가해, source-group 상위 집중(top2) 완화 없이 겉보기 traceability만 상승하는 케이스를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v8.0` with **source-group tail recovery drill / batch metadata floor audit** scenarios plus new personas (`group_tail_coverage_steward_v80`, `batch_metadata_floor_guard_v80`).
 - Experiment runner now supports **batch-level aggregate metadata floor guardrails** (`--require-min-selected-scenario-domains`, `--require-min-selected-scenario-emotion-axes`, `--require-min-selected-scenario-difficulties`) to fail-fast when selected run-id 묶음이 전체 domain/axis/difficulty 커버리지를 충분히 확보하지 못할 때 실행을 중단합니다.
@@ -64,6 +64,14 @@ python3 scripts/generate_dataset.py \
 
 ## Experiment reproducibility
 - Run definitions live in `ops/experiment_matrix.json`
+
+### v8.4 스모크 프리플라이트 (2026-03-23)
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v84 --max-manual-qc-review-traceable-known-query-year-js-divergence 0.25 --max-manual-qc-review-traceable-known-query-year-top2-share 0.90 --min-manual-qc-review-traceable-known-query-year-tail-share 0.10 --min-manual-qc-review-traceable-known-query-year-entropy 0.45 --min-manual-qc-review-traceable-known-query-year-coverage 3
+
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v84_plan --plan-only --include-run-id screening_prompt_runner_year_tail_pressure_v83 --include-run-id screening_prompt_runner_year_unknown_temp_v84 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v84.json --selection-csv results/selection_report_smoke_v84.csv --preflight-markdown --require-prompt-bank-version v8.4 --require-min-selected-temperatures 3 --max-planned-sample-share-per-run-id 0.60 --max-planned-sample-share-gap-per-run-id 0.25 --manifest-note "preflight v84 year-entropy + unknown-query + temperature-floor guard"
+```
 
 ### v8.3 스모크 프리플라이트 (2026-03-23)
 

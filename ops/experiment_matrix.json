@@ -1654,6 +1654,31 @@
         0.8
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_year_unknown_temp_v84",
+      "description": "v8.4 screening year-tail+unknown-query traceability 복구 + prompt countervoice year-grid + selected-temperature floor guard smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "review_year_tail_recovery_curator_v84",
+        "unknown_query_traceability_operator_v84",
+        "countervoice_year_grid_curator_v84",
+        "selected_temperature_floor_guard_v84"
+      ],
+      "scenario_ids": [
+        "screening_review_year_tail_counterexample_rebalance_v84",
+        "screening_review_unknown_query_bridge_rescue_v84",
+        "prompt_bank_countervoice_year_tail_grid_patch_v84",
+        "runner_selected_temperature_floor_audit_v84"
+      ],
+      "n": 24,
+      "seed": 484,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1
     }
   ]
 }

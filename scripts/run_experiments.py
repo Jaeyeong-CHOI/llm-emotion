@@ -474,6 +474,7 @@ def write_preflight_markdown(path: Path, payload: dict):
         f"- max_scenario_label_dominance: `{summary.get('max_scenario_label_dominance', 0.0)}`",
         f"- unique_selected_scenarios: `{summary.get('unique_selected_scenarios', 0)}`",
         f"- unique_selected_personas: `{summary.get('unique_selected_personas', 0)}`",
+        f"- unique_selected_temperatures: `{summary.get('unique_selected_temperatures', 0)}`",
         f"- unique_selected_scenario_labels: `{summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{summary.get('unique_selected_scenario_tags', 0)}`",
         f"- unique_selected_scenario_domains: `{summary.get('unique_selected_scenario_domains', 0)}`",
@@ -833,6 +834,7 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- min_planned_samples: `{preflight_summary.get('min_planned_samples', 0)}`",
         f"- unique_selected_scenarios: `{preflight_summary.get('unique_selected_scenarios', 0)}`",
         f"- unique_selected_personas: `{preflight_summary.get('unique_selected_personas', 0)}`",
+        f"- unique_selected_temperatures: `{preflight_summary.get('unique_selected_temperatures', 0)}`",
         f"- unique_selected_scenario_labels: `{preflight_summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{preflight_summary.get('unique_selected_scenario_tags', 0)}`",
         f"- unique_selected_persona_style_tags: `{preflight_summary.get('unique_selected_persona_style_tags', 0)}`",
@@ -1088,6 +1090,12 @@ def main():
         type=int,
         default=0,
         help="fail if the selected batch covers fewer than this many unique persona ids in total",
+    )
+    ap.add_argument(
+        "--require-min-selected-temperatures",
+        type=int,
+        default=0,
+        help="fail if the selected batch covers fewer than this many unique temperature values in total",
     )
     ap.add_argument(
         "--require-min-selected-scenario-tags",
@@ -1612,6 +1620,7 @@ def main():
     run_preflight_rows: list[dict] = []
     aggregate_scenario_ids: set[str] = set()
     aggregate_persona_ids: set[str] = set()
+    aggregate_temperature_values: set[str] = set()
     aggregate_scenario_tags: set[str] = set()
     aggregate_scenario_domains: set[str] = set()
     aggregate_scenario_emotion_axes: set[str] = set()
@@ -1702,6 +1711,7 @@ def main():
         prompt_bank_versions.add(prompt_bank_version)
         aggregate_scenario_ids.update(prompt_summary["scenario_ids"])
         aggregate_persona_ids.update(prompt_summary["persona_ids"])
+        aggregate_temperature_values.update(str(t) for t in temperatures)
         aggregate_scenario_tags.update(prompt_summary["scenario_tags"])
         aggregate_scenario_domains.update(prompt_summary["scenario_domains"])
         aggregate_scenario_emotion_axes.update(prompt_summary["scenario_emotion_axes"])
@@ -2741,6 +2751,11 @@ def main():
             "selected_unique_personas="
             f"{len(aggregate_persona_ids)} < require_min_selected_personas={args.require_min_selected_personas}"
         )
+    if args.require_min_selected_temperatures and len(aggregate_temperature_values) < args.require_min_selected_temperatures:
+        raise RuntimeError(
+            "selected_unique_temperatures="
+            f"{len(aggregate_temperature_values)} < require_min_selected_temperatures={args.require_min_selected_temperatures}"
+        )
     if args.require_min_selected_scenario_tags and len(aggregate_scenario_tags) < args.require_min_selected_scenario_tags:
         raise RuntimeError(
             "selected_unique_scenario_tags="
@@ -2884,6 +2899,7 @@ def main():
         "min_planned_samples": min((row.get("planned_samples", 0) for row in run_preflight_rows), default=0),
         "unique_selected_scenarios": len(aggregate_scenario_ids),
         "unique_selected_personas": len(aggregate_persona_ids),
+        "unique_selected_temperatures": len(aggregate_temperature_values),
         "unique_selected_scenario_labels": len(aggregate_scenario_labels),
         "unique_selected_scenario_tags": len(aggregate_scenario_tags),
         "unique_selected_scenario_domains": len(aggregate_scenario_domains),

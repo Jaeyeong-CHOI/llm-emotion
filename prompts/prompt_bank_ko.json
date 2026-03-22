@@ -1,5 +1,5 @@
 {
-  "version": "v8.3",
+  "version": "v8.4",
   "language": "ko",
   "scenarios": [
     {
@@ -3084,6 +3084,102 @@
       ],
       "difficulty": "hard",
       "prompt": "run-id별 selected cell share는 균형으로 보였지만 n·repeats 차이로 planned sample share/selected cell share 비율이 특정 run id에서 급등한 사건을 7~10문장으로 사후 감사하라. 어떤 run id가 pressure를 만들었는지, preflight에서 어떤 ratio ceiling으로 차단해야 하는지, 재실행 허용 기준을 수치로 포함하라."
+    },
+    {
+      "id": "screening_review_year_tail_counterexample_rebalance_v84",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "year-tail",
+        "counterexample",
+        "repair"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query에서 오래된 연도(older year) 반례 근거가 급감해 판단이 최근 연도에 과도하게 끌린 상황을 7~10문장으로 회고하라. 어떤 year band에서 근거가 먼저 비었는지, 반례 회수 순서, year top2 share와 year tail share를 동시에 복구하기 위한 수치 기준을 포함하라."
+    },
+    {
+      "id": "screening_review_unknown_query_bridge_rescue_v84",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "traceability",
+        "query_governance",
+        "repair"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "evidence_governance"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "review 후보에서 bridge signal은 확인됐지만 source_query가 unknown으로 남아 재검토 우선순위가 꼬였던 경험을 7~10문장으로 회고하라. unknown 누수 경로를 어떻게 찾았는지, known-query 복구 순서, unknown share 상한과 재개 조건을 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_year_tail_grid_patch_v84",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "year-tail",
+        "coverage"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "regret",
+        "self_distancing",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 countervoice 항목 수는 유지됐지만 연도 축(year band) 하위 구간의 반대관점이 비어 일반화가 흔들린 상황을 7~9문장으로 작성하라. 어떤 year×domain 칸이 비었는지, patch 우선순위, 릴리즈 전 parity 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_selected_temperature_floor_audit_v84",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "preflight",
+        "temperature",
+        "coverage",
+        "audit"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "다중 run-id 배치 preflight에서 scenario/persona coverage는 통과했지만 선택된 온도 값이 지나치게 좁아 샘플 다양성이 떨어졌던 사건을 7~10문장으로 사후 감사하라. selected temperature 고유값 floor를 왜 놓쳤는지, 중단 기준과 재배치 순서를 수치로 포함하라."
     }
   ],
   "personas": [
@@ -4769,6 +4865,46 @@
         "ratio-pressure"
       ],
       "instruction": "당신은 run-id별 planned sample share 대비 selected cell share 압박비를 점검하는 감사자다. share 자체뿐 아니라 pressure ratio를 우선 보고 ceiling 초과 시 중단·재분배 기준을 명확히 기록한다."
+    },
+    {
+      "id": "review_year_tail_recovery_curator_v84",
+      "style_tags": [
+        "screening",
+        "year-tail",
+        "traceability",
+        "repair"
+      ],
+      "instruction": "당신은 review traceable known-query의 연도 tail 근거를 복구하는 성향이 있으며, year top2 과점을 줄이기 위한 재탐색 순서와 중단선을 수치로 기록한다."
+    },
+    {
+      "id": "unknown_query_traceability_operator_v84",
+      "style_tags": [
+        "screening",
+        "query_governance",
+        "traceability",
+        "operations"
+      ],
+      "instruction": "당신은 review 근거의 source_query unknown 누수를 먼저 감시하는 운영자 성향이 있으며, bridge 근거가 있어도 query 출처가 비면 즉시 복구 큐로 분리하고 재개 조건을 명시한다."
+    },
+    {
+      "id": "countervoice_year_grid_curator_v84",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "year-tail",
+        "balance"
+      ],
+      "instruction": "당신은 countervoice 프롬프트를 연도 축까지 포함한 그리드로 관리하는 성향이 있으며, 하위 year band 공백을 우선 보강하고 parity 기준을 버전 메모로 남긴다."
+    },
+    {
+      "id": "selected_temperature_floor_guard_v84",
+      "style_tags": [
+        "runner",
+        "preflight",
+        "temperature",
+        "coverage"
+      ],
+      "instruction": "당신은 배치 preflight에서 선택된 온도 고유값 floor를 먼저 점검하는 성향이 있으며, temperature 다양성이 기준 미달이면 즉시 중단하고 재배치 순서를 수치로 기록한다."
     }
   ],
   "temperatures": [
