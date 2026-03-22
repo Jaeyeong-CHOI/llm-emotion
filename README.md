@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year query-group top2/global group top2 ratio guard**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top2-over-global-group-top2-ratio`)를 추가해, group top1 지표가 통과해도 top2 과점이 남는 케이스를 fail-fast로 차단합니다.
+- Prompt bank expanded to `v10.0` with **unknown-year group top2 ratio tripwire / year-group tail rebalance mesh / temperature floor-bin tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top2_ratio_triager_v100`, `year_group_tail_mesh_designer_v100`, `temperature_floor_bin_guardian_v100`)를 추가했습니다.
+- Experiment runner preflight에 **temperature floor-bin guardrail** (`--planned-sample-temperature-floor-share`, `--min-planned-sample-temperature-floor-bins`)을 추가해, min-share 단일 통과만으로는 놓치던 온도축 hollowing을 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year top2/global top2 ratio guard**(`--max-manual-qc-review-traceable-known-query-unknown-year-top2-over-global-top2-ratio`)를 추가해, unknown-year top2 share가 절대 임계치는 통과해도 global baseline 대비 상대 과열되는 분포를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v9.9` with **unknown-year top2 ratio tripwire / countervoice mesh 확장 / temperature min-share floor** 시나리오와 신규 페르소나(`unknown_year_top2_ratio_auditor_v99`, `countervoice_mesh_curator_v99`, `temperature_min_share_guardian_v99`)를 추가했습니다.
 - Experiment runner preflight에 **planned-sample temperature min-share floor guardrail** (`--min-planned-sample-temperature-min-share`)을 추가해, top-k/entropy 지표가 통과해도 특정 온도 버킷이 사실상 비는 배치를 사전에 차단합니다.
@@ -62,7 +65,7 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 - Screening quality gate continues to track **review evidence-link decay share** (`--max-manual-qc-review-evidence-link-decay-share`) to fail fast when review 근거의 문장-링크 연결이 약화됩니다.
 
 ## Repository structure
-- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v99.md`)
+- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v100.md`)
 - `queries/`: retrieval queries and screening rules
 - `prompts/`: Korean prompt bank and scenario source material
 - `scripts/`: literature sync, dataset generation, analysis, experiment runner

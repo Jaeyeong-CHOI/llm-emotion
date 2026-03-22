@@ -2093,6 +2093,33 @@
       "n": 28,
       "seed": 9901,
       "repeats": 2
+    },
+    {
+      "id": "screening_prompt_runner_group_top2_floor_bins_v100",
+      "description": "v10.0 unknown-year group top2/global group top2 ratio tripwire + year-group tail mesh 확장 + temperature floor-bin guard smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top2_ratio_tripwire_v100",
+        "prompt_bank_year_group_tail_rebalance_mesh_v100",
+        "runner_temperature_floor_bins_tripwire_v100",
+        "screening_unknown_year_top2_ratio_tripwire_v99"
+      ],
+      "persona_ids": [
+        "unknown_year_group_top2_ratio_triager_v100",
+        "year_group_tail_mesh_designer_v100",
+        "temperature_floor_bin_guardian_v100",
+        "unknown_year_top2_ratio_auditor_v99"
+      ],
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "n": 28,
+      "seed": 10001,
+      "repeats": 2
     }
   ]
 }
