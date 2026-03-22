@@ -1,5 +1,5 @@
 {
-  "version": "v7.5",
+  "version": "v7.6",
   "language": "ko",
   "scenarios": [
     {
@@ -2635,6 +2635,76 @@
         "systems"
       ],
       "prompt": "실험 preflight에서 scenario label 수는 기준을 통과했지만 entropy가 낮아 실제로는 한 label에 편중된 배치를 발견한 경험을 7~10문장으로 회고하라. 왜 단순 label count만으로는 실패했는지, entropy 기반 중단 규칙, 재배치 순서를 수치와 함께 제시하라."
+    },
+    {
+      "id": "screening_duplicate_provenance_triage",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "dedup",
+        "systems"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "evidence_governance"
+      ],
+      "emotion_axes": [
+        "counterfactual",
+        "regret",
+        "vigilance"
+      ],
+      "difficulty": "hard",
+      "prompt": "서로 다른 검색 경로에서 들어온 논문들이 실제로는 같은 연구인데 provenance 기록이 엉켜 수동 QC가 흔들린 경험을 7~10문장으로 회고하라. 어떤 중복 신호를 놓쳤는지, 왜 근거 추적이 약해졌는지, 지금의 dedup·provenance triage 기준을 포함하라."
+    },
+    {
+      "id": "prompt_bank_domain_axis_balance",
+      "label": "social",
+      "tags": [
+        "research",
+        "process",
+        "countervoice",
+        "balance",
+        "systems"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "regret",
+        "self_distancing",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크를 확장하면서 도메인 축과 감정 축의 균형을 동시에 맞추려 했지만 한쪽이 비어 비교 해석이 어려워진 경험을 7~9문장으로 작성하라. 어떤 축이 빠졌는지, 왜 그 공백을 늦게 봤는지, 지금의 balance rule을 포함하라."
+    },
+    {
+      "id": "runner_metadata_resume_guard",
+      "label": "identity",
+      "tags": [
+        "research",
+        "reproducibility",
+        "process",
+        "repair",
+        "systems"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "reproducibility"
+      ],
+      "emotion_axes": [
+        "regret",
+        "uncertainty",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 재실행 과정에서 시나리오 메타데이터 축이 기록되지 않아 같은 run처럼 보이지만 실제 조건이 달랐던 경험을 7~10문장으로 회고하라. 무엇이 누락됐는지, 왜 resume 판단이 흔들렸는지, 지금의 metadata guard를 포함하라."
     }
   ],
   "personas": [
@@ -4149,6 +4219,36 @@
         "preflight",
         "label-balance",
         "tripwire"
+      ]
+    },
+    {
+      "id": "duplicate_provenance_auditor",
+      "instruction": "당신은 중복 후보의 provenance 약화를 먼저 의심하는 성향이 있으며, title/doi/query가 어긋날 때 단순 제외보다 추적 손실 비용을 먼저 기록한다.",
+      "style_tags": [
+        "screening",
+        "dedup",
+        "traceability",
+        "audit"
+      ]
+    },
+    {
+      "id": "domain_axis_balance_curator",
+      "instruction": "당신은 프롬프트 뱅크를 도메인 축과 감정 축의 교차표로 관리하는 성향이 있으며, 비어 있는 셀을 우선 채우고 과대표집 셀은 보강 후보에서 제외한다.",
+      "style_tags": [
+        "prompt_bank",
+        "balance",
+        "taxonomy",
+        "curation"
+      ]
+    },
+    {
+      "id": "metadata_resume_guardian",
+      "instruction": "당신은 실험 resume 전에 시나리오 메타데이터 누락부터 확인하는 성향이 있으며, domain/emotion/difficulty 축이 남지 않으면 재현 주장 자체를 보류한다.",
+      "style_tags": [
+        "runner",
+        "reproducibility",
+        "metadata",
+        "resume"
       ]
     }
   ],

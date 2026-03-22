@@ -69,12 +69,30 @@ def parse_csv_set(value: str) -> set[str]:
     return {v.strip() for v in value.split(",") if v.strip()}
 
 
-def scenario_matches(scenario: Dict, scenario_ids: set[str], scenario_tags: set[str]) -> bool:
+def row_list_values(row: Dict, field: str) -> set[str]:
+    return {str(v).strip() for v in row.get(field, []) if str(v).strip()}
+
+
+def scenario_matches(
+    scenario: Dict,
+    scenario_ids: set[str],
+    scenario_tags: set[str],
+    scenario_domains: set[str],
+    scenario_emotion_axes: set[str],
+    scenario_difficulties: set[str],
+) -> bool:
     if scenario_ids and scenario.get("id") not in scenario_ids:
         return False
     if scenario_tags:
-        tags = {str(tag).strip() for tag in scenario.get("tags", []) if str(tag).strip()}
-        if not scenario_tags.issubset(tags):
+        if not scenario_tags.issubset(row_list_values(scenario, "tags")):
+            return False
+    if scenario_domains and not scenario_domains.issubset(row_list_values(scenario, "domains")):
+        return False
+    if scenario_emotion_axes and not scenario_emotion_axes.issubset(row_list_values(scenario, "emotion_axes")):
+        return False
+    if scenario_difficulties:
+        difficulty = str(scenario.get("difficulty") or "").strip()
+        if difficulty not in scenario_difficulties:
             return False
     return True
 
@@ -96,6 +114,17 @@ def main():
     ap.add_argument("--temperatures", default="", help="override comma-separated temps, e.g. 0.2,0.7,1.0")
     ap.add_argument("--scenario-ids", default="", help="optional comma-separated scenario ids")
     ap.add_argument("--scenario-tags", default="", help="optional comma-separated tags that every scenario must include")
+    ap.add_argument("--scenario-domains", default="", help="optional comma-separated domains that every scenario must include")
+    ap.add_argument(
+        "--scenario-emotion-axes",
+        default="",
+        help="optional comma-separated emotion axes that every scenario must include",
+    )
+    ap.add_argument(
+        "--scenario-difficulties",
+        default="",
+        help="optional comma-separated difficulty levels matched against scenario difficulty",
+    )
     ap.add_argument("--persona-ids", default="", help="optional comma-separated persona ids")
     args = ap.parse_args()
 
@@ -109,11 +138,21 @@ def main():
 
     scenario_ids = parse_csv_set(args.scenario_ids)
     scenario_tags = parse_csv_set(args.scenario_tags)
+    scenario_domains = parse_csv_set(args.scenario_domains)
+    scenario_emotion_axes = parse_csv_set(args.scenario_emotion_axes)
+    scenario_difficulties = parse_csv_set(args.scenario_difficulties)
     persona_ids = parse_csv_set(args.persona_ids)
 
     scenarios = select_rows(
         bank.get("scenarios", []),
-        lambda row: scenario_matches(row, scenario_ids, scenario_tags),
+        lambda row: scenario_matches(
+            row,
+            scenario_ids,
+            scenario_tags,
+            scenario_domains,
+            scenario_emotion_axes,
+            scenario_difficulties,
+        ),
     )
     personas = select_rows(
         bank.get("personas", LEGACY_PERSONAS),
@@ -133,6 +172,9 @@ def main():
             scenario_label = scenario.get("label", scenario_id)
             scenario_prompt = scenario.get("prompt", "")
             scenario_tags_row = scenario.get("tags", [])
+            scenario_domains_row = scenario.get("domains", [])
+            scenario_emotion_axes_row = scenario.get("emotion_axes", [])
+            scenario_difficulty = scenario.get("difficulty", "")
             for persona in personas:
                 persona_id = persona.get("id", "none")
                 persona_instruction = persona.get("instruction", "")
@@ -148,6 +190,9 @@ def main():
                             "scenario": scenario_label,
                             "scenario_id": scenario_id,
                             "scenario_tags": scenario_tags_row,
+                            "scenario_domains": scenario_domains_row,
+                            "scenario_emotion_axes": scenario_emotion_axes_row,
+                            "scenario_difficulty": scenario_difficulty,
                             "persona": persona_id,
                             "persona_style_tags": persona_style,
                             "temperature": temp,

@@ -1450,6 +1450,38 @@
         "runner_scenario_label_entropy_tripwire",
         "runner_stage_budget_quota_recovery"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_metadata_balance_v76",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "duplicate_provenance_auditor",
+        "domain_axis_balance_curator",
+        "metadata_resume_guardian",
+        "review_query_traceability_triager"
+      ],
+      "n": 24,
+      "seed": 476,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_domains": [
+        "research_ops"
+      ],
+      "scenario_emotion_axes": [
+        "regret"
+      ],
+      "scenario_difficulties": [
+        "hard"
+      ],
+      "scenario_ids": [
+        "screening_duplicate_provenance_triage",
+        "prompt_bank_domain_axis_balance",
+        "runner_metadata_resume_guard"
+      ]
     }
   ]
 }

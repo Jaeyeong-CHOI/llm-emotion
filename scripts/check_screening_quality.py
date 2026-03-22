@@ -4,6 +4,7 @@ import csv
 import datetime as dt
 import json
 import math
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +29,10 @@ def pct(numerator: int, denominator: int) -> float:
 
 def is_truthy(value) -> bool:
     return str(value or "").strip().lower() in {"1", "true", "yes", "y"}
+
+
+def normalize_title(value) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9\s]", " ", str(value or "").strip().lower())).strip()
 
 
 def top_items(mapping: dict, limit: int = 8) -> list[dict]:
@@ -192,10 +197,14 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_dedup_label_conflict_share: `{payload['summary']['manual_qc_dedup_label_conflict_share']}`",
             f"- manual_qc_dedup_score_range_alert_rows: `{payload['summary']['manual_qc_dedup_score_range_alert_rows']}`",
             f"- manual_qc_dedup_score_range_alert_share: `{payload['summary']['manual_qc_dedup_score_range_alert_share']}`",
+            f"- manual_qc_duplicate_title_rows: `{payload['summary']['manual_qc_duplicate_title_rows']}`",
+            f"- manual_qc_duplicate_title_share: `{payload['summary']['manual_qc_duplicate_title_share']}`",
             f"- empty_screening_reason_share: `{payload['summary']['empty_screening_reason_share']}`",
             f"- manual_qc_label_dominance: `{payload['summary']['manual_qc_label_dominance']}`",
             f"- manual_qc_high_risk_rows: `{payload['summary']['manual_qc_high_risk_rows']}`",
             f"- manual_qc_high_risk_share: `{payload['summary']['manual_qc_high_risk_share']}`",
+            f"- review_weak_evidence_rows: `{payload['summary']['review_weak_evidence_rows']}`",
+            f"- review_weak_evidence_share: `{payload['summary']['review_weak_evidence_share']}`",
             "",
             "## Hotspots",
         ]
@@ -291,6 +300,8 @@ def main():
     ap.add_argument("--max-manual-qc-dedup-label-conflict-share", type=float, default=0.2)
     ap.add_argument("--min-dedup-score-range-alert", type=float, default=1.0)
     ap.add_argument("--max-manual-qc-dedup-score-range-alert-share", type=float, default=0.2)
+    ap.add_argument("--max-manual-qc-duplicate-title-share", type=float, default=0.2)
+    ap.add_argument("--max-review-weak-evidence-share", type=float, default=0.35)
     args = ap.parse_args()
 
     report_path = ROOT / args.report
@@ -353,6 +364,7 @@ def main():
     manual_qc_review_traceable_known_query_counts: dict[str, int] = {}
     manual_qc_review_traceable_known_query_group_counts: dict[str, int] = {}
     manual_qc_year_counts: dict[str, int] = {}
+    manual_qc_title_counts: dict[str, int] = {}
     manual_qc_review_source_group_counts: dict[str, int] = {}
     empty_screening_reason_rows = 0
     dedup_label_conflict_rows = 0
@@ -369,6 +381,7 @@ def main():
     review_bridge_counterexample_traceable_coupled_rows = 0
     review_counterexample_without_bridge_rows = 0
     review_evidence_link_decay_rows = 0
+    review_weak_evidence_rows = 0
     include_traceable_reason_rows = 0
     review_traceable_reason_rows = 0
     review_traceable_known_query_rows = 0
@@ -419,8 +432,18 @@ def main():
             has_evidence_link = ("query_overlap=" in reason_field) or ("title_hits=" in reason_field) or ("include_hits=" in reason_field)
             if not has_evidence_link:
                 review_evidence_link_decay_rows += 1
+            evidence_signal_count = sum(
+                1
+                for token in ("include_hits=", "title_hits=", "query_overlap=", "bridge_sentence_hits=")
+                if token in reason_field
+            )
+            if evidence_signal_count <= 1:
+                review_weak_evidence_rows += 1
         source_group = str(row.get("source_group") or "").strip().lower() or "unknown"
         source_query = str(row.get("source_query") or "").strip().lower() or "unknown"
+        title_key = normalize_title(row.get("title") or "")
+        if title_key:
+            manual_qc_title_counts[title_key] = manual_qc_title_counts.get(title_key, 0) + 1
         if label == "review" and row_is_traceable and source_query != "unknown":
             review_traceable_known_query_rows += 1
             manual_qc_review_traceable_known_query_counts[source_query] = (
@@ -471,6 +494,8 @@ def main():
     manual_qc_year_entropy = normalized_entropy(manual_qc_year_counts)
     manual_qc_dedup_label_conflict_share = pct(dedup_label_conflict_rows, len(manual_qc_rows))
     manual_qc_dedup_score_range_alert_share = pct(dedup_score_range_alert_rows, len(manual_qc_rows))
+    duplicate_title_rows = sum(count for count in manual_qc_title_counts.values() if count > 1)
+    manual_qc_duplicate_title_share = pct(duplicate_title_rows, len(manual_qc_rows))
     manual_qc_single_query_share = (
         round(max(manual_qc_source_query_counts.values(), default=0) / max(1, len(manual_qc_rows)), 4)
         if manual_qc_rows
@@ -517,6 +542,7 @@ def main():
         review_counterexample_rows,
     )
     review_evidence_link_decay_share = pct(review_evidence_link_decay_rows, manual_qc_review_rows)
+    review_weak_evidence_share = pct(review_weak_evidence_rows, manual_qc_review_rows)
     manual_qc_bridge_signal_share = pct(bridge_signal_rows, len(manual_qc_rows))
     unknown_query_rows = int(manual_qc_source_query_counts.get("unknown", 0) or 0)
     manual_qc_unknown_query_share = pct(unknown_query_rows, len(manual_qc_rows))
@@ -1056,6 +1082,14 @@ def main():
             "threshold": f"<={args.max_manual_qc_review_evidence_link_decay_share}",
         },
         {
+            "name": "review_weak_evidence_share_ceiling",
+            "status": "pass"
+            if review_weak_evidence_share <= args.max_review_weak_evidence_share
+            else "fail",
+            "observed": review_weak_evidence_share,
+            "threshold": f"<={args.max_review_weak_evidence_share}",
+        },
+        {
             "name": "manual_qc_bridge_signal_share_floor",
             "status": "pass" if manual_qc_bridge_signal_share >= args.min_manual_qc_bridge_signal_share else "fail",
             "observed": manual_qc_bridge_signal_share,
@@ -1103,6 +1137,14 @@ def main():
                 f"<={args.max_manual_qc_dedup_score_range_alert_share} "
                 f"(alert if dedup_score_range>={args.min_dedup_score_range_alert})"
             ),
+        },
+        {
+            "name": "manual_qc_duplicate_title_share_ceiling",
+            "status": "pass"
+            if manual_qc_duplicate_title_share <= args.max_manual_qc_duplicate_title_share
+            else "fail",
+            "observed": manual_qc_duplicate_title_share,
+            "threshold": f"<={args.max_manual_qc_duplicate_title_share}",
         },
         {
             "name": "manual_qc_source_group_diversity_floor",
@@ -1188,8 +1230,11 @@ def main():
             "label_conflict_share": manual_qc_dedup_label_conflict_share,
             "score_range_alert_rows": dedup_score_range_alert_rows,
             "score_range_alert_share": manual_qc_dedup_score_range_alert_share,
+            "duplicate_title_rows": duplicate_title_rows,
+            "duplicate_title_share": manual_qc_duplicate_title_share,
             "score_range_alert_threshold": args.min_dedup_score_range_alert,
         }},
+        {"label": "manual_qc_duplicate_titles", "value": top_items({k: v for k, v in manual_qc_title_counts.items() if v > 1}, limit=6)},
         {"label": "manual_qc_review_confidence_distribution", "value": top_items(review_confidence_counts, limit=5)},
         {"label": "manual_qc_review_traceable_known_query", "value": {
             "rows": review_traceable_known_query_rows,
@@ -1236,6 +1281,8 @@ def main():
             "traceable_coupled_share": review_bridge_counterexample_traceable_coupled_share,
             "counterexample_without_bridge_rows": review_counterexample_without_bridge_rows,
             "counterexample_without_bridge_share": review_counterexample_without_bridge_share,
+            "weak_evidence_rows": review_weak_evidence_rows,
+            "weak_evidence_share": review_weak_evidence_share,
         }},
         {"label": "manual_qc_year_distribution", "value": top_items(manual_qc_year_counts, limit=8)},
         {"label": "balanced_qc_by_confidence", "value": balanced_summary.get("by_confidence") or {}},
@@ -1361,11 +1408,15 @@ def main():
             "manual_qc_dedup_label_conflict_share": manual_qc_dedup_label_conflict_share,
             "manual_qc_dedup_score_range_alert_rows": dedup_score_range_alert_rows,
             "manual_qc_dedup_score_range_alert_share": manual_qc_dedup_score_range_alert_share,
+            "manual_qc_duplicate_title_rows": duplicate_title_rows,
+            "manual_qc_duplicate_title_share": manual_qc_duplicate_title_share,
             "empty_screening_reason_rows": empty_screening_reason_rows,
             "empty_screening_reason_share": empty_screening_reason_share,
             "manual_qc_label_dominance": manual_qc_label_dominance,
             "manual_qc_high_risk_rows": high_risk_qc_rows,
             "manual_qc_high_risk_share": manual_qc_high_risk_share,
+            "review_weak_evidence_rows": review_weak_evidence_rows,
+            "review_weak_evidence_share": review_weak_evidence_share,
             "audit_counts": audit.get("counts") or {},
         },
         "gates": gates,

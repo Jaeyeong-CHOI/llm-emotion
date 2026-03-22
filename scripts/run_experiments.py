@@ -52,24 +52,52 @@ def load_prompt_bank(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set[str], persona_ids: set[str]) -> dict:
+def row_list_values(row: dict, field: str) -> set[str]:
+    return {str(v).strip() for v in row.get(field, []) if str(v).strip()}
+
+
+def summarize_prompt_bank(
+    bank: dict,
+    scenario_ids: set[str],
+    scenario_tags: set[str],
+    scenario_domains: set[str],
+    scenario_emotion_axes: set[str],
+    scenario_difficulties: set[str],
+    persona_ids: set[str],
+) -> dict:
     scenarios = bank.get("scenarios", [])
     personas = bank.get("personas", [])
 
     selected_scenarios = []
     selected_tags = set()
     selected_labels = set()
+    selected_domains = set()
+    selected_emotion_axes = set()
+    selected_difficulties = set()
     for scenario in scenarios:
-        row_tags = {str(tag).strip() for tag in scenario.get("tags", []) if str(tag).strip()}
+        row_tags = row_list_values(scenario, "tags")
+        row_domains = row_list_values(scenario, "domains")
+        row_emotion_axes = row_list_values(scenario, "emotion_axes")
+        row_difficulty = str(scenario.get("difficulty") or "").strip()
         if scenario_ids and scenario.get("id") not in scenario_ids:
             continue
         if scenario_tags and not scenario_tags.issubset(row_tags):
             continue
+        if scenario_domains and not scenario_domains.issubset(row_domains):
+            continue
+        if scenario_emotion_axes and not scenario_emotion_axes.issubset(row_emotion_axes):
+            continue
+        if scenario_difficulties and row_difficulty not in scenario_difficulties:
+            continue
         selected_scenarios.append(scenario)
         selected_tags.update(row_tags)
+        selected_domains.update(row_domains)
+        selected_emotion_axes.update(row_emotion_axes)
         label = str(scenario.get("label") or "").strip()
         if label:
             selected_labels.add(label)
+        if row_difficulty:
+            selected_difficulties.add(row_difficulty)
 
     selected_personas = [persona for persona in personas if not persona_ids or persona.get("id") in persona_ids]
     selected_persona_style_tags = {
@@ -101,6 +129,12 @@ def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set
         "scenario_label_count": len(selected_labels),
         "scenario_labels": sorted(selected_labels),
         "scenario_label_counts": scenario_label_counts,
+        "scenario_domain_count": len(selected_domains),
+        "scenario_domains": sorted(selected_domains),
+        "scenario_emotion_axis_count": len(selected_emotion_axes),
+        "scenario_emotion_axes": sorted(selected_emotion_axes),
+        "scenario_difficulty_count": len(selected_difficulties),
+        "scenario_difficulties": sorted(selected_difficulties),
         "scenario_label_dominance": round((max(scenario_label_counts.values(), default=0) / max(1, len(selected_scenarios))), 4) if selected_scenarios else 0.0,
         "scenario_label_entropy": scenario_label_entropy,
         "persona_style_tag_count": len(selected_persona_style_tags),
@@ -176,8 +210,14 @@ def write_runs_csv(path: Path, runs: list[dict]):
         "scenario_ids",
         "scenario_labels",
         "scenario_tags",
+        "scenario_domains",
+        "scenario_emotion_axes",
+        "scenario_difficulties",
         "persona_ids",
         "scenario_label_count",
+        "scenario_domain_count",
+        "scenario_emotion_axis_count",
+        "scenario_difficulty_count",
         "persona_style_tag_count",
         "persona_style_tags",
         "scenario_count",
@@ -200,7 +240,16 @@ def write_runs_csv(path: Path, runs: list[dict]):
             temps = out.get("temperatures")
             if isinstance(temps, list):
                 out["temperatures"] = ",".join(str(t) for t in temps)
-            for field in ("scenario_ids", "scenario_labels", "scenario_tags", "persona_ids", "persona_style_tags"):
+            for field in (
+                "scenario_ids",
+                "scenario_labels",
+                "scenario_tags",
+                "scenario_domains",
+                "scenario_emotion_axes",
+                "scenario_difficulties",
+                "persona_ids",
+                "persona_style_tags",
+            ):
                 value = out.get(field)
                 if isinstance(value, list):
                     out[field] = ",".join(str(v) for v in value)
@@ -302,6 +351,12 @@ def write_selection_csv(path: Path, rows: list[dict]):
         "scenario_labels",
         "scenario_tag_count",
         "scenario_tags",
+        "scenario_domain_count",
+        "scenario_domains",
+        "scenario_emotion_axis_count",
+        "scenario_emotion_axes",
+        "scenario_difficulty_count",
+        "scenario_difficulties",
         "scenario_ids",
         "persona_ids",
         "persona_style_tag_count",
@@ -315,7 +370,16 @@ def write_selection_csv(path: Path, rows: list[dict]):
         w.writeheader()
         for row in rows:
             out = {k: row.get(k) for k in keys}
-            for field in ("scenario_labels", "scenario_tags", "scenario_ids", "persona_ids", "persona_style_tags"):
+            for field in (
+                "scenario_labels",
+                "scenario_tags",
+                "scenario_domains",
+                "scenario_emotion_axes",
+                "scenario_difficulties",
+                "scenario_ids",
+                "persona_ids",
+                "persona_style_tags",
+            ):
                 value = out.get(field)
                 if isinstance(value, list):
                     out[field] = ",".join(str(v) for v in value)
@@ -344,6 +408,12 @@ def write_preflight_csv(path: Path, rows: list[dict]):
         "scenario_labels",
         "scenario_tag_count",
         "scenario_tags",
+        "scenario_domain_count",
+        "scenario_domains",
+        "scenario_emotion_axis_count",
+        "scenario_emotion_axes",
+        "scenario_difficulty_count",
+        "scenario_difficulties",
         "persona_style_tag_count",
         "persona_style_tags",
     ]
@@ -352,7 +422,14 @@ def write_preflight_csv(path: Path, rows: list[dict]):
         w.writeheader()
         for row in rows:
             out = {k: row.get(k) for k in keys}
-            for field in ("scenario_labels", "scenario_tags", "persona_style_tags"):
+            for field in (
+                "scenario_labels",
+                "scenario_tags",
+                "scenario_domains",
+                "scenario_emotion_axes",
+                "scenario_difficulties",
+                "persona_style_tags",
+            ):
                 value = out.get(field)
                 if isinstance(value, list):
                     out[field] = ",".join(str(v) for v in value)
@@ -379,16 +456,20 @@ def write_preflight_markdown(path: Path, payload: dict):
         f"- unique_selected_personas: `{summary.get('unique_selected_personas', 0)}`",
         f"- unique_selected_scenario_labels: `{summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{summary.get('unique_selected_scenario_tags', 0)}`",
+        f"- unique_selected_scenario_domains: `{summary.get('unique_selected_scenario_domains', 0)}`",
+        f"- unique_selected_scenario_emotion_axes: `{summary.get('unique_selected_scenario_emotion_axes', 0)}`",
+        f"- unique_selected_scenario_difficulties: `{summary.get('unique_selected_scenario_difficulties', 0)}`",
         f"- unique_selected_persona_style_tags: `{summary.get('unique_selected_persona_style_tags', 0)}`",
         "",
-        "| run_id | prompt_bank_version | scenarios | personas | temps | temp_span | condition_cells | planned_samples | scenario_labels | scenario_tags | persona_style_tags |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| run_id | prompt_bank_version | scenarios | personas | temps | temp_span | condition_cells | planned_samples | labels | tags | domains | emotion_axes | difficulties | persona_style_tags |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in payload.get("rows") or []:
         lines.append(
             f"| {row.get('id','')} | {row.get('prompt_bank_version','')} | {row.get('scenario_count',0)} | {row.get('persona_count',0)} | "
             f"{row.get('temperature_count',0)} | {row.get('temperature_span',0.0)} | {row.get('condition_cells',0)} | {row.get('planned_samples',0)} | "
-            f"{row.get('scenario_label_count',0)} | {row.get('scenario_tag_count',0)} | {row.get('persona_style_tag_count',0)} |"
+            f"{row.get('scenario_label_count',0)} | {row.get('scenario_tag_count',0)} | {row.get('scenario_domain_count',0)} | "
+            f"{row.get('scenario_emotion_axis_count',0)} | {row.get('scenario_difficulty_count',0)} | {row.get('persona_style_tag_count',0)} |"
         )
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -850,6 +931,24 @@ def main():
     ap.add_argument("--require-min-scenarios", type=int, default=0, help="fail if a run selects fewer than this many scenarios")
     ap.add_argument("--require-min-personas", type=int, default=0, help="fail if a run selects fewer than this many personas")
     ap.add_argument("--require-min-temperature-count", type=int, default=0, help="fail if a run uses fewer than this many temperatures")
+    ap.add_argument(
+        "--require-min-unique-scenario-domains",
+        type=int,
+        default=0,
+        help="fail if a run selects fewer than this many unique scenario domains",
+    )
+    ap.add_argument(
+        "--require-min-unique-scenario-emotion-axes",
+        type=int,
+        default=0,
+        help="fail if a run selects fewer than this many unique scenario emotion axes",
+    )
+    ap.add_argument(
+        "--require-min-unique-scenario-difficulties",
+        type=int,
+        default=0,
+        help="fail if a run selects fewer than this many unique scenario difficulty levels",
+    )
     ap.add_argument("--fail-on-missing-run-id", action="store_true", help="fail when --include-run-id contains unknown ids")
     ap.add_argument("--manifest-markdown", action="store_true", help="emit a human-readable manifest summary markdown")
     ap.add_argument("--require-min-run-cells", type=int, default=0, help="fail if selected run cells are fewer than this minimum")
@@ -1413,6 +1512,9 @@ def main():
     aggregate_scenario_ids: set[str] = set()
     aggregate_persona_ids: set[str] = set()
     aggregate_scenario_tags: set[str] = set()
+    aggregate_scenario_domains: set[str] = set()
+    aggregate_scenario_emotion_axes: set[str] = set()
+    aggregate_scenario_difficulties: set[str] = set()
     aggregate_scenario_labels: set[str] = set()
     aggregate_persona_style_tags: set[str] = set()
     include_run_ids = set(args.include_run_id)
@@ -1476,10 +1578,21 @@ def main():
         prompt_bank = exp.get("prompt_bank", "prompts/prompt_bank_ko.json")
         scenario_ids = sorted(parse_csv_set(exp.get("scenario_ids")))
         scenario_tags = sorted(parse_csv_set(exp.get("scenario_tags")))
+        scenario_domains = sorted(parse_csv_set(exp.get("scenario_domains")))
+        scenario_emotion_axes = sorted(parse_csv_set(exp.get("scenario_emotion_axes")))
+        scenario_difficulties = sorted(parse_csv_set(exp.get("scenario_difficulties")))
         persona_ids = sorted(parse_csv_set(exp.get("persona_ids")))
         prompt_bank_path = ROOT / prompt_bank
         bank = load_prompt_bank(prompt_bank_path)
-        prompt_summary = summarize_prompt_bank(bank, set(scenario_ids), set(scenario_tags), set(persona_ids))
+        prompt_summary = summarize_prompt_bank(
+            bank,
+            set(scenario_ids),
+            set(scenario_tags),
+            set(scenario_domains),
+            set(scenario_emotion_axes),
+            set(scenario_difficulties),
+            set(persona_ids),
+        )
         prompt_bank_version = str(bank.get("version") or "unknown")
         if args.require_prompt_bank_version and prompt_bank_version != args.require_prompt_bank_version:
             raise RuntimeError(
@@ -1489,6 +1602,9 @@ def main():
         aggregate_scenario_ids.update(prompt_summary["scenario_ids"])
         aggregate_persona_ids.update(prompt_summary["persona_ids"])
         aggregate_scenario_tags.update(prompt_summary["scenario_tags"])
+        aggregate_scenario_domains.update(prompt_summary["scenario_domains"])
+        aggregate_scenario_emotion_axes.update(prompt_summary["scenario_emotion_axes"])
+        aggregate_scenario_difficulties.update(prompt_summary["scenario_difficulties"])
         aggregate_scenario_labels.update(prompt_summary["scenario_labels"])
         aggregate_persona_style_tags.update(prompt_summary["persona_style_tags"])
         condition_cells = prompt_summary["scenario_count"] * prompt_summary["persona_count"] * max(1, len(temperatures))
@@ -1519,6 +1635,30 @@ def main():
             raise RuntimeError(
                 f"{run_id}: scenario_tag_count={prompt_summary['scenario_tag_count']} < "
                 f"require_min_unique_scenario_tags={args.require_min_unique_scenario_tags}"
+            )
+        if (
+            args.require_min_unique_scenario_domains
+            and prompt_summary["scenario_domain_count"] < args.require_min_unique_scenario_domains
+        ):
+            raise RuntimeError(
+                f"{run_id}: scenario_domain_count={prompt_summary['scenario_domain_count']} < "
+                f"require_min_unique_scenario_domains={args.require_min_unique_scenario_domains}"
+            )
+        if (
+            args.require_min_unique_scenario_emotion_axes
+            and prompt_summary["scenario_emotion_axis_count"] < args.require_min_unique_scenario_emotion_axes
+        ):
+            raise RuntimeError(
+                f"{run_id}: scenario_emotion_axis_count={prompt_summary['scenario_emotion_axis_count']} < "
+                f"require_min_unique_scenario_emotion_axes={args.require_min_unique_scenario_emotion_axes}"
+            )
+        if (
+            args.require_min_unique_scenario_difficulties
+            and prompt_summary["scenario_difficulty_count"] < args.require_min_unique_scenario_difficulties
+        ):
+            raise RuntimeError(
+                f"{run_id}: scenario_difficulty_count={prompt_summary['scenario_difficulty_count']} < "
+                f"require_min_unique_scenario_difficulties={args.require_min_unique_scenario_difficulties}"
             )
         if args.require_min_unique_scenario_labels and prompt_summary["scenario_label_count"] < args.require_min_unique_scenario_labels:
             raise RuntimeError(
@@ -1566,6 +1706,12 @@ def main():
                 "scenario_label_entropy": prompt_summary["scenario_label_entropy"],
                 "scenario_tag_count": prompt_summary["scenario_tag_count"],
                 "scenario_tags": prompt_summary["scenario_tags"],
+                "scenario_domain_count": prompt_summary["scenario_domain_count"],
+                "scenario_domains": prompt_summary["scenario_domains"],
+                "scenario_emotion_axis_count": prompt_summary["scenario_emotion_axis_count"],
+                "scenario_emotion_axes": prompt_summary["scenario_emotion_axes"],
+                "scenario_difficulty_count": prompt_summary["scenario_difficulty_count"],
+                "scenario_difficulties": prompt_summary["scenario_difficulties"],
                 "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
                 "persona_style_tags": prompt_summary["persona_style_tags"],
             }
@@ -1588,6 +1734,12 @@ def main():
                 "scenario_labels": prompt_summary["scenario_labels"],
                 "scenario_tag_count": prompt_summary["scenario_tag_count"],
                 "scenario_tags": prompt_summary["scenario_tags"],
+                "scenario_domain_count": prompt_summary["scenario_domain_count"],
+                "scenario_domains": prompt_summary["scenario_domains"],
+                "scenario_emotion_axis_count": prompt_summary["scenario_emotion_axis_count"],
+                "scenario_emotion_axes": prompt_summary["scenario_emotion_axes"],
+                "scenario_difficulty_count": prompt_summary["scenario_difficulty_count"],
+                "scenario_difficulties": prompt_summary["scenario_difficulties"],
                 "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
                 "persona_style_tags": prompt_summary["persona_style_tags"],
             }
@@ -1613,6 +1765,9 @@ def main():
                 "prompt_bank_version": prompt_bank_version,
                 "scenario_ids": scenario_ids,
                 "scenario_tags": scenario_tags,
+                "scenario_domains": scenario_domains,
+                "scenario_emotion_axes": scenario_emotion_axes,
+                "scenario_difficulties": scenario_difficulties,
                 "scenario_labels": prompt_summary["scenario_labels"],
                 "persona_ids": persona_ids,
                 "scenario_count": prompt_summary["scenario_count"],
@@ -1668,6 +1823,12 @@ def main():
                 gen_parts.extend(["--scenario-ids", ",".join(scenario_ids)])
             if scenario_tags:
                 gen_parts.extend(["--scenario-tags", ",".join(scenario_tags)])
+            if scenario_domains:
+                gen_parts.extend(["--scenario-domains", ",".join(scenario_domains)])
+            if scenario_emotion_axes:
+                gen_parts.extend(["--scenario-emotion-axes", ",".join(scenario_emotion_axes)])
+            if scenario_difficulties:
+                gen_parts.extend(["--scenario-difficulties", ",".join(scenario_difficulties)])
             if persona_ids:
                 gen_parts.extend(["--persona-ids", ",".join(persona_ids)])
             gen_cmd = shell_join(gen_parts)
@@ -2535,6 +2696,9 @@ def main():
         "unique_selected_personas": len(aggregate_persona_ids),
         "unique_selected_scenario_labels": len(aggregate_scenario_labels),
         "unique_selected_scenario_tags": len(aggregate_scenario_tags),
+        "unique_selected_scenario_domains": len(aggregate_scenario_domains),
+        "unique_selected_scenario_emotion_axes": len(aggregate_scenario_emotion_axes),
+        "unique_selected_scenario_difficulties": len(aggregate_scenario_difficulties),
         "unique_selected_persona_style_tags": len(aggregate_persona_style_tags),
         "max_scenario_label_dominance": max((row.get("scenario_label_dominance", 0.0) for row in run_preflight_rows), default=0.0),
         "min_scenario_label_entropy": min((row.get("scenario_label_entropy", 0.0) for row in run_preflight_rows), default=0.0),
