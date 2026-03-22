@@ -1041,6 +1041,31 @@
         "stage_reentry_budget_guard",
         "stage_budget_pressure_auditor"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_gap_v59",
+      "n": 12,
+      "seed": 42019,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_bridge_counterexample_density_repair",
+        "screening_review_evidence_decay_countermeasure",
+        "prompt_bank_countervoice_calibration_grid",
+        "runner_stage_share_gap_throttle",
+        "runner_stage_reentry_budget_cascade"
+      ],
+      "persona_ids": [
+        "review_density_auditor",
+        "review_link_decay_sentinel",
+        "stage_share_gap_controller",
+        "stage_reentry_budget_guard"
+      ]
     }
   ]
 }

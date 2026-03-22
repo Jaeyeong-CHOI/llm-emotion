@@ -8,14 +8,14 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
-- Literature screening quality gate now supports **review counterexample traceability 결합 점검**(`--min-manual-qc-review-counterexample-traceability-share`)을 추가해, review 반례 항목의 근거 문장 누락을 조기에 차단합니다.
-- Prompt bank expanded to `v5.8` with temporal recall / countervoice strength / runner re-entry 연계 시나리오 (`screening_temporal_counterexample_backfill`, `prompt_bank_countervoice_strength_ladder`, `runner_stage_reentry_budget_cascade`) and personas (`temporal_recall_calibrator`, `stage_reentry_budget_guard`). Experiment matrix now includes `screening_prompt_runner_temporal_v58`.
-- Experiment runner now supports run-id + stage-specific streak tripwires (`--max-generation-failure-streak`, `--max-analysis-failure-streak`, `--max-generation-failure-streak-per-run-id`, `--max-analysis-failure-streak-per-run-id`) so 생성/분석 단계 연속 실패를 전체/개별 run-id 레벨로 분리 감시할 수 있습니다.
-- Screening quality gate now tracks **review evidence-link decay share** (`--max-manual-qc-review-evidence-link-decay-share`) to fail fast when review 근거의 문장-링크 연결이 약화됩니다.
+- Literature screening quality gate now supports **review bridge+counterexample traceability gap 상한 점검**(`--max-review-bridge-counterexample-traceability-gap-share`)을 추가해, 핵심 반례가 있는데 근거 추적성이 비는 케이스를 조기에 차단합니다.
+- Prompt bank expanded to `v5.9` with screening/prompt/runner 연계 시나리오 (`screening_bridge_counterexample_density_repair`, `prompt_bank_countervoice_calibration_grid`, `runner_stage_share_gap_throttle`) and personas (`review_density_auditor`, `stage_share_gap_controller`). Experiment matrix now includes `screening_prompt_runner_gap_v59`.
+- Experiment runner now supports **run-id별 stage attempt share gap tripwire** (`--max-stage-attempt-share-gap-per-run-id`) to stop batches when 생성/분석 단계 점유율 격차가 과도하게 벌어집니다.
+- Screening quality gate continues to track **review evidence-link decay share** (`--max-manual-qc-review-evidence-link-decay-share`) to fail fast when review 근거의 문장-링크 연결이 약화됩니다.
 - Experiment runner budget report now includes **stage별 attempt pressure ratio** and tripwires (`--max-generation-attempt-over-selection-ratio`, `--max-analysis-attempt-over-selection-ratio`) to prevent 생성/분석 단계 예산 과열 편향.
 
 ## Repository structure
-- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v56.md`)
+- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v59.md`)
 - `queries/`: retrieval queries and screening rules
 - `prompts/`: Korean prompt bank and scenario source material
 - `scripts/`: literature sync, dataset generation, analysis, experiment runner

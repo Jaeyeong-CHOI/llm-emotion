@@ -1,5 +1,5 @@
 {
-  "version": "v5.8",
+  "version": "v5.9",
   "language": "ko",
   "scenarios": [
     {
@@ -2004,6 +2004,45 @@
         "repair"
       ],
       "prompt": "실험 러너에서 격리된 셀을 재투입할 때 단계별 예산 재배분이 누락되어 연쇄 지연이 발생한 사건을 7~10문장으로 회고하라. 어느 단계에서 예산이 다시 과열됐는지, 재투입 전 점검식과 단계별 재개 조건을 포함하라."
+    },
+    {
+      "id": "screening_bridge_counterexample_density_repair",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "bridge_signal",
+        "counterfactual",
+        "traceability"
+      ],
+      "prompt": "review 후보 논문에서 bridge 문장과 counterexample 문장이 모두 있었지만 밀도 있게 기록되지 않아 재판독 비용이 커진 경험을 7~10문장으로 회고하라. 어떤 근거를 먼저 놓쳤는지, 밀도 기준을 어떻게 재설계했는지, 현재의 최소 근거 묶음 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_calibration_grid",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "calibration",
+        "rotation"
+      ],
+      "prompt": "프롬프트 뱅크에서 주장-반대관점 쌍을 강도/도메인 축으로 그리드화해 재정렬했던 경험을 7~9문장으로 작성하라. 어떤 칸이 비어 있었는지, 왜 이전엔 감지하지 못했는지, 다음 버전 릴리즈에서 그리드 유지 규칙을 포함하라."
+    },
+    {
+      "id": "runner_stage_share_gap_throttle",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "budget_pressure",
+        "systems",
+        "fairness",
+        "repair"
+      ],
+      "prompt": "실험 러너에서 생성 단계와 분석 단계의 시도 점유율 격차가 커져 배치 품질이 흔들렸던 사건을 7~10문장으로 회고하라. 어떤 run id에서 격차가 가장 컸는지, 격차 상한(throttle)을 어떻게 정했는지, 재개 조건을 포함하라."
     }
   ],
   "personas": [
@@ -3071,6 +3110,26 @@
         "budget_pressure"
       ],
       "instruction": "당신은 격리 셀 재투입 시 단계별 예산 압박을 동시에 감시하는 성향이 있으며, 재진입 전 예산 상한·중단선·재개 조건을 수치로 기록한다."
+    },
+    {
+      "id": "review_density_auditor",
+      "style_tags": [
+        "screening",
+        "review",
+        "traceability",
+        "calibration"
+      ],
+      "instruction": "당신은 review 근거의 밀도를 우선 점검하는 성향이 있으며, bridge/counterexample/근거 링크가 함께 남아 있는지 확인한 뒤 판단을 확정한다."
+    },
+    {
+      "id": "stage_share_gap_controller",
+      "style_tags": [
+        "runner",
+        "budget_pressure",
+        "systems",
+        "fairness"
+      ],
+      "instruction": "당신은 생성·분석 단계 시도 점유율 격차를 먼저 감시하는 성향이 있으며, gap 임계치 초과 시 격리·재분배·재개 순서를 수치로 기록한다."
     }
   ],
   "temperatures": [

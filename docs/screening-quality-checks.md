@@ -20,10 +20,11 @@ python3 scripts/check_screening_quality.py \
   --manual-qc-csv results/manual_qc_queue.csv \
   --out results/screening_quality_report.json \
   --out-md results/screening_quality_report.md \
-  --run-label screening_qc_v57 --min-balanced-min-per-label 2 --min-screening-reason-diversity 6 --max-top-screening-reason-share 0.65 \
+  --run-label screening_qc_v59 --min-balanced-min-per-label 2 --min-screening-reason-diversity 6 --max-top-screening-reason-share 0.65 \
   --min-screening-reason-entropy 0.55 --min-manual-qc-query-entropy 0.50 --min-manual-qc-risk-reason-entropy 0.45 \
   --min-manual-qc-source-groups 3 --min-include-bridge-signal-share 0.20 --min-review-bridge-signal-share 0.0 --min-review-bridge-traceability-share 0.0 --min-review-bridge-traceability-given-bridge-share 0.70 --min-review-counterexample-share 0.25 --min-manual-qc-bridge-signal-share 0.20 --min-manual-qc-review-source-groups 2 \
   --max-manual-qc-review-group-dominance 0.70 --max-manual-qc-single-query-share 0.45 \
+  --max-review-bridge-counterexample-traceability-gap-share 0.45 \
   --max-manual-qc-review-evidence-link-decay-share 0.45 \
   --max-manual-qc-unknown-query-share 0.20 --max-empty-screening-reason-share 0.10
 ```
@@ -53,6 +54,7 @@ python3 scripts/check_screening_quality.py \
 - `review_bridge_signal_share >= 0.0` (review 근거문장 bridge가 충분한 배치에서는 0.2+ 권장)
 - `review_bridge_traceability_given_bridge_share >= 0.0` (bridge가 잡힌 review subset에서 traceability가 얼마나 유지되는지 별도로 점검)
 - `review_counterexample_share >= 0.0` (review subset에서 반례 근거가 언급되는 비율을 점검; 0.25+ 권장)
+- `review_bridge_counterexample_traceability_gap_share <= 0.45` (bridge+counterexample가 잡힌 review 중 traceability가 비는 비율 상한)
 - `review_evidence_link_decay_share <= 0.45` (review 근거에서 query/title/include 링크가 빠진 비율 상한)
 - `manual_qc_high_risk_share <= 0.85`
 - `manual_qc_source_group_diversity >= 3`

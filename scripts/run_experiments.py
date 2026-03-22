@@ -371,6 +371,12 @@ def build_budget_report(
                 )
                 if selected_cells > 0 and analysis_attempts_total > 0 and selected_run_cells > 0
                 else 0.0,
+                "stage_attempt_share_gap": round(
+                    abs(pct(generation_attempts, generation_attempts_total) - pct(analysis_attempts, analysis_attempts_total)),
+                    4,
+                )
+                if generation_attempts_total > 0 and analysis_attempts_total > 0
+                else 0.0,
                 "failure_over_selection_ratio": round(
                     pct(int(failed_cells_by_run_id.get(run_id, 0) or 0), failed_cells_total)
                     / max(pct(selected_cells, selected_run_cells), 0.0001),
@@ -389,6 +395,7 @@ def build_budget_report(
     max_generation_attempt_pressure = max(rows, key=lambda row: (row["generation_attempt_over_selection_ratio"], row["id"]), default=None)
     max_analysis_attempt_pressure = max(rows, key=lambda row: (row["analysis_attempt_over_selection_ratio"], row["id"]), default=None)
     max_failure_pressure = max(rows, key=lambda row: (row["failure_over_selection_ratio"], row["id"]), default=None)
+    max_stage_attempt_share_gap = max(rows, key=lambda row: (row["stage_attempt_share_gap"], row["id"]), default=None)
     return {
         "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
         "run_label": run_label,
@@ -413,6 +420,8 @@ def build_budget_report(
             "max_analysis_attempt_over_selection_ratio": (max_analysis_attempt_pressure or {}).get("analysis_attempt_over_selection_ratio", 0.0),
             "max_failure_over_selection_ratio_run_id": (max_failure_pressure or {}).get("id", ""),
             "max_failure_over_selection_ratio": (max_failure_pressure or {}).get("failure_over_selection_ratio", 0.0),
+            "max_stage_attempt_share_gap_run_id": (max_stage_attempt_share_gap or {}).get("id", ""),
+            "max_stage_attempt_share_gap": (max_stage_attempt_share_gap or {}).get("stage_attempt_share_gap", 0.0),
         },
         "rows": rows,
     }
@@ -434,11 +443,12 @@ def write_budget_report_markdown(path: Path, payload: dict):
         f"- max_generation_attempt_over_selection_ratio: `{summary.get('max_generation_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_generation_attempt_over_selection_ratio_run_id', '')}`)",
         f"- max_analysis_attempt_over_selection_ratio: `{summary.get('max_analysis_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_analysis_attempt_over_selection_ratio_run_id', '')}`)",
         f"- max_failure_over_selection_ratio: `{summary.get('max_failure_over_selection_ratio', 0.0)}` (`{summary.get('max_failure_over_selection_ratio_run_id', '')}`)",
+        f"- max_stage_attempt_share_gap: `{summary.get('max_stage_attempt_share_gap', 0.0)}` (`{summary.get('max_stage_attempt_share_gap_run_id', '')}`)",
         f"- max_failed_cells: `{summary.get('max_failed_cells', 0)}` (`{summary.get('max_failed_cells_run_id', '')}`)",
         f"- max_failed_cell_share: `{summary.get('max_failed_cell_share', 0.0)}` (`{summary.get('max_failed_cell_share_run_id', '')}`)",
         "",
-        "| run_id | selected_cells | selected_share | success_rate | gen_attempts | gen_share | gen_pressure | ana_attempts | ana_share | ana_pressure | combined_share | attempt_pressure | failed_cells | failed_share | failure_pressure |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| run_id | selected_cells | selected_share | success_rate | gen_attempts | gen_share | gen_pressure | ana_attempts | ana_share | ana_pressure | stage_share_gap | combined_share | attempt_pressure | failed_cells | failed_share | failure_pressure |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|", 
     ]
     for row in payload.get("rows") or []:
         lines.append(
@@ -446,7 +456,7 @@ def write_budget_report_markdown(path: Path, payload: dict):
             f"{row.get('run_id_success_rate', 0.0)} | {row.get('generation_attempts', 0)} | "
             f"{row.get('generation_attempt_share', 0.0)} | {row.get('generation_attempt_over_selection_ratio', 0.0)} | "
             f"{row.get('analysis_attempts', 0)} | {row.get('analysis_attempt_share', 0.0)} | {row.get('analysis_attempt_over_selection_ratio', 0.0)} | "
-            f"{row.get('combined_attempt_share', 0.0)} | {row.get('attempt_over_selection_ratio', 0.0)} | "
+            f"{row.get('stage_attempt_share_gap', 0.0)} | {row.get('combined_attempt_share', 0.0)} | {row.get('attempt_over_selection_ratio', 0.0)} | "
             f"{row.get('failed_cells', 0)} | {row.get('failed_cell_share', 0.0)} | {row.get('failure_over_selection_ratio', 0.0)} |"
         )
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -889,6 +899,12 @@ def main():
         type=float,
         default=0.0,
         help="fail if a run id consumes analysis attempts at more than this multiple of its selected-cell share; 0 disables",
+    )
+    ap.add_argument(
+        "--max-stage-attempt-share-gap-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if abs(generation_attempt_share-analysis_attempt_share) for any run id exceeds this value; 0 disables",
     )
     ap.add_argument(
         "--max-failure-over-selection-ratio",
@@ -2075,6 +2091,17 @@ def main():
                 "run-id analysis attempt-over-selection ratio above ceiling "
                 f"{args.max_analysis_attempt_over_selection_ratio}: {', '.join(overpressured_analysis)}"
             )
+    if args.max_stage_attempt_share_gap_per_run_id:
+        overpressured_stage_gap = [
+            f"{row.get('id')}:{row.get('stage_attempt_share_gap')}"
+            for row in budget_report.get("rows") or []
+            if float(row.get("stage_attempt_share_gap") or 0.0) > args.max_stage_attempt_share_gap_per_run_id
+        ]
+        if overpressured_stage_gap:
+            raise RuntimeError(
+                "run-id stage attempt share gap above ceiling "
+                f"{args.max_stage_attempt_share_gap_per_run_id}: {', '.join(overpressured_stage_gap)}"
+            )
     if args.max_failure_over_selection_ratio:
         overpressured_failures = [
             f"{row.get('id')}:{row.get('failure_over_selection_ratio')}"
@@ -2226,6 +2253,7 @@ def main():
         "max_attempt_over_selection_ratio": args.max_attempt_over_selection_ratio,
         "max_generation_attempt_over_selection_ratio": args.max_generation_attempt_over_selection_ratio,
         "max_analysis_attempt_over_selection_ratio": args.max_analysis_attempt_over_selection_ratio,
+        "max_stage_attempt_share_gap_per_run_id": args.max_stage_attempt_share_gap_per_run_id,
         "max_failure_over_selection_ratio": args.max_failure_over_selection_ratio,
         "max_failed_cell_share_per_run_id": args.max_failed_cell_share_per_run_id,
         "require_freeze_artifacts": args.require_freeze_artifact,
