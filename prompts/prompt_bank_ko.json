@@ -1,5 +1,5 @@
 {
-  "version": "v6.9",
+  "version": "v7.0",
   "language": "ko",
   "scenarios": [
     {
@@ -2406,6 +2406,45 @@
         "repair"
       ],
       "prompt": "실험 러너에서 생성/분석 단계의 live 시도 점유율 격차가 급격히 벌어져 조기 중단 후 복구 훈련을 수행했던 사건을 7~10문장으로 회고하라. 어떤 run-id가 격차를 만들었는지, gap tripwire 임계치, 재개 전 검증 순서를 포함하라."
+    },
+    {
+      "id": "screening_query_bridge_counterbalance_repair",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "traceability",
+        "counterfactual",
+        "calibration"
+      ],
+      "prompt": "선행연구 스크리닝에서 bridge 문장은 충분했지만 대응 반례(counterbalance) 근거가 부족해 review 판단이 흔들린 경험을 7~10문장으로 회고하라. 어떤 근거축이 비었는지, 보강 순서를 어떻게 정했는지, 현재의 최소 근거쌍 기준을 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_gap_matrix_patch",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "coverage",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크를 확장하면서 주장-반대관점(countervoice) 매트릭스의 일부 칸이 비어 비교 해석이 흔들렸던 경험을 7~9문장으로 작성하라. 어떤 칸이 비었는지, 패치 우선순위, 다음 버전의 유지 규칙을 포함하라."
+    },
+    {
+      "id": "runner_live_retry_pressure_circuit_breaker",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "retry",
+        "budget_pressure",
+        "tripwire",
+        "systems"
+      ],
+      "prompt": "실험 러너에서 특정 run-id의 재시도 점유율이 실시간으로 과열되어 circuit breaker를 발동했던 사건을 7~10문장으로 회고하라. 어떤 지표를 경보로 썼는지, 중단 직전 신호, 재분배 후 재개 조건을 포함하라."
     }
   ],
   "personas": [
@@ -3763,6 +3802,36 @@
         "tripwire"
       ],
       "instruction": "당신은 실험 중 생성/분석 단계 점유율 격차를 실시간 감시하는 성향이 있으며, 임계치 초과 시 중단·격리·재개 절차를 수치로 명확히 기록한다."
+    },
+    {
+      "id": "review_counterbalance_auditor",
+      "style_tags": [
+        "screening",
+        "review",
+        "counterfactual",
+        "traceability"
+      ],
+      "instruction": "당신은 review 판단에서 주장 근거와 반례 근거의 균형을 우선 점검하는 성향이 있으며, 근거쌍이 비면 판단을 보류하고 보강 순서를 명시한다."
+    },
+    {
+      "id": "countervoice_matrix_curator",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "coverage"
+      ],
+      "instruction": "당신은 프롬프트 뱅크의 주장-반대관점 매트릭스 공백을 먼저 점검하는 성향이 있으며, 비어 있는 칸을 우선순위로 보강하고 버전 메모를 남긴다."
+    },
+    {
+      "id": "live_retry_pressure_sentinel",
+      "style_tags": [
+        "runner",
+        "retry",
+        "budget_pressure",
+        "tripwire"
+      ],
+      "instruction": "당신은 run-id별 재시도 점유율 과열을 실시간으로 감시하는 성향이 있으며, 임계치 초과 시 즉시 중단·재분배·재개 조건을 수치로 기록한다."
     }
   ],
   "temperatures": [

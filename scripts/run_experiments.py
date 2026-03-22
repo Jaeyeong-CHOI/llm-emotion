@@ -207,7 +207,7 @@ def pct(numerator: int, denominator: int) -> float:
     return round(numerator / denominator, 4)
 
 
-def live_attempt_share_exceeded(*, run_id: str, generation_attempts_by_run_id: dict[str, int], analysis_attempts_by_run_id: dict[str, int], generation_attempts_total: int, analysis_attempts_total: int, max_live_generation_attempt_share_per_run_id: float, max_live_analysis_attempt_share_per_run_id: float, max_live_combined_attempt_share_per_run_id: float, max_live_stage_attempt_share_gap_per_run_id: float) -> tuple[bool, str]:
+def live_attempt_share_exceeded(*, run_id: str, generation_attempts_by_run_id: dict[str, int], analysis_attempts_by_run_id: dict[str, int], generation_attempts_total: int, analysis_attempts_total: int, generation_retries_by_run_id: dict[str, int], analysis_retries_by_run_id: dict[str, int], generation_retries_total: int, analysis_retries_total: int, max_live_generation_attempt_share_per_run_id: float, max_live_analysis_attempt_share_per_run_id: float, max_live_combined_attempt_share_per_run_id: float, max_live_stage_attempt_share_gap_per_run_id: float, max_live_retry_share_per_run_id: float) -> tuple[bool, str]:
     run_generation = int(generation_attempts_by_run_id.get(run_id, 0) or 0)
     run_analysis = int(analysis_attempts_by_run_id.get(run_id, 0) or 0)
     run_combined = run_generation + run_analysis
@@ -230,6 +230,12 @@ def live_attempt_share_exceeded(*, run_id: str, generation_attempts_by_run_id: d
         gap = abs(generation_share - analysis_share)
         if gap > max_live_stage_attempt_share_gap_per_run_id:
             return True, f"stage_share_gap={round(gap,4)}>{max_live_stage_attempt_share_gap_per_run_id}"
+    run_retries = int(generation_retries_by_run_id.get(run_id, 0) or 0) + int(analysis_retries_by_run_id.get(run_id, 0) or 0)
+    retries_total = generation_retries_total + analysis_retries_total
+    if max_live_retry_share_per_run_id > 0 and retries_total > 0:
+        retry_share = run_retries / retries_total
+        if retry_share > max_live_retry_share_per_run_id:
+            return True, f"retry_share={round(retry_share,4)}>{max_live_retry_share_per_run_id}"
     return False, ""
 
 
@@ -1068,6 +1074,12 @@ def main():
         help="stop early if abs(live_generation_attempt_share-live_analysis_attempt_share) for a run id exceeds this value; 0 disables",
     )
     ap.add_argument(
+        "--max-live-retry-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="stop early if a run id exceeds this share of retries while batch is running; 0 disables",
+    )
+    ap.add_argument(
         "--max-selected-cell-share-per-run-id",
         type=float,
         default=0.0,
@@ -1650,10 +1662,15 @@ def main():
                 analysis_attempts_by_run_id=analysis_attempts_by_run_id,
                 generation_attempts_total=generation_attempts_total,
                 analysis_attempts_total=analysis_attempts_total,
+                generation_retries_by_run_id=generation_retries_by_run_id,
+                analysis_retries_by_run_id=analysis_retries_by_run_id,
+                generation_retries_total=generation_retries_total,
+                analysis_retries_total=analysis_retries_total,
                 max_live_generation_attempt_share_per_run_id=args.max_live_generation_attempt_share_per_run_id,
                 max_live_analysis_attempt_share_per_run_id=args.max_live_analysis_attempt_share_per_run_id,
                 max_live_combined_attempt_share_per_run_id=args.max_live_combined_attempt_share_per_run_id,
                 max_live_stage_attempt_share_gap_per_run_id=args.max_live_stage_attempt_share_gap_per_run_id,
+                max_live_retry_share_per_run_id=args.max_live_retry_share_per_run_id,
             )
             if exceeded:
                 print(
@@ -1957,10 +1974,15 @@ def main():
                 analysis_attempts_by_run_id=analysis_attempts_by_run_id,
                 generation_attempts_total=generation_attempts_total,
                 analysis_attempts_total=analysis_attempts_total,
+                generation_retries_by_run_id=generation_retries_by_run_id,
+                analysis_retries_by_run_id=analysis_retries_by_run_id,
+                generation_retries_total=generation_retries_total,
+                analysis_retries_total=analysis_retries_total,
                 max_live_generation_attempt_share_per_run_id=args.max_live_generation_attempt_share_per_run_id,
                 max_live_analysis_attempt_share_per_run_id=args.max_live_analysis_attempt_share_per_run_id,
                 max_live_combined_attempt_share_per_run_id=args.max_live_combined_attempt_share_per_run_id,
                 max_live_stage_attempt_share_gap_per_run_id=args.max_live_stage_attempt_share_gap_per_run_id,
+                max_live_retry_share_per_run_id=args.max_live_retry_share_per_run_id,
             )
             if exceeded:
                 print(
@@ -2695,6 +2717,7 @@ def main():
         "max_live_analysis_attempt_share_per_run_id": args.max_live_analysis_attempt_share_per_run_id,
         "max_live_combined_attempt_share_per_run_id": args.max_live_combined_attempt_share_per_run_id,
         "max_live_stage_attempt_share_gap_per_run_id": args.max_live_stage_attempt_share_gap_per_run_id,
+        "max_live_retry_share_per_run_id": args.max_live_retry_share_per_run_id,
         "max_selected_cell_share_per_run_id": args.max_selected_cell_share_per_run_id,
         "max_attempt_over_selection_ratio": args.max_attempt_over_selection_ratio,
         "max_retry_share_per_run_id": args.max_retry_share_per_run_id,

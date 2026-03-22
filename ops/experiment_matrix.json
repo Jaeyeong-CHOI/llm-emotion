@@ -1306,6 +1306,30 @@
         "runner_live_stage_gap_recovery_drill",
         "runner_stage_retry_mix_guard"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_retry_tripwire_v70",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "review_counterbalance_auditor",
+        "countervoice_matrix_curator",
+        "live_retry_pressure_sentinel",
+        "stage_retry_mix_operator"
+      ],
+      "n": 24,
+      "seed": 470,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_ids": [
+        "screening_query_bridge_counterbalance_repair",
+        "prompt_bank_countervoice_gap_matrix_patch",
+        "runner_live_retry_pressure_circuit_breaker",
+        "runner_stage_retry_mix_guard"
+      ]
     }
   ]
 }
