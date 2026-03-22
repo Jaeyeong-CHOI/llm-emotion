@@ -897,6 +897,9 @@ def collect_manual_qc_queue(rows: List[Dict], include_th: float, review_th: floa
         if int(features.get("bridge_sentence_hits", 0) or 0) == 0:
             risk += 0.4
             reasons.append("no_bridge_sentence")
+        if int(features.get("query_overlap", 0) or 0) == 0 and int(features.get("include_hits", 0) or 0) >= 2:
+            risk += 0.9
+            reasons.append("query_drift_signal")
 
         stability = row.get("screening_stability") or {}
         source_count = int(stability.get("source_count", 0) or 0)
@@ -1127,6 +1130,79 @@ def summarize_quality_queue(queue: List[Dict], key: str) -> Dict[str, int]:
     return dict(sorted(summary.items(), key=lambda x: (-x[1], x[0])))
 
 
+def summarize_missing_concept_groups(rows: List[Dict], rules: Dict) -> Dict[str, object]:
+    groups = rules.get("required_concepts_any", [])
+    group_summary = []
+    for idx, group in enumerate(groups):
+        miss_titles = []
+        miss_count = 0
+        for row in rows:
+            features = row.get("screening_features") or {}
+            group_rows = features.get("concept_group_summary") or []
+            entry = next((g for g in group_rows if int(g.get("group_index", -1)) == idx), None)
+            if not entry or entry.get("missing"):
+                miss_count += 1
+                if len(miss_titles) < 12:
+                    miss_titles.append(row.get("title"))
+        group_summary.append(
+            {
+                "group_index": idx,
+                "terms": [str(term) for term in group],
+                "missing_rows": miss_count,
+                "missing_rate": round(miss_count / len(rows), 4) if rows else 0.0,
+                "sample_titles": miss_titles,
+            }
+        )
+
+    return {
+        "groups": group_summary,
+        "worst_group_indexes": [
+            g["group_index"] for g in sorted(group_summary, key=lambda x: x.get("missing_rate", 0.0), reverse=True)[:2]
+        ],
+    }
+
+
+def collect_query_drift_candidates(rows: List[Dict], review_th: float) -> List[Dict]:
+    candidates = []
+    for row in rows:
+        score = float(row.get("screening_score") or 0.0)
+        label = str(row.get("screening_label") or "exclude")
+        if label == "include" or score < (review_th - 0.2):
+            continue
+
+        features = row.get("screening_features") or {}
+        query_overlap = int(features.get("query_overlap", 0) or 0)
+        include_hits = int(features.get("include_hits", 0) or 0)
+        bridge_hits = int(features.get("bridge_sentence_hits", 0) or 0)
+        llm_hits = int(features.get("llm_concept_hits", 0) or 0)
+        missing_groups = int(features.get("missing_concept_groups", 0) or 0)
+        if query_overlap > 0:
+            continue
+        if include_hits < 2 and bridge_hits == 0:
+            continue
+        if llm_hits <= 0:
+            continue
+
+        candidates.append(
+            {
+                "title": row.get("title"),
+                "year": row.get("year"),
+                "score": score,
+                "label": label,
+                "confidence": row.get("screening_confidence"),
+                "query": row.get("query"),
+                "group": row.get("group"),
+                "include_hits": include_hits,
+                "bridge_sentence_hits": bridge_hits,
+                "missing_concept_groups": missing_groups,
+                "reasons": row.get("screening_reasons", [])[:6],
+            }
+        )
+
+    candidates.sort(key=lambda x: (-(x.get("score") or 0.0), x.get("title") or ""))
+    return candidates[:40]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
@@ -1251,6 +1327,8 @@ def main():
             "llm_concept": summarize_llm_concept(ordered),
             "alias_coverage": summarize_alias_coverage(ordered, rules),
             "required_group_coverage": summarize_required_group_coverage(ordered, rules),
+            "missing_concept_groups": summarize_missing_concept_groups(ordered, rules),
+            "query_drift_candidates": collect_query_drift_candidates(ordered, review_th),
             "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
             "label_gate_conflicts": summarize_label_gate_conflicts(ordered),
             "screening_stability": summarize_screening_stability(ordered),
@@ -1289,6 +1367,8 @@ def main():
                 "llm_concept": summarize_llm_concept(ordered),
                 "alias_coverage": summarize_alias_coverage(ordered, rules),
                 "required_group_coverage": summarize_required_group_coverage(ordered, rules),
+                "missing_concept_groups": summarize_missing_concept_groups(ordered, rules),
+                "query_drift_candidates": collect_query_drift_candidates(ordered, review_th),
                 "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
                 "label_gate_conflicts": summarize_label_gate_conflicts(ordered),
                 "screening_stability": summarize_screening_stability(ordered),

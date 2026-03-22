@@ -1,5 +1,5 @@
 {
-  "version": "v3.0",
+  "version": "v3.1",
   "language": "ko",
   "scenarios": [
     {
@@ -992,6 +992,50 @@
         "repair"
       ],
       "prompt": "실험 실행 직전 필요한 근거 파일이나 preflight 기록을 고정(freeze)하지 않아 나중에 해석이 흔들린 사건을 7~10문장으로 회고하라. 무엇을 고정하지 못했는지, 왜 실행을 멈추지 못했는지, 현재의 freeze 체크포인트를 포함하라."
+    },
+    {
+      "id": "screening_synonym_false_friend",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "evidence"
+      ],
+      "prompt": "동의어처럼 보이는 용어를 같은 개념으로 취급했다가 스크리닝 정확도를 떨어뜨린 경험을 7~10문장으로 회고하라. 어떤 용어가 혼동됐는지, 당시 판단 근거, 지금의 용어 분리 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_boundary_regression",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "tradeoff",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크를 확장한 뒤 기존 핵심 시나리오가 상대적으로 약화된 것을 뒤늦게 인지한 경험을 7~9문장으로 서술하라. 확장 이득과 경계 붕괴 비용, 현재의 회귀 점검 기준을 포함하라."
+    },
+    {
+      "id": "runner_partial_resume_duplicate",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "risk",
+        "repair"
+      ],
+      "prompt": "부분 재시작(resume) 과정에서 이미 실행된 셀을 중복 실행해 결과 해석이 꼬였던 경험을 7~10문장으로 회고하라. 중복이 생긴 상태 신호, 왜 즉시 차단하지 못했는지, 현재의 중복 방지 가드를 포함하라."
+    },
+    {
+      "id": "evidence_freeze_late_detection",
+      "label": "decision",
+      "tags": [
+        "research",
+        "reproducibility",
+        "evidence",
+        "triage"
+      ],
+      "prompt": "실험 직전 증거 테이블/스크리닝 리포트가 최신인지 확인하지 않아 뒤늦게 동결 누락을 발견한 경험을 7~10문장으로 서술하라. 어떤 파일이 어긋났는지, 당시엔 왜 괜찮아 보였는지, 지금의 사전 동결 체크를 포함하라."
     }
   ],
   "personas": [
@@ -1378,6 +1422,26 @@
         "planning"
       ],
       "instruction": "당신은 실행 전 근거 산출물을 큐레이션하는 관점을 가지며, preflight 표·manifest·스냅샷이 모두 고정되기 전에는 실행 해석을 유보하는 경향이 있다."
+    },
+    {
+      "id": "query_drift_watchdog",
+      "style_tags": [
+        "audit",
+        "triage",
+        "risk",
+        "calibration"
+      ],
+      "instruction": "당신은 검색 쿼리 드리프트를 조기 감지하는 감시자 성향이 있으며, 신호-가설-재검색 계획을 분리해 기록하고 오탐/미탐 위험을 함께 명시한다."
+    },
+    {
+      "id": "resume_consistency_checker",
+      "style_tags": [
+        "reproducibility",
+        "process",
+        "systems",
+        "accountability"
+      ],
+      "instruction": "당신은 재시작 상태 일관성을 우선 점검하며, 실행 이력·manifest·산출물 해시가 맞지 않으면 즉시 중단하고 복구 순서를 구조화해 제시한다."
     }
   ],
   "temperatures": [

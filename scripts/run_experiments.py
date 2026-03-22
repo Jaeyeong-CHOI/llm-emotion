@@ -272,6 +272,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- executed_run_keys: `{len(manifest.get('executed_run_keys', []))}`",
         f"- preflight_json: `{manifest.get('preflight_json', '')}`",
         f"- preflight_csv: `{manifest.get('preflight_csv', '')}`",
+        f"- require_prompt_bank_version: `{manifest.get('require_prompt_bank_version', '')}`",
+        f"- freeze_artifacts_checked: `{len(manifest.get('freeze_artifacts', []))}`",
         "",
         "## Aggregate metrics",
         "",
@@ -384,6 +386,17 @@ def main():
         default=0,
         help="fail if a selected run has fewer than this many unique persona style tags",
     )
+    ap.add_argument(
+        "--require-prompt-bank-version",
+        default="",
+        help="fail if selected run prompt-bank version does not match this exact value",
+    )
+    ap.add_argument(
+        "--require-freeze-artifact",
+        action="append",
+        default=[],
+        help="relative path(s) that must exist before execution for evidence freeze discipline",
+    )
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -446,6 +459,22 @@ def main():
     if args.fail_on_missing_run_id and missing_run_ids:
         raise RuntimeError(f"unknown include-run-id values: {', '.join(missing_run_ids)}")
 
+    freeze_artifacts = []
+    missing_freeze_artifacts = []
+    for rel in args.require_freeze_artifact:
+        rel_path = str(rel).strip()
+        if not rel_path:
+            continue
+        full_path = ROOT / rel_path
+        exists = full_path.exists()
+        freeze_artifacts.append({"path": rel_path, "exists": exists})
+        if not exists:
+            missing_freeze_artifacts.append(rel_path)
+    if missing_freeze_artifacts:
+        raise RuntimeError(
+            "missing required freeze artifact(s): " + ", ".join(missing_freeze_artifacts)
+        )
+
     matrix_snapshot = snapshots_dir / "experiment_matrix.json"
     write_json(matrix_snapshot, cfg)
 
@@ -478,6 +507,10 @@ def main():
         bank = load_prompt_bank(prompt_bank_path)
         prompt_summary = summarize_prompt_bank(bank, set(scenario_ids), set(scenario_tags), set(persona_ids))
         prompt_bank_version = str(bank.get("version") or "unknown")
+        if args.require_prompt_bank_version and prompt_bank_version != args.require_prompt_bank_version:
+            raise RuntimeError(
+                f"{run_id}: prompt_bank_version={prompt_bank_version} != require_prompt_bank_version={args.require_prompt_bank_version}"
+            )
         prompt_bank_versions.add(prompt_bank_version)
         condition_cells = prompt_summary["scenario_count"] * prompt_summary["persona_count"] * max(1, len(temperatures))
         planned_samples = n * condition_cells * max(1, repeats)
@@ -706,6 +739,8 @@ def main():
             "run_label": label,
             "selected_run_ids": sorted(selected_run_ids),
             "summary": preflight_summary,
+            "require_prompt_bank_version": args.require_prompt_bank_version,
+            "freeze_artifacts": freeze_artifacts,
             "rows": run_preflight_rows,
         },
     )
@@ -747,6 +782,9 @@ def main():
         "require_min_temperature_span": args.require_min_temperature_span,
         "require_min_unique_scenario_tags": args.require_min_unique_scenario_tags,
         "require_min_unique_persona_style_tags": args.require_min_unique_persona_style_tags,
+        "require_prompt_bank_version": args.require_prompt_bank_version,
+        "require_freeze_artifacts": args.require_freeze_artifact,
+        "freeze_artifacts": freeze_artifacts,
         "run_preflight": run_preflight_rows,
         "duration_seconds": total_duration_seconds,
         "reproduce_script": str(reproduce_script.relative_to(ROOT)),
