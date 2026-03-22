@@ -1,5 +1,5 @@
 {
-  "version": "v2.5",
+  "version": "v2.6",
   "language": "ko",
   "scenarios": [
     {
@@ -772,6 +772,50 @@
         "repair"
       ],
       "prompt": "실험 변경사항을 문서화하지 못해 나중에 맥락을 잃어버린 경험을 7~9문장으로 작성하라. 즉시 기록하지 못한 이유, 발생한 비용, 지금의 문서화 루틴을 포함하라."
+    },
+    {
+      "id": "label_leakage_annotation_regret",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "evidence",
+        "counterfactual"
+      ],
+      "prompt": "라벨 정의를 잘못 공유해 주석 결과가 뒤엉킨 사건을 7~10문장으로 회고하라. 어디서 의미가 새어 나갔는지, 왜 초기에 잡지 못했는지, 지금의 재검증 절차를 포함하라."
+    },
+    {
+      "id": "metric_shift_false_reassurance",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "evidence",
+        "risk",
+        "long_horizon"
+      ],
+      "prompt": "핵심 지표가 잠깐 좋아 보여 안심했지만 실제 품질은 악화됐던 경험을 7~9문장으로 서술하라. 어떤 신호를 오해했는지와 뒤늦은 후회의 흐름을 시간순으로 담아라."
+    },
+    {
+      "id": "consent_scope_assumption_error",
+      "label": "moral",
+      "tags": [
+        "research",
+        "ethics",
+        "accountability",
+        "social"
+      ],
+      "prompt": "데이터/참여자 동의 범위를 충분히 확인하지 않고 진행해 불편함을 만든 상황을 7~10문장으로 회고하라. 당시의 가정, 놓친 확인 단계, 현재의 윤리 점검 루틴을 포함하라."
+    },
+    {
+      "id": "reproduction_env_mismatch",
+      "label": "decision",
+      "tags": [
+        "research",
+        "reproducibility",
+        "evidence",
+        "repair"
+      ],
+      "prompt": "재현 실험에서 환경 버전 차이를 가볍게 본 탓에 결과가 어긋난 사건을 7~9문장으로 작성하라. 사소해 보였던 차이가 왜 치명적이었는지와 지금의 환경 고정 규칙을 포함하라."
     }
   ],
   "personas": [
@@ -1058,6 +1102,26 @@
         "risk"
       ],
       "instruction": "당신은 자신의 해석을 반박할 반례를 먼저 찾으려는 경향이 있으며, 주장마다 깨질 수 있는 조건과 추가 검증 실험을 함께 제시한다."
+    },
+    {
+      "id": "evidence_triage_operator",
+      "style_tags": [
+        "audit",
+        "prioritization",
+        "evidence",
+        "repair"
+      ],
+      "instruction": "당신은 불확실한 증거를 우선순위로 분류하는 성향이 있으며, 즉시 조치·추가 검증·보류 항목을 명확히 나눠 기록하려는 경향이 있다."
+    },
+    {
+      "id": "reproducibility_steward",
+      "style_tags": [
+        "reproducibility",
+        "process",
+        "accountability",
+        "risk"
+      ],
+      "instruction": "당신은 결과보다 재현 절차를 먼저 점검하며, 실행 환경·버전·로그 누락을 핵심 위험으로 보고 복구 계획을 구체적으로 제시하는 경향이 있다."
     }
   ],
   "temperatures": [

@@ -297,6 +297,12 @@ def main():
     ap.add_argument("--require-min-condition-cells", type=int, default=0, help="fail if any run selects fewer than this many scenario×persona×temperature condition cells")
     ap.add_argument("--require-min-total-samples", type=int, default=0, help="fail if total selected samples (sum of n×condition_cells×repeats) is below this threshold")
     ap.add_argument("--require-min-run-ids", type=int, default=0, help="fail if selected unique run ids are fewer than this minimum")
+    ap.add_argument(
+        "--require-min-planned-samples-per-run",
+        type=int,
+        default=0,
+        help="fail if any selected run id plans fewer than this many total samples (n × condition_cells × repeats)",
+    )
     ap.add_argument("--manifest-note-file", default="", help="optional markdown/text file appended to manifest_note for reproducible run context")
     args = ap.parse_args()
 
@@ -348,6 +354,7 @@ def main():
     executed = 0
     selected_run_cells = 0
     selected_total_samples = 0
+    planned_samples_by_run: dict[str, int] = {}
     include_run_ids = set(args.include_run_id)
     selected_run_ids = set()
     executed_ids = []
@@ -379,6 +386,7 @@ def main():
         prompt_summary = summarize_prompt_bank(bank, set(scenario_ids), set(scenario_tags), set(persona_ids))
         condition_cells = prompt_summary["scenario_count"] * prompt_summary["persona_count"] * max(1, len(temperatures))
         planned_samples = n * condition_cells * max(1, repeats)
+        planned_samples_by_run[run_id] = planned_samples
         if prompt_summary["scenario_count"] == 0:
             raise RuntimeError(f"{run_id}: no scenarios selected from {prompt_bank}")
         if prompt_summary["persona_count"] == 0:
@@ -521,6 +529,17 @@ def main():
         raise RuntimeError(
             f"selected_run_ids={len(selected_run_ids)} < require_min_run_ids={args.require_min_run_ids}"
         )
+    if args.require_min_planned_samples_per_run:
+        underfilled = [
+            f"{run_id}:{planned}"
+            for run_id, planned in sorted(planned_samples_by_run.items())
+            if planned < args.require_min_planned_samples_per_run
+        ]
+        if underfilled:
+            raise RuntimeError(
+                "run(s) below require_min_planned_samples_per_run="
+                f"{args.require_min_planned_samples_per_run}: {', '.join(underfilled)}"
+            )
 
     summary = aggregate_metrics(all_metric_paths)
     run_id_summary = aggregate_by_run_id(run_metric_paths)
@@ -560,10 +579,12 @@ def main():
         "executed_run_keys": executed_ids,
         "selected_run_cells": selected_run_cells,
         "selected_total_samples": selected_total_samples,
+        "planned_samples_by_run": planned_samples_by_run,
         "require_min_condition_cells": args.require_min_condition_cells,
         "require_min_temperature_count": args.require_min_temperature_count,
         "require_min_total_samples": args.require_min_total_samples,
         "require_min_run_ids": args.require_min_run_ids,
+        "require_min_planned_samples_per_run": args.require_min_planned_samples_per_run,
         "duration_seconds": total_duration_seconds,
         "reproduce_script": str(reproduce_script.relative_to(ROOT)),
         "runs": runs,

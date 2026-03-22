@@ -545,6 +545,21 @@ def summarize_confidence(rows: List[Dict]) -> Dict[str, int]:
     return out
 
 
+def summarize_confidence_by_label(rows: List[Dict]) -> Dict[str, Dict[str, int]]:
+    out = {
+        "include": {"high": 0, "medium": 0, "low": 0},
+        "review": {"high": 0, "medium": 0, "low": 0},
+        "exclude": {"high": 0, "medium": 0, "low": 0},
+    }
+    for row in rows:
+        label = (row.get("screening_label") or "exclude").lower()
+        confidence = (row.get("screening_confidence") or "low").lower()
+        if label not in out:
+            out[label] = {"high": 0, "medium": 0, "low": 0}
+        out[label][confidence] = out[label].get(confidence, 0) + 1
+    return out
+
+
 def summarize_llm_concept(rows: List[Dict]) -> Dict[str, int]:
     out = {"with_llm_concept": 0, "without_llm_concept": 0}
     for r in rows:
@@ -760,6 +775,52 @@ def collect_manual_qc_queue_by_label(rows: List[Dict], include_th: float, review
     return out
 
 
+def collect_manual_qc_queue_balanced(
+    rows: List[Dict],
+    include_th: float,
+    review_th: float,
+    limit: int = 40,
+    per_label_limit: int = 10,
+    per_confidence_limit: int = 8,
+) -> List[Dict]:
+    ranked = collect_manual_qc_queue(rows, include_th, review_th, limit=max(limit * 4, 80))
+    selected = []
+    label_counts = {"include": 0, "review": 0, "exclude": 0}
+    confidence_counts = {"high": 0, "medium": 0, "low": 0}
+
+    # First pass: balanced by both label and confidence to avoid review bias.
+    for row in ranked:
+        if len(selected) >= limit:
+            break
+        label = str(row.get("label") or "exclude")
+        confidence = str(row.get("confidence") or "low").lower()
+        if label not in label_counts:
+            continue
+        if label_counts[label] >= per_label_limit:
+            continue
+        if confidence_counts.get(confidence, 0) >= per_confidence_limit:
+            continue
+        selected.append(row)
+        label_counts[label] += 1
+        confidence_counts[confidence] = confidence_counts.get(confidence, 0) + 1
+
+    # Second pass: fill remaining slots with top-risk items while keeping label ceilings.
+    for row in ranked:
+        if len(selected) >= limit:
+            break
+        if row in selected:
+            continue
+        label = str(row.get("label") or "exclude")
+        if label not in label_counts:
+            continue
+        if label_counts[label] >= per_label_limit:
+            continue
+        selected.append(row)
+        label_counts[label] += 1
+
+    return selected
+
+
 def summarize_label_gate_conflicts(rows: List[Dict]) -> Dict[str, int]:
     out = {
         "include_with_gate_failures": 0,
@@ -833,6 +894,12 @@ def main():
     ap.add_argument("--audit-out", default="", help="optional JSON path for borderline/manual-QC screening candidates")
     ap.add_argument("--manual-qc-limit", type=int, default=40, help="max size of ranked manual QC queue")
     ap.add_argument("--manual-qc-per-label", type=int, default=10, help="max manual QC candidates per label bucket")
+    ap.add_argument(
+        "--manual-qc-per-confidence",
+        type=int,
+        default=8,
+        help="max manual QC candidates per confidence bucket in balanced queue",
+    )
     ap.add_argument("--manual-qc-csv", default="", help="optional CSV path for ranked manual QC triage queue")
     args = ap.parse_args()
 
@@ -900,11 +967,21 @@ def main():
         f"Fetched {len(rows)} records, deduped to {len(deduped)} (include={include_n}, review={review_n}) -> {out}"
     )
 
+    include_th = float(rules.get("threshold_include", 3.0))
+    review_th = float(rules.get("threshold_review", include_th / 2))
+    ranked_manual_qc_queue = collect_manual_qc_queue(ordered, include_th, review_th, limit=args.manual_qc_limit)
+    balanced_manual_qc_queue = collect_manual_qc_queue_balanced(
+        ordered,
+        include_th,
+        review_th,
+        limit=args.manual_qc_limit,
+        per_label_limit=args.manual_qc_per_label,
+        per_confidence_limit=args.manual_qc_per_confidence,
+    )
+
     if args.report_out:
         report_path = Path(args.report_out)
         report_path.parent.mkdir(parents=True, exist_ok=True)
-        include_th = float(rules.get("threshold_include", 3.0))
-        review_th = float(rules.get("threshold_review", include_th / 2))
         report = {
             "config": args.config,
             "screening_rules": args.screening_rules,
@@ -916,13 +993,15 @@ def main():
             "bridge_signal": summarize_bridge_signal(ordered),
             "include_guard": summarize_include_guard(ordered),
             "confidence": summarize_confidence(ordered),
+            "confidence_by_label": summarize_confidence_by_label(ordered),
             "llm_concept": summarize_llm_concept(ordered),
             "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
             "label_gate_conflicts": summarize_label_gate_conflicts(ordered),
             "per_query": query_stats,
             "top_priority_titles": [r.get("title") for r in ordered[:10] if r.get("screening_priority") == "high"],
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
-            "manual_qc_queue": collect_manual_qc_queue(ordered, include_th, review_th, limit=args.manual_qc_limit),
+            "manual_qc_queue": ranked_manual_qc_queue,
+            "manual_qc_queue_balanced": balanced_manual_qc_queue,
             "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
                 ordered, include_th, review_th, per_label_limit=args.manual_qc_per_label
             ),
@@ -931,18 +1010,13 @@ def main():
         print(f"report: {report_path}")
 
     if args.manual_qc_csv:
-        include_th = float(rules.get("threshold_include", 3.0))
-        review_th = float(rules.get("threshold_review", include_th / 2))
-        queue = collect_manual_qc_queue(ordered, include_th, review_th, limit=args.manual_qc_limit)
         csv_path = Path(args.manual_qc_csv)
-        write_manual_qc_csv(csv_path, queue)
+        write_manual_qc_csv(csv_path, balanced_manual_qc_queue)
         print(f"manual_qc_csv: {csv_path}")
 
     if args.audit_out:
         audit_path = Path(args.audit_out)
         audit_path.parent.mkdir(parents=True, exist_ok=True)
-        include_th = float(rules.get("threshold_include", 3.0))
-        review_th = float(rules.get("threshold_review", include_th / 2))
         audit_payload = {
             "config": args.config,
             "screening_rules": args.screening_rules,
@@ -951,13 +1025,15 @@ def main():
                 "records": len(ordered),
                 "labels": summarize_labels(ordered),
                 "confidence": summarize_confidence(ordered),
+                "confidence_by_label": summarize_confidence_by_label(ordered),
                 "llm_concept": summarize_llm_concept(ordered),
                 "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
                 "label_gate_conflicts": summarize_label_gate_conflicts(ordered),
             },
             "borderline": collect_borderline(ordered, include_th, review_th),
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
-            "manual_qc_queue": collect_manual_qc_queue(ordered, include_th, review_th, limit=args.manual_qc_limit),
+            "manual_qc_queue": ranked_manual_qc_queue,
+            "manual_qc_queue_balanced": balanced_manual_qc_queue,
             "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
                 ordered, include_th, review_th, per_label_limit=args.manual_qc_per_label
             ),
