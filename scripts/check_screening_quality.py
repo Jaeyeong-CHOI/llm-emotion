@@ -92,6 +92,7 @@ def write_markdown(path: Path, payload: dict):
             f"- screening_reason_entropy: `{payload['summary']['screening_reason_entropy']}`",
             f"- manual_qc_query_entropy: `{payload['summary']['manual_qc_query_entropy']}`",
             f"- manual_qc_risk_reason_entropy: `{payload['summary']['manual_qc_risk_reason_entropy']}`",
+            f"- manual_qc_review_reason_entropy: `{payload['summary']['manual_qc_review_reason_entropy']}`",
             f"- review_to_include_ratio: `{payload['summary']['review_to_include_ratio']}`",
             f"- manual_qc_include_rows: `{payload['summary']['manual_qc_include_rows']}`",
             f"- manual_qc_review_rows: `{payload['summary']['manual_qc_review_rows']}`",
@@ -155,6 +156,7 @@ def main():
     ap.add_argument("--min-screening-reason-entropy", type=float, default=0.55)
     ap.add_argument("--min-manual-qc-query-entropy", type=float, default=0.5)
     ap.add_argument("--min-manual-qc-risk-reason-entropy", type=float, default=0.45)
+    ap.add_argument("--min-manual-qc-review-reason-entropy", type=float, default=0.35)
     ap.add_argument("--max-manual-qc-unknown-query-share", type=float, default=0.20)
     ap.add_argument("--min-manual-qc-year-diversity", type=int, default=3)
     ap.add_argument("--max-manual-qc-single-year-share", type=float, default=0.5)
@@ -213,6 +215,7 @@ def main():
     review_count = int(labels.get("review", 0) or 0)
     manual_qc_label_counts: dict[str, int] = {}
     screening_reason_counts: dict[str, int] = {}
+    review_screening_reason_counts: dict[str, int] = {}
     manual_qc_source_group_counts: dict[str, int] = {}
     manual_qc_source_query_counts: dict[str, int] = {}
     manual_qc_year_counts: dict[str, int] = {}
@@ -235,6 +238,8 @@ def main():
             if token in seen:
                 continue
             screening_reason_counts[token] = screening_reason_counts.get(token, 0) + 1
+            if label == "review":
+                review_screening_reason_counts[token] = review_screening_reason_counts.get(token, 0) + 1
             seen.add(token)
     manual_qc_include_rows = int(manual_qc_label_counts.get("include", 0) or 0)
     manual_qc_review_rows = int(manual_qc_label_counts.get("review", 0) or 0)
@@ -263,6 +268,7 @@ def main():
     screening_reason_entropy = normalized_entropy(screening_reason_counts)
     manual_qc_query_entropy = normalized_entropy(manual_qc_source_query_counts)
     manual_qc_risk_reason_entropy = normalized_entropy(risk_reason_summary)
+    manual_qc_review_reason_entropy = normalized_entropy(review_screening_reason_counts)
     review_to_include_ratio = round(review_count / max(1, include_count), 4)
     high_risk_qc_rows = sum(1 for row in manual_qc_rows if float(row.get("risk_score") or 0.0) >= 5.0)
     manual_qc_high_risk_share = pct(high_risk_qc_rows, len(manual_qc_rows))
@@ -413,6 +419,14 @@ def main():
             "threshold": f">={args.min_manual_qc_risk_reason_entropy}",
         },
         {
+            "name": "manual_qc_review_reason_entropy_floor",
+            "status": "pass"
+            if manual_qc_review_reason_entropy >= args.min_manual_qc_review_reason_entropy
+            else "fail",
+            "observed": manual_qc_review_reason_entropy,
+            "threshold": f">={args.min_manual_qc_review_reason_entropy}",
+        },
+        {
             "name": "manual_qc_year_diversity_floor",
             "status": "pass" if manual_qc_year_diversity >= args.min_manual_qc_year_diversity else "fail",
             "observed": manual_qc_year_diversity,
@@ -544,6 +558,7 @@ def main():
             "screening_reason_entropy": screening_reason_entropy,
             "manual_qc_query_entropy": manual_qc_query_entropy,
             "manual_qc_risk_reason_entropy": manual_qc_risk_reason_entropy,
+            "manual_qc_review_reason_entropy": manual_qc_review_reason_entropy,
             "review_to_include_ratio": review_to_include_ratio,
             "manual_qc_include_rows": manual_qc_include_rows,
             "manual_qc_review_rows": manual_qc_review_rows,

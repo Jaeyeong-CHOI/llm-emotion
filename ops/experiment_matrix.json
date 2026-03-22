@@ -741,6 +741,31 @@
         "quarantine_reentry_supervisor",
         "stage_quarantine_supervisor"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_budget_v47",
+      "n": 12,
+      "seed": 29696,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_confidence_band_overcollapse",
+        "screening_uncertainty_traceback_gap",
+        "prompt_bank_counterpair_entropy_drop",
+        "runner_per_run_budget_exhaustion",
+        "runner_quarantine_reentry_validation"
+      ],
+      "persona_ids": [
+        "confidence_band_calibrator",
+        "counterpair_entropy_curator",
+        "runid_budget_sentinel",
+        "quarantine_reentry_supervisor"
+      ]
     }
   ]
 }

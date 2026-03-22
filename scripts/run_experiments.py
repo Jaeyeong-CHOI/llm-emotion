@@ -324,6 +324,10 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- quarantine_json: `{manifest.get('quarantine_json', '')}`",
         f"- quarantine_csv: `{manifest.get('quarantine_csv', '')}`",
         f"- quarantine_failed_cells: `{manifest.get('quarantine_failed_cells', 0)}`",
+        f"- generation_attempts_total: `{manifest.get('generation_attempts_total', 0)}`",
+        f"- analysis_attempts_total: `{manifest.get('analysis_attempts_total', 0)}`",
+        f"- max_generation_attempts_per_run_id: `{manifest.get('max_generation_attempts_per_run_id', 0)}`",
+        f"- max_analysis_attempts_per_run_id: `{manifest.get('max_analysis_attempts_per_run_id', 0)}`",
         f"- require_prompt_bank_version: `{manifest.get('require_prompt_bank_version', '')}`",
         f"- freeze_artifacts_checked: `{len(manifest.get('freeze_artifacts', []))}`",
         "",
@@ -645,6 +649,18 @@ def main():
         help="global ceiling on analysis command attempts (including retries); 0 disables",
     )
     ap.add_argument(
+        "--max-generation-attempts-per-run-id",
+        type=int,
+        default=0,
+        help="ceiling on generation attempts per run id (including retries); 0 disables",
+    )
+    ap.add_argument(
+        "--max-analysis-attempts-per-run-id",
+        type=int,
+        default=0,
+        help="ceiling on analysis attempts per run id (including retries); 0 disables",
+    )
+    ap.add_argument(
         "--quarantine-json",
         default="",
         help="optional JSON path for failed run-cell quarantine candidates (defaults to <outdir>/quarantine_candidates.json)",
@@ -753,6 +769,8 @@ def main():
     analysis_successful_cells = 0
     generation_attempts_total = 0
     analysis_attempts_total = 0
+    generation_attempts_by_run_id: dict[str, int] = {}
+    analysis_attempts_by_run_id: dict[str, int] = {}
     failure_streak = 0
     selected_run_cells = 0
     failed_cells_by_run_id: dict[str, int] = {}
@@ -1002,6 +1020,56 @@ def main():
                 continue
 
             attempted_run_cells += 1
+            if (
+                args.max_generation_attempts_per_run_id > 0
+                and generation_attempts_by_run_id.get(run_id, 0) >= args.max_generation_attempts_per_run_id
+            ):
+                row["status"] = "failed_generation_budget"
+                row["error"] = (
+                    "generation attempt budget exceeded for run id "
+                    f"({generation_attempts_by_run_id.get(run_id, 0)}/{args.max_generation_attempts_per_run_id})"
+                )
+                runs.append(row)
+                failed_cells += 1
+                failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
+                failure_streak += 1
+                if not args.continue_on_error:
+                    raise RuntimeError(f"generation budget exceeded for {run_key}: {row['error']}")
+                if (
+                    args.max_failed_cells_per_run_id > 0
+                    and failed_cells_by_run_id.get(run_id, 0) >= args.max_failed_cells_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
+                        f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
+                if args.max_failed_cells > 0 and failed_cells >= args.max_failed_cells:
+                    print(
+                        f"[WARN] failed_cells reached max_failed_cells ({failed_cells}/{args.max_failed_cells}); stopping batch early"
+                    )
+                    stop_requested = True
+                    break
+                if args.max_failure_streak > 0 and failure_streak >= args.max_failure_streak:
+                    print(
+                        "[WARN] failure_streak reached max_failure_streak "
+                        f"({failure_streak}/{args.max_failure_streak}); stopping batch early"
+                    )
+                    stop_requested = True
+                    break
+                if args.max_failure_rate > 0:
+                    current_failure_rate = failed_cells / max(1, attempted_run_cells)
+                    if current_failure_rate > args.max_failure_rate:
+                        print(
+                            "[WARN] failure_rate exceeded max_failure_rate "
+                            f"({round(current_failure_rate, 4)} > {args.max_failure_rate}); stopping batch early"
+                        )
+                        stop_requested = True
+                        break
+                continue
+
             generation_attempted_cells += 1
             cell_started = time.perf_counter()
             code, _, err, gen_attempts = execute_with_retries(
@@ -1015,6 +1083,7 @@ def main():
             )
             row["generation_attempts"] = len(gen_attempts)
             generation_attempts_total += len(gen_attempts)
+            generation_attempts_by_run_id[run_id] = generation_attempts_by_run_id.get(run_id, 0) + len(gen_attempts)
             if code != 0:
                 row["status"] = "failed_generation"
                 row["error"] = str(err).strip()
@@ -1065,6 +1134,57 @@ def main():
                 break
 
             generation_successful_cells += 1
+            if (
+                args.max_analysis_attempts_per_run_id > 0
+                and analysis_attempts_by_run_id.get(run_id, 0) >= args.max_analysis_attempts_per_run_id
+            ):
+                row["status"] = "failed_analysis_budget"
+                row["error"] = (
+                    "analysis attempt budget exceeded for run id "
+                    f"({analysis_attempts_by_run_id.get(run_id, 0)}/{args.max_analysis_attempts_per_run_id})"
+                )
+                row["dataset_sha256"] = maybe_file_sha256(dataset_path)
+                runs.append(row)
+                failed_cells += 1
+                failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
+                failure_streak += 1
+                if not args.continue_on_error:
+                    raise RuntimeError(f"analysis budget exceeded for {run_key}: {row['error']}")
+                if (
+                    args.max_failed_cells_per_run_id > 0
+                    and failed_cells_by_run_id.get(run_id, 0) >= args.max_failed_cells_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
+                        f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
+                if args.max_failed_cells > 0 and failed_cells >= args.max_failed_cells:
+                    print(
+                        f"[WARN] failed_cells reached max_failed_cells ({failed_cells}/{args.max_failed_cells}); stopping batch early"
+                    )
+                    stop_requested = True
+                    break
+                if args.max_failure_streak > 0 and failure_streak >= args.max_failure_streak:
+                    print(
+                        "[WARN] failure_streak reached max_failure_streak "
+                        f"({failure_streak}/{args.max_failure_streak}); stopping batch early"
+                    )
+                    stop_requested = True
+                    break
+                if args.max_failure_rate > 0:
+                    current_failure_rate = failed_cells / max(1, attempted_run_cells)
+                    if current_failure_rate > args.max_failure_rate:
+                        print(
+                            "[WARN] failure_rate exceeded max_failure_rate "
+                            f"({round(current_failure_rate, 4)} > {args.max_failure_rate}); stopping batch early"
+                        )
+                        stop_requested = True
+                        break
+                continue
+
             analysis_attempted_cells += 1
             code, _, err2, analyze_attempts = execute_with_retries(
                 analyze_cmd,
@@ -1077,6 +1197,7 @@ def main():
             )
             row["analysis_attempts"] = len(analyze_attempts)
             analysis_attempts_total += len(analyze_attempts)
+            analysis_attempts_by_run_id[run_id] = analysis_attempts_by_run_id.get(run_id, 0) + len(analyze_attempts)
             if code != 0:
                 row["status"] = "failed_analysis"
                 row["error"] = str(err2).strip()
@@ -1319,6 +1440,10 @@ def main():
         "failed_cells_by_run_id": failed_cells_by_run_id,
         "max_generation_attempts_total": args.max_generation_attempts_total,
         "max_analysis_attempts_total": args.max_analysis_attempts_total,
+        "max_generation_attempts_per_run_id": args.max_generation_attempts_per_run_id,
+        "max_analysis_attempts_per_run_id": args.max_analysis_attempts_per_run_id,
+        "generation_attempts_by_run_id": generation_attempts_by_run_id,
+        "analysis_attempts_by_run_id": analysis_attempts_by_run_id,
         "final_failure_streak": failure_streak,
         "stopped_early": stop_requested,
         "selected_run_cells": selected_run_cells,

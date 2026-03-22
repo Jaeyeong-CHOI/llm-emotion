@@ -1,5 +1,5 @@
 {
-  "version": "v4.5",
+  "version": "v4.6",
   "language": "ko",
   "scenarios": [
     {
@@ -1596,6 +1596,42 @@
         "repair"
       ],
       "prompt": "실험 러너에서 격리(quarantine)했던 실패 셀을 재투입(re-entry)할 때 검증 절차가 부족해 같은 오류가 반복된 사건을 7~10문장으로 회고하라. 어떤 재진입 기준이 빠졌는지, 왜 조기 차단하지 못했는지, 현재의 re-entry 검증 순서를 포함하라."
+    },
+    {
+      "id": "screening_confidence_band_overcollapse",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "calibration",
+        "recall"
+      ],
+      "prompt": "스크리닝에서 confidence 밴드가 한 구간으로 과도하게 붕괴되어 경계 사례를 놓친 경험을 7~10문장으로 회고하라. 어떤 밴드가 비었는지, 왜 붕괴를 늦게 감지했는지, 현재의 밴드 균형 점검 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_counterpair_entropy_drop",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "counterfactual",
+        "documentation"
+      ],
+      "prompt": "프롬프트 뱅크에서 주장-반례 쌍은 유지됐지만 반례 다양성이 급격히 줄어 해석이 단조로워진 경험을 7~9문장으로 작성하라. 어떤 축에서 엔트로피가 떨어졌는지, 왜 늦게 발견했는지, 현재의 counterpair 다양성 점검 기준을 포함하라."
+    },
+    {
+      "id": "runner_per_run_budget_exhaustion",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "systems",
+        "risk"
+      ],
+      "prompt": "실험 러너에서 특정 run-id가 재시도 예산을 독점해 다른 run-id가 진행되지 못했던 사건을 7~10문장으로 회고하라. 어떤 지표로 run-id별 예산 고갈을 감지했는지, 즉시 차단 기준과 재개 조건을 포함하라."
     }
   ],
   "personas": [
@@ -2402,6 +2438,36 @@
         "reproducibility"
       ],
       "instruction": "당신은 격리 셀 재투입의 안전성을 관리하는 운영자 성향이 있으며, 재진입 전 검증 항목과 재실패 시 중단 기준을 명시적으로 설정한다."
+    },
+    {
+      "id": "confidence_band_calibrator",
+      "style_tags": [
+        "audit",
+        "calibration",
+        "triage",
+        "recall"
+      ],
+      "instruction": "당신은 스크리닝 confidence 밴드의 붕괴를 먼저 점검하는 성향이 있으며, 포함/보류/배제 분포가 한쪽으로 쏠리면 즉시 미탐 위험과 재검토 우선순위를 제시한다."
+    },
+    {
+      "id": "counterpair_entropy_curator",
+      "style_tags": [
+        "process",
+        "balance",
+        "counterfactual",
+        "documentation"
+      ],
+      "instruction": "당신은 주장-반례 프롬프트 쌍의 다양성 엔트로피를 관리하는 성향이 있으며, 쌍 개수보다 반례 축의 폭을 점검하고 보강 근거를 버전 메모로 남긴다."
+    },
+    {
+      "id": "runid_budget_sentinel",
+      "style_tags": [
+        "batch",
+        "systems",
+        "risk",
+        "planning"
+      ],
+      "instruction": "당신은 run-id별 재시도 예산의 독점을 감시하는 성향이 있으며, 예산 고갈 징후가 보이면 배치 전체 공정성을 위해 즉시 격리·재분배·재개 조건을 명시한다."
     }
   ],
   "temperatures": [
