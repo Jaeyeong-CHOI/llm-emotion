@@ -4,10 +4,10 @@
 Test whether LLM outputs in loss and counterfactual scenarios exhibit language patterns that resemble human regret narratives, while keeping scenario selection reproducible and auditable.
 
 ## Current design updates
-- Prompt bank is now `v6.4`, adding dedup-conflict / scenario-label coverage / preflight-guard scenarios (`screening_dedup_conflict_triage`, `prompt_bank_label_coverage_rebalance`, `runner_scenario_label_guardrail`) and personas (`dedup_conflict_auditor`, `label_coverage_rebalancer`, `scenario_label_guard_operator`).
-- Screening gate now tracks `manual_qc_dedup_label_conflict_share` and `manual_qc_dedup_score_range_alert_share` to ensure dedup merge instability is caught before retrieval thresholds are tuned.
+- Prompt bank is now `v6.6`, adding review-query entropy / countervoice parity / live failed-share tripwire scenarios (`screening_review_query_entropy_guard`, `prompt_bank_countervoice_strength_parity`, `runner_live_failed_share_tripwire`) and personas (`review_query_entropy_guardian`, `countervoice_parity_calibrator`, `live_failure_share_operator`).
+- Screening gate now tracks bridge-query provenance coupling (`--min-review-bridge-traceable-known-query-share`, `--max-review-bridge-traceable-unknown-query-share`) to ensure review bridge evidence is not decoupled from source-query traceability.
 - Scenario rows carry `tags` and stable `id`s for reproducible focused subsets (`scenario_tags` and `scenario_ids`).
-- Experiment matrix now includes `screening_dedup_label_guard_v64`, while runner supports aggregate batch-coverage gates (`--require-min-selected-scenarios`, `--require-min-selected-personas`, `--require-min-selected-scenario-labels`, `--require-min-selected-scenario-tags`, `--require-min-selected-persona-style-tags`) plus per-run label coverage floors (`--require-min-unique-scenario-labels`) alongside `--continue-on-error`, `--max-failed-cells`, `--max-failure-streak`, `--max-failed-cells-per-run-id`, `--require-min-successful-cells`, `--require-min-success-rate`, `--require-min-run-id-success-rate`, stage-specific retry controls (`--max-generation-retries`, `--max-analysis-retries`), stage timeout controls (`--generation-timeout-seconds`, `--analysis-timeout-seconds`), per-cell wall-clock cap (`--max-run-seconds`), stage success floors (`--require-min-generation-success-rate`, `--require-min-analysis-success-rate`), JSONL command logs, `--resume-verify-hashes`, and fairness ceilings/reporting (`--max-selected-cell-share-per-run-id`, `--max-attempt-share-per-run-id`, `--max-attempt-over-selection-ratio`, `--max-failure-over-selection-ratio`, `--max-failed-cell-share-per-run-id`, `budget_report.json`, `budget_report.md`).
+- Experiment matrix now includes `screening_prompt_runner_live_failed_share_v66`, while runner supports aggregate batch-coverage gates (`--require-min-selected-scenarios`, `--require-min-selected-personas`, `--require-min-selected-scenario-labels`, `--require-min-selected-scenario-tags`, `--require-min-selected-persona-style-tags`) plus per-run label coverage floors (`--require-min-unique-scenario-labels`) alongside `--continue-on-error`, `--max-failed-cells`, `--max-failure-streak`, `--max-failed-cells-per-run-id`, `--require-min-successful-cells`, `--require-min-success-rate`, `--require-min-run-id-success-rate`, stage-specific retry controls (`--max-generation-retries`, `--max-analysis-retries`), stage timeout controls (`--generation-timeout-seconds`, `--analysis-timeout-seconds`), per-cell wall-clock cap (`--max-run-seconds`), stage success floors (`--require-min-generation-success-rate`, `--require-min-analysis-success-rate`), JSONL command logs, `--resume-verify-hashes`, preflight markdown export (`--preflight-markdown`), and fairness ceilings/reporting (`--max-selected-cell-share-per-run-id`, `--max-attempt-share-per-run-id`, `--max-attempt-over-selection-ratio`, `--max-failure-over-selection-ratio`, `--max-failed-cell-share-per-run-id`, `budget_report.json`, `budget_report.md`).
 
 ## Experimental factors
 - Prompt condition: control, deprivation/loss, counterfactual, social, identity, moral, regulation
@@ -48,6 +48,18 @@ Test whether LLM outputs in loss and counterfactual scenarios exhibit language p
 - Enforce minimum planned cell volume via `--require-min-run-cells`, per-run condition-matrix breadth via `--require-min-condition-cells`, per-run sample floor via `--require-min-planned-samples-per-run`, repeat robustness via `--require-min-repeats`, temperature exploration spread via `--require-min-temperature-span`, scenario-tag breadth via `--require-min-unique-scenario-tags`, persona-style breadth via `--require-min-unique-persona-style-tags`
 - Archive `manifest.json` + `manifest.md` + `run_id_summary.csv` + generated `reproduce.sh` per batch
 - Track `duration_seconds` (batch and per-cell) for throughput comparisons across iterations
+
+## Smoke validation (v66 bridge-query + preflight-md loop)
+Executed on `2026-03-22`:
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v66 --min-review-bridge-traceable-known-query-share 0.6 --max-review-bridge-traceable-unknown-query-share 0.2 --min-manual-qc-review-query-traceability-share 0.75
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v66_plan --plan-only --include-run-id screening_prompt_runner_live_failed_share_v66 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v66.json --selection-csv results/selection_report_smoke_v66.csv --preflight-markdown --require-min-scenarios 4 --require-min-personas 4 --require-min-temperature-count 3 --require-min-condition-cells 48 --require-min-total-samples 1200 --require-prompt-bank-version v6.6
+```
+
+Observed results (v66):
+- `screening_qc_v66`: 신규 bridge-query coupling 게이트가 보고서에 반영되어 review provenance 품질 저하를 조기 탐지 가능.
+- `smoke_v66_plan`: 신규 run-id preflight 통과 시 `preflight.json/csv`와 함께 `preflight.md`가 생성되어 핸드오프 검토 가독성이 향상.
 
 ## Smoke validation (v52 review-band + failure-pressure loop)
 Executed on `2026-03-22`:

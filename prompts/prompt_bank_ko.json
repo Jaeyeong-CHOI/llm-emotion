@@ -1,5 +1,5 @@
 {
-  "version": "v6.5",
+  "version": "v6.6",
   "language": "ko",
   "scenarios": [
     {
@@ -2259,6 +2259,42 @@
         "reproducibility"
       ],
       "prompt": "실험 러너에서 run-id별 시도 점유율 live tripwire가 발동해 배치를 중단하고 복구했던 사건을 7~10문장으로 회고하라. 어떤 점유율이 임계치를 넘었는지, 중단 후 재분배 절차와 재개 조건을 포함하라."
+    },
+    {
+      "id": "screening_review_query_entropy_guard",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "query_governance",
+        "calibration"
+      ],
+      "prompt": "review 후보를 충분히 모았다고 생각했지만 source_query 분포가 한쪽으로 무너져 재검토가 길어진 경험을 7~10문장으로 회고하라. 어떤 쿼리에 과의존했는지, 왜 초기에 감지하지 못했는지, 지금의 query entropy 점검 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_strength_parity",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "calibration"
+      ],
+      "prompt": "프롬프트 뱅크에서 주장과 countervoice 항목 수는 비슷했지만 반대축의 도전 강도가 약해 비교 해석이 흔들린 경험을 7~9문장으로 작성하라. 어떤 축의 강도가 낮았는지, parity 보정 기준, 릴리즈 전 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_live_failed_share_tripwire",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "failure",
+        "tripwire",
+        "governance"
+      ],
+      "prompt": "실험 러너에서 특정 run-id가 실패 셀을 과도하게 점유하는 신호를 실시간으로 감지하고 배치를 중단했던 경험을 7~10문장으로 회고하라. 어떤 failed-share 임계치를 썼는지, 중단 직전 관측한 지표, 격리 후 재개 조건을 포함하라."
     }
   ],
   "personas": [
@@ -3496,6 +3532,36 @@
         "systems"
       ],
       "instruction": "당신은 실행 중 run-id 점유율 과열을 실시간으로 감시하는 성향이 있으며, 임계치 초과 시 중단·격리·재개 조건을 수치로 분리해 기록한다."
+    },
+    {
+      "id": "review_query_entropy_guardian",
+      "style_tags": [
+        "screening",
+        "review",
+        "query_governance",
+        "calibration"
+      ],
+      "instruction": "당신은 review 후보의 쿼리 편향을 먼저 점검하는 성향이 있으며, source_query 분포가 한쪽으로 몰리면 즉시 엔트로피 경보와 재정렬 기준을 기록한다."
+    },
+    {
+      "id": "countervoice_parity_calibrator",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "calibration"
+      ],
+      "instruction": "당신은 주장-반대관점의 수량뿐 아니라 강도 균형(parity)을 먼저 점검하는 성향이 있으며, 약한 반대축을 우선 보강하고 근거를 버전 메모로 남긴다."
+    },
+    {
+      "id": "live_failure_share_operator",
+      "style_tags": [
+        "runner",
+        "failure",
+        "tripwire",
+        "governance"
+      ],
+      "instruction": "당신은 run-id별 실패 셀 점유율을 실시간으로 감시하는 운영자 성향이 있으며, 임계치 초과 시 즉시 중단·격리·재개 조건을 수치로 남긴다."
     }
   ],
   "temperatures": [

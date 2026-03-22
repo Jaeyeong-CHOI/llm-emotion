@@ -122,6 +122,10 @@ def write_markdown(path: Path, payload: dict):
             f"- review_bridge_traceable_rows: `{payload['summary']['review_bridge_traceable_rows']}`",
             f"- review_bridge_traceability_share: `{payload['summary']['review_bridge_traceability_share']}`",
             f"- review_bridge_traceability_given_bridge_share: `{payload['summary']['review_bridge_traceability_given_bridge_share']}`",
+            f"- review_bridge_traceable_known_query_rows: `{payload['summary']['review_bridge_traceable_known_query_rows']}`",
+            f"- review_bridge_traceable_known_query_share: `{payload['summary']['review_bridge_traceable_known_query_share']}`",
+            f"- review_bridge_traceable_unknown_query_rows: `{payload['summary']['review_bridge_traceable_unknown_query_rows']}`",
+            f"- review_bridge_traceable_unknown_query_share: `{payload['summary']['review_bridge_traceable_unknown_query_share']}`",
             f"- review_counterexample_rows: `{payload['summary']['review_counterexample_rows']}`",
             f"- review_counterexample_share: `{payload['summary']['review_counterexample_share']}`",
             f"- review_counterexample_traceable_rows: `{payload['summary']['review_counterexample_traceable_rows']}`",
@@ -206,6 +210,8 @@ def main():
     ap.add_argument("--min-manual-qc-review-traceable-known-query-share", type=float, default=0.55)
     ap.add_argument("--max-manual-qc-review-traceable-unknown-query-share", type=float, default=0.15)
     ap.add_argument("--min-manual-qc-review-query-traceability-share", type=float, default=0.75)
+    ap.add_argument("--min-review-bridge-traceable-known-query-share", type=float, default=0.6)
+    ap.add_argument("--max-review-bridge-traceable-unknown-query-share", type=float, default=0.2)
     ap.add_argument("--min-manual-qc-risk-reason-entropy", type=float, default=0.45)
     ap.add_argument("--min-manual-qc-review-reason-entropy", type=float, default=0.35)
     ap.add_argument("--min-manual-qc-review-confidence-bins", type=int, default=2)
@@ -303,6 +309,8 @@ def main():
     include_bridge_signal_rows = 0
     review_bridge_signal_rows = 0
     review_bridge_traceable_rows = 0
+    review_bridge_traceable_known_query_rows = 0
+    review_bridge_traceable_unknown_query_rows = 0
     review_counterexample_rows = 0
     review_counterexample_traceable_rows = 0
     review_bridge_counterexample_coupled_rows = 0
@@ -335,6 +343,11 @@ def main():
             review_bridge_signal_rows += 1
             if row_is_traceable:
                 review_bridge_traceable_rows += 1
+                source_query_for_bridge = str(row.get("source_query") or "").strip().lower() or "unknown"
+                if source_query_for_bridge == "unknown":
+                    review_bridge_traceable_unknown_query_rows += 1
+                else:
+                    review_bridge_traceable_known_query_rows += 1
         if label == "include" and row_is_traceable:
             include_traceable_reason_rows += 1
         if label == "review" and row_is_traceable:
@@ -418,6 +431,14 @@ def main():
     review_bridge_signal_share = pct(review_bridge_signal_rows, manual_qc_review_rows)
     review_bridge_traceability_share = pct(review_bridge_traceable_rows, manual_qc_review_rows)
     review_bridge_traceability_given_bridge_share = pct(review_bridge_traceable_rows, review_bridge_signal_rows)
+    review_bridge_traceable_known_query_share = pct(
+        review_bridge_traceable_known_query_rows,
+        review_bridge_traceable_rows,
+    )
+    review_bridge_traceable_unknown_query_share = pct(
+        review_bridge_traceable_unknown_query_rows,
+        review_bridge_traceable_rows,
+    )
     review_counterexample_share = pct(review_counterexample_rows, manual_qc_review_rows)
     review_counterexample_traceability_share = pct(review_counterexample_traceable_rows, review_counterexample_rows)
     review_bridge_counterexample_coupled_share = pct(review_bridge_counterexample_coupled_rows, manual_qc_review_rows)
@@ -633,6 +654,22 @@ def main():
             else "fail",
             "observed": manual_qc_review_query_traceability_share,
             "threshold": f">={args.min_manual_qc_review_query_traceability_share}",
+        },
+        {
+            "name": "review_bridge_traceable_known_query_share_floor",
+            "status": "pass"
+            if review_bridge_traceable_known_query_share >= args.min_review_bridge_traceable_known_query_share
+            else "fail",
+            "observed": review_bridge_traceable_known_query_share,
+            "threshold": f">={args.min_review_bridge_traceable_known_query_share}",
+        },
+        {
+            "name": "review_bridge_traceable_unknown_query_share_ceiling",
+            "status": "pass"
+            if review_bridge_traceable_unknown_query_share <= args.max_review_bridge_traceable_unknown_query_share
+            else "fail",
+            "observed": review_bridge_traceable_unknown_query_share,
+            "threshold": f"<={args.max_review_bridge_traceable_unknown_query_share}",
         },
         {
             "name": "manual_qc_risk_reason_entropy_floor",
@@ -928,6 +965,12 @@ def main():
             "traceable_review_rows": review_traceable_reason_rows,
             "share": manual_qc_review_query_traceability_share,
         }},
+        {"label": "review_bridge_known_query_traceability", "value": {
+            "known_query_rows": review_bridge_traceable_known_query_rows,
+            "unknown_query_rows": review_bridge_traceable_unknown_query_rows,
+            "known_query_share": review_bridge_traceable_known_query_share,
+            "unknown_query_share": review_bridge_traceable_unknown_query_share,
+        }},
         {"label": "label_traceability_share", "value": {
             "include": include_reason_traceability_share,
             "review": review_reason_traceability_share,
@@ -1012,6 +1055,10 @@ def main():
             "review_bridge_traceable_rows": review_bridge_traceable_rows,
             "review_bridge_traceability_share": review_bridge_traceability_share,
             "review_bridge_traceability_given_bridge_share": review_bridge_traceability_given_bridge_share,
+            "review_bridge_traceable_known_query_rows": review_bridge_traceable_known_query_rows,
+            "review_bridge_traceable_known_query_share": review_bridge_traceable_known_query_share,
+            "review_bridge_traceable_unknown_query_rows": review_bridge_traceable_unknown_query_rows,
+            "review_bridge_traceable_unknown_query_share": review_bridge_traceable_unknown_query_share,
             "review_counterexample_rows": review_counterexample_rows,
             "review_counterexample_share": review_counterexample_share,
             "review_counterexample_traceable_rows": review_counterexample_traceable_rows,

@@ -1210,6 +1210,30 @@
         "prompt_bank_countervoice_translation_hole",
         "runner_live_share_tripwire_recovery"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_live_failed_share_v66",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "review_query_entropy_guardian",
+        "countervoice_parity_calibrator",
+        "live_failure_share_operator",
+        "review_traceability_maintainer"
+      ],
+      "n": 24,
+      "seed": 466,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_ids": [
+        "screening_review_query_entropy_guard",
+        "prompt_bank_countervoice_strength_parity",
+        "runner_live_failed_share_tripwire",
+        "screening_review_evidence_decay_countermeasure"
+      ]
     }
   ]
 }

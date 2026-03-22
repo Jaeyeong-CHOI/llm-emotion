@@ -311,6 +311,39 @@ def write_preflight_csv(path: Path, rows: list[dict]):
             w.writerow(out)
 
 
+def write_preflight_markdown(path: Path, payload: dict):
+    summary = payload.get("summary") or {}
+    lines = [
+        f"# Preflight Report: {payload.get('run_label', '')}",
+        "",
+        f"- generated_at_utc: `{payload.get('generated_at_utc', '')}`",
+        f"- config: `{payload.get('config', '')}`",
+        f"- selected_run_ids: `{len(payload.get('selected_run_ids', []))}`",
+        f"- prompt_bank_versions: `{', '.join(summary.get('prompt_bank_versions', []))}`",
+        f"- min_scenario_count: `{summary.get('min_scenario_count', 0)}`",
+        f"- min_persona_count: `{summary.get('min_persona_count', 0)}`",
+        f"- min_temperature_count: `{summary.get('min_temperature_count', 0)}`",
+        f"- min_temperature_span: `{summary.get('min_temperature_span', 0.0)}`",
+        f"- min_condition_cells: `{summary.get('min_condition_cells', 0)}`",
+        f"- min_planned_samples: `{summary.get('min_planned_samples', 0)}`",
+        f"- unique_selected_scenarios: `{summary.get('unique_selected_scenarios', 0)}`",
+        f"- unique_selected_personas: `{summary.get('unique_selected_personas', 0)}`",
+        f"- unique_selected_scenario_labels: `{summary.get('unique_selected_scenario_labels', 0)}`",
+        f"- unique_selected_scenario_tags: `{summary.get('unique_selected_scenario_tags', 0)}`",
+        f"- unique_selected_persona_style_tags: `{summary.get('unique_selected_persona_style_tags', 0)}`",
+        "",
+        "| run_id | prompt_bank_version | scenarios | personas | temps | temp_span | condition_cells | planned_samples | scenario_labels | scenario_tags | persona_style_tags |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for row in payload.get("rows") or []:
+        lines.append(
+            f"| {row.get('id','')} | {row.get('prompt_bank_version','')} | {row.get('scenario_count',0)} | {row.get('persona_count',0)} | "
+            f"{row.get('temperature_count',0)} | {row.get('temperature_span',0.0)} | {row.get('condition_cells',0)} | {row.get('planned_samples',0)} | "
+            f"{row.get('scenario_label_count',0)} | {row.get('scenario_tag_count',0)} | {row.get('persona_style_tag_count',0)} |"
+        )
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def build_quarantine_candidates(runs: list[dict]) -> list[dict]:
     candidates = []
     for row in runs:
@@ -1103,6 +1136,11 @@ def main():
         "--budget-report-md",
         default="",
         help="optional markdown path for per-run-id budget pressure summary (defaults to <outdir>/budget_report.md)",
+    )
+    ap.add_argument(
+        "--preflight-markdown",
+        action="store_true",
+        help="emit a human-readable preflight markdown summary",
     )
     args = ap.parse_args()
 
@@ -2475,6 +2513,18 @@ def main():
         },
     )
     write_preflight_csv(preflight_csv_path, run_preflight_rows)
+    if args.preflight_markdown:
+        write_preflight_markdown(
+            outdir / "preflight.md",
+            {
+                "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+                "config": args.config,
+                "run_label": label,
+                "selected_run_ids": sorted(selected_run_ids),
+                "summary": preflight_summary,
+                "rows": run_preflight_rows,
+            },
+        )
 
     manifest = {
         "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
@@ -2614,6 +2664,7 @@ def main():
         "reproduce_script": str(reproduce_script.relative_to(ROOT)),
         "preflight_json": str(preflight_json_path.relative_to(ROOT)),
         "preflight_csv": str(preflight_csv_path.relative_to(ROOT)),
+        "preflight_markdown": str((outdir / 'preflight.md').relative_to(ROOT)) if args.preflight_markdown else "",
         "runs": runs,
     }
     write_json(manifest_path, manifest)
