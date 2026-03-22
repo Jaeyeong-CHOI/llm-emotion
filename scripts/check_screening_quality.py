@@ -109,6 +109,8 @@ def write_markdown(path: Path, payload: dict):
             f"- include_bridge_signal_share: `{payload['summary']['include_bridge_signal_share']}`",
             f"- review_bridge_signal_rows: `{payload['summary']['review_bridge_signal_rows']}`",
             f"- review_bridge_signal_share: `{payload['summary']['review_bridge_signal_share']}`",
+            f"- review_bridge_traceable_rows: `{payload['summary']['review_bridge_traceable_rows']}`",
+            f"- review_bridge_traceability_share: `{payload['summary']['review_bridge_traceability_share']}`",
             f"- manual_qc_bridge_signal_rows: `{payload['summary']['manual_qc_bridge_signal_rows']}`",
             f"- manual_qc_bridge_signal_share: `{payload['summary']['manual_qc_bridge_signal_share']}`",
             f"- manual_qc_label_counts: `{payload['summary']['manual_qc_label_counts']}`",
@@ -180,6 +182,7 @@ def main():
     ap.add_argument("--min-review-reason-traceability-share", type=float, default=0.7)
     ap.add_argument("--min-include-bridge-signal-share", type=float, default=0.0)
     ap.add_argument("--min-review-bridge-signal-share", type=float, default=0.0)
+    ap.add_argument("--min-review-bridge-traceability-share", type=float, default=0.0)
     ap.add_argument("--min-manual-qc-bridge-signal-share", type=float, default=0.2)
     ap.add_argument("--max-manual-qc-unknown-query-share", type=float, default=0.20)
     ap.add_argument("--min-manual-qc-review-source-groups", type=int, default=2)
@@ -251,6 +254,7 @@ def main():
     bridge_signal_rows = 0
     include_bridge_signal_rows = 0
     review_bridge_signal_rows = 0
+    review_bridge_traceable_rows = 0
     include_traceable_reason_rows = 0
     review_traceable_reason_rows = 0
     traceability_tokens = ("include_hits=", "title_hits=", "query_overlap=", "bridge_sentence_hits=", "high_priority=")
@@ -268,6 +272,8 @@ def main():
             include_bridge_signal_rows += 1
         if label == "review" and has_bridge_signal:
             review_bridge_signal_rows += 1
+            if row_is_traceable:
+                review_bridge_traceable_rows += 1
         if label == "include" and row_is_traceable:
             include_traceable_reason_rows += 1
         if label == "review" and row_is_traceable:
@@ -327,6 +333,7 @@ def main():
     review_reason_traceability_share = pct(review_traceable_reason_rows, manual_qc_review_rows)
     include_bridge_signal_share = pct(include_bridge_signal_rows, manual_qc_include_rows)
     review_bridge_signal_share = pct(review_bridge_signal_rows, manual_qc_review_rows)
+    review_bridge_traceability_share = pct(review_bridge_traceable_rows, manual_qc_review_rows)
     manual_qc_bridge_signal_share = pct(bridge_signal_rows, len(manual_qc_rows))
     unknown_query_rows = int(manual_qc_source_query_counts.get("unknown", 0) or 0)
     manual_qc_unknown_query_share = pct(unknown_query_rows, len(manual_qc_rows))
@@ -551,6 +558,14 @@ def main():
             "threshold": f">={args.min_review_bridge_signal_share}",
         },
         {
+            "name": "review_bridge_traceability_share_floor",
+            "status": "pass"
+            if review_bridge_traceability_share >= args.min_review_bridge_traceability_share
+            else "fail",
+            "observed": review_bridge_traceability_share,
+            "threshold": f">={args.min_review_bridge_traceability_share}",
+        },
+        {
             "name": "manual_qc_bridge_signal_share_floor",
             "status": "pass" if manual_qc_bridge_signal_share >= args.min_manual_qc_bridge_signal_share else "fail",
             "observed": manual_qc_bridge_signal_share,
@@ -727,6 +742,8 @@ def main():
             "include_bridge_signal_share": include_bridge_signal_share,
             "review_bridge_signal_rows": review_bridge_signal_rows,
             "review_bridge_signal_share": review_bridge_signal_share,
+            "review_bridge_traceable_rows": review_bridge_traceable_rows,
+            "review_bridge_traceability_share": review_bridge_traceability_share,
             "manual_qc_bridge_signal_rows": bridge_signal_rows,
             "manual_qc_bridge_signal_share": manual_qc_bridge_signal_share,
             "manual_qc_review_confidence_counts": review_confidence_counts,

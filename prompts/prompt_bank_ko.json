@@ -1,5 +1,5 @@
 {
-  "version": "v5.2",
+  "version": "v5.3",
   "language": "ko",
   "scenarios": [
     {
@@ -1812,6 +1812,42 @@
         "risk"
       ],
       "prompt": "실험 러너에서 특정 run id의 실패 셀 비중이 선택 셀 비중보다 훨씬 높아 배치 신뢰도가 흔들린 사건을 7~10문장으로 회고하라. failure-over-selection ratio를 어떻게 계산했는지, 어떤 임계치로 tripwire를 걸었는지, 격리·재개 조건을 포함하라."
+    },
+    {
+      "id": "screening_review_bridge_traceability_coupling",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "bridge_signal",
+        "traceability"
+      ],
+      "prompt": "선행연구 스크리닝에서 review 라벨은 많았지만 bridge signal과 traceability가 동시에 남지 않아 근거 인수인계가 끊긴 사례를 7~10문장으로 회고하라. 어떤 검토 항목이 분리되어 있었는지, 둘을 결합한 점검식을 어떻게 만들었는지, 현재의 최소 기준을 포함하라."
+    },
+    {
+      "id": "prompt_bank_counterexample_rotation_gap",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "coverage",
+        "rotation"
+      ],
+      "prompt": "프롬프트 뱅크에서 반대 사례(counterexample)가 특정 몇 개 템플릿에만 고정되어 해석 편향이 생긴 경험을 7~9문장으로 작성하라. 어떤 축에서 회전(rotation)이 부족했는지, 백필 우선순위, 버전별 릴리즈 노트 규칙을 포함하라."
+    },
+    {
+      "id": "runner_failed_cell_share_tripwire",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "failure",
+        "quarantine",
+        "fairness"
+      ],
+      "prompt": "실험 러너에서 한 run id가 전체 실패 셀의 과반을 점유해 배치 품질이 왜곡된 사건을 7~10문장으로 회고하라. failed-cell share를 어떤 분모로 정의했는지, 임계치(tripwire), 격리 후 재개 조건을 포함하라."
     }
   ],
   "personas": [
@@ -2778,6 +2814,16 @@
         "risk"
       ],
       "instruction": "당신은 run id별 실패 압박을 수치로 감시하는 성향이 있으며, failure-over-selection ratio가 과열되면 즉시 격리·재분배·재개 조건을 명시한다."
+    },
+    {
+      "id": "failure_share_quarantine_steward",
+      "style_tags": [
+        "runner",
+        "failure",
+        "quarantine",
+        "governance"
+      ],
+      "instruction": "당신은 run id별 failed-cell share를 먼저 확인하는 성향이 있으며, 과점이 감지되면 해당 run id를 우선 격리하고 재시작 조건을 수치로 명확히 남긴다."
     }
   ],
   "temperatures": [

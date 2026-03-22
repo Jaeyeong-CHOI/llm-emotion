@@ -891,6 +891,31 @@
         "failure_pressure_governor",
         "attempt_pressure_balancer"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_failed_share_v53",
+      "n": 12,
+      "seed": 36363,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_review_bridge_traceability_coupling",
+        "screening_review_confidence_band_recovery",
+        "prompt_bank_counterexample_rotation_gap",
+        "runner_failed_cell_share_tripwire",
+        "runner_failure_pressure_tripwire"
+      ],
+      "persona_ids": [
+        "review_band_calibration_lead",
+        "failure_share_quarantine_steward",
+        "failure_pressure_governor",
+        "countervoice_balance_keeper"
+      ]
     }
   ]
 }

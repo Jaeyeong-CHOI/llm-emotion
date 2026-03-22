@@ -20,9 +20,9 @@ python3 scripts/check_screening_quality.py \
   --manual-qc-csv results/manual_qc_queue.csv \
   --out results/screening_quality_report.json \
   --out-md results/screening_quality_report.md \
-  --run-label screening_qc_v52 --min-balanced-min-per-label 2 --min-screening-reason-diversity 6 --max-top-screening-reason-share 0.65 \
+  --run-label screening_qc_v53 --min-balanced-min-per-label 2 --min-screening-reason-diversity 6 --max-top-screening-reason-share 0.65 \
   --min-screening-reason-entropy 0.55 --min-manual-qc-query-entropy 0.50 --min-manual-qc-risk-reason-entropy 0.45 \
-  --min-manual-qc-source-groups 3 --min-include-bridge-signal-share 0.20 --min-review-bridge-signal-share 0.0 --min-manual-qc-bridge-signal-share 0.20 --min-manual-qc-review-source-groups 2 \
+  --min-manual-qc-source-groups 3 --min-include-bridge-signal-share 0.20 --min-review-bridge-signal-share 0.0 --min-review-bridge-traceability-share 0.0 --min-manual-qc-bridge-signal-share 0.20 --min-manual-qc-review-source-groups 2 \
   --max-manual-qc-review-group-dominance 0.70 --max-manual-qc-single-query-share 0.45 \
   --max-manual-qc-unknown-query-share 0.20 --max-empty-screening-reason-share 0.10
 ```

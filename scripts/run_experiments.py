@@ -827,6 +827,12 @@ def main():
         help="fail if a run id accumulates failed-cell share at more than this multiple of its selected-cell share; 0 disables",
     )
     ap.add_argument(
+        "--max-failed-cell-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if a run id owns more than this share of all failed cells; 0 disables",
+    )
+    ap.add_argument(
         "--quarantine-json",
         default="",
         help="optional JSON path for failed run-cell quarantine candidates (defaults to <outdir>/quarantine_candidates.json)",
@@ -1825,6 +1831,17 @@ def main():
                 "run-id failure-over-selection ratio above ceiling "
                 f"{args.max_failure_over_selection_ratio}: {', '.join(overpressured_failures)}"
             )
+    if args.max_failed_cell_share_per_run_id:
+        overfailed_share = [
+            f"{row.get('id')}:{row.get('failed_cell_share')}"
+            for row in budget_report.get("rows") or []
+            if float(row.get("failed_cell_share") or 0.0) > args.max_failed_cell_share_per_run_id
+        ]
+        if overfailed_share:
+            raise RuntimeError(
+                "run-id failed-cell share above ceiling "
+                f"{args.max_failed_cell_share_per_run_id}: {', '.join(overfailed_share)}"
+            )
     write_json(budget_report_json_path, budget_report)
     write_budget_report_markdown(budget_report_md_path, budget_report)
     reproduce_script = outdir / "reproduce.sh"
@@ -1942,6 +1959,7 @@ def main():
         "max_selected_cell_share_per_run_id": args.max_selected_cell_share_per_run_id,
         "max_attempt_over_selection_ratio": args.max_attempt_over_selection_ratio,
         "max_failure_over_selection_ratio": args.max_failure_over_selection_ratio,
+        "max_failed_cell_share_per_run_id": args.max_failed_cell_share_per_run_id,
         "require_freeze_artifacts": args.require_freeze_artifact,
         "freeze_artifacts": freeze_artifacts,
         "run_preflight": run_preflight_rows,
