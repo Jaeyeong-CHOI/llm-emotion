@@ -1138,6 +1138,11 @@ def main():
         help="optional markdown path for per-run-id budget pressure summary (defaults to <outdir>/budget_report.md)",
     )
     ap.add_argument(
+        "--budget-violations-json",
+        default="",
+        help="optional JSON path for threshold violations derived from budget report (defaults to <outdir>/budget_violations.json)",
+    )
+    ap.add_argument(
         "--preflight-markdown",
         action="store_true",
         help="emit a human-readable preflight markdown summary",
@@ -1188,10 +1193,13 @@ def main():
         quarantine_csv_path.parent.mkdir(parents=True, exist_ok=True)
     budget_report_json_path = ROOT / args.budget_report_json if args.budget_report_json else outdir / "budget_report.json"
     budget_report_md_path = ROOT / args.budget_report_md if args.budget_report_md else outdir / "budget_report.md"
+    budget_violations_json_path = ROOT / args.budget_violations_json if args.budget_violations_json else outdir / "budget_violations.json"
     if budget_report_json_path.parent != outdir.parent:
         budget_report_json_path.parent.mkdir(parents=True, exist_ok=True)
     if budget_report_md_path.parent != outdir.parent:
         budget_report_md_path.parent.mkdir(parents=True, exist_ok=True)
+    if budget_violations_json_path.parent != outdir.parent:
+        budget_violations_json_path.parent.mkdir(parents=True, exist_ok=True)
 
     manifest_path = outdir / "manifest.json"
     existing_manifest = {}
@@ -2392,6 +2400,7 @@ def main():
         analysis_retries_total=analysis_retries_total,
         failed_cells_total=failed_cells,
     )
+    budget_violations = []
     if args.max_attempt_over_selection_ratio:
         overpressured = [
             f"{row.get('id')}:{row.get('attempt_over_selection_ratio')}"
@@ -2399,10 +2408,7 @@ def main():
             if float(row.get("attempt_over_selection_ratio") or 0.0) > args.max_attempt_over_selection_ratio
         ]
         if overpressured:
-            raise RuntimeError(
-                "run-id attempt-over-selection ratio above ceiling "
-                f"{args.max_attempt_over_selection_ratio}: {', '.join(overpressured)}"
-            )
+            budget_violations.append({"rule": "max_attempt_over_selection_ratio", "threshold": args.max_attempt_over_selection_ratio, "violations": overpressured})
     if args.max_retry_share_per_run_id:
         over_retry_share = [
             f"{row.get('id')}:{row.get('retry_share')}"
@@ -2410,10 +2416,7 @@ def main():
             if float(row.get("retry_share") or 0.0) > args.max_retry_share_per_run_id
         ]
         if over_retry_share:
-            raise RuntimeError(
-                "run-id retry share above ceiling "
-                f"{args.max_retry_share_per_run_id}: {', '.join(over_retry_share)}"
-            )
+            budget_violations.append({"rule": "max_retry_share_per_run_id", "threshold": args.max_retry_share_per_run_id, "violations": over_retry_share})
     if args.max_retry_over_selection_ratio:
         over_retry_pressure = [
             f"{row.get('id')}:{row.get('retry_over_selection_ratio')}"
@@ -2421,10 +2424,7 @@ def main():
             if float(row.get("retry_over_selection_ratio") or 0.0) > args.max_retry_over_selection_ratio
         ]
         if over_retry_pressure:
-            raise RuntimeError(
-                "run-id retry-over-selection ratio above ceiling "
-                f"{args.max_retry_over_selection_ratio}: {', '.join(over_retry_pressure)}"
-            )
+            budget_violations.append({"rule": "max_retry_over_selection_ratio", "threshold": args.max_retry_over_selection_ratio, "violations": over_retry_pressure})
     if args.max_generation_attempt_over_selection_ratio:
         overpressured_generation = [
             f"{row.get('id')}:{row.get('generation_attempt_over_selection_ratio')}"
@@ -2433,10 +2433,7 @@ def main():
             > args.max_generation_attempt_over_selection_ratio
         ]
         if overpressured_generation:
-            raise RuntimeError(
-                "run-id generation attempt-over-selection ratio above ceiling "
-                f"{args.max_generation_attempt_over_selection_ratio}: {', '.join(overpressured_generation)}"
-            )
+            budget_violations.append({"rule": "max_generation_attempt_over_selection_ratio", "threshold": args.max_generation_attempt_over_selection_ratio, "violations": overpressured_generation})
     if args.max_analysis_attempt_over_selection_ratio:
         overpressured_analysis = [
             f"{row.get('id')}:{row.get('analysis_attempt_over_selection_ratio')}"
@@ -2445,10 +2442,7 @@ def main():
             > args.max_analysis_attempt_over_selection_ratio
         ]
         if overpressured_analysis:
-            raise RuntimeError(
-                "run-id analysis attempt-over-selection ratio above ceiling "
-                f"{args.max_analysis_attempt_over_selection_ratio}: {', '.join(overpressured_analysis)}"
-            )
+            budget_violations.append({"rule": "max_analysis_attempt_over_selection_ratio", "threshold": args.max_analysis_attempt_over_selection_ratio, "violations": overpressured_analysis})
     if args.max_stage_attempt_share_gap_per_run_id:
         overpressured_stage_gap = [
             f"{row.get('id')}:{row.get('stage_attempt_share_gap')}"
@@ -2456,10 +2450,7 @@ def main():
             if float(row.get("stage_attempt_share_gap") or 0.0) > args.max_stage_attempt_share_gap_per_run_id
         ]
         if overpressured_stage_gap:
-            raise RuntimeError(
-                "run-id stage attempt share gap above ceiling "
-                f"{args.max_stage_attempt_share_gap_per_run_id}: {', '.join(overpressured_stage_gap)}"
-            )
+            budget_violations.append({"rule": "max_stage_attempt_share_gap_per_run_id", "threshold": args.max_stage_attempt_share_gap_per_run_id, "violations": overpressured_stage_gap})
     if args.max_stage_attempt_imbalance_ratio_per_run_id:
         overpressured_stage_imbalance = [
             f"{row.get('id')}:{row.get('stage_attempt_imbalance_ratio')}"
@@ -2467,10 +2458,7 @@ def main():
             if float(row.get("stage_attempt_imbalance_ratio") or 0.0) > args.max_stage_attempt_imbalance_ratio_per_run_id
         ]
         if overpressured_stage_imbalance:
-            raise RuntimeError(
-                "run-id stage attempt imbalance ratio above ceiling "
-                f"{args.max_stage_attempt_imbalance_ratio_per_run_id}: {', '.join(overpressured_stage_imbalance)}"
-            )
+            budget_violations.append({"rule": "max_stage_attempt_imbalance_ratio_per_run_id", "threshold": args.max_stage_attempt_imbalance_ratio_per_run_id, "violations": overpressured_stage_imbalance})
     if args.max_failure_over_selection_ratio:
         overpressured_failures = [
             f"{row.get('id')}:{row.get('failure_over_selection_ratio')}"
@@ -2478,10 +2466,7 @@ def main():
             if float(row.get("failure_over_selection_ratio") or 0.0) > args.max_failure_over_selection_ratio
         ]
         if overpressured_failures:
-            raise RuntimeError(
-                "run-id failure-over-selection ratio above ceiling "
-                f"{args.max_failure_over_selection_ratio}: {', '.join(overpressured_failures)}"
-            )
+            budget_violations.append({"rule": "max_failure_over_selection_ratio", "threshold": args.max_failure_over_selection_ratio, "violations": overpressured_failures})
     if args.max_failed_cell_share_per_run_id:
         overfailed_share = [
             f"{row.get('id')}:{row.get('failed_cell_share')}"
@@ -2489,12 +2474,23 @@ def main():
             if float(row.get("failed_cell_share") or 0.0) > args.max_failed_cell_share_per_run_id
         ]
         if overfailed_share:
-            raise RuntimeError(
-                "run-id failed-cell share above ceiling "
-                f"{args.max_failed_cell_share_per_run_id}: {', '.join(overfailed_share)}"
-            )
+            budget_violations.append({"rule": "max_failed_cell_share_per_run_id", "threshold": args.max_failed_cell_share_per_run_id, "violations": overfailed_share})
     write_json(budget_report_json_path, budget_report)
     write_budget_report_markdown(budget_report_md_path, budget_report)
+    write_json(
+        budget_violations_json_path,
+        {
+            "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+            "run_label": label,
+            "violation_count": len(budget_violations),
+            "violations": budget_violations,
+        },
+    )
+    if budget_violations:
+        detail = "; ".join(
+            f"{row['rule']}>{row['threshold']}: {', '.join(row['violations'])}" for row in budget_violations
+        )
+        raise RuntimeError(f"budget threshold violation(s): {detail}")
     reproduce_script = outdir / "reproduce.sh"
     preflight_json_path = outdir / "preflight.json"
     preflight_csv_path = outdir / "preflight.csv"
@@ -2632,6 +2628,9 @@ def main():
         "quarantine_failed_cells": len(quarantine_candidates),
         "budget_report_json": str(budget_report_json_path.relative_to(ROOT)),
         "budget_report_md": str(budget_report_md_path.relative_to(ROOT)),
+        "budget_violations_json": str(budget_violations_json_path.relative_to(ROOT)),
+        "budget_violation_count": len(budget_violations),
+        "budget_violations": budget_violations,
         "budget_report_summary": budget_report.get("summary") or {},
         "selected_cell_shares": selected_cell_shares,
         "combined_attempt_shares": combined_attempt_shares,

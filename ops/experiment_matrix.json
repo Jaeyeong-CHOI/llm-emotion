@@ -1234,6 +1234,30 @@
         "runner_live_failed_share_tripwire",
         "screening_review_evidence_decay_countermeasure"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_stage_imbalance_v67",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "review_query_diversity_curator",
+        "countervoice_domain_parity_designer",
+        "stage_imbalance_tripwire_operator",
+        "review_query_entropy_guardian"
+      ],
+      "n": 24,
+      "seed": 467,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_ids": [
+        "screening_review_query_concentration_relief",
+        "prompt_bank_countervoice_domain_parity",
+        "runner_runid_stage_imbalance_tripwire",
+        "screening_review_query_entropy_guard"
+      ]
     }
   ]
 }

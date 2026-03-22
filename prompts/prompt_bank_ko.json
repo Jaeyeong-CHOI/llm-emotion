@@ -1,5 +1,5 @@
 {
-  "version": "v6.6",
+  "version": "v6.7",
   "language": "ko",
   "scenarios": [
     {
@@ -2295,6 +2295,42 @@
         "governance"
       ],
       "prompt": "실험 러너에서 특정 run-id가 실패 셀을 과도하게 점유하는 신호를 실시간으로 감지하고 배치를 중단했던 경험을 7~10문장으로 회고하라. 어떤 failed-share 임계치를 썼는지, 중단 직전 관측한 지표, 격리 후 재개 조건을 포함하라."
+    },
+    {
+      "id": "screening_review_query_concentration_relief",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "query_governance",
+        "calibration"
+      ],
+      "prompt": "review 표본 수는 충분했지만 소수 source_query에 과도하게 집중되어 근거 다양성이 무너진 경험을 7~10문장으로 회고하라. 어떤 쿼리에 편중됐는지, 편중을 늦게 감지한 이유, 지금의 query concentration 완화 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_domain_parity",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "coverage"
+      ],
+      "prompt": "프롬프트 뱅크에서 countervoice 항목 수는 맞췄지만 도메인별 강도·표현 다양성이 불균형했던 경험을 7~9문장으로 작성하라. 어떤 도메인이 약했는지, parity 보정 기준, 다음 릴리즈 검증 규칙을 포함하라."
+    },
+    {
+      "id": "runner_runid_stage_imbalance_tripwire",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "budget_pressure",
+        "stage_imbalance",
+        "tripwire"
+      ],
+      "prompt": "실험 러너에서 특정 run-id의 생성/분석 단계 시도 비율이 크게 벌어졌고, stage imbalance tripwire로 중단했던 경험을 7~10문장으로 회고하라. 어떤 비율 지표를 썼는지, 중단 시점 판단, 재개 전 검증 항목을 포함하라."
     }
   ],
   "personas": [
@@ -3562,6 +3598,36 @@
         "governance"
       ],
       "instruction": "당신은 run-id별 실패 셀 점유율을 실시간으로 감시하는 운영자 성향이 있으며, 임계치 초과 시 즉시 중단·격리·재개 조건을 수치로 남긴다."
+    },
+    {
+      "id": "review_query_diversity_curator",
+      "style_tags": [
+        "screening",
+        "review",
+        "query_governance",
+        "calibration"
+      ],
+      "instruction": "당신은 review 표본의 쿼리 다양성을 우선 점검하는 성향이 있으며, source_query 편중이 커지면 즉시 엔트로피·점유율 기준으로 재정렬 규칙을 제시한다."
+    },
+    {
+      "id": "countervoice_domain_parity_designer",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "coverage"
+      ],
+      "instruction": "당신은 주장-반대관점 쌍의 도메인별 강도 균형을 설계하는 성향이 있으며, 수량뿐 아니라 표현 난이도 parity를 점검해 보강 우선순위를 기록한다."
+    },
+    {
+      "id": "stage_imbalance_tripwire_operator",
+      "style_tags": [
+        "runner",
+        "budget_pressure",
+        "stage_imbalance",
+        "tripwire"
+      ],
+      "instruction": "당신은 run-id별 생성/분석 단계 시도 불균형을 실시간 감시하는 운영자 성향이 있으며, 임계치 초과 시 중단·격리·재개 조건을 수치로 남긴다."
     }
   ],
   "temperatures": [
