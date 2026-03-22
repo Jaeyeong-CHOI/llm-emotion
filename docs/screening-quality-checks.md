@@ -60,6 +60,8 @@ python3 scripts/check_screening_quality.py \
 - `review_bridge_counterexample_traceability_gap_share <= 0.45` (bridge+counterexample가 잡힌 review 중 traceability가 비는 비율 상한)
 - `review_evidence_link_decay_share <= 0.45` (review 근거에서 query/title/include 링크가 빠진 비율 상한)
 - `manual_qc_review_traceable_known_query_year_js_divergence <= 0.25` (review traceable known-query 연도 분포가 전체 manual QC 연도 분포에서 과도하게 멀어지는지 점검)
+- `manual_qc_review_traceable_known_query_year_top2_share <= 0.90` (연도 분포 상위 2개 연도 과점 여부를 별도로 점검)
+- `manual_qc_review_traceable_known_query_year_tail_share >= 0.10` (older year tail 근거가 최소 비율 이상 유지되는지 점검)
 - `manual_qc_high_risk_share <= 0.85`
 - `manual_qc_source_group_diversity >= 3`
 - `manual_qc_bridge_signal_share >= 0.20`

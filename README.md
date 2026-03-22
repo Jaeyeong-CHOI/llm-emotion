@@ -8,9 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
-- Literature screening quality gate에 **review traceable known-query year JS divergence 가드**(`--max-manual-qc-review-traceable-known-query-year-js-divergence`)를 추가해, 최근 연도 표본만 과도하게 남아 older year 근거가 비는 케이스를 fail-fast로 차단합니다.
-- Prompt bank expanded to `v8.2` with **review-year drift patch / planned-sample-share audit** scenarios plus new personas (`review_year_balance_curator_v82`, `planned_sample_budget_controller_v82`).
-- Experiment runner now supports **planned-sample-share preflight guardrails** (`--max-planned-sample-share-per-run-id`, `--max-planned-sample-share-gap-per-run-id`) to catch run-id 예산 편중 that selected-cell share alone would miss.
+- Literature screening quality gate에 **review traceable known-query year concentration 가드**(`--max-manual-qc-review-traceable-known-query-year-top2-share`, `--min-manual-qc-review-traceable-known-query-year-tail-share`)를 추가해, year JS divergence만 통과하고 older year tail 근거가 비는 케이스를 fail-fast로 차단합니다.
+- Prompt bank expanded to `v8.3` with **review-year tail recovery / planned-sample pressure audit** scenarios plus new personas (`review_year_tail_safeguard_operator_v83`, `planned_sample_pressure_auditor_v83`).
+- Experiment runner now supports **planned-sample pressure ratio preflight guardrail** (`--max-planned-sample-over-selection-ratio-per-run-id`) in addition to share/gap guards, so run-id별 selected-cell 대비 실제 샘플 예산 압박을 함께 차단할 수 있습니다.
 - Literature screening quality gate에 **review known-query source-group tail-share floor 가드**(`--min-manual-qc-review-traceable-known-query-group-tail-share`)를 추가해, source-group 상위 집중(top2) 완화 없이 겉보기 traceability만 상승하는 케이스를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v8.0` with **source-group tail recovery drill / batch metadata floor audit** scenarios plus new personas (`group_tail_coverage_steward_v80`, `batch_metadata_floor_guard_v80`).
 - Experiment runner now supports **batch-level aggregate metadata floor guardrails** (`--require-min-selected-scenario-domains`, `--require-min-selected-scenario-emotion-axes`, `--require-min-selected-scenario-difficulties`) to fail-fast when selected run-id 묶음이 전체 domain/axis/difficulty 커버리지를 충분히 확보하지 못할 때 실행을 중단합니다.
@@ -64,6 +64,14 @@ python3 scripts/generate_dataset.py \
 
 ## Experiment reproducibility
 - Run definitions live in `ops/experiment_matrix.json`
+
+### v8.3 스모크 프리플라이트 (2026-03-23)
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v83 --max-manual-qc-review-traceable-known-query-year-js-divergence 0.25 --max-manual-qc-review-traceable-known-query-year-top2-share 0.90 --min-manual-qc-review-traceable-known-query-year-tail-share 0.10
+
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v83_plan --plan-only --include-run-id screening_prompt_runner_year_budget_v82 --include-run-id screening_prompt_runner_year_tail_pressure_v83 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v83.json --selection-csv results/selection_report_smoke_v83.csv --preflight-markdown --require-prompt-bank-version v8.3 --max-planned-sample-share-per-run-id 0.60 --max-planned-sample-share-gap-per-run-id 0.20 --max-planned-sample-over-selection-ratio-per-run-id 1.20 --manifest-note "preflight v83 year-tail + planned-sample-pressure guard"
+```
 
 ### v8.2 스모크 프리플라이트 (2026-03-22)
 

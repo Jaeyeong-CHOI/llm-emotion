@@ -1,5 +1,5 @@
 {
-  "version": "v8.2",
+  "version": "v8.3",
   "language": "ko",
   "scenarios": [
     {
@@ -3036,6 +3036,54 @@
       ],
       "difficulty": "hard",
       "prompt": "여러 run-id 배치에서 selected cell share는 균형처럼 보였지만 n 차이 때문에 planned sample share가 한 run id에 과집중된 사건을 7~10문장으로 사후 감사하라. 어떤 run id가 예산을 잠식했는지, preflight에서 어떤 ceiling/gap 규칙으로 막아야 하는지, 재실행 조건을 수치로 포함하라."
+    },
+    {
+      "id": "screening_review_year_tail_recovery_v83",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "year-tail",
+        "recovery",
+        "traceability"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query에서 year JS divergence는 기준을 통과했지만 상위 2개 연도가 대부분을 차지해 older year tail 근거가 사라진 상황을 가정하라. 48시간 내 year-tail share를 회복하기 위한 재탐색/재샘플링 계획을 7~10문장으로 작성하고, year top2 share·year tail share 목표값과 중단 기준을 수치로 명시하라."
+    },
+    {
+      "id": "runner_planned_sample_pressure_audit_v83",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "budget",
+        "preflight",
+        "sample-pressure",
+        "audit"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "run-id별 selected cell share는 균형으로 보였지만 n·repeats 차이로 planned sample share/selected cell share 비율이 특정 run id에서 급등한 사건을 7~10문장으로 사후 감사하라. 어떤 run id가 pressure를 만들었는지, preflight에서 어떤 ratio ceiling으로 차단해야 하는지, 재실행 허용 기준을 수치로 포함하라."
     }
   ],
   "personas": [
@@ -4699,6 +4747,28 @@
         "sample-share"
       ],
       "instruction": "당신은 run-id별 planned sample share를 실행 전에 통제하는 운영자 성향이며, selected cell 수보다 실제 샘플 예산 편중을 우선 보고 ceiling·gap 규칙과 재실행 기준을 명확히 기록한다."
+    },
+    {
+      "id": "review_year_tail_safeguard_operator_v83",
+      "style_tags": [
+        "screening",
+        "year-tail",
+        "traceability",
+        "safeguard",
+        "year-top2-watch"
+      ],
+      "instruction": "당신은 review traceable known-query의 연도 tail이 비지 않도록 운영하는 담당자다. year JS divergence뿐 아니라 year top2/tail share를 함께 보고 older year 근거 복구 순서를 수치와 함께 제시한다."
+    },
+    {
+      "id": "planned_sample_pressure_auditor_v83",
+      "style_tags": [
+        "runner",
+        "budget",
+        "preflight",
+        "sample-pressure",
+        "ratio-pressure"
+      ],
+      "instruction": "당신은 run-id별 planned sample share 대비 selected cell share 압박비를 점검하는 감사자다. share 자체뿐 아니라 pressure ratio를 우선 보고 ceiling 초과 시 중단·재분배 기준을 명확히 기록한다."
     }
   ],
   "temperatures": [

@@ -1629,6 +1629,31 @@
         0.8
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_year_tail_pressure_v83",
+      "description": "v8.3 screening review-year tail 복구 + runner planned-sample pressure ratio guard smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "review_year_tail_safeguard_operator_v83",
+        "planned_sample_pressure_auditor_v83",
+        "review_year_balance_curator_v82",
+        "planned_sample_budget_controller_v82"
+      ],
+      "scenario_ids": [
+        "screening_review_year_tail_recovery_v83",
+        "runner_planned_sample_pressure_audit_v83",
+        "screening_review_year_drift_patch_v82",
+        "runner_planned_sample_share_audit_v82"
+      ],
+      "n": 24,
+      "seed": 483,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1
     }
   ]
 }
