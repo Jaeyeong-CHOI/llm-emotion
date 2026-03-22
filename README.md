@@ -21,8 +21,8 @@ We do **behavioral-linguistic comparison**, not claims about machine consciousne
 - `docs/experiment-plan.md`: hypotheses, design, metrics, stats plan
 - `docs/research-ops.md`: continuous research operations playbook
 - `queries/search_queries.json`: query groups for ongoing literature scans
-- `prompts/`: scenario templates and expanded prompt bank (`prompt_bank_ko.json`)
-- `scripts/`: data generation + analysis + literature sync + reproducible experiment runner utilities
+- `prompts/`: scenario templates and expanded prompt bank (`prompt_bank_ko.json`, v1.2)
+- `scripts/`: data generation + analysis + literature sync + reproducible experiment runner utilities (repeat support + run manifest summary)
 - `refs/`: bibliography + machine-collected paper metadata
 - `data/`: collected generations + annotation files
 - `results/`: metrics and figures
@@ -40,7 +40,7 @@ python3 scripts/generate_dataset.py --out data/raw/mock_generations.jsonl --n 30
 python3 scripts/analyze_regret_markers.py --in data/raw/mock_generations.jsonl --out results/mock_metrics.json
 
 # reproducible multi-run experiment bundle
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v12
 ```
 
 ## Initial milestone checklist

@@ -1,16 +1,18 @@
 {
   "runs": [
     {
-      "id": "baseline_v11_seed42",
+      "id": "baseline_v12_seed42",
       "n": 12,
       "seed": 42,
+      "repeats": 2,
       "temperatures": [0.2, 0.7, 1.0],
       "prompt_bank": "prompts/prompt_bank_ko.json"
     },
     {
-      "id": "baseline_v11_seed31415",
+      "id": "baseline_v12_seed31415",
       "n": 12,
       "seed": 31415,
+      "repeats": 2,
       "temperatures": [0.2, 0.7, 1.0],
       "prompt_bank": "prompts/prompt_bank_ko.json"
     }

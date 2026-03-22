@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 import argparse
 import json
+import math
 import re
 import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Sequence
 
 
 DEFAULT_SCREENING_RULES = {
@@ -33,7 +34,26 @@ DEFAULT_SCREENING_RULES = {
         "protein",
         "medical imaging",
     ],
-    "threshold_include": 2,
+    "required_concepts_any": [
+        ["large language model", "llm", "language model"],
+        ["regret", "counterfactual", "emotion", "affect", "anthropomorphism", "mental state", "theory of mind"],
+    ],
+    "weights": {
+        "include_any": 1.0,
+        "high_priority": 2.0,
+        "cited_by_log1p": 0.35,
+    },
+    "penalties": {
+        "exclude_hit": 2.0,
+        "missing_concept_group": 1.0,
+        "non_preferred_language": 1.0,
+        "non_preferred_type": 1.0,
+    },
+    "preferred_languages": ["en", "ko"],
+    "preferred_types": ["article", "preprint", "conference", "book-chapter"],
+    "min_year": 2018,
+    "threshold_include": 3.0,
+    "threshold_review": 1.5,
 }
 
 
@@ -73,16 +93,63 @@ def _contains_phrase(text: str, phrase: str) -> bool:
     return re.search(phrase_re, text) is not None
 
 
-def score_screening(title: str, abstract: str, rules: Dict) -> Dict:
-    text = f"{title or ''}\n{abstract or ''}".lower()
-    include_hits: List[str] = [k for k in rules["include_any"] if _contains_phrase(text, k)]
-    high_priority_hits: List[str] = [k for k in rules["high_priority"] if _contains_phrase(text, k)]
-    exclude_hits: List[str] = [k for k in rules["exclude_if_any"] if _contains_phrase(text, k)]
+def _hit_terms(text: str, terms: Sequence[str]) -> List[str]:
+    return [k for k in terms if _contains_phrase(text, k)]
 
-    score = len(include_hits) + len(high_priority_hits)
-    label = "include" if score >= int(rules["threshold_include"]) and not exclude_hits else "exclude"
-    if score >= int(rules["threshold_include"]) and exclude_hits:
+
+def score_screening(title: str, abstract: str, language: str, pub_type: str, year: int, cited_by_count: int, rules: Dict) -> Dict:
+    text = f"{title or ''}\n{abstract or ''}".lower()
+
+    include_hits: List[str] = _hit_terms(text, rules["include_any"])
+    high_priority_hits: List[str] = _hit_terms(text, rules["high_priority"])
+    exclude_hits: List[str] = _hit_terms(text, rules["exclude_if_any"])
+
+    concept_groups = rules.get("required_concepts_any", [])
+    concept_hits = []
+    missing_groups = 0
+    for group in concept_groups:
+        g_hits = _hit_terms(text, group)
+        concept_hits.append(g_hits)
+        if not g_hits:
+            missing_groups += 1
+
+    weights = rules.get("weights", {})
+    penalties = rules.get("penalties", {})
+
+    lexical = len(include_hits) * float(weights.get("include_any", 1.0))
+    priority = len(high_priority_hits) * float(weights.get("high_priority", 2.0))
+    citation_bonus = float(weights.get("cited_by_log1p", 0.35)) * (0 if cited_by_count <= 0 else math.log1p(cited_by_count))
+
+    penalty_exclude = len(exclude_hits) * float(penalties.get("exclude_hit", 2.0))
+    penalty_missing_group = missing_groups * float(penalties.get("missing_concept_group", 1.0))
+
+    lang_penalty = 0.0
+    preferred_languages = rules.get("preferred_languages", [])
+    if preferred_languages and (language or "").lower() not in {l.lower() for l in preferred_languages}:
+        lang_penalty = float(penalties.get("non_preferred_language", 1.0))
+
+    type_penalty = 0.0
+    preferred_types = {t.lower() for t in rules.get("preferred_types", [])}
+    if preferred_types and (pub_type or "").lower() not in preferred_types:
+        type_penalty = float(penalties.get("non_preferred_type", 1.0))
+
+    year_penalty = 0.0
+    min_year = int(rules.get("min_year", 0) or 0)
+    if min_year and (year or 0) < min_year:
+        year_penalty = 0.5
+
+    weighted_score = lexical + priority + citation_bonus - penalty_exclude - penalty_missing_group - lang_penalty - type_penalty - year_penalty
+    weighted_score = round(weighted_score, 4)
+
+    include_threshold = float(rules.get("threshold_include", 3.0))
+    review_threshold = float(rules.get("threshold_review", include_threshold / 2))
+
+    if weighted_score >= include_threshold and not exclude_hits and missing_groups == 0:
+        label = "include"
+    elif weighted_score >= review_threshold:
         label = "review"
+    else:
+        label = "exclude"
 
     reasons = []
     if include_hits:
@@ -91,12 +158,30 @@ def score_screening(title: str, abstract: str, rules: Dict) -> Dict:
         reasons.append(f"high_priority={', '.join(high_priority_hits[:6])}")
     if exclude_hits:
         reasons.append(f"exclude_hits={', '.join(exclude_hits[:6])}")
+    if missing_groups:
+        reasons.append(f"missing_concept_groups={missing_groups}")
+    if lang_penalty:
+        reasons.append(f"non_preferred_language={language or 'unknown'}")
+    if type_penalty:
+        reasons.append(f"non_preferred_type={pub_type or 'unknown'}")
+    if year_penalty:
+        reasons.append(f"before_min_year={year}")
 
     return {
-        "screening_score": score,
+        "screening_score": weighted_score,
         "screening_label": label,
         "screening_reasons": reasons,
         "matched_terms": sorted(set(include_hits + high_priority_hits)),
+        "screening_features": {
+            "include_hits": len(include_hits),
+            "high_priority_hits": len(high_priority_hits),
+            "exclude_hits": len(exclude_hits),
+            "missing_concept_groups": missing_groups,
+            "cited_by_count": cited_by_count or 0,
+            "language": language,
+            "type": pub_type,
+            "year": year,
+        },
     }
 
 
@@ -108,6 +193,9 @@ def normalize_row(item, group, query, rules):
     landing = location.get("landing_page_url")
     source = (location.get("source") or {}).get("display_name")
     abstract = reconstruct_abstract(item.get("abstract_inverted_index"))
+    pub_type = item.get("type")
+    language = item.get("language")
+    cites = item.get("cited_by_count", 0)
 
     authors = []
     for a in item.get("authorships", [])[:5]:
@@ -115,7 +203,7 @@ def normalize_row(item, group, query, rules):
         if name:
             authors.append(name)
 
-    screening = score_screening(title or "", abstract, rules)
+    screening = score_screening(title or "", abstract, language, pub_type, year, cites, rules)
 
     return {
         "group": group,
@@ -126,10 +214,10 @@ def normalize_row(item, group, query, rules):
         "url": landing,
         "venue": source,
         "authors": authors,
-        "type": item.get("type"),
+        "type": pub_type,
         "openalex_id": item.get("id"),
-        "language": item.get("language"),
-        "cited_by_count": item.get("cited_by_count", 0),
+        "language": language,
+        "cited_by_count": cites,
         "abstract": abstract,
         **screening,
     }
@@ -192,7 +280,7 @@ def main():
     ordered = sorted(
         deduped.values(),
         key=lambda x: (
-            0 if x.get("screening_label") == "include" else 1,
+            0 if x.get("screening_label") == "include" else (1 if x.get("screening_label") == "review" else 2),
             -(x.get("screening_score") or 0),
             -(x.get("cited_by_count") or 0),
             -(x.get("year") or 0),

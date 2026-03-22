@@ -1,29 +1,37 @@
-# Literature Screening Rubric (v0.2)
+# Literature Screening Rubric (v0.3)
 
-This repository now applies a **transparent lexical screening layer** during OpenAlex ingestion.
+This repository now applies a **weighted + constraint-based screening layer** during OpenAlex ingestion.
 
 ## Inputs
 - `queries/search_queries.json`: retrieval query groups
-- `queries/screening_rules.json`: include/high-priority/exclude keyword sets + threshold
+- `queries/screening_rules.json`: include/high-priority/exclude keywords + weighted scoring policy
 
 ## Outputs per paper
-- `screening_score`
+- `screening_score` (continuous weighted score)
 - `screening_label` (`include` / `review` / `exclude`)
 - `matched_terms`
 - `screening_reasons`
+- `screening_features` (auditable feature dictionary)
 
 ## Decision policy
-1. Score = number of include hits + high-priority hits
-2. `include` if score >= threshold and no exclude hit
-3. `review` if score >= threshold but contains exclude hit
-4. `exclude` otherwise
+1. Weighted lexical score = include hits + high-priority hits (with configurable weights)
+2. Citation bonus = `log1p(cited_by_count)` scaled by weight
+3. Penalties for:
+   - exclusion hits
+   - missing required concept groups
+   - non-preferred language/type
+   - publication year below threshold
+4. Labeling:
+   - `include`: score >= include threshold, no exclude hit, no missing concept groups
+   - `review`: score >= review threshold
+   - `exclude`: otherwise
 
 ## Why this helps
-- Improves consistency over ad-hoc title triage
+- Better precision than flat lexical counts
 - Keeps a reproducible audit trail inside `refs/openalex_results.jsonl`
-- Makes downstream evidence table sorting quality-aware
+- Makes downstream evidence ranking quality-aware and transparent
 
 ## Known limitations
-- Lexical only: can miss semantically relevant papers with uncommon wording
-- Can over-include broad AI papers if wording overlaps
-- Should be paired with periodic manual quality checks
+- Still lexical-first (not full semantic retrieval)
+- Citation bonus can favor older mainstream papers
+- Requires periodic manual calibration of thresholds/weights

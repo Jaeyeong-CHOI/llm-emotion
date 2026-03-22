@@ -2,28 +2,54 @@
   "include_any": [
     "large language model",
     "llm",
+    "language model",
     "counterfactual",
+    "counterfactual thinking",
     "regret",
     "emotion",
     "affect",
     "anthropomorphism",
     "theory of mind",
     "mental state",
-    "self narrative"
+    "self narrative",
+    "self-reflection",
+    "social cognition"
   ],
   "high_priority": [
     "regret",
     "counterfactual",
+    "counterfactual thinking",
     "theory of mind",
     "anthropomorphism",
-    "emotional attribution"
+    "emotional attribution",
+    "self-reflection"
   ],
   "exclude_if_any": [
     "speech recognition",
     "medical imaging",
     "protein",
     "wireless sensor",
-    "autonomous vehicle perception"
+    "autonomous vehicle perception",
+    "object detection"
   ],
-  "threshold_include": 2
+  "required_concepts_any": [
+    ["large language model", "llm", "language model"],
+    ["regret", "counterfactual", "emotion", "affect", "anthropomorphism", "mental state", "theory of mind"]
+  ],
+  "weights": {
+    "include_any": 1.0,
+    "high_priority": 2.0,
+    "cited_by_log1p": 0.35
+  },
+  "penalties": {
+    "exclude_hit": 2.0,
+    "missing_concept_group": 1.0,
+    "non_preferred_language": 1.0,
+    "non_preferred_type": 1.0
+  },
+  "preferred_languages": ["en", "ko"],
+  "preferred_types": ["article", "preprint", "conference", "book-chapter"],
+  "min_year": 2018,
+  "threshold_include": 3.0,
+  "threshold_review": 1.5
 }
