@@ -1,5 +1,5 @@
 {
-  "version": "v7.1",
+  "version": "v7.2",
   "language": "ko",
   "scenarios": [
     {
@@ -2483,6 +2483,41 @@
         "repair"
       ],
       "prompt": "실험 러너에서 live retry share가 한 run-id로 급격히 집중되어 배치를 일시 중단하고 재분배했던 사건을 7~10문장으로 회고하라. 어떤 임계치를 넘었는지, 재분배 순서와 재개 전 검증 항목을 포함하라."
+    },
+    {
+      "id": "screening_review_query_tail_rescue",
+      "label": "review_query_tail_rescue",
+      "tags": [
+        "screening",
+        "review",
+        "query-diversity",
+        "tail-coverage",
+        "quality-gate"
+      ],
+      "prompt": "수동 QC의 review traceable known-query 분포에서 상위 2개 query가 과점된 상황을 가정하라. long-tail query를 복구하기 위한 샘플링 재배치 규칙을 6~9문장으로 제시하고, top2_share를 낮추기 위한 우선순위와 중단 기준을 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_tail_query_counterbalance_playbook",
+      "label": "tail_query_counterbalance_playbook",
+      "tags": [
+        "prompt-bank",
+        "counterbalance",
+        "query-tail",
+        "playbook"
+      ],
+      "prompt": "프롬프트 뱅크 확장에서 특정 review query 쏠림을 완화하기 위한 counterbalance playbook을 작성하라. 어떤 scenario/persona를 추가해야 tail coverage와 entropy가 동시에 개선되는지 7~10문장으로 설명하라."
+    },
+    {
+      "id": "runner_live_retry_selection_ratio_tripwire",
+      "label": "live_retry_selection_ratio_tripwire",
+      "tags": [
+        "runner",
+        "live-guard",
+        "retry",
+        "selection-share",
+        "tripwire"
+      ],
+      "prompt": "실험 러너에서 run-id별 live retry_over_selection_ratio가 임계치를 넘을 때 조기 중단했던 사건을 운영 로그 관점에서 7~10문장으로 요약하라. ratio 산식, 임계치, 후속 격리·재개 절차를 포함하라."
     }
   ],
   "personas": [
@@ -3890,6 +3925,24 @@
         "systems"
       ],
       "instruction": "당신은 run-id별 live retry share 과열을 감시하는 운영자 성향이 있으며, 임계치 초과 시 즉시 재분배·격리·재개 조건을 수치로 명확히 남긴다."
+    },
+    {
+      "id": "review_query_tail_shepherd",
+      "instruction": "당신은 review traceable known-query의 tail coverage를 집요하게 복구하는 큐레이터다. 상위 query 과점을 경계하고, top2 share·entropy·coverage를 함께 최적화하는 행동지침을 수치로 남긴다.",
+      "style_tags": [
+        "tail-coverage",
+        "query-balance",
+        "screening-qc"
+      ]
+    },
+    {
+      "id": "live_retry_ratio_guard",
+      "instruction": "당신은 run-id별 live retry_over_selection_ratio를 모니터링하는 운영자다. 임계치 초과 시 즉시 중단·격리·재개 조건을 짧고 명확하게 기록한다.",
+      "style_tags": [
+        "runner-ops",
+        "live-tripwire",
+        "retry-governance"
+      ]
     }
   ],
   "temperatures": [
