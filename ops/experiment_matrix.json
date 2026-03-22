@@ -991,6 +991,31 @@
         "stage_failure_streak_monitor",
         "runid_failure_streak_marshal"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_stage_pressure_v57",
+      "n": 12,
+      "seed": 39797,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_review_evidence_decay_countermeasure",
+        "screening_review_evidence_link_decay",
+        "prompt_bank_countervoice_intensity_rebalance",
+        "runner_stage_budget_pressure_rebalance",
+        "runner_stage_failure_streak_tripwire"
+      ],
+      "persona_ids": [
+        "review_link_decay_sentinel",
+        "stage_budget_pressure_auditor",
+        "review_traceability_maintainer",
+        "stage_failure_streak_monitor"
+      ]
     }
   ]
 }
