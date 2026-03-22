@@ -419,6 +419,8 @@ def build_budget_report(
                 "analysis_attempt_share": pct(analysis_attempts, analysis_attempts_total),
                 "generation_retries": generation_retries,
                 "analysis_retries": analysis_retries,
+                "generation_retry_share": pct(generation_retries, generation_retries_total),
+                "analysis_retry_share": pct(analysis_retries, analysis_retries_total),
                 "combined_retries": combined_retries,
                 "retry_share": pct(combined_retries, generation_retries_total + analysis_retries_total),
                 "combined_attempts": combined_attempts,
@@ -482,6 +484,8 @@ def build_budget_report(
     max_failed_share = max(rows, key=lambda row: (row["failed_cell_share"], row["id"]), default=None)
     max_attempt_pressure = max(rows, key=lambda row: (row["attempt_over_selection_ratio"], row["id"]), default=None)
     max_retry_share = max(rows, key=lambda row: (row["retry_share"], row["id"]), default=None)
+    max_generation_retry_share = max(rows, key=lambda row: (row["generation_retry_share"], row["id"]), default=None)
+    max_analysis_retry_share = max(rows, key=lambda row: (row["analysis_retry_share"], row["id"]), default=None)
     max_retry_pressure = max(rows, key=lambda row: (row["retry_over_selection_ratio"], row["id"]), default=None)
     max_generation_attempt_pressure = max(rows, key=lambda row: (row["generation_attempt_over_selection_ratio"], row["id"]), default=None)
     max_analysis_attempt_pressure = max(rows, key=lambda row: (row["analysis_attempt_over_selection_ratio"], row["id"]), default=None)
@@ -527,6 +531,10 @@ def build_budget_report(
             "max_attempt_over_selection_ratio": (max_attempt_pressure or {}).get("attempt_over_selection_ratio", 0.0),
             "max_retry_share_run_id": (max_retry_share or {}).get("id", ""),
             "max_retry_share": (max_retry_share or {}).get("retry_share", 0.0),
+            "max_generation_retry_share_run_id": (max_generation_retry_share or {}).get("id", ""),
+            "max_generation_retry_share": (max_generation_retry_share or {}).get("generation_retry_share", 0.0),
+            "max_analysis_retry_share_run_id": (max_analysis_retry_share or {}).get("id", ""),
+            "max_analysis_retry_share": (max_analysis_retry_share or {}).get("analysis_retry_share", 0.0),
             "max_retry_over_selection_ratio_run_id": (max_retry_pressure or {}).get("id", ""),
             "max_retry_over_selection_ratio": (max_retry_pressure or {}).get("retry_over_selection_ratio", 0.0),
             "max_generation_attempt_over_selection_ratio_run_id": (max_generation_attempt_pressure or {}).get("id", ""),
@@ -561,6 +569,8 @@ def write_budget_report_markdown(path: Path, payload: dict):
         f"- max_combined_attempt_share: `{summary.get('max_combined_attempt_share', 0.0)}` (`{summary.get('max_combined_attempt_share_run_id', '')}`)",
         f"- max_attempt_over_selection_ratio: `{summary.get('max_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_attempt_over_selection_ratio_run_id', '')}`)",
         f"- max_retry_share: `{summary.get('max_retry_share', 0.0)}` (`{summary.get('max_retry_share_run_id', '')}`)",
+        f"- max_generation_retry_share: `{summary.get('max_generation_retry_share', 0.0)}` (`{summary.get('max_generation_retry_share_run_id', '')}`)",
+        f"- max_analysis_retry_share: `{summary.get('max_analysis_retry_share', 0.0)}` (`{summary.get('max_analysis_retry_share_run_id', '')}`)",
         f"- max_retry_over_selection_ratio: `{summary.get('max_retry_over_selection_ratio', 0.0)}` (`{summary.get('max_retry_over_selection_ratio_run_id', '')}`)",
         f"- max_generation_attempt_over_selection_ratio: `{summary.get('max_generation_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_generation_attempt_over_selection_ratio_run_id', '')}`)",
         f"- max_analysis_attempt_over_selection_ratio: `{summary.get('max_analysis_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_analysis_attempt_over_selection_ratio_run_id', '')}`)",
@@ -1062,6 +1072,18 @@ def main():
         type=float,
         default=0.0,
         help="fail if a single run id consumes more than this share of retry attempts; 0 disables",
+    )
+    ap.add_argument(
+        "--max-generation-retry-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if a single run id consumes more than this share of generation retries; 0 disables",
+    )
+    ap.add_argument(
+        "--max-analysis-retry-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if a single run id consumes more than this share of analysis retries; 0 disables",
     )
     ap.add_argument(
         "--max-retry-over-selection-ratio",
@@ -2417,6 +2439,22 @@ def main():
         ]
         if over_retry_share:
             budget_violations.append({"rule": "max_retry_share_per_run_id", "threshold": args.max_retry_share_per_run_id, "violations": over_retry_share})
+    if args.max_generation_retry_share_per_run_id:
+        over_generation_retry_share = [
+            f"{row.get('id')}:{row.get('generation_retry_share')}"
+            for row in budget_report.get("rows") or []
+            if float(row.get("generation_retry_share") or 0.0) > args.max_generation_retry_share_per_run_id
+        ]
+        if over_generation_retry_share:
+            budget_violations.append({"rule": "max_generation_retry_share_per_run_id", "threshold": args.max_generation_retry_share_per_run_id, "violations": over_generation_retry_share})
+    if args.max_analysis_retry_share_per_run_id:
+        over_analysis_retry_share = [
+            f"{row.get('id')}:{row.get('analysis_retry_share')}"
+            for row in budget_report.get("rows") or []
+            if float(row.get("analysis_retry_share") or 0.0) > args.max_analysis_retry_share_per_run_id
+        ]
+        if over_analysis_retry_share:
+            budget_violations.append({"rule": "max_analysis_retry_share_per_run_id", "threshold": args.max_analysis_retry_share_per_run_id, "violations": over_analysis_retry_share})
     if args.max_retry_over_selection_ratio:
         over_retry_pressure = [
             f"{row.get('id')}:{row.get('retry_over_selection_ratio')}"
@@ -2645,6 +2683,8 @@ def main():
         "max_selected_cell_share_per_run_id": args.max_selected_cell_share_per_run_id,
         "max_attempt_over_selection_ratio": args.max_attempt_over_selection_ratio,
         "max_retry_share_per_run_id": args.max_retry_share_per_run_id,
+        "max_generation_retry_share_per_run_id": args.max_generation_retry_share_per_run_id,
+        "max_analysis_retry_share_per_run_id": args.max_analysis_retry_share_per_run_id,
         "max_retry_over_selection_ratio": args.max_retry_over_selection_ratio,
         "max_generation_attempt_over_selection_ratio": args.max_generation_attempt_over_selection_ratio,
         "max_analysis_attempt_over_selection_ratio": args.max_analysis_attempt_over_selection_ratio,

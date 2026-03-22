@@ -48,6 +48,17 @@ def normalized_entropy(mapping: dict[str, int]) -> float:
     return round(entropy / max_entropy, 4) if max_entropy > 0 else 0.0
 
 
+def normalized_hhi(mapping: dict[str, int]) -> float:
+    counts = [int(v or 0) for v in mapping.values() if int(v or 0) > 0]
+    if not counts:
+        return 0.0
+    total = sum(counts)
+    if total <= 0:
+        return 0.0
+    probs = [c / total for c in counts]
+    return round(sum(p * p for p in probs), 4)
+
+
 def write_json(path: Path, payload: dict):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -102,6 +113,8 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_review_traceable_unknown_query_share: `{payload['summary']['manual_qc_review_traceable_unknown_query_share']}`",
             f"- manual_qc_review_query_traceability_share: `{payload['summary']['manual_qc_review_query_traceability_share']}`",
             f"- manual_qc_review_traceable_known_query_entropy: `{payload['summary']['manual_qc_review_traceable_known_query_entropy']}`",
+            f"- manual_qc_review_traceable_known_query_coverage: `{payload['summary']['manual_qc_review_traceable_known_query_coverage']}`",
+            f"- manual_qc_review_traceable_known_query_hhi: `{payload['summary']['manual_qc_review_traceable_known_query_hhi']}`",
             f"- manual_qc_review_traceable_known_query_top_share: `{payload['summary']['manual_qc_review_traceable_known_query_top_share']}`",
             f"- manual_qc_risk_reason_entropy: `{payload['summary']['manual_qc_risk_reason_entropy']}`",
             f"- manual_qc_review_reason_entropy: `{payload['summary']['manual_qc_review_reason_entropy']}`",
@@ -213,6 +226,8 @@ def main():
     ap.add_argument("--max-manual-qc-review-traceable-unknown-query-share", type=float, default=0.15)
     ap.add_argument("--min-manual-qc-review-query-traceability-share", type=float, default=0.75)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-entropy", type=float, default=0.45)
+    ap.add_argument("--min-manual-qc-review-traceable-known-query-coverage", type=int, default=3)
+    ap.add_argument("--max-manual-qc-review-traceable-known-query-hhi", type=float, default=0.35)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-top-share", type=float, default=0.7)
     ap.add_argument("--min-review-bridge-traceable-known-query-share", type=float, default=0.6)
     ap.add_argument("--max-review-bridge-traceable-unknown-query-share", type=float, default=0.2)
@@ -486,6 +501,10 @@ def main():
     manual_qc_review_traceable_unknown_query_share = pct(review_traceable_unknown_query_rows, manual_qc_review_rows)
     manual_qc_review_query_traceability_share = pct(review_traceable_known_query_rows, review_traceable_reason_rows)
     manual_qc_review_traceable_known_query_entropy = normalized_entropy(manual_qc_review_traceable_known_query_counts)
+    manual_qc_review_traceable_known_query_coverage = sum(
+        1 for _, v in manual_qc_review_traceable_known_query_counts.items() if int(v or 0) > 0
+    )
+    manual_qc_review_traceable_known_query_hhi = normalized_hhi(manual_qc_review_traceable_known_query_counts)
     manual_qc_review_traceable_known_query_top_share = (
         round(max(manual_qc_review_traceable_known_query_counts.values(), default=0) / max(1, review_traceable_known_query_rows), 4)
         if review_traceable_known_query_rows
@@ -677,6 +696,24 @@ def main():
             else "fail",
             "observed": manual_qc_review_traceable_known_query_entropy,
             "threshold": f">={args.min_manual_qc_review_traceable_known_query_entropy}",
+        },
+        {
+            "name": "manual_qc_review_traceable_known_query_coverage_floor",
+            "status": "pass"
+            if manual_qc_review_traceable_known_query_coverage
+            >= args.min_manual_qc_review_traceable_known_query_coverage
+            else "fail",
+            "observed": manual_qc_review_traceable_known_query_coverage,
+            "threshold": f">={args.min_manual_qc_review_traceable_known_query_coverage}",
+        },
+        {
+            "name": "manual_qc_review_traceable_known_query_hhi_ceiling",
+            "status": "pass"
+            if manual_qc_review_traceable_known_query_hhi
+            <= args.max_manual_qc_review_traceable_known_query_hhi
+            else "fail",
+            "observed": manual_qc_review_traceable_known_query_hhi,
+            "threshold": f"<={args.max_manual_qc_review_traceable_known_query_hhi}",
         },
         {
             "name": "manual_qc_review_traceable_known_query_top_share_ceiling",
@@ -997,6 +1034,8 @@ def main():
             "traceable_review_rows": review_traceable_reason_rows,
             "share": manual_qc_review_query_traceability_share,
             "known_query_entropy": manual_qc_review_traceable_known_query_entropy,
+            "known_query_coverage": manual_qc_review_traceable_known_query_coverage,
+            "known_query_hhi": manual_qc_review_traceable_known_query_hhi,
             "known_query_top_share": manual_qc_review_traceable_known_query_top_share,
         }},
         {"label": "review_bridge_known_query_traceability", "value": {
@@ -1069,6 +1108,8 @@ def main():
             "manual_qc_review_traceable_unknown_query_share": manual_qc_review_traceable_unknown_query_share,
             "manual_qc_review_query_traceability_share": manual_qc_review_query_traceability_share,
             "manual_qc_review_traceable_known_query_entropy": manual_qc_review_traceable_known_query_entropy,
+            "manual_qc_review_traceable_known_query_coverage": manual_qc_review_traceable_known_query_coverage,
+            "manual_qc_review_traceable_known_query_hhi": manual_qc_review_traceable_known_query_hhi,
             "manual_qc_review_traceable_known_query_top_share": manual_qc_review_traceable_known_query_top_share,
             "manual_qc_risk_reason_entropy": manual_qc_risk_reason_entropy,
             "manual_qc_review_reason_entropy": manual_qc_review_reason_entropy,

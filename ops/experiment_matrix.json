@@ -1258,6 +1258,30 @@
         "runner_runid_stage_imbalance_tripwire",
         "screening_review_query_entropy_guard"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_retry_mix_v68",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "review_query_cluster_guard",
+        "countervoice_intensity_curator",
+        "stage_retry_mix_operator",
+        "stage_imbalance_tripwire_operator"
+      ],
+      "n": 24,
+      "seed": 468,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_ids": [
+        "screening_review_query_cluster_floor",
+        "prompt_bank_countervoice_intensity_band",
+        "runner_stage_retry_mix_guard",
+        "runner_runid_stage_imbalance_tripwire"
+      ]
     }
   ]
 }

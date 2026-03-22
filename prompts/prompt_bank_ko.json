@@ -1,5 +1,5 @@
 {
-  "version": "v6.7",
+  "version": "v6.8",
   "language": "ko",
   "scenarios": [
     {
@@ -2331,6 +2331,42 @@
         "tripwire"
       ],
       "prompt": "실험 러너에서 특정 run-id의 생성/분석 단계 시도 비율이 크게 벌어졌고, stage imbalance tripwire로 중단했던 경험을 7~10문장으로 회고하라. 어떤 비율 지표를 썼는지, 중단 시점 판단, 재개 전 검증 항목을 포함하라."
+    },
+    {
+      "id": "screening_review_query_cluster_floor",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "query_governance",
+        "calibration"
+      ],
+      "prompt": "review 후보 수는 충분했지만 쿼리 클러스터 다양성이 바닥으로 떨어져 동일한 관점만 반복된 경험을 7~10문장으로 회고하라. 어떤 클러스터가 과점했는지, 최소 클러스터 floor를 어떻게 정했는지, 다음 라운드 재균형 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_intensity_band",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "calibration"
+      ],
+      "prompt": "프롬프트 뱅크에서 countervoice는 존재했지만 강도 구간(약/중/강)이 특정 구간으로 몰려 비교가 흐려진 경험을 7~9문장으로 작성하라. 어떤 강도 밴드가 비었는지, 밴드 보강 기준, 릴리즈 전 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_stage_retry_mix_guard",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "retry",
+        "stage_imbalance",
+        "tripwire"
+      ],
+      "prompt": "실험 러너에서 생성 단계 재시도는 많고 분석 단계 재시도는 거의 없어 retry mix가 무너진 사건을 7~10문장으로 회고하라. 어떤 비율 지표로 이상을 잡았는지, mix guard 임계치, 중단·재개 기준을 포함하라."
     }
   ],
   "personas": [
@@ -3628,6 +3664,36 @@
         "tripwire"
       ],
       "instruction": "당신은 run-id별 생성/분석 단계 시도 불균형을 실시간 감시하는 운영자 성향이 있으며, 임계치 초과 시 중단·격리·재개 조건을 수치로 남긴다."
+    },
+    {
+      "id": "review_query_cluster_guard",
+      "style_tags": [
+        "screening",
+        "review",
+        "query_governance",
+        "calibration"
+      ],
+      "instruction": "당신은 review 표본의 쿼리 클러스터 다양성을 먼저 점검하는 성향이 있으며, 과점 클러스터가 보이면 즉시 floor 기준과 재균형 순서를 수치로 기록한다."
+    },
+    {
+      "id": "countervoice_intensity_curator",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "calibration"
+      ],
+      "instruction": "당신은 countervoice 프롬프트의 강도 밴드를 관리하는 성향이 있으며, 약/중/강 구간의 공백을 먼저 찾아 보강 기준과 버전 메모를 함께 남긴다."
+    },
+    {
+      "id": "stage_retry_mix_operator",
+      "style_tags": [
+        "runner",
+        "retry",
+        "stage_imbalance",
+        "tripwire"
+      ],
+      "instruction": "당신은 생성/분석 단계 재시도 혼합비(retry mix)를 실시간 점검하는 운영자 성향이 있으며, 임계치 초과 시 중단·격리·재개 조건을 수치로 명확히 기록한다."
     }
   ],
   "temperatures": [
