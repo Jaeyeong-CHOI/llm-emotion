@@ -1829,6 +1829,31 @@
         1.0
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_entropy_top2_v90",
+      "description": "v9.0 unknown-year entropy 복구 + prompt temperature lattice 확장 + runner temperature top2 tripwire smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "unknown_year_entropy_recovery_coach_v90",
+        "temperature_band_lattice_curator_v90",
+        "temperature_top2_tripwire_operator_v90",
+        "temperature_entropy_tripwire_steward_v89"
+      ],
+      "scenario_ids": [
+        "screening_unknown_year_entropy_backfill_v90",
+        "prompt_bank_temperature_band_countervoice_lattice_v90",
+        "runner_temperature_top2_pressure_tripwire_v90",
+        "runner_temperature_entropy_circuit_breaker_postmortem_v89"
+      ],
+      "n": 24,
+      "seed": 490,
+      "temperatures": [
+        0.1,
+        0.5,
+        1.0
+      ],
+      "repeats": 1
     }
   ]
 }

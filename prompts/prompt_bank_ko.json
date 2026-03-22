@@ -1,5 +1,5 @@
 {
-  "version": "v8.9",
+  "version": "v9.0",
   "language": "ko",
   "scenarios": [
     {
@@ -3603,6 +3603,73 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 러너 preflight에서 run별 temperature entropy와 배치 planned-sample temperature entropy가 동시에 임계치 아래로 떨어져 실행을 차단한 사고를 7~10문장으로 정리하라. 어떤 임계값을 썼는지, 실패 run을 어떻게 분리/재배치했는지, 재실행 승인 조건을 단계별로 제시하라."
+    },
+    {
+      "id": "screening_unknown_year_entropy_backfill_v90",
+      "label": "worry",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_entropy",
+        "traceability",
+        "recovery"
+      ],
+      "domains": [
+        "literature_review",
+        "screening_ops"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "regret"
+      ],
+      "difficulty": "hard",
+      "prompt": "review traceable known-query에서 year=unknown 분포의 query entropy가 급락해 소수 query만 반복된 상황을 7~10문장으로 회고하라. top1/top2 share와 entropy를 함께 제시하고, unknown-year query coverage를 회복하기 위한 우선순위 재큐잉 기준을 설명하라."
+    },
+    {
+      "id": "prompt_bank_temperature_band_countervoice_lattice_v90",
+      "label": "resolve",
+      "tags": [
+        "prompt_bank",
+        "temperature",
+        "countervoice",
+        "lattice",
+        "coverage"
+      ],
+      "domains": [
+        "prompt_engineering",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "repair",
+        "agency",
+        "vigilance"
+      ],
+      "difficulty": "medium",
+      "prompt": "prompt bank를 점검하던 중 countervoice 페르소나가 temperature 중간대(0.5)에서만 과도하게 반복된 문제를 6~9문장으로 정리하라. 온도 밴드별 페르소나 배치 원칙과 회전 규칙을 수치 기준으로 제시하라."
+    },
+    {
+      "id": "runner_temperature_top2_pressure_tripwire_v90",
+      "label": "deprivation",
+      "tags": [
+        "runner",
+        "temperature",
+        "top2_share",
+        "preflight",
+        "tripwire"
+      ],
+      "domains": [
+        "runner",
+        "experiment_ops",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "runner preflight에서 temperature top1은 통과했지만 top2 share가 과열되어 실행을 중단한 사건을 7~10문장으로 설명하라. top1/top2/entropy 기준을 함께 적고, run 분리와 재실행 승인 조건을 단계별로 제시하라."
     }
   ],
   "personas": [
@@ -5456,6 +5523,39 @@
         "operations"
       ],
       "instruction": "당신은 러너 preflight에서 run별 temperature entropy와 배치 planned-sample 온도 편중을 함께 감시하며, 임계치 위반 시 실행 중단·재배치·재개 기준을 수치 중심으로 명확히 제시한다."
+    },
+    {
+      "id": "unknown_year_entropy_recovery_coach_v90",
+      "style_tags": [
+        "screening",
+        "unknown_year",
+        "entropy",
+        "query_coverage",
+        "triage"
+      ],
+      "instruction": "당신은 year=unknown review traceable known-query 분포의 entropy와 coverage를 함께 감시하며, 특정 query 과집중 징후가 보이면 즉시 backfill 우선순위를 재조정한다."
+    },
+    {
+      "id": "temperature_band_lattice_curator_v90",
+      "style_tags": [
+        "prompt_bank",
+        "temperature",
+        "countervoice",
+        "lattice",
+        "rotation"
+      ],
+      "instruction": "당신은 온도 밴드별 countervoice 페르소나 배치를 격자(lattice)처럼 유지하려 하며, 중간대 과집중이 보이면 상·하단 온도에 균등하게 회전시킨다."
+    },
+    {
+      "id": "temperature_top2_tripwire_operator_v90",
+      "style_tags": [
+        "runner",
+        "preflight",
+        "temperature",
+        "top2_share",
+        "operations"
+      ],
+      "instruction": "당신은 preflight에서 temperature top1뿐 아니라 top2 share를 함께 감시해, 표면적 다양성 뒤의 온도 편중을 조기에 차단한다."
     }
   ],
   "temperatures": [

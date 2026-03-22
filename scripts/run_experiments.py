@@ -1167,6 +1167,12 @@ def main():
         help="fail if one temperature accounts for more than this planned-sample share (0 disables)",
     )
     ap.add_argument(
+        "--max-planned-sample-temperature-top2-share",
+        type=float,
+        default=0.0,
+        help="fail if top-2 temperatures account for more than this planned-sample share (0 disables)",
+    )
+    ap.add_argument(
         "--require-min-selected-scenario-tags",
         type=int,
         default=0,
@@ -2801,6 +2807,10 @@ def main():
     }
     planned_sample_temperature_top1_share = max(planned_sample_temperature_shares.values(), default=0.0)
     planned_sample_temperature_entropy = normalized_entropy_from_counts(planned_samples_by_temperature)
+    planned_sample_temperature_top2_share = round(
+        sum(sorted(planned_sample_temperature_shares.values(), reverse=True)[:2]),
+        4,
+    )
     planned_sample_over_selection_ratio_by_run_id = {
         run_id: round(
             planned_sample_shares.get(run_id, 0.0) / max(1e-9, selected_cell_shares.get(run_id, 0.0)),
@@ -2929,6 +2939,14 @@ def main():
         raise RuntimeError(
             "planned_sample_temperature_top1_share="
             f"{planned_sample_temperature_top1_share} > max_planned_sample_temperature_top1_share={args.max_planned_sample_temperature_top1_share}"
+        )
+    if (
+        args.max_planned_sample_temperature_top2_share
+        and planned_sample_temperature_top2_share > args.max_planned_sample_temperature_top2_share
+    ):
+        raise RuntimeError(
+            "planned_sample_temperature_top2_share="
+            f"{planned_sample_temperature_top2_share} > max_planned_sample_temperature_top2_share={args.max_planned_sample_temperature_top2_share}"
         )
     if args.require_min_selected_scenario_tags and len(aggregate_scenario_tags) < args.require_min_selected_scenario_tags:
         raise RuntimeError(
@@ -3104,6 +3122,7 @@ def main():
         "selected_temperature_span": selected_temperature_span,
         "planned_sample_temperature_entropy": planned_sample_temperature_entropy,
         "planned_sample_temperature_top1_share": planned_sample_temperature_top1_share,
+        "planned_sample_temperature_top2_share": planned_sample_temperature_top2_share,
         "planned_sample_temperature_shares": planned_sample_temperature_shares,
         "unique_selected_scenario_labels": len(aggregate_scenario_labels),
         "unique_selected_scenario_tags": len(aggregate_scenario_tags),
@@ -3460,6 +3479,7 @@ def main():
         "require_min_selected_temperature_span": args.require_min_selected_temperature_span,
         "min_planned_sample_temperature_entropy": args.min_planned_sample_temperature_entropy,
         "max_planned_sample_temperature_top1_share": args.max_planned_sample_temperature_top1_share,
+        "max_planned_sample_temperature_top2_share": args.max_planned_sample_temperature_top2_share,
         "require_prompt_bank_version": args.require_prompt_bank_version,
         "resume_verify_hashes": args.resume_verify_hashes,
         "resume_verified": resume_verified,

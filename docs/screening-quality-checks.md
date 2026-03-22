@@ -64,6 +64,9 @@ python3 scripts/check_screening_quality.py \
 - `manual_qc_review_traceable_known_query_year_top2_share <= 0.90` (연도 분포 상위 2개 연도 과점 여부를 별도로 점검)
 - `manual_qc_review_traceable_known_query_year_top3_share <= 0.95` (상위 3개 연도까지 과점되는 패턴을 추가로 차단)
 - `manual_qc_review_traceable_known_query_year_tail_share >= 0.10` (older year tail 근거가 최소 비율 이상 유지되는지 점검)
+- `manual_qc_review_traceable_known_query_unknown_year_top1_query_share <= 0.65` (year=unknown 구간이 단일 query에 과점되는지 점검)
+- `manual_qc_review_traceable_known_query_unknown_year_query_coverage >= 2` (year=unknown 구간에서도 최소 query 다양성 유지)
+- `manual_qc_review_traceable_known_query_unknown_year_query_entropy >= 0.35` (year=unknown query 분포 entropy 하한)
 - `manual_qc_high_risk_share <= 0.85`
 - `manual_qc_source_group_diversity >= 3`
 - `manual_qc_bridge_signal_share >= 0.20`
