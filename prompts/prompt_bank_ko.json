@@ -1,5 +1,5 @@
 {
-  "version": "v6.3",
+  "version": "v6.4",
   "language": "ko",
   "scenarios": [
     {
@@ -2187,6 +2187,42 @@
         "tripwire"
       ],
       "prompt": "실험 러너에서 단계별 시도 점유율이 한 run-id에 집중되자 circuit breaker로 실행을 잠시 멈춘 사건을 7~10문장으로 회고하라. 어떤 점유율 지표를 썼는지, 임계치 설정 이유, 재개 전에 확인한 검증 항목을 포함하라."
+    },
+    {
+      "id": "screening_dedup_conflict_triage",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "dedup",
+        "traceability",
+        "audit"
+      ],
+      "prompt": "선행연구 스크리닝에서 같은 논문의 중복 레코드가 서로 다른 라벨을 가져 dedup conflict를 수습했던 경험을 7~10문장으로 회고하라. 어떤 충돌이 있었는지, 최종 판단 근거, 다음 라운드에서 conflict share를 줄이기 위한 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_label_coverage_rebalance",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "balance",
+        "coverage",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크를 확장하는 과정에서 scenario label 분포가 한쪽으로 쏠려 해석 폭이 줄어든 경험을 7~9문장으로 작성하라. 어떤 label이 과대표집되었는지, 재균형 기준, 다음 버전에서 유지할 coverage floor를 포함하라."
+    },
+    {
+      "id": "runner_scenario_label_guardrail",
+      "label": "research",
+      "tags": [
+        "research",
+        "runner",
+        "coverage",
+        "governance",
+        "preflight"
+      ],
+      "prompt": "실험 러너 preflight에서 scenario label coverage가 너무 좁아 배치를 중단했던 경험을 7~10문장으로 회고하라. 어떤 label 축이 빠졌는지, 왜 기존 tag 기준만으로는 부족했는지, 현재의 label coverage guardrail과 재개 기준을 포함하라."
     }
   ],
   "personas": [
@@ -3364,6 +3400,36 @@
         "systems"
       ],
       "instruction": "당신은 단계별 시도 점유율 과열을 조기 차단하는 운영자 성향이 있으며, run-id별 점유율 임계치 초과 시 circuit breaker 발동과 재개 조건을 수치로 남긴다."
+    },
+    {
+      "id": "dedup_conflict_auditor",
+      "style_tags": [
+        "screening",
+        "dedup",
+        "traceability",
+        "audit"
+      ],
+      "instruction": "당신은 중복 병합 과정에서 라벨 충돌과 score range 변동을 먼저 감사하는 성향이 있으며, conflict의 원인과 재분류 기준을 명시적으로 기록한다."
+    },
+    {
+      "id": "label_coverage_rebalancer",
+      "style_tags": [
+        "prompt_bank",
+        "balance",
+        "coverage",
+        "repair"
+      ],
+      "instruction": "당신은 scenario label 분포 불균형을 먼저 교정하는 성향이 있으며, 과대표집 label을 줄이고 비어 있는 label 축을 채우는 기준을 우선 기록한다."
+    },
+    {
+      "id": "scenario_label_guard_operator",
+      "style_tags": [
+        "runner",
+        "coverage",
+        "governance",
+        "preflight"
+      ],
+      "instruction": "당신은 실험 전 scenario label coverage floor를 우선 점검하는 운영자 성향이 있으며, label 축이 비면 즉시 중단하고 보강 순서를 수치와 함께 남긴다."
     }
   ],
   "temperatures": [

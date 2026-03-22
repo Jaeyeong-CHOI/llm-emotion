@@ -16,7 +16,7 @@ This repository applies a weighted, auditable screening layer during OpenAlex in
 - `screening_features`
 
 ## Scoring policy (v1.0)
-1. Canonical lexical hits use alias expansion, so variants like `LLMs`, `anthropomorphic`, and `counterfactual reasoning` map back to the same audited concept.
+1. Canonical lexical hits use alias expansion, so variants like `LLMs`, `anthropomorphic`, `counterfactual reasoning`, `emotion appraisal`, and `anticipated regret` map back to the same audited concept.
 2. Weighted score adds:
    - include hits
    - high-priority hits
@@ -73,6 +73,7 @@ python3 scripts/search_openalex.py \
 - quality-alert slices for adjudication: include-gate failures near include threshold, review-gate failures above review threshold, and LLM-signal rows lacking method/review support
 - alias-gap candidates near thresholds where LLM evidence exists but one required concept group is still missing
 - balanced QC risk-reason summary (`manual_qc_queue_risk_reason_summary`) for reviewer calibration
+- expanded review/method cues such as `qualitative analysis`, `error analysis`, `systematic review`, and `rubric` for methods-heavy benchmark screening
 
 `results/lit_screening_audit.json` adds manual-QC aids:
 - borderline `include` and `review` candidates near thresholds
@@ -100,6 +101,7 @@ python3 scripts/check_screening_quality.py \
 
 This checkpoint freezes:
 - threshold pass/fail status for deduped volume, manual-QC coverage, low-confidence share, zero-hit alias count, and near-threshold gate failures
+- dedup instability signals in the manual-QC queue (`dedup_label_conflict`, `dedup_score_range`) so merge-induced label drift is visible before thresholds are tuned
 - review traceability 결합 신호(`bridge × counterexample`) 커버리지와 추적 가능 결합 비율
 - top QC risk reasons and balanced manual-QC distribution by label/confidence
 - query-drift term suggestions that should be considered before changing retrieval rules

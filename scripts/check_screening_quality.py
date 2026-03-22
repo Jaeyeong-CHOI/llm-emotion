@@ -26,6 +26,10 @@ def pct(numerator: int, denominator: int) -> float:
     return round(numerator / denominator, 4)
 
 
+def is_truthy(value) -> bool:
+    return str(value or "").strip().lower() in {"1", "true", "yes", "y"}
+
+
 def top_items(mapping: dict, limit: int = 8) -> list[dict]:
     ranked = sorted(mapping.items(), key=lambda x: (-int(x[1]), x[0]))
     return [{"name": key, "count": value} for key, value in ranked[:limit]]
@@ -142,6 +146,10 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_year_diversity: `{payload['summary']['manual_qc_year_diversity']}`",
             f"- manual_qc_single_year_share: `{payload['summary']['manual_qc_single_year_share']}`",
             f"- manual_qc_year_entropy: `{payload['summary']['manual_qc_year_entropy']}`",
+            f"- manual_qc_dedup_label_conflict_rows: `{payload['summary']['manual_qc_dedup_label_conflict_rows']}`",
+            f"- manual_qc_dedup_label_conflict_share: `{payload['summary']['manual_qc_dedup_label_conflict_share']}`",
+            f"- manual_qc_dedup_score_range_alert_rows: `{payload['summary']['manual_qc_dedup_score_range_alert_rows']}`",
+            f"- manual_qc_dedup_score_range_alert_share: `{payload['summary']['manual_qc_dedup_score_range_alert_share']}`",
             f"- empty_screening_reason_share: `{payload['summary']['empty_screening_reason_share']}`",
             f"- manual_qc_label_dominance: `{payload['summary']['manual_qc_label_dominance']}`",
             f"- manual_qc_high_risk_rows: `{payload['summary']['manual_qc_high_risk_rows']}`",
@@ -222,6 +230,9 @@ def main():
     ap.add_argument("--min-manual-qc-year-diversity", type=int, default=3)
     ap.add_argument("--max-manual-qc-single-year-share", type=float, default=0.5)
     ap.add_argument("--min-manual-qc-year-entropy", type=float, default=0.45)
+    ap.add_argument("--max-manual-qc-dedup-label-conflict-share", type=float, default=0.2)
+    ap.add_argument("--min-dedup-score-range-alert", type=float, default=1.0)
+    ap.add_argument("--max-manual-qc-dedup-score-range-alert-share", type=float, default=0.2)
     args = ap.parse_args()
 
     report_path = ROOT / args.report
@@ -284,6 +295,8 @@ def main():
     manual_qc_year_counts: dict[str, int] = {}
     manual_qc_review_source_group_counts: dict[str, int] = {}
     empty_screening_reason_rows = 0
+    dedup_label_conflict_rows = 0
+    dedup_score_range_alert_rows = 0
     bridge_signal_rows = 0
     include_bridge_signal_rows = 0
     review_bridge_signal_rows = 0
@@ -302,6 +315,11 @@ def main():
     for row in manual_qc_rows:
         label = str(row.get("label") or "").strip().lower() or "unknown"
         manual_qc_label_counts[label] = manual_qc_label_counts.get(label, 0) + 1
+        if is_truthy(row.get("dedup_label_conflict")):
+            dedup_label_conflict_rows += 1
+        dedup_score_range = float(row.get("dedup_score_range") or 0.0)
+        if dedup_score_range >= args.min_dedup_score_range_alert:
+            dedup_score_range_alert_rows += 1
         reason_field = str(row.get("screening_reasons") or "")
         row_is_traceable = any(token in reason_field for token in traceability_tokens)
         if not reason_field.strip():
@@ -378,6 +396,8 @@ def main():
         else 0.0
     )
     manual_qc_year_entropy = normalized_entropy(manual_qc_year_counts)
+    manual_qc_dedup_label_conflict_share = pct(dedup_label_conflict_rows, len(manual_qc_rows))
+    manual_qc_dedup_score_range_alert_share = pct(dedup_score_range_alert_rows, len(manual_qc_rows))
     manual_qc_single_query_share = (
         round(max(manual_qc_source_query_counts.values(), default=0) / max(1, len(manual_qc_rows)), 4)
         if manual_qc_rows
@@ -778,6 +798,25 @@ def main():
             "threshold": f"<={args.max_manual_qc_unknown_query_share}",
         },
         {
+            "name": "manual_qc_dedup_label_conflict_share_ceiling",
+            "status": "pass"
+            if manual_qc_dedup_label_conflict_share <= args.max_manual_qc_dedup_label_conflict_share
+            else "fail",
+            "observed": manual_qc_dedup_label_conflict_share,
+            "threshold": f"<={args.max_manual_qc_dedup_label_conflict_share}",
+        },
+        {
+            "name": "manual_qc_dedup_score_range_alert_share_ceiling",
+            "status": "pass"
+            if manual_qc_dedup_score_range_alert_share <= args.max_manual_qc_dedup_score_range_alert_share
+            else "fail",
+            "observed": manual_qc_dedup_score_range_alert_share,
+            "threshold": (
+                f"<={args.max_manual_qc_dedup_score_range_alert_share} "
+                f"(alert if dedup_score_range>={args.min_dedup_score_range_alert})"
+            ),
+        },
+        {
             "name": "manual_qc_source_group_diversity_floor",
             "status": "pass" if manual_qc_source_group_diversity >= args.min_manual_qc_source_groups else "fail",
             "observed": manual_qc_source_group_diversity,
@@ -856,6 +895,13 @@ def main():
         {"label": "manual_qc_label_counts", "value": manual_qc_label_counts},
         {"label": "manual_qc_source_groups", "value": top_items(manual_qc_source_group_counts, limit=6)},
         {"label": "manual_qc_source_queries", "value": top_items(manual_qc_source_query_counts, limit=6)},
+        {"label": "manual_qc_dedup_stability", "value": {
+            "label_conflict_rows": dedup_label_conflict_rows,
+            "label_conflict_share": manual_qc_dedup_label_conflict_share,
+            "score_range_alert_rows": dedup_score_range_alert_rows,
+            "score_range_alert_share": manual_qc_dedup_score_range_alert_share,
+            "score_range_alert_threshold": args.min_dedup_score_range_alert,
+        }},
         {"label": "manual_qc_review_confidence_distribution", "value": top_items(review_confidence_counts, limit=5)},
         {"label": "manual_qc_review_traceable_known_query", "value": {
             "rows": review_traceable_known_query_rows,
@@ -979,6 +1025,10 @@ def main():
             "manual_qc_single_year_share": manual_qc_single_year_share,
             "manual_qc_year_entropy": manual_qc_year_entropy,
             "manual_qc_year_counts": manual_qc_year_counts,
+            "manual_qc_dedup_label_conflict_rows": dedup_label_conflict_rows,
+            "manual_qc_dedup_label_conflict_share": manual_qc_dedup_label_conflict_share,
+            "manual_qc_dedup_score_range_alert_rows": dedup_score_range_alert_rows,
+            "manual_qc_dedup_score_range_alert_share": manual_qc_dedup_score_range_alert_share,
             "empty_screening_reason_rows": empty_screening_reason_rows,
             "empty_screening_reason_share": empty_screening_reason_share,
             "manual_qc_label_dominance": manual_qc_label_dominance,

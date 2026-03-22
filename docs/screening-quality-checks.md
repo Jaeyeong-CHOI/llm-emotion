@@ -24,6 +24,7 @@ python3 scripts/check_screening_quality.py \
   --min-screening-reason-entropy 0.55 --min-manual-qc-query-entropy 0.50 --min-manual-qc-risk-reason-entropy 0.45 \
   --min-manual-qc-source-groups 3 --min-include-bridge-signal-share 0.20 --min-review-bridge-signal-share 0.0 --min-review-bridge-traceability-share 0.0 --min-review-bridge-traceability-given-bridge-share 0.70 --min-review-counterexample-share 0.25 --min-manual-qc-bridge-signal-share 0.20 --min-manual-qc-review-source-groups 2 \
   --max-manual-qc-review-group-dominance 0.70 --max-manual-qc-single-query-share 0.45 \
+  --max-manual-qc-dedup-label-conflict-share 0.20 --min-dedup-score-range-alert 1.0 --max-manual-qc-dedup-score-range-alert-share 0.20 \
   --max-review-bridge-counterexample-traceability-gap-share 0.45 \
   --max-manual-qc-review-evidence-link-decay-share 0.45 \
   --max-manual-qc-unknown-query-share 0.20 --max-empty-screening-reason-share 0.10
@@ -63,6 +64,8 @@ python3 scripts/check_screening_quality.py \
 - `manual_qc_review_group_dominance <= 0.70`
 - `manual_qc_single_query_share <= 0.45`
 - `manual_qc_unknown_query_share <= 0.20`
+- `manual_qc_dedup_label_conflict_share <= 0.20`
+- `manual_qc_dedup_score_range_alert_share <= 0.20` (`dedup_score_range >= 1.0` rows 기준)
 - `empty_screening_reason_share <= 0.10`
 
 ## Interpretation
@@ -75,5 +78,6 @@ python3 scripts/check_screening_quality.py \
 - Confirm that the balanced QC queue still contains `include` rows before trusting reviewer disagreement estimates.
 - Use `query_drift_term_suggestions` to decide if new aliases belong in `queries/screening_rules.json`.
 - `manual_qc_bridge_signal_share`가 낮으면 alias hit만 있고 의미 연결 근거가 약한 review/include 후보가 많다는 뜻이므로 `bridge_sentence_hits`가 남는 규칙과 alias 세트를 함께 재검토합니다.
+- `manual_qc_dedup_label_conflict_share` 또는 `manual_qc_dedup_score_range_alert_share`가 높으면 dedup 병합 이후 라벨 안정성이 무너진 상태이므로, threshold 자체를 바꾸기 전에 dedup 키·source merge·동일 논문 정규화 규칙을 먼저 재검토합니다.
 
 - `search_openalex.py`가 생성하는 `manual_qc_queue_balanced_min_per_label` 필드를 읽어 라벨별 최소 샘플 목표 충족 여부를 gate로 검사합니다.

@@ -8,23 +8,28 @@
     "regret",
     "emotion",
     "emotion recognition",
+    "emotion appraisal",
     "affect",
+    "moral emotion",
     "anthropomorphism",
     "theory of mind",
     "mental state",
     "perspective taking",
     "self narrative",
     "self-reflection",
-    "social cognition"
+    "social cognition",
+    "counterfactual emotion"
   ],
   "high_priority": [
     "regret",
     "counterfactual",
     "counterfactual thinking",
+    "counterfactual emotion",
     "theory of mind",
     "perspective taking",
     "anthropomorphism",
     "emotional attribution",
+    "emotion appraisal",
     "self-reflection"
   ],
   "review_priority_any": [
@@ -34,6 +39,10 @@
     "emotion benchmark",
     "social reasoning benchmark",
     "manual coding",
+    "qualitative analysis",
+    "error analysis",
+    "systematic review",
+    "rubric",
     "psychology",
     "crowdworker",
     "expert rating"
@@ -97,11 +106,24 @@
       "emotion detection",
       "affective recognition"
     ],
+    "emotion appraisal": [
+      "emotion appraisal",
+      "affective appraisal",
+      "appraisal theory",
+      "emotional appraisal"
+    ],
     "affect": [
       "affect",
       "affective",
       "emotion",
       "emotional"
+    ],
+    "moral emotion": [
+      "moral emotion",
+      "moral emotions",
+      "moral affect",
+      "guilt",
+      "shame"
     ],
     "anthropomorphism": [
       "anthropomorphism",
@@ -121,12 +143,25 @@
       "social inference",
       "intent inference"
     ],
+    "social cognition": [
+      "social cognition",
+      "social reasoning",
+      "social understanding",
+      "interpersonal reasoning"
+    ],
     "self-reflection": [
       "self-reflection",
       "self reflection",
       "reflective reasoning",
       "self-disclosure",
       "self narration"
+    ],
+    "counterfactual emotion": [
+      "counterfactual emotion",
+      "counterfactual emotions",
+      "counterfactual affect",
+      "regret emotion",
+      "anticipated regret"
     ]
   },
   "weights": {
@@ -136,11 +171,11 @@
     "query_overlap": 0.2,
     "concept_diversity": 0.15,
     "title_hit": 0.35,
-    "review_priority": 0.5,
     "abstract_density": 0.25,
     "method_cue": 0.6,
     "recency_year": 0.08,
-    "bridge_sentence": 0.45
+    "bridge_sentence": 0.45,
+    "review_priority": 0.55
   },
   "penalties": {
     "exclude_hit": 2.0,
@@ -174,7 +209,10 @@
     "crowdworker",
     "inter-rater",
     "manual coding",
-    "benchmark"
+    "benchmark",
+    "qualitative analysis",
+    "error analysis",
+    "rubric"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {

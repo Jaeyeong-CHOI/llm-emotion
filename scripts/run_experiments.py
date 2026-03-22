@@ -57,6 +57,7 @@ def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set
 
     selected_scenarios = []
     selected_tags = set()
+    selected_labels = set()
     for scenario in scenarios:
         row_tags = {str(tag).strip() for tag in scenario.get("tags", []) if str(tag).strip()}
         if scenario_ids and scenario.get("id") not in scenario_ids:
@@ -65,6 +66,9 @@ def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set
             continue
         selected_scenarios.append(scenario)
         selected_tags.update(row_tags)
+        label = str(scenario.get("label") or "").strip()
+        if label:
+            selected_labels.add(label)
 
     selected_personas = [persona for persona in personas if not persona_ids or persona.get("id") in persona_ids]
     selected_persona_style_tags = {
@@ -81,6 +85,8 @@ def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set
         "persona_ids": [row.get("id") for row in selected_personas],
         "scenario_tag_count": len(selected_tags),
         "scenario_tags": sorted(selected_tags),
+        "scenario_label_count": len(selected_labels),
+        "scenario_labels": sorted(selected_labels),
         "persona_style_tag_count": len(selected_persona_style_tags),
         "persona_style_tags": sorted(selected_persona_style_tags),
     }
@@ -152,8 +158,10 @@ def write_runs_csv(path: Path, runs: list[dict]):
         "temperatures",
         "prompt_bank",
         "scenario_ids",
+        "scenario_labels",
         "scenario_tags",
         "persona_ids",
+        "scenario_label_count",
         "persona_style_tag_count",
         "persona_style_tags",
         "scenario_count",
@@ -176,7 +184,7 @@ def write_runs_csv(path: Path, runs: list[dict]):
             temps = out.get("temperatures")
             if isinstance(temps, list):
                 out["temperatures"] = ",".join(str(t) for t in temps)
-            for field in ("scenario_ids", "scenario_tags", "persona_ids", "persona_style_tags"):
+            for field in ("scenario_ids", "scenario_labels", "scenario_tags", "persona_ids", "persona_style_tags"):
                 value = out.get(field)
                 if isinstance(value, list):
                     out[field] = ",".join(str(v) for v in value)
@@ -227,6 +235,8 @@ def write_selection_csv(path: Path, rows: list[dict]):
         "prompt_bank_fingerprint",
         "scenario_count",
         "persona_count",
+        "scenario_label_count",
+        "scenario_labels",
         "scenario_tag_count",
         "scenario_tags",
         "scenario_ids",
@@ -242,7 +252,7 @@ def write_selection_csv(path: Path, rows: list[dict]):
         w.writeheader()
         for row in rows:
             out = {k: row.get(k) for k in keys}
-            for field in ("scenario_tags", "scenario_ids", "persona_ids", "persona_style_tags"):
+            for field in ("scenario_labels", "scenario_tags", "scenario_ids", "persona_ids", "persona_style_tags"):
                 value = out.get(field)
                 if isinstance(value, list):
                     out[field] = ",".join(str(v) for v in value)
@@ -262,6 +272,8 @@ def write_preflight_csv(path: Path, rows: list[dict]):
         "repeats",
         "condition_cells",
         "planned_samples",
+        "scenario_label_count",
+        "scenario_labels",
         "scenario_tag_count",
         "scenario_tags",
         "persona_style_tag_count",
@@ -272,7 +284,7 @@ def write_preflight_csv(path: Path, rows: list[dict]):
         w.writeheader()
         for row in rows:
             out = {k: row.get(k) for k in keys}
-            for field in ("scenario_tags", "persona_style_tags"):
+            for field in ("scenario_labels", "scenario_tags", "persona_style_tags"):
                 value = out.get(field)
                 if isinstance(value, list):
                     out[field] = ",".join(str(v) for v in value)
@@ -574,6 +586,7 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- min_planned_samples: `{preflight_summary.get('min_planned_samples', 0)}`",
         f"- unique_selected_scenarios: `{preflight_summary.get('unique_selected_scenarios', 0)}`",
         f"- unique_selected_personas: `{preflight_summary.get('unique_selected_personas', 0)}`",
+        f"- unique_selected_scenario_labels: `{preflight_summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{preflight_summary.get('unique_selected_scenario_tags', 0)}`",
         f"- unique_selected_persona_style_tags: `{preflight_summary.get('unique_selected_persona_style_tags', 0)}`",
         "",
@@ -760,6 +773,12 @@ def main():
         help="fail if a selected run has fewer than this many unique scenario tags",
     )
     ap.add_argument(
+        "--require-min-unique-scenario-labels",
+        type=int,
+        default=0,
+        help="fail if a selected run has fewer than this many unique scenario labels",
+    )
+    ap.add_argument(
         "--require-min-unique-persona-style-tags",
         type=int,
         default=0,
@@ -782,6 +801,12 @@ def main():
         type=int,
         default=0,
         help="fail if the selected batch covers fewer than this many unique scenario tags in total",
+    )
+    ap.add_argument(
+        "--require-min-selected-scenario-labels",
+        type=int,
+        default=0,
+        help="fail if the selected batch covers fewer than this many unique scenario labels in total",
     )
     ap.add_argument(
         "--require-min-selected-persona-style-tags",
@@ -1168,6 +1193,7 @@ def main():
     aggregate_scenario_ids: set[str] = set()
     aggregate_persona_ids: set[str] = set()
     aggregate_scenario_tags: set[str] = set()
+    aggregate_scenario_labels: set[str] = set()
     aggregate_persona_style_tags: set[str] = set()
     include_run_ids = set(args.include_run_id)
     if args.run_id_file:
@@ -1243,6 +1269,7 @@ def main():
         aggregate_scenario_ids.update(prompt_summary["scenario_ids"])
         aggregate_persona_ids.update(prompt_summary["persona_ids"])
         aggregate_scenario_tags.update(prompt_summary["scenario_tags"])
+        aggregate_scenario_labels.update(prompt_summary["scenario_labels"])
         aggregate_persona_style_tags.update(prompt_summary["persona_style_tags"])
         condition_cells = prompt_summary["scenario_count"] * prompt_summary["persona_count"] * max(1, len(temperatures))
         planned_samples = n * condition_cells * max(1, repeats)
@@ -1273,6 +1300,11 @@ def main():
                 f"{run_id}: scenario_tag_count={prompt_summary['scenario_tag_count']} < "
                 f"require_min_unique_scenario_tags={args.require_min_unique_scenario_tags}"
             )
+        if args.require_min_unique_scenario_labels and prompt_summary["scenario_label_count"] < args.require_min_unique_scenario_labels:
+            raise RuntimeError(
+                f"{run_id}: scenario_label_count={prompt_summary['scenario_label_count']} < "
+                f"require_min_unique_scenario_labels={args.require_min_unique_scenario_labels}"
+            )
         if (
             args.require_min_unique_persona_style_tags
             and prompt_summary["persona_style_tag_count"] < args.require_min_unique_persona_style_tags
@@ -1293,10 +1325,12 @@ def main():
                 "scenario_count": prompt_summary["scenario_count"],
                 "persona_count": prompt_summary["persona_count"],
                 "scenario_ids": prompt_summary["scenario_ids"],
+                "scenario_labels": prompt_summary["scenario_labels"],
                 "persona_ids": prompt_summary["persona_ids"],
                 "temperature_count": len(temperatures),
                 "condition_cells": condition_cells,
                 "planned_samples": planned_samples,
+                "scenario_label_count": prompt_summary["scenario_label_count"],
                 "scenario_tag_count": prompt_summary["scenario_tag_count"],
                 "scenario_tags": prompt_summary["scenario_tags"],
                 "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
@@ -1314,6 +1348,8 @@ def main():
                 "repeats": repeats,
                 "condition_cells": condition_cells,
                 "planned_samples": planned_samples,
+                "scenario_label_count": prompt_summary["scenario_label_count"],
+                "scenario_labels": prompt_summary["scenario_labels"],
                 "scenario_tag_count": prompt_summary["scenario_tag_count"],
                 "scenario_tags": prompt_summary["scenario_tags"],
                 "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
@@ -1341,12 +1377,14 @@ def main():
                 "prompt_bank_version": prompt_bank_version,
                 "scenario_ids": scenario_ids,
                 "scenario_tags": scenario_tags,
+                "scenario_labels": prompt_summary["scenario_labels"],
                 "persona_ids": persona_ids,
                 "scenario_count": prompt_summary["scenario_count"],
                 "persona_count": prompt_summary["persona_count"],
                 "temperature_count": len(temperatures),
                 "condition_cells": condition_cells,
                 "planned_samples": n * condition_cells,
+                "scenario_label_count": prompt_summary["scenario_label_count"],
                 "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
                 "persona_style_tags": prompt_summary["persona_style_tags"],
                 "prompt_bank_fingerprint": file_sha256(prompt_snapshot),
@@ -2102,6 +2140,11 @@ def main():
             "selected_unique_scenario_tags="
             f"{len(aggregate_scenario_tags)} < require_min_selected_scenario_tags={args.require_min_selected_scenario_tags}"
         )
+    if args.require_min_selected_scenario_labels and len(aggregate_scenario_labels) < args.require_min_selected_scenario_labels:
+        raise RuntimeError(
+            "selected_unique_scenario_labels="
+            f"{len(aggregate_scenario_labels)} < require_min_selected_scenario_labels={args.require_min_selected_scenario_labels}"
+        )
     if args.require_min_selected_persona_style_tags and len(aggregate_persona_style_tags) < args.require_min_selected_persona_style_tags:
         raise RuntimeError(
             "selected_unique_persona_style_tags="
@@ -2185,6 +2228,7 @@ def main():
         "min_planned_samples": min((row.get("planned_samples", 0) for row in run_preflight_rows), default=0),
         "unique_selected_scenarios": len(aggregate_scenario_ids),
         "unique_selected_personas": len(aggregate_persona_ids),
+        "unique_selected_scenario_labels": len(aggregate_scenario_labels),
         "unique_selected_scenario_tags": len(aggregate_scenario_tags),
         "unique_selected_persona_style_tags": len(aggregate_persona_style_tags),
     }
@@ -2428,8 +2472,10 @@ def main():
         "require_min_planned_samples_per_run": args.require_min_planned_samples_per_run,
         "require_min_repeats": args.require_min_repeats,
         "require_min_temperature_span": args.require_min_temperature_span,
+        "require_min_unique_scenario_labels": args.require_min_unique_scenario_labels,
         "require_min_unique_scenario_tags": args.require_min_unique_scenario_tags,
         "require_min_unique_persona_style_tags": args.require_min_unique_persona_style_tags,
+        "require_min_selected_scenario_labels": args.require_min_selected_scenario_labels,
         "require_min_selected_scenario_tags": args.require_min_selected_scenario_tags,
         "require_min_selected_persona_style_tags": args.require_min_selected_persona_style_tags,
         "require_prompt_bank_version": args.require_prompt_bank_version,
@@ -2513,10 +2559,11 @@ def main():
             fp = row.get("prompt_bank_fingerprint", "")
             cc = row.get("condition_cells")
             tc = row.get("temperature_count")
+            sl = row.get("scenario_label_count")
             st = row.get("scenario_tag_count")
             pst = row.get("persona_style_tag_count")
             print(
-                f"selection {rid}: scenarios={sc}, personas={pc}, scenario_tags={st}, persona_style_tags={pst}, temps={tc}, "
+                f"selection {rid}: scenarios={sc}, personas={pc}, scenario_labels={sl}, scenario_tags={st}, persona_style_tags={pst}, temps={tc}, "
                 f"condition_cells={cc}, prompt_bank_sha256={fp}"
             )
 

@@ -1162,6 +1162,30 @@
         "prompt_bank_countervoice_pressure_test",
         "runner_stage_attempt_share_circuit_breaker"
       ]
+    },
+    {
+      "id": "screening_dedup_label_guard_v64",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "dedup_conflict_auditor",
+        "label_coverage_rebalancer",
+        "scenario_label_guard_operator",
+        "reason_pair_traceability_keeper"
+      ],
+      "n": 24,
+      "seed": 464,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_ids": [
+        "screening_dedup_conflict_triage",
+        "prompt_bank_label_coverage_rebalance",
+        "runner_scenario_label_guardrail",
+        "screening_conflict_reason_pairing_repair"
+      ]
     }
   ]
 }
