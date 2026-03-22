@@ -1782,10 +1782,22 @@ def main():
         help="fail if generation_timeout_failure_share/selected_cell_share for any run id exceeds this value; 0 disables",
     )
     ap.add_argument(
+        "--max-generation-timeout-failure-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if a run id owns more than this share of generation timeout failures; 0 disables",
+    )
+    ap.add_argument(
         "--max-analysis-timeout-failure-over-selection-ratio-per-run-id",
         type=float,
         default=0.0,
         help="fail if analysis_timeout_failure_share/selected_cell_share for any run id exceeds this value; 0 disables",
+    )
+    ap.add_argument(
+        "--max-analysis-timeout-failure-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if a run id owns more than this share of analysis timeout failures; 0 disables",
     )
     ap.add_argument(
         "--quarantine-json",
@@ -3941,6 +3953,30 @@ def main():
                 "threshold": args.max_timeout_failure_share_per_run_id,
                 "violations": over_timeout_share,
             })
+    if args.max_generation_timeout_failure_share_per_run_id and generation_timeout_failures_total > 0:
+        over_generation_timeout_share = [
+            f"{run_id}:{round(count / generation_timeout_failures_total, 4)}"
+            for run_id, count in sorted(generation_timeout_failures_by_run_id.items())
+            if (count / generation_timeout_failures_total) > args.max_generation_timeout_failure_share_per_run_id
+        ]
+        if over_generation_timeout_share:
+            budget_violations.append({
+                "rule": "max_generation_timeout_failure_share_per_run_id",
+                "threshold": args.max_generation_timeout_failure_share_per_run_id,
+                "violations": over_generation_timeout_share,
+            })
+    if args.max_analysis_timeout_failure_share_per_run_id and analysis_timeout_failures_total > 0:
+        over_analysis_timeout_share = [
+            f"{run_id}:{round(count / analysis_timeout_failures_total, 4)}"
+            for run_id, count in sorted(analysis_timeout_failures_by_run_id.items())
+            if (count / analysis_timeout_failures_total) > args.max_analysis_timeout_failure_share_per_run_id
+        ]
+        if over_analysis_timeout_share:
+            budget_violations.append({
+                "rule": "max_analysis_timeout_failure_share_per_run_id",
+                "threshold": args.max_analysis_timeout_failure_share_per_run_id,
+                "violations": over_analysis_timeout_share,
+            })
     if args.max_timeout_failure_over_selection_ratio_per_run_id and timeout_failures_total > 0 and selected_run_cells > 0:
         over_timeout_pressure = []
         for run_id, count in sorted(timeout_failures_by_run_id.items()):
@@ -4241,7 +4277,9 @@ def main():
         "max_timeout_failure_share_per_run_id": args.max_timeout_failure_share_per_run_id,
         "max_timeout_failure_over_selection_ratio_per_run_id": args.max_timeout_failure_over_selection_ratio_per_run_id,
         "max_generation_timeout_failure_over_selection_ratio_per_run_id": args.max_generation_timeout_failure_over_selection_ratio_per_run_id,
+        "max_generation_timeout_failure_share_per_run_id": args.max_generation_timeout_failure_share_per_run_id,
         "max_analysis_timeout_failure_over_selection_ratio_per_run_id": args.max_analysis_timeout_failure_over_selection_ratio_per_run_id,
+        "max_analysis_timeout_failure_share_per_run_id": args.max_analysis_timeout_failure_share_per_run_id,
         "require_freeze_artifacts": args.require_freeze_artifact,
         "freeze_artifacts": freeze_artifacts,
         "run_preflight": run_preflight_rows,

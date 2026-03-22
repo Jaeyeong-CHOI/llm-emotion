@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year query-group top3 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top3-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top3-over-global-group-top3-ratio`)를 추가해, top2 지표 통과 이후 남는 query-group top3 과점을 fail-fast로 차단합니다.
+- Prompt bank expanded to `v11.2` with **unknown-year group top3 ratio guard / top3 counterbalance patch / stage timeout share tripwire** 시나리오와 신규 페르소나(`stage_timeout_share_guardian_v112`)를 추가했습니다.
+- Experiment runner budget gate에 **stage별 timeout share ceiling** (`--max-generation-timeout-failure-share-per-run-id`, `--max-analysis-timeout-failure-share-per-run-id`)을 추가해, over-selection ratio가 통과해도 단일 run-id stage timeout 점유율 급등을 조기 차단합니다.
 - Literature screening quality gate에 **unknown-year query-group coverage/entropy floor 가드**(`--min-manual-qc-review-traceable-known-query-unknown-year-group-coverage`, `--min-manual-qc-review-traceable-known-query-unknown-year-group-entropy`)를 추가해, top1/top2 비율이 통과해도 query-group 근거 다양성이 붕괴된 review 큐를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v11.1` with **unknown-year group entropy floor patch / countervoice entropy backfill / runner stage-timeout ratio tripwire** 시나리오와 신규 페르소나(`timeout_stage_ratio_guardian_v111`)를 추가했습니다.
 - Experiment runner preflight budget gate에 **stage별 timeout-over-selection ratio 가드** (`--max-generation-timeout-failure-over-selection-ratio-per-run-id`, `--max-analysis-timeout-failure-over-selection-ratio-per-run-id`)를 추가해, 전체 timeout 비율이 낮아도 단계별 편중으로 누적되는 run-id 리스크를 조기 차단합니다.
@@ -236,6 +239,14 @@ python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-lab
 - `--max-planned-sample-share-per-run-id`, `--max-planned-sample-share-gap-per-run-id`로 run-id별 `n × condition_cells × repeats` 예산 편중을 preflight에서 차단해, selected cell 수는 비슷하지만 실제 샘플 예산이 한 run id에 몰리는 배치를 막을 수 있습니다.
 - `--run-id-file`로 배치 실행 대상을 파일 기반으로 고정하고, `--max-retries`/`--retry-backoff-seconds`로 부분 실패 복구 정책을 명시적으로 재현할 수 있습니다.
 - `--max-selected-cell-share-per-run-id`, `--max-attempt-share-per-run-id`, `--max-attempt-over-selection-ratio`로 특정 run id가 selection 대비 과도한 retry budget을 소비할 때 즉시 중단할 수 있습니다.
+
+### v11.2 스모크 프리플라이트 (2026-03-23)
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v112 --max-manual-qc-review-traceable-known-query-unknown-year-group-top1-share 0.75 --max-manual-qc-review-traceable-known-query-unknown-year-group-top2-over-global-group-top2-ratio 1.15 --max-manual-qc-review-traceable-known-query-unknown-year-group-top3-share 0.98 --max-manual-qc-review-traceable-known-query-unknown-year-group-top3-over-global-group-top3-ratio 1.08 --min-manual-qc-review-traceable-known-query-unknown-year-group-tail-share 0.08
+
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v112_plan --plan-only --include-run-id screening_prompt_runner_unknown_year_group_top3_timeout_share_v112 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v112.json --selection-csv results/selection_report_smoke_v112.csv --preflight-markdown --require-prompt-bank-version v11.2 --max-generation-timeout-failure-over-selection-ratio-per-run-id 1.8 --max-analysis-timeout-failure-over-selection-ratio-per-run-id 1.8 --max-generation-timeout-failure-share-per-run-id 0.65 --max-analysis-timeout-failure-share-per-run-id 0.65 --manifest-note "preflight v112 unknown-year group top3 + stage timeout share ceiling guard"
+```
 
 ### v11.1 스모크 프리플라이트 (2026-03-23)
 

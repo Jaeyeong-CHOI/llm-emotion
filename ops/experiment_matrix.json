@@ -2362,6 +2362,33 @@
         "temperature_top12_uniformity_guard_v110"
       ],
       "description": "v11.0 unknown-year top10/global top10 ratio guard + top10 tail counterbalance patch + temperature top11/top12 uniformity guard smoke"
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_top3_timeout_share_v112",
+      "n": 12,
+      "seed": 1112,
+      "repeats": 2,
+      "temperatures": [
+        0.1,
+        0.3,
+        0.5,
+        0.7,
+        0.9,
+        1.0
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top3_ratio_guard_v112",
+        "prompt_bank_unknown_year_group_top3_counterbalance_v112",
+        "runner_stage_timeout_share_tripwire_v112"
+      ],
+      "persona_ids": [
+        "screening_quality_guard",
+        "prompt_bank_curator",
+        "runner_reliability_architect",
+        "stage_timeout_share_guardian_v112"
+      ],
+      "description": "v11.2 unknown-year group top3/global top3 ratio guard + top3 counterbalance patch + stage timeout share ceiling tripwire smoke"
     }
   ]
 }
