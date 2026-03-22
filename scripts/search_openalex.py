@@ -163,6 +163,14 @@ def _hit_terms(text: str, terms: Sequence[str], rules: Dict) -> List[str]:
     return hits
 
 
+def _canonical_terms(rules: Dict) -> List[str]:
+    aliases = rules.get("term_aliases", {})
+    if aliases:
+        return [str(term).strip() for term in aliases.keys() if str(term).strip()]
+    include_terms = rules.get("include_any", [])
+    return [str(term).strip() for term in include_terms if str(term).strip()]
+
+
 def _query_terms(query: str) -> List[str]:
     # lightweight lexical tokens from OpenAlex query string
     candidates = re.findall(r"[a-zA-Z][a-zA-Z\-]{2,}", query.lower())
@@ -215,12 +223,24 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     method_hits: List[str] = _hit_terms(text, rules.get("method_cues_any", []), rules)
     title_hits: List[str] = _hit_terms(title_l, rules["include_any"], rules)
 
+    canonical_hits = _hit_terms(text, _canonical_terms(rules), rules)
+
     concept_groups = rules.get("required_concepts_any", [])
+    concept_group_summary = []
     concept_hits = []
     missing_groups = 0
-    for group in concept_groups:
+    for idx, group in enumerate(concept_groups):
         g_hits = _hit_terms(text, group, rules)
         concept_hits.append(g_hits)
+        concept_group_summary.append(
+            {
+                "group_index": idx,
+                "terms": [str(term) for term in group],
+                "hits": g_hits,
+                "hit_count": len(g_hits),
+                "missing": not bool(g_hits),
+            }
+        )
         if not g_hits:
             missing_groups += 1
 
@@ -444,6 +464,9 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
             "include_gate_ok": include_gate_ok,
             "include_guard_ok": include_guard_ok,
             "review_gate_ok": review_gate_ok,
+            "canonical_hit_count": len(canonical_hits),
+            "canonical_hits": canonical_hits,
+            "concept_group_summary": concept_group_summary,
         },
     }
 
@@ -628,6 +651,85 @@ def summarize_llm_concept(rows: List[Dict]) -> Dict[str, int]:
         else:
             out["without_llm_concept"] += 1
     return out
+
+
+def summarize_alias_coverage(rows: List[Dict], rules: Dict) -> Dict[str, object]:
+    term_counts = {term: 0 for term in _canonical_terms(rules)}
+    for row in rows:
+        features = row.get("screening_features") or {}
+        for term in features.get("canonical_hits", []) or []:
+            if term in term_counts:
+                term_counts[term] += 1
+    ranked_counts = sorted(term_counts.items(), key=lambda x: (-x[1], x[0]))
+    return {
+        "term_hit_counts": dict(ranked_counts),
+        "zero_hit_terms": [term for term, count in ranked_counts if count == 0],
+        "covered_terms": sum(1 for _, count in ranked_counts if count > 0),
+        "total_terms": len(ranked_counts),
+    }
+
+
+def summarize_required_group_coverage(rows: List[Dict], rules: Dict) -> Dict[str, object]:
+    groups = rules.get("required_concepts_any", [])
+    summary = []
+    for idx, group in enumerate(groups):
+        hit_rows = 0
+        missing_rows = 0
+        label_counts = {"include": 0, "review": 0, "exclude": 0}
+        for row in rows:
+            features = row.get("screening_features") or {}
+            group_summary = features.get("concept_group_summary") or []
+            entry = next((g for g in group_summary if int(g.get("group_index", -1)) == idx), None)
+            if entry and entry.get("hits"):
+                hit_rows += 1
+                label = str(row.get("screening_label") or "exclude")
+                label_counts[label] = label_counts.get(label, 0) + 1
+            else:
+                missing_rows += 1
+        summary.append(
+            {
+                "group_index": idx,
+                "terms": [str(term) for term in group],
+                "hit_rows": hit_rows,
+                "missing_rows": missing_rows,
+                "hit_rate": round(hit_rows / len(rows), 4) if rows else 0.0,
+                "labels_with_group_hit": label_counts,
+            }
+        )
+    return {"groups": summary}
+
+
+def collect_alias_gap_candidates(rows: List[Dict], include_th: float, review_th: float) -> List[Dict]:
+    candidates = []
+    for row in rows:
+        label = str(row.get("screening_label") or "exclude")
+        score = float(row.get("screening_score") or 0.0)
+        features = row.get("screening_features") or {}
+        concept_group_summary = features.get("concept_group_summary") or []
+        missing_groups = [g for g in concept_group_summary if g.get("missing")]
+        llm_hits = int(features.get("llm_concept_hits", 0) or 0)
+        if llm_hits <= 0 or not missing_groups:
+            continue
+        near_threshold = score >= (review_th - 0.35)
+        include_near = label == "review" and score >= (include_th - 0.6)
+        if not (near_threshold or include_near):
+            continue
+        candidates.append(
+            {
+                "title": row.get("title"),
+                "year": row.get("year"),
+                "score": score,
+                "label": label,
+                "confidence": row.get("screening_confidence"),
+                "priority": row.get("screening_priority"),
+                "missing_group_indexes": [g.get("group_index") for g in missing_groups],
+                "missing_group_terms": [[str(term) for term in (g.get("terms") or [])[:6]] for g in missing_groups],
+                "canonical_hits": features.get("canonical_hits", [])[:8],
+                "reasons": row.get("screening_reasons", [])[:6],
+            }
+        )
+    candidates.sort(key=lambda x: (-(x.get("score") or 0.0), x.get("title") or ""))
+    return candidates[:30]
 
 
 def collect_borderline(rows: List[Dict], include_th: float, review_th: float, margin: float = 0.4) -> Dict[str, List[Dict]]:
@@ -1013,6 +1115,18 @@ def summarize_manual_qc_queue(queue: List[Dict]) -> Dict[str, Dict[str, int]]:
     return summary
 
 
+def summarize_quality_queue(queue: List[Dict], key: str) -> Dict[str, int]:
+    summary: Dict[str, int] = {}
+    for row in queue:
+        values = row.get(key) or []
+        for value in values:
+            token = str(value).strip()
+            if not token:
+                continue
+            summary[token] = summary.get(token, 0) + 1
+    return dict(sorted(summary.items(), key=lambda x: (-x[1], x[0])))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
@@ -1135,15 +1249,19 @@ def main():
             "confidence": summarize_confidence(ordered),
             "confidence_by_label": summarize_confidence_by_label(ordered),
             "llm_concept": summarize_llm_concept(ordered),
+            "alias_coverage": summarize_alias_coverage(ordered, rules),
+            "required_group_coverage": summarize_required_group_coverage(ordered, rules),
             "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
             "label_gate_conflicts": summarize_label_gate_conflicts(ordered),
             "screening_stability": summarize_screening_stability(ordered),
             "per_query": query_stats,
             "top_priority_titles": [r.get("title") for r in ordered[:10] if r.get("screening_priority") == "high"],
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
+            "alias_gap_candidates": collect_alias_gap_candidates(ordered, include_th, review_th),
             "manual_qc_queue": ranked_manual_qc_queue,
             "manual_qc_queue_balanced": balanced_manual_qc_queue,
             "manual_qc_queue_balanced_summary": summarize_manual_qc_queue(balanced_manual_qc_queue),
+            "manual_qc_queue_risk_reason_summary": summarize_quality_queue(balanced_manual_qc_queue, "risk_reasons"),
             "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
                 ordered, include_th, review_th, per_label_limit=args.manual_qc_per_label
             ),
@@ -1169,15 +1287,19 @@ def main():
                 "confidence": summarize_confidence(ordered),
                 "confidence_by_label": summarize_confidence_by_label(ordered),
                 "llm_concept": summarize_llm_concept(ordered),
+                "alias_coverage": summarize_alias_coverage(ordered, rules),
+                "required_group_coverage": summarize_required_group_coverage(ordered, rules),
                 "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
                 "label_gate_conflicts": summarize_label_gate_conflicts(ordered),
                 "screening_stability": summarize_screening_stability(ordered),
             },
             "borderline": collect_borderline(ordered, include_th, review_th),
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
+            "alias_gap_candidates": collect_alias_gap_candidates(ordered, include_th, review_th),
             "manual_qc_queue": ranked_manual_qc_queue,
             "manual_qc_queue_balanced": balanced_manual_qc_queue,
             "manual_qc_queue_balanced_summary": summarize_manual_qc_queue(balanced_manual_qc_queue),
+            "manual_qc_queue_risk_reason_summary": summarize_quality_queue(balanced_manual_qc_queue, "risk_reasons"),
             "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
                 ordered, include_th, review_th, per_label_limit=args.manual_qc_per_label
             ),

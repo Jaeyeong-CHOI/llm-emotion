@@ -266,6 +266,31 @@
         "screening_conflict_mediator",
         "preflight_gate_keeper"
       ]
+    },
+    {
+      "id": "screening_alias_preflight_v24",
+      "n": 12,
+      "seed": 9595,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_alias_coverage_gap",
+        "screening_bridge_signal_miss",
+        "screening_query_drift_false_negative",
+        "prompt_bank_anchor_overfit",
+        "runner_preflight_evidence_freeze"
+      ],
+      "persona_ids": [
+        "alias_coverage_analyst",
+        "retrieval_gap_mapper",
+        "preflight_evidence_curator",
+        "manifest_integrity_guard"
+      ]
     }
   ]
 }

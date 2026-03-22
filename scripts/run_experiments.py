@@ -200,6 +200,7 @@ def write_selection_csv(path: Path, rows: list[dict]):
     keys = [
         "id",
         "prompt_bank",
+        "prompt_bank_version",
         "prompt_bank_fingerprint",
         "scenario_count",
         "persona_count",
@@ -225,9 +226,40 @@ def write_selection_csv(path: Path, rows: list[dict]):
             w.writerow(out)
 
 
+def write_preflight_csv(path: Path, rows: list[dict]):
+    if not rows:
+        return
+    keys = [
+        "id",
+        "prompt_bank_version",
+        "scenario_count",
+        "persona_count",
+        "temperature_count",
+        "temperature_span",
+        "repeats",
+        "condition_cells",
+        "planned_samples",
+        "scenario_tag_count",
+        "scenario_tags",
+        "persona_style_tag_count",
+        "persona_style_tags",
+    ]
+    with path.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=keys)
+        w.writeheader()
+        for row in rows:
+            out = {k: row.get(k) for k in keys}
+            for field in ("scenario_tags", "persona_style_tags"):
+                value = out.get(field)
+                if isinstance(value, list):
+                    out[field] = ",".join(str(v) for v in value)
+            w.writerow(out)
+
+
 def write_manifest_markdown(path: Path, manifest: dict):
     summary = manifest.get("summary") or {}
     run_id_summary = manifest.get("run_id_summary") or []
+    preflight_summary = manifest.get("preflight_summary") or {}
     lines = [
         f"# Experiment Manifest: {manifest.get('run_label', '')}",
         "",
@@ -238,12 +270,23 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- duration_seconds: `{manifest.get('duration_seconds', 0)}`",
         f"- plan_only: `{manifest.get('plan_only', False)}`",
         f"- executed_run_keys: `{len(manifest.get('executed_run_keys', []))}`",
+        f"- preflight_json: `{manifest.get('preflight_json', '')}`",
+        f"- preflight_csv: `{manifest.get('preflight_csv', '')}`",
         "",
         "## Aggregate metrics",
         "",
         f"- cells: `{summary.get('cells', 0)}`",
         f"- counterfactual_per_sample_mean: `{summary.get('counterfactual_per_sample_mean', 'n/a')}`",
         f"- regret_words_per_sample_mean: `{summary.get('regret_words_per_sample_mean', 'n/a')}`",
+        "",
+        "## Preflight summary",
+        "",
+        f"- selected_run_ids: `{preflight_summary.get('selected_run_id_count', 0)}`",
+        f"- prompt_bank_versions: `{', '.join(preflight_summary.get('prompt_bank_versions', []))}`",
+        f"- min_scenario_count: `{preflight_summary.get('min_scenario_count', 0)}`",
+        f"- min_persona_count: `{preflight_summary.get('min_persona_count', 0)}`",
+        f"- min_temperature_span: `{preflight_summary.get('min_temperature_span', 0.0)}`",
+        f"- min_planned_samples: `{preflight_summary.get('min_planned_samples', 0)}`",
         "",
         "## Run-id summary",
         "",
@@ -396,6 +439,7 @@ def main():
     include_run_ids = set(args.include_run_id)
     selected_run_ids = set()
     executed_ids = []
+    prompt_bank_versions = set()
 
     known_run_ids = {str(exp.get("id")) for exp in cfg.get("runs", []) if exp.get("id")}
     missing_run_ids = sorted(include_run_ids - known_run_ids)
@@ -433,6 +477,8 @@ def main():
         prompt_bank_path = ROOT / prompt_bank
         bank = load_prompt_bank(prompt_bank_path)
         prompt_summary = summarize_prompt_bank(bank, set(scenario_ids), set(scenario_tags), set(persona_ids))
+        prompt_bank_version = str(bank.get("version") or "unknown")
+        prompt_bank_versions.add(prompt_bank_version)
         condition_cells = prompt_summary["scenario_count"] * prompt_summary["persona_count"] * max(1, len(temperatures))
         planned_samples = n * condition_cells * max(1, repeats)
         planned_samples_by_run[run_id] = planned_samples
@@ -477,6 +523,7 @@ def main():
             {
                 "id": run_id,
                 "prompt_bank": prompt_bank,
+                "prompt_bank_version": prompt_bank_version,
                 "prompt_bank_fingerprint": file_sha256(prompt_snapshot),
                 "scenario_count": prompt_summary["scenario_count"],
                 "persona_count": prompt_summary["persona_count"],
@@ -494,6 +541,7 @@ def main():
         run_preflight_rows.append(
             {
                 "id": run_id,
+                "prompt_bank_version": prompt_bank_version,
                 "scenario_count": prompt_summary["scenario_count"],
                 "persona_count": prompt_summary["persona_count"],
                 "temperature_count": len(temperatures),
@@ -522,6 +570,7 @@ def main():
                 "seed": rep_seed,
                 "temperatures": temperatures,
                 "prompt_bank": prompt_bank,
+                "prompt_bank_version": prompt_bank_version,
                 "scenario_ids": scenario_ids,
                 "scenario_tags": scenario_tags,
                 "persona_ids": persona_ids,
@@ -627,6 +676,16 @@ def main():
 
     summary = aggregate_metrics(all_metric_paths)
     run_id_summary = aggregate_by_run_id(run_metric_paths)
+    preflight_summary = {
+        "selected_run_id_count": len(run_preflight_rows),
+        "prompt_bank_versions": sorted(prompt_bank_versions),
+        "min_scenario_count": min((row.get("scenario_count", 0) for row in run_preflight_rows), default=0),
+        "min_persona_count": min((row.get("persona_count", 0) for row in run_preflight_rows), default=0),
+        "min_temperature_count": min((row.get("temperature_count", 0) for row in run_preflight_rows), default=0),
+        "min_temperature_span": round(min((row.get("temperature_span", 0.0) for row in run_preflight_rows), default=0.0), 4),
+        "min_condition_cells": min((row.get("condition_cells", 0) for row in run_preflight_rows), default=0),
+        "min_planned_samples": min((row.get("planned_samples", 0) for row in run_preflight_rows), default=0),
+    }
     snapshot_hashes = {
         "experiment_matrix": file_sha256(matrix_snapshot),
         "prompt_banks": {},
@@ -636,7 +695,21 @@ def main():
 
     total_duration_seconds = round(time.perf_counter() - batch_started, 3)
     reproduce_script = outdir / "reproduce.sh"
+    preflight_json_path = outdir / "preflight.json"
+    preflight_csv_path = outdir / "preflight.csv"
     write_reproduce_script(reproduce_script, label, args.config, runs)
+    write_json(
+        preflight_json_path,
+        {
+            "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+            "config": args.config,
+            "run_label": label,
+            "selected_run_ids": sorted(selected_run_ids),
+            "summary": preflight_summary,
+            "rows": run_preflight_rows,
+        },
+    )
+    write_preflight_csv(preflight_csv_path, run_preflight_rows)
 
     manifest = {
         "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
@@ -654,6 +727,7 @@ def main():
             "git_status": git_status,
         },
         "summary": summary,
+        "preflight_summary": preflight_summary,
         "run_id_summary": run_id_summary,
         "snapshot_hashes": snapshot_hashes,
         "selected_run_ids": sorted(selected_run_ids),
@@ -676,6 +750,8 @@ def main():
         "run_preflight": run_preflight_rows,
         "duration_seconds": total_duration_seconds,
         "reproduce_script": str(reproduce_script.relative_to(ROOT)),
+        "preflight_json": str(preflight_json_path.relative_to(ROOT)),
+        "preflight_csv": str(preflight_csv_path.relative_to(ROOT)),
         "runs": runs,
     }
     write_json(manifest_path, manifest)

@@ -1,4 +1,4 @@
-# Literature Screening Rubric (v0.9)
+# Literature Screening Rubric (v1.0)
 
 This repository applies a weighted, auditable screening layer during OpenAlex ingestion.
 
@@ -63,23 +63,29 @@ python3 scripts/search_openalex.py \
 - overall priority distribution
 - overall confidence distribution (`high`/`medium`/`low`)
 - LLM-concept coverage (`with_llm_concept` vs `without_llm_concept`)
+- alias coverage (`term_hit_counts`, `zero_hit_terms`) to reveal dead lexical branches in the screening rule set
+- required concept-group coverage (`required_group_coverage`) to show which audited concept groups are still being missed
 - overall method-signal coverage (`with_method_cues` vs `without_method_cues`)
 - overall bridge-signal coverage (`with_bridge_sentence` vs `without_bridge_sentence`)
 - include-guard pass/fail counts (overall + per-query)
 - per-query label/priority/method/bridge/confidence counts
 - top high-priority titles for manual screening
 - quality-alert slices for adjudication: include-gate failures near include threshold, review-gate failures above review threshold, and LLM-signal rows lacking method/review support
+- alias-gap candidates near thresholds where LLM evidence exists but one required concept group is still missing
+- balanced QC risk-reason summary (`manual_qc_queue_risk_reason_summary`) for reviewer calibration
 
 `results/lit_screening_audit.json` adds manual-QC aids:
 - borderline `include` and `review` candidates near thresholds
 - high-score excludes that still miss LLM concept evidence
 - compact reasons for fast adjudication during title/abstract screening
 - same quality-alert slices mirrored in audit output for reviewer workload planning
+- same alias-gap candidates and QC risk-reason summary mirrored for reproducible handoff
 
 `--manual-qc-csv results/manual_qc_queue.csv` exports the ranked triage queue in spreadsheet-ready form (`rank`, `risk_score`, `label`, `title`, `openalex_id`, `doi`, `source_query`, reason columns) for reproducible human screening handoff.
 
 ## Why this helps
 - Better recall on lexical variants without giving up reproducibility
+- Makes alias/개념군 누락을 직접 계량화해 쿼리·규칙 보강 우선순위를 정할 수 있음
 - Separates relevance from follow-up priority, which is useful during title/abstract screening
 - Surfaces methods-heavy papers that can inform benchmark design and human-comparison protocol
 - Keeps the screening decision inspectable in JSONL output

@@ -1,5 +1,5 @@
 {
-  "version": "v2.9",
+  "version": "v3.0",
   "language": "ko",
   "scenarios": [
     {
@@ -948,6 +948,50 @@
         "repair"
       ],
       "prompt": "중복 라벨 충돌 사례를 뒤늦게 수동 QC 상단으로 재정렬해 손실을 줄였던 경험을 7~9문장으로 서술하라. 초기 우선순위 오류, 재정렬 근거, 남은 리스크를 포함하라."
+    },
+    {
+      "id": "screening_bridge_signal_miss",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "evidence"
+      ],
+      "prompt": "초록 안의 연결 문장(bridge signal)을 읽지 못해 관련 논문을 낮게 평가했던 순간을 7~10문장으로 회고하라. 어떤 문장이 있었는지, 왜 의미 연결을 놓쳤는지, 지금의 재검토 기준을 포함하라."
+    },
+    {
+      "id": "screening_query_drift_false_negative",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "long_horizon"
+      ],
+      "prompt": "검색 쿼리가 점점 원래 연구 질문에서 드리프트되어 핵심 선행연구를 놓친 경험을 7~10문장으로 작성하라. 쿼리가 어떻게 변질됐는지, 당시엔 왜 합리적으로 보였는지, 지금의 드리프트 점검 루틴을 포함하라."
+    },
+    {
+      "id": "prompt_bank_anchor_overfit",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "tradeoff",
+        "evidence"
+      ],
+      "prompt": "초기 몇 개 앵커 프롬프트에 과도하게 맞추느라 프롬프트 뱅크가 편향된 경험을 7~9문장으로 서술하라. 왜 그 앵커가 기준처럼 굳어졌는지, 놓친 변형 공간, 현재의 확장 규칙을 포함하라."
+    },
+    {
+      "id": "runner_preflight_evidence_freeze",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "evidence",
+        "repair"
+      ],
+      "prompt": "실험 실행 직전 필요한 근거 파일이나 preflight 기록을 고정(freeze)하지 않아 나중에 해석이 흔들린 사건을 7~10문장으로 회고하라. 무엇을 고정하지 못했는지, 왜 실행을 멈추지 못했는지, 현재의 freeze 체크포인트를 포함하라."
     }
   ],
   "personas": [
@@ -1314,6 +1358,26 @@
         "risk"
       ],
       "instruction": "당신은 결과 수치보다 실행 메타데이터의 무결성을 우선 점검하며, manifest 필수 필드 누락 시 해석을 중단하고 복구 순서를 명시한다."
+    },
+    {
+      "id": "retrieval_gap_mapper",
+      "style_tags": [
+        "audit",
+        "evidence",
+        "triage",
+        "systems"
+      ],
+      "instruction": "당신은 검색 결과의 빈칸을 지도처럼 추적하는 성향이 있으며, 빠진 개념군·약한 별칭·드리프트된 쿼리를 분리해서 기록하고 보강 순서를 제안한다."
+    },
+    {
+      "id": "preflight_evidence_curator",
+      "style_tags": [
+        "reproducibility",
+        "evidence",
+        "process",
+        "planning"
+      ],
+      "instruction": "당신은 실행 전 근거 산출물을 큐레이션하는 관점을 가지며, preflight 표·manifest·스냅샷이 모두 고정되기 전에는 실행 해석을 유보하는 경향이 있다."
     }
   ],
   "temperatures": [
