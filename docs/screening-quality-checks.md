@@ -20,7 +20,7 @@ python3 scripts/check_screening_quality.py \
   --manual-qc-csv results/manual_qc_queue.csv \
   --out results/screening_quality_report.json \
   --out-md results/screening_quality_report.md \
-  --run-label screening_qc_v34
+  --run-label screening_qc_v35
 ```
 
 ## Default gates
@@ -35,6 +35,9 @@ python3 scripts/check_screening_quality.py \
 - `balanced_group_bins >= 3`
 - `balanced_label_dominance <= 0.80`
 - `query_drift_candidate_count <= 30`
+- `risk_reason_diversity >= 5`
+- `review_to_include_ratio <= 5.0`
+- `manual_qc_high_risk_share <= 0.85`
 
 ## Interpretation
 - `status=pass`: all gates passed

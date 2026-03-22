@@ -67,6 +67,10 @@ def write_markdown(path: Path, payload: dict):
             f"- balanced_confidence_bins: `{payload['summary']['balanced_confidence_bins']}`",
             f"- balanced_group_bins: `{payload['summary']['balanced_group_bins']}`",
             f"- balanced_label_dominance: `{payload['summary']['balanced_label_dominance']}`",
+            f"- risk_reason_diversity: `{payload['summary']['risk_reason_diversity']}`",
+            f"- review_to_include_ratio: `{payload['summary']['review_to_include_ratio']}`",
+            f"- manual_qc_high_risk_rows: `{payload['summary']['manual_qc_high_risk_rows']}`",
+            f"- manual_qc_high_risk_share: `{payload['summary']['manual_qc_high_risk_share']}`",
             "",
             "## Hotspots",
         ]
@@ -96,6 +100,9 @@ def main():
     ap.add_argument("--min-balanced-group-bins", type=int, default=3)
     ap.add_argument("--max-balanced-label-dominance", type=float, default=0.8)
     ap.add_argument("--max-query-drift-candidates", type=int, default=30)
+    ap.add_argument("--min-risk-reason-diversity", type=int, default=5)
+    ap.add_argument("--max-review-to-include-ratio", type=float, default=5.0)
+    ap.add_argument("--max-manual-qc-high-risk-share", type=float, default=0.85)
     args = ap.parse_args()
 
     report_path = ROOT / args.report
@@ -124,6 +131,7 @@ def main():
     balanced_by_label = balanced_summary.get("by_label") or {}
     balanced_by_confidence = balanced_summary.get("by_confidence") or {}
     balanced_by_group = balanced_summary.get("by_group") or {}
+    risk_reason_diversity = sum(1 for _, v in risk_reason_summary.items() if int(v or 0) > 0)
     nonzero_label_bins = sum(1 for _, v in balanced_by_label.items() if int(v or 0) > 0)
     nonzero_confidence_bins = sum(1 for _, v in balanced_by_confidence.items() if int(v or 0) > 0)
     nonzero_group_bins = sum(1 for _, v in balanced_by_group.items() if int(v or 0) > 0)
@@ -133,6 +141,11 @@ def main():
         if total_balanced_label > 0
         else 0.0
     )
+    include_count = int(labels.get("include", 0) or 0)
+    review_count = int(labels.get("review", 0) or 0)
+    review_to_include_ratio = round(review_count / max(1, include_count), 4)
+    high_risk_qc_rows = sum(1 for row in manual_qc_rows if float(row.get("risk_score") or 0.0) >= 5.0)
+    manual_qc_high_risk_share = pct(high_risk_qc_rows, len(manual_qc_rows))
 
     gates = [
         {
@@ -203,6 +216,24 @@ def main():
             "observed": query_drift_candidate_count,
             "threshold": f"<={args.max_query_drift_candidates}",
         },
+        {
+            "name": "risk_reason_diversity_floor",
+            "status": "pass" if risk_reason_diversity >= args.min_risk_reason_diversity else "fail",
+            "observed": risk_reason_diversity,
+            "threshold": f">={args.min_risk_reason_diversity}",
+        },
+        {
+            "name": "review_to_include_ratio_ceiling",
+            "status": "pass" if review_to_include_ratio <= args.max_review_to_include_ratio else "fail",
+            "observed": review_to_include_ratio,
+            "threshold": f"<={args.max_review_to_include_ratio}",
+        },
+        {
+            "name": "manual_qc_high_risk_share_ceiling",
+            "status": "pass" if manual_qc_high_risk_share <= args.max_manual_qc_high_risk_share else "fail",
+            "observed": manual_qc_high_risk_share,
+            "threshold": f"<={args.max_manual_qc_high_risk_share}",
+        },
     ]
 
     fail_count = sum(1 for gate in gates if gate["status"] == "fail")
@@ -230,8 +261,8 @@ def main():
         },
         "summary": {
             "deduped_records": deduped_records,
-            "include_count": int(labels.get("include", 0) or 0),
-            "review_count": int(labels.get("review", 0) or 0),
+            "include_count": include_count,
+            "review_count": review_count,
             "exclude_count": int(labels.get("exclude", 0) or 0),
             "manual_qc_rows": len(manual_qc_rows),
             "single_source_only": single_source_only,
@@ -245,6 +276,10 @@ def main():
             "balanced_confidence_bins": nonzero_confidence_bins,
             "balanced_group_bins": nonzero_group_bins,
             "balanced_label_dominance": max_balanced_label_share,
+            "risk_reason_diversity": risk_reason_diversity,
+            "review_to_include_ratio": review_to_include_ratio,
+            "manual_qc_high_risk_rows": high_risk_qc_rows,
+            "manual_qc_high_risk_share": manual_qc_high_risk_share,
             "audit_counts": audit.get("counts") or {},
         },
         "gates": gates,

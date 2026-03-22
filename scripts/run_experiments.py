@@ -278,6 +278,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- plan_only: `{manifest.get('plan_only', False)}`",
         f"- executed_run_keys: `{len(manifest.get('executed_run_keys', []))}`",
         f"- failed_cells: `{manifest.get('failed_cells', 0)}`",
+        f"- attempted_run_cells: `{manifest.get('attempted_run_cells', 0)}`",
+        f"- failure_rate: `{manifest.get('failure_rate', 0.0)}`",
         f"- stopped_early: `{manifest.get('stopped_early', False)}`",
         f"- preflight_json: `{manifest.get('preflight_json', '')}`",
         f"- preflight_csv: `{manifest.get('preflight_csv', '')}`",
@@ -488,6 +490,12 @@ def main():
         default=0,
         help="when --continue-on-error, stop batch after this many failed cells (0 = no limit)",
     )
+    ap.add_argument(
+        "--max-failure-rate",
+        type=float,
+        default=0.0,
+        help="when --continue-on-error, stop batch if failed_cells/executed_or_failed exceeds this ratio (0 = no limit)",
+    )
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -569,6 +577,7 @@ def main():
     run_metric_paths: dict[str, list[Path]] = {}
     executed = 0
     failed_cells = 0
+    attempted_run_cells = 0
     selected_run_cells = 0
     selected_total_samples = 0
     planned_samples_by_run: dict[str, int] = {}
@@ -800,6 +809,7 @@ def main():
                 runs.append(row)
                 continue
 
+            attempted_run_cells += 1
             cell_started = time.perf_counter()
             code, _, err, gen_attempts = execute_with_retries(
                 gen_cmd,
@@ -823,6 +833,15 @@ def main():
                     )
                     stop_requested = True
                     break
+                if args.max_failure_rate > 0:
+                    current_failure_rate = failed_cells / max(1, attempted_run_cells)
+                    if current_failure_rate > args.max_failure_rate:
+                        print(
+                            "[WARN] failure_rate exceeded max_failure_rate "
+                            f"({round(current_failure_rate, 4)} > {args.max_failure_rate}); stopping batch early"
+                        )
+                        stop_requested = True
+                        break
                 continue
 
             code, _, err2, analyze_attempts = execute_with_retries(
@@ -848,6 +867,15 @@ def main():
                     )
                     stop_requested = True
                     break
+                if args.max_failure_rate > 0:
+                    current_failure_rate = failed_cells / max(1, attempted_run_cells)
+                    if current_failure_rate > args.max_failure_rate:
+                        print(
+                            "[WARN] failure_rate exceeded max_failure_rate "
+                            f"({round(current_failure_rate, 4)} > {args.max_failure_rate}); stopping batch early"
+                        )
+                        stop_requested = True
+                        break
                 continue
 
             row["duration_seconds"] = round(time.perf_counter() - cell_started, 3)
@@ -948,8 +976,11 @@ def main():
         "plan_only": args.plan_only,
         "executed_run_keys": executed_ids,
         "failed_cells": failed_cells,
+        "attempted_run_cells": attempted_run_cells,
+        "failure_rate": round(failed_cells / max(1, attempted_run_cells), 4) if attempted_run_cells else 0.0,
         "continue_on_error": args.continue_on_error,
         "max_failed_cells": args.max_failed_cells,
+        "max_failure_rate": args.max_failure_rate,
         "stopped_early": stop_requested,
         "selected_run_cells": selected_run_cells,
         "selected_total_samples": selected_total_samples,

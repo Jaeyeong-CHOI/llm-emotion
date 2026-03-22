@@ -416,6 +416,56 @@
         "emotion_taxonomy_auditor",
         "screening_gate_strategist"
       ]
+    },
+    {
+      "id": "screening_precision_rebalance_v35",
+      "n": 12,
+      "seed": 15252,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_disagreement_reconciliation",
+        "screening_query_cluster_rebalance",
+        "manual_qc_hotspot_false_alarm",
+        "screening_precision_recall_tradeoff_review",
+        "screening_query_drift_false_negative"
+      ],
+      "persona_ids": [
+        "screening_signal_weigher",
+        "screening_gate_strategist",
+        "qc_signal_disambiguator",
+        "screening_conflict_mediator"
+      ]
+    },
+    {
+      "id": "prompt_runner_resilience_v35",
+      "n": 12,
+      "seed": 16363,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "prompt_bank_semantic_overlap_pruning",
+        "prompt_bank_boundary_regression",
+        "runner_checkpoint_gap_recovery",
+        "runner_retry_budget_exhaustion",
+        "runner_partial_resume_duplicate"
+      ],
+      "persona_ids": [
+        "prompt_bank_librarian",
+        "prompt_bank_curator",
+        "runner_fault_tolerant_operator",
+        "retry_budget_controller"
+      ]
     }
   ]
 }
