@@ -9,17 +9,19 @@
 
 ## Commands
 ```bash
-python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl --report-out results/lit_search_report.json
+python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl --report-out results/lit_search_report.json --audit-out results/lit_screening_audit.json
 python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md
 
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --plan-only --manifest-note "weekly preflight"
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --plan-only --manifest-note "weekly preflight" --require-min-total-samples 6000
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --strict-clean
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --resume
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_method_$(date -u +%Y%m%d) --include-run-id method_signal_v15 --strict-clean
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_accountability_$(date -u +%Y%m%d) --include-run-id accountability_tradeoff_v16 --strict-clean
 ```
 
-Each batch now emits `run_id_summary.csv` (aggregated across repeats/cells per run id), per-cell and batch `duration_seconds`, snapshot hashes in `manifest.json`, and a generated `reproduce.sh` script for one-command reruns.
+Each batch now emits `run_id_summary.csv` (aggregated across repeats/cells per run id), per-cell and batch `duration_seconds`, snapshot hashes in `manifest.json`, and a generated `reproduce.sh` script for one-command reruns. Selection reports/CSV now include `planned_samples`, and `--require-min-total-samples` can hard-fail undersized plans before execution.
+
+Literature screening reports now include `triage_risk` counters and a ranked `manual_qc_queue` for high-uncertainty decisions near include/review thresholds.
 
 ## Validation log
 Smoke checks executed on `2026-03-22T07:06:35Z`:
@@ -54,3 +56,8 @@ Observed outputs:
 - `run_experiments --plan-only`: executed 0/6 run cells, wrote manifest and snapshots
 - `run_experiments --include-run-id counterfactual_focus_v14 --max-runs 1`: executed 1/2 run cells
 - screening smoke sample: `include high 19.4977`
+
+Additional smoke checks executed on `2026-03-22T08:10:00Z`:
+- `python3 scripts/search_openalex.py ... --audit-out results/lit_screening_audit.json`: deduped 279 (include=23, review=79)
+- `python3 scripts/run_experiments.py --run-label smoke_v22_plan --plan-only --require-min-total-samples 6000`: passed (`selected_total_samples=114864`)
+- `python3 scripts/run_experiments.py --run-label smoke_v22_exec --include-run-id handoff_drift_v22 --max-runs 1 --require-min-total-samples 1000`: passed (`executed 1/2`, `selected_total_samples=1440`)

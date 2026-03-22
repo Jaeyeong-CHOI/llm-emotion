@@ -605,6 +605,30 @@ def summarize_include_guard(rows: List[Dict]) -> Dict[str, int]:
     return out
 
 
+def summarize_triage_risk(rows: List[Dict], include_th: float, review_th: float) -> Dict[str, int]:
+    out = {
+        "include_low_confidence": 0,
+        "review_high_score": 0,
+        "exclude_near_review_threshold": 0,
+        "gate_failures_near_threshold": 0,
+    }
+    for r in rows:
+        label = r.get("screening_label")
+        confidence = (r.get("screening_confidence") or "low").lower()
+        score = float(r.get("screening_score") or 0.0)
+        features = r.get("screening_features") or {}
+
+        if label == "include" and confidence != "high":
+            out["include_low_confidence"] += 1
+        if label == "review" and score >= include_th - 0.35:
+            out["review_high_score"] += 1
+        if label == "exclude" and score >= review_th - 0.25:
+            out["exclude_near_review_threshold"] += 1
+        if score >= review_th and (not features.get("include_gate_ok", True) or not features.get("review_gate_ok", True)):
+            out["gate_failures_near_threshold"] += 1
+    return out
+
+
 def collect_quality_alerts(rows: List[Dict], include_th: float, review_th: float) -> Dict[str, List[Dict]]:
     def compact(row: Dict, extra: Dict | None = None) -> Dict:
         payload = {
@@ -662,6 +686,61 @@ def summarize_bridge_signal(rows: List[Dict]) -> Dict[str, int]:
         else:
             out["without_bridge_sentence"] += 1
     return out
+
+
+def collect_manual_qc_queue(rows: List[Dict], include_th: float, review_th: float, limit: int = 40) -> List[Dict]:
+    queue = []
+    for row in rows:
+        label = row.get("screening_label")
+        confidence = (row.get("screening_confidence") or "low").lower()
+        score = float(row.get("screening_score") or 0.0)
+        features = row.get("screening_features") or {}
+        include_margin = float(features.get("include_margin", 0.0) or 0.0)
+
+        risk = 0.0
+        reasons = []
+
+        if label == "include" and confidence != "high":
+            risk += 2.0
+            reasons.append("include_non_high_confidence")
+        if label == "review" and score >= include_th - 0.35:
+            risk += 1.8
+            reasons.append("review_close_to_include_threshold")
+        if label == "exclude" and score >= review_th - 0.25:
+            risk += 2.2
+            reasons.append("exclude_close_to_review_threshold")
+        if not features.get("include_gate_ok", True):
+            risk += 1.0
+            reasons.append("include_gate_failed")
+        if not features.get("review_gate_ok", True):
+            risk += 0.8
+            reasons.append("review_gate_failed")
+        if abs(include_margin) <= 0.4:
+            risk += 0.7
+            reasons.append("small_include_margin")
+        if int(features.get("bridge_sentence_hits", 0) or 0) == 0:
+            risk += 0.4
+            reasons.append("no_bridge_sentence")
+
+        if risk <= 0:
+            continue
+
+        queue.append(
+            {
+                "title": row.get("title"),
+                "year": row.get("year"),
+                "label": label,
+                "score": score,
+                "confidence": confidence,
+                "priority": row.get("screening_priority"),
+                "risk_score": round(risk, 3),
+                "risk_reasons": reasons,
+                "screening_reasons": row.get("screening_reasons", [])[:6],
+            }
+        )
+
+    queue.sort(key=lambda x: (-(x.get("risk_score") or 0.0), -(x.get("score") or 0.0)))
+    return queue[:limit]
 
 
 def main():
@@ -740,6 +819,8 @@ def main():
     if args.report_out:
         report_path = Path(args.report_out)
         report_path.parent.mkdir(parents=True, exist_ok=True)
+        include_th = float(rules.get("threshold_include", 3.0))
+        review_th = float(rules.get("threshold_review", include_th / 2))
         report = {
             "config": args.config,
             "screening_rules": args.screening_rules,
@@ -752,9 +833,11 @@ def main():
             "include_guard": summarize_include_guard(ordered),
             "confidence": summarize_confidence(ordered),
             "llm_concept": summarize_llm_concept(ordered),
+            "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
             "per_query": query_stats,
             "top_priority_titles": [r.get("title") for r in ordered[:10] if r.get("screening_priority") == "high"],
-            "quality_alerts": collect_quality_alerts(ordered, float(rules.get("threshold_include", 3.0)), float(rules.get("threshold_review", float(rules.get("threshold_include", 3.0)) / 2))),
+            "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
+            "manual_qc_queue": collect_manual_qc_queue(ordered, include_th, review_th),
         }
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"report: {report_path}")
@@ -773,9 +856,11 @@ def main():
                 "labels": summarize_labels(ordered),
                 "confidence": summarize_confidence(ordered),
                 "llm_concept": summarize_llm_concept(ordered),
+                "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
             },
             "borderline": collect_borderline(ordered, include_th, review_th),
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
+            "manual_qc_queue": collect_manual_qc_queue(ordered, include_th, review_th),
             "exclude_high_score_without_llm": [
                 {
                     "title": r.get("title"),

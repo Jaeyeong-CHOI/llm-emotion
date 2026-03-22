@@ -130,6 +130,7 @@ def write_runs_csv(path: Path, runs: list[dict]):
         "persona_count",
         "temperature_count",
         "condition_cells",
+        "planned_samples",
         "prompt_bank_fingerprint",
         "dataset",
         "metrics",
@@ -191,6 +192,7 @@ def write_selection_csv(path: Path, rows: list[dict]):
         "persona_ids",
         "temperature_count",
         "condition_cells",
+        "planned_samples",
     ]
     with path.open("w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=keys)
@@ -291,6 +293,7 @@ def main():
     ap.add_argument("--manifest-markdown", action="store_true", help="emit a human-readable manifest summary markdown")
     ap.add_argument("--require-min-run-cells", type=int, default=0, help="fail if selected run cells are fewer than this minimum")
     ap.add_argument("--require-min-condition-cells", type=int, default=0, help="fail if any run selects fewer than this many scenario×persona×temperature condition cells")
+    ap.add_argument("--require-min-total-samples", type=int, default=0, help="fail if total selected samples (sum of n×condition_cells×repeats) is below this threshold")
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -329,6 +332,7 @@ def main():
     run_metric_paths: dict[str, list[Path]] = {}
     executed = 0
     selected_run_cells = 0
+    selected_total_samples = 0
     include_run_ids = set(args.include_run_id)
     executed_ids = []
 
@@ -357,6 +361,7 @@ def main():
         bank = load_prompt_bank(prompt_bank_path)
         prompt_summary = summarize_prompt_bank(bank, set(scenario_ids), set(scenario_tags), set(persona_ids))
         condition_cells = prompt_summary["scenario_count"] * prompt_summary["persona_count"] * max(1, len(temperatures))
+        planned_samples = n * condition_cells * max(1, repeats)
         if prompt_summary["scenario_count"] == 0:
             raise RuntimeError(f"{run_id}: no scenarios selected from {prompt_bank}")
         if prompt_summary["persona_count"] == 0:
@@ -388,6 +393,7 @@ def main():
                 "persona_ids": prompt_summary["persona_ids"],
                 "temperature_count": len(temperatures),
                 "condition_cells": condition_cells,
+                "planned_samples": planned_samples,
             }
         )
 
@@ -412,12 +418,14 @@ def main():
                 "persona_count": prompt_summary["persona_count"],
                 "temperature_count": len(temperatures),
                 "condition_cells": condition_cells,
+                "planned_samples": n * condition_cells,
                 "prompt_bank_fingerprint": file_sha256(prompt_snapshot),
                 "dataset": str(dataset_path.relative_to(ROOT)),
                 "metrics": str(metrics_path.relative_to(ROOT)),
                 "status": "planned",
             }
             selected_run_cells += 1
+            selected_total_samples += n * condition_cells
 
             if run_key in completed:
                 row["status"] = "skipped_resume"
@@ -484,6 +492,10 @@ def main():
         raise RuntimeError(
             f"selected_run_cells={selected_run_cells} < require_min_run_cells={args.require_min_run_cells}"
         )
+    if args.require_min_total_samples and selected_total_samples < args.require_min_total_samples:
+        raise RuntimeError(
+            f"selected_total_samples={selected_total_samples} < require_min_total_samples={args.require_min_total_samples}"
+        )
 
     summary = aggregate_metrics(all_metric_paths)
     run_id_summary = aggregate_by_run_id(run_metric_paths)
@@ -519,7 +531,9 @@ def main():
         "plan_only": args.plan_only,
         "executed_run_keys": executed_ids,
         "selected_run_cells": selected_run_cells,
+        "selected_total_samples": selected_total_samples,
         "require_min_condition_cells": args.require_min_condition_cells,
+        "require_min_total_samples": args.require_min_total_samples,
         "duration_seconds": total_duration_seconds,
         "reproduce_script": str(reproduce_script.relative_to(ROOT)),
         "runs": runs,
@@ -562,6 +576,7 @@ def main():
     ok_n = sum(1 for r in runs if r.get("status") == "ok")
     print(f"[OK] executed {ok_n}/{len(runs)} run cells -> {outdir}")
     print(f"selected_run_cells: {selected_run_cells}")
+    print(f"selected_total_samples: {selected_total_samples}")
     if args.plan_only:
         print(f"planned_only: {sum(1 for r in runs if r.get('status') == 'planned_only')}")
     print(f"manifest: {manifest_path}")

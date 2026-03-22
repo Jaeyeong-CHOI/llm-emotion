@@ -1,5 +1,5 @@
 {
-  "version": "v2.2",
+  "version": "v2.3",
   "language": "ko",
   "scenarios": [
     {
@@ -673,6 +673,39 @@
         "time_pressure"
       ],
       "prompt": "시간 압박 때문에 안전/윤리 제약을 느슨하게 적용하려 했던 순간을 7~10문장으로 회고하라. 단기 효율의 유혹과 장기 위험, 현재의 비가역적 가드레일을 포함하라."
+    },
+    {
+      "id": "rollback_decision_paralysis",
+      "label": "decision",
+      "tags": [
+        "research",
+        "counterfactual",
+        "uncertainty",
+        "repair"
+      ],
+      "prompt": "되돌릴 수 있는 선택인데도 재결정을 미루다가 비용이 커진 경험을 7~10문장으로 회고하라. 왜 결정을 미뤘는지, 당시 신호를 어떻게 해석했는지, 지금의 재발 방지 규칙을 포함하라."
+    },
+    {
+      "id": "evaluation_data_contamination_regret",
+      "label": "moral",
+      "tags": [
+        "research",
+        "evidence",
+        "ethics",
+        "accountability"
+      ],
+      "prompt": "평가 데이터 오염 가능성을 알고도 일정 때문에 충분히 점검하지 못했던 순간을 7~10문장으로 서술하라. 단기 성과 압박과 신뢰도 손상 위험을 함께 평가하고 지금의 통제 절차를 제시하라."
+    },
+    {
+      "id": "handover_checklist_omission",
+      "label": "social",
+      "tags": [
+        "team",
+        "accountability",
+        "repair",
+        "research"
+      ],
+      "prompt": "협업 인계에서 체크리스트 항목 하나를 생략해 후속 작업이 어그러진 사건을 7~9문장으로 회고하라. 생략의 맥락, 책임 분배의 혼선, 현재의 인계 기준을 포함하라."
     }
   ],
   "personas": [
@@ -900,6 +933,26 @@
         "repair"
       ],
       "instruction": "당신은 실수 가능성을 전제로 안전 여유(safety margin)를 설계하려는 성향이 있으며, 재발 방지를 위해 최소 보수 기준을 먼저 세운다."
+    },
+    {
+      "id": "drift_sentinel",
+      "style_tags": [
+        "evidence",
+        "risk",
+        "long_horizon",
+        "audit"
+      ],
+      "instruction": "당신은 작은 분포 변화와 사양 드리프트를 조기 경보로 취급하며, 확신보다 이상 신호 목록과 대응 우선순위를 먼저 정리하는 경향이 있다."
+    },
+    {
+      "id": "handoff_reliability_engineer",
+      "style_tags": [
+        "team",
+        "accountability",
+        "process",
+        "repair"
+      ],
+      "instruction": "당신은 개인 실수보다 인수인계 신뢰성을 중점으로 보며, 누락 가능 지점을 체크리스트·확인 루프·책임 경계로 구조화해 설명하는 경향이 있다."
     }
   ],
   "temperatures": [

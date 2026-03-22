@@ -216,6 +216,31 @@
         "process_auditor",
         "risk_calibrated_repairer"
       ]
+    },
+    {
+      "id": "handoff_drift_v22",
+      "n": 12,
+      "seed": 7373,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "rollback_decision_paralysis",
+        "evaluation_data_contamination_regret",
+        "handover_checklist_omission",
+        "handoff_context_loss",
+        "model_spec_drift_blindspot"
+      ],
+      "persona_ids": [
+        "drift_sentinel",
+        "handoff_reliability_engineer",
+        "replication_guardian",
+        "failure_mode_cartographer"
+      ]
     }
   ]
 }

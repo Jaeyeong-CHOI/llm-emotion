@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-03-22T17:02:49",
-  "last_success": "2026-03-22T17:02:49",
+  "last_run": "2026-03-22T08:08:56",
+  "last_success": "2026-03-22T08:08:56",
   "last_error": null,
   "stats": {
     "papers_collected": 279,
@@ -49,6 +49,10 @@
     "[2026-03-22T17:03:12] OK mock_generate",
     "[2026-03-22T17:03:13] OK mock_analyze",
     "[2026-03-22T17:03:16] OK snapshot_cron_status",
-    "[2026-03-22T17:03:16] OK update_live_status"
+    "[2026-03-22T17:03:16] OK update_live_status",
+    "[2026-03-22T08:08:56] OK screening_manual_qc_queue_triage_risk",
+    "[2026-03-22T08:08:56] OK prompt_bank_v23_expansion",
+    "[2026-03-22T08:08:56] OK experiment_runner_min_total_samples",
+    "[2026-03-22T08:08:56] OK run_handoff_drift_v22_smoke"
   ]
 }
