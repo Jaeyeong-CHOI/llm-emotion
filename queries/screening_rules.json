@@ -159,6 +159,8 @@
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {
     "min_include_hits": 2,
-    "method_or_review_signal": true
+    "method_or_review_signal": true,
+    "include_margin_min": 0.35,
+    "max_penalty_for_include": 0.5
   }
 }

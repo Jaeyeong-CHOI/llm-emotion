@@ -1,4 +1,4 @@
-# Literature Screening Rubric (v0.6)
+# Literature Screening Rubric (v0.7)
 
 This repository applies a weighted, auditable screening layer during OpenAlex ingestion.
 
@@ -14,7 +14,7 @@ This repository applies a weighted, auditable screening layer during OpenAlex in
 - `screening_reasons`
 - `screening_features`
 
-## Scoring policy (v0.5)
+## Scoring policy (v0.7)
 1. Canonical lexical hits use alias expansion, so variants like `LLMs`, `anthropomorphic`, and `counterfactual reasoning` map back to the same audited concept.
 2. Weighted score adds:
    - include hits
@@ -35,7 +35,7 @@ This repository applies a weighted, auditable screening layer during OpenAlex in
    - very short abstracts
 
 ## Labeling and triage policy
-- `include`: score >= include threshold, no exclude hit, no missing concept groups, and include-gate constraints satisfied (`min_include_hits`, method/review/high-priority signal)
+- `include`: score >= include threshold, no exclude hit, no missing concept groups, include-gate constraints satisfied (`min_include_hits`, method/review/high-priority signal), and include-guard passed (`include_margin_min`, `max_penalty_for_include`)
 - `review`: score >= review threshold
 - `exclude`: otherwise
 
@@ -57,6 +57,7 @@ python3 scripts/search_openalex.py \
 - overall label distribution
 - overall priority distribution
 - overall method-signal coverage (`with_method_cues` vs `without_method_cues`)
+- include-guard pass/fail counts (overall + per-query)
 - per-query label/priority/method counts
 - top high-priority titles for manual screening
 

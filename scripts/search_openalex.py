@@ -94,6 +94,8 @@ DEFAULT_SCREENING_RULES = {
     "include_requires_any": {
         "min_include_hits": 2,
         "method_or_review_signal": True,
+        "include_margin_min": 0.35,
+        "max_penalty_for_include": 0.5,
     },
 }
 
@@ -268,6 +270,8 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     include_constraints = rules.get("include_requires_any", {})
     min_include_hits = int(include_constraints.get("min_include_hits", 0) or 0)
     require_method_or_review = bool(include_constraints.get("method_or_review_signal", False))
+    include_margin_min = float(include_constraints.get("include_margin_min", 0.0) or 0.0)
+    max_penalty_for_include = float(include_constraints.get("max_penalty_for_include", 999.0) or 999.0)
 
     include_gate_ok = True
     if min_include_hits and len(include_hits) < min_include_hits:
@@ -275,7 +279,14 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     if require_method_or_review and not (method_hits or review_hits or high_priority_hits):
         include_gate_ok = False
 
-    if weighted_score >= include_threshold and not exclude_hits and missing_groups == 0 and include_gate_ok:
+    total_penalty = round(
+        penalty_exclude + penalty_missing_group + lang_penalty + type_penalty + year_penalty + short_abstract_penalty,
+        4,
+    )
+    include_margin = round(weighted_score - include_threshold, 4)
+    include_guard_ok = include_margin >= include_margin_min and total_penalty <= max_penalty_for_include
+
+    if weighted_score >= include_threshold and not exclude_hits and missing_groups == 0 and include_gate_ok and include_guard_ok:
         label = "include"
     elif weighted_score >= review_threshold:
         label = "review"
@@ -311,6 +322,8 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
         reasons.append(f"short_abstract_tokens={abstract_tokens}")
     if not include_gate_ok:
         reasons.append("include_gate=failed")
+    if include_gate_ok and not include_guard_ok and weighted_score >= include_threshold:
+        reasons.append("include_guard=failed")
 
     return {
         "screening_score": weighted_score,
@@ -334,7 +347,10 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
             "type": pub_type,
             "year": year,
             "recency_bonus": round(recency_bonus, 4),
+            "total_penalty": total_penalty,
+            "include_margin": include_margin,
             "include_gate_ok": include_gate_ok,
+            "include_guard_ok": include_guard_ok,
         },
     }
 
@@ -439,6 +455,17 @@ def summarize_method_signal(rows: List[Dict]) -> Dict[str, int]:
     return out
 
 
+def summarize_include_guard(rows: List[Dict]) -> Dict[str, int]:
+    out = {"passed": 0, "failed": 0}
+    for r in rows:
+        features = r.get("screening_features") or {}
+        if features.get("include_guard_ok", True):
+            out["passed"] += 1
+        else:
+            out["failed"] += 1
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
@@ -473,6 +500,7 @@ def main():
                 "labels": summarize_labels(normalized),
                 "priorities": summarize_priorities(normalized),
                 "method_signal": summarize_method_signal(normalized),
+                "include_guard": summarize_include_guard(normalized),
                 "top_score": max((r.get("screening_score", 0.0) for r in normalized), default=0.0),
             }
             time.sleep(0.5)
@@ -518,6 +546,7 @@ def main():
             "labels": summarize_labels(ordered),
             "priorities": summarize_priorities(ordered),
             "method_signal": summarize_method_signal(ordered),
+            "include_guard": summarize_include_guard(ordered),
             "per_query": query_stats,
             "top_priority_titles": [r.get("title") for r in ordered[:10] if r.get("screening_priority") == "high"],
         }

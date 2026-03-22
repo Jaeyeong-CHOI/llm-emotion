@@ -16,7 +16,10 @@ python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-lab
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --strict-clean
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --resume
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_method_$(date -u +%Y%m%d) --include-run-id method_signal_v15 --strict-clean
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_accountability_$(date -u +%Y%m%d) --include-run-id accountability_tradeoff_v16 --strict-clean
 ```
+
+Each batch now emits `run_id_summary.csv` (aggregated across repeats/cells per run id) and snapshot hashes in `manifest.json` for provenance checks.
 
 ## Validation log
 Smoke checks executed on `2026-03-22T07:06:35Z`:

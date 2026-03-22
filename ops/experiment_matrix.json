@@ -74,6 +74,27 @@
         "analytical",
         "self_compassionate"
       ]
+    },
+    {
+      "id": "accountability_tradeoff_v16",
+      "n": 12,
+      "seed": 2026,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_tags": [
+        "accountability"
+      ],
+      "persona_ids": [
+        "accountability_balancer",
+        "interpersonally_accountable",
+        "counterfactual_minimizer",
+        "evidence_seeking"
+      ]
     }
   ]
 }

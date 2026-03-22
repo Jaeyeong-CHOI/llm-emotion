@@ -144,6 +144,39 @@ def write_runs_csv(path: Path, runs: list[dict]):
             w.writerow(out)
 
 
+def aggregate_by_run_id(run_metric_paths: dict[str, list[Path]]) -> list[dict]:
+    rows = []
+    for run_id in sorted(run_metric_paths):
+        metrics = aggregate_metrics(run_metric_paths[run_id])
+        if not metrics:
+            continue
+        rows.append({"id": run_id, **metrics})
+    return rows
+
+
+def write_run_summary_csv(path: Path, rows: list[dict]):
+    if not rows:
+        return
+    keys = [
+        "id",
+        "cells",
+        "counterfactual_per_sample_mean",
+        "counterfactual_per_sample_sd",
+        "regret_words_per_sample_mean",
+        "regret_words_per_sample_sd",
+    ]
+    with path.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=keys)
+        w.writeheader()
+        for row in rows:
+            w.writerow({k: row.get(k) for k in keys})
+
+
+def file_sha256(path: Path) -> str:
+    payload = path.read_bytes()
+    return hashlib.sha256(payload).hexdigest()
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="ops/experiment_matrix.json")
@@ -183,11 +216,13 @@ def main():
 
     runs = []
     all_metric_paths = []
+    run_metric_paths: dict[str, list[Path]] = {}
     executed = 0
     include_run_ids = set(args.include_run_id)
     executed_ids = []
 
-    write_json(snapshots_dir / "experiment_matrix.json", cfg)
+    matrix_snapshot = snapshots_dir / "experiment_matrix.json"
+    write_json(matrix_snapshot, cfg)
 
     for exp in cfg.get("runs", []):
         run_id = exp["id"]
@@ -210,7 +245,8 @@ def main():
         if prompt_summary["persona_count"] == 0:
             raise RuntimeError(f"{run_id}: no personas selected from {prompt_bank}")
 
-        write_json(snapshots_dir / f"{run_id}.prompt_bank.json", bank)
+        prompt_snapshot = snapshots_dir / f"{run_id}.prompt_bank.json"
+        write_json(prompt_snapshot, bank)
 
         for rep in range(repeats):
             rep_seed = seed + rep
@@ -240,6 +276,7 @@ def main():
                 row["status"] = "skipped_resume"
                 runs.append(row)
                 all_metric_paths.append(metrics_path)
+                run_metric_paths.setdefault(run_id, []).append(metrics_path)
                 continue
 
             if args.max_runs > 0 and executed >= args.max_runs:
@@ -290,10 +327,19 @@ def main():
             row["status"] = "ok"
             runs.append(row)
             all_metric_paths.append(metrics_path)
+            run_metric_paths.setdefault(run_id, []).append(metrics_path)
             executed += 1
             executed_ids.append(run_key)
 
     summary = aggregate_metrics(all_metric_paths)
+    run_id_summary = aggregate_by_run_id(run_metric_paths)
+    snapshot_hashes = {
+        "experiment_matrix": file_sha256(matrix_snapshot),
+        "prompt_banks": {},
+    }
+    for snap in sorted(snapshots_dir.glob("*.prompt_bank.json")):
+        snapshot_hashes["prompt_banks"][snap.name] = file_sha256(snap)
+
     manifest = {
         "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
         "config": args.config,
@@ -308,6 +354,8 @@ def main():
             "git_status": git_status,
         },
         "summary": summary,
+        "run_id_summary": run_id_summary,
+        "snapshot_hashes": snapshot_hashes,
         "selected_run_ids": sorted(include_run_ids),
         "plan_only": args.plan_only,
         "executed_run_keys": executed_ids,
@@ -315,6 +363,7 @@ def main():
     }
     write_json(manifest_path, manifest)
     write_runs_csv(outdir / "runs.csv", runs)
+    write_run_summary_csv(outdir / "run_id_summary.csv", run_id_summary)
 
     ok_n = sum(1 for r in runs if r.get("status") == "ok")
     print(f"[OK] executed {ok_n}/{len(runs)} run cells -> {outdir}")
