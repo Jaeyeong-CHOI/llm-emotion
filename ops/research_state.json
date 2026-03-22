@@ -25,6 +25,12 @@
     "[2026-03-22T15:58:42] OK literature_search",
     "[2026-03-22T15:58:42] OK evidence_table",
     "[2026-03-22T15:58:42] OK mock_generate",
-    "[2026-03-22T15:58:42] OK mock_analyze"
+    "[2026-03-22T15:58:42] OK mock_analyze",
+    "[2026-03-22T07:12:29] OK smoke_py_compile",
+    "[2026-03-22T07:12:29] OK smoke_generate_filtered_prompt_bank",
+    "[2026-03-22T07:12:29] OK smoke_analyze_filtered_prompt_bank",
+    "[2026-03-22T07:12:29] OK smoke_run_experiments_plan_only",
+    "[2026-03-22T07:12:29] OK smoke_run_experiments_counterfactual_focus",
+    "[2026-03-22T07:12:29] OK smoke_screening_score_include_high"
   ]
 }

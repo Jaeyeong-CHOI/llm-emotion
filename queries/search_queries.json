@@ -23,6 +23,14 @@
         "chatbot anthropomorphism emotional attribution",
         "AI empathy language generation"
       ]
+    },
+    {
+      "name": "llm_human_eval_methods",
+      "queries": [
+        "LLM human evaluation emotion benchmark",
+        "large language model annotator agreement social reasoning",
+        "behavioral experiment large language model emotion"
+      ]
     }
   ],
   "per_query": 25

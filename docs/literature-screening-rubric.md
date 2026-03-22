@@ -1,38 +1,48 @@
-# Literature Screening Rubric (v0.4)
+# Literature Screening Rubric (v0.5)
 
-This repository applies a **weighted + constraint-based screening layer** during OpenAlex ingestion.
+This repository applies a weighted, auditable screening layer during OpenAlex ingestion.
 
 ## Inputs
-- `queries/search_queries.json`: retrieval query groups
-- `queries/screening_rules.json`: include/high-priority/exclude keywords + weighted scoring policy
+- `queries/search_queries.json`: retrieval query groups, now including a methods-oriented human-evaluation lane
+- `queries/screening_rules.json`: inclusion/exclusion terms, alias map, priority cues, weights, thresholds
 
 ## Outputs per paper
-- `screening_score` (continuous weighted score)
-- `screening_label` (`include` / `review` / `exclude`)
+- `screening_score`: weighted score
+- `screening_label`: `include` / `review` / `exclude`
+- `screening_priority`: `high` / `medium` / `low` manual follow-up priority
 - `matched_terms`
 - `screening_reasons`
-- `screening_features` (auditable feature dictionary)
+- `screening_features`
 
-## Scoring policy (v0.4)
-1. Weighted lexical score = include hits + high-priority hits (configurable weights)
-2. Citation bonus = `log1p(cited_by_count)` scaled by weight
-3. **Query overlap bonus**: overlap between query lexical tokens and title/abstract
-4. **Concept diversity bonus**: how many required concept groups are covered
-5. Penalties for:
+## Scoring policy (v0.5)
+1. Canonical lexical hits use alias expansion, so variants like `LLMs`, `anthropomorphic`, and `counterfactual reasoning` map back to the same audited concept.
+2. Weighted score adds:
+   - include hits
+   - high-priority hits
+   - citation bonus
+   - query overlap bonus
+   - concept diversity bonus
+   - title-hit bonus
+   - review-priority bonus for methodology cues such as `human evaluation`, `annotator`, and `behavioral experiment`
+   - abstract-density bonus for concentrated relevance signals
+3. Penalties remain in place for:
    - exclusion hits
-   - missing required concept groups
+   - missing concept groups
    - non-preferred language/type
-   - publication year below threshold
-   - very short abstract (`min_abstract_tokens`)
+   - pre-threshold publication year
+   - very short abstracts
 
-## Labeling policy
+## Labeling and triage policy
 - `include`: score >= include threshold, no exclude hit, no missing concept groups
 - `review`: score >= review threshold
 - `exclude`: otherwise
 
-## Diagnostics for retrieval quality
-Use optional report output to monitor query quality over time:
+Manual follow-up should use `screening_priority`:
+- `high`: direct include or review items with strong method cues / low ambiguity
+- `medium`: review items worth checking but with weaker concept coverage
+- `low`: likely noise or already disfavored by exclusion/coverage penalties
 
+## Retrieval diagnostics
 ```bash
 python3 scripts/search_openalex.py \
   --config queries/search_queries.json \
@@ -41,15 +51,14 @@ python3 scripts/search_openalex.py \
   --report-out results/lit_search_report.json
 ```
 
-`results/lit_search_report.json` includes per-query fetched count, label distribution, and top score.
+`results/lit_search_report.json` now includes:
+- overall label distribution
+- overall priority distribution
+- per-query label/priority counts
+- top high-priority titles for manual screening
 
 ## Why this helps
-- Better precision than flat lexical counts
-- Adds retrieval diagnostics for systematic query refinement
-- Keeps a reproducible audit trail inside `refs/openalex_results.jsonl`
-- Makes downstream evidence ranking quality-aware and transparent
-
-## Known limitations
-- Still lexical-first (not full semantic retrieval)
-- Citation bonus can favor older mainstream papers
-- Requires periodic manual calibration of thresholds/weights
+- Better recall on lexical variants without giving up reproducibility
+- Separates relevance from follow-up priority, which is useful during title/abstract screening
+- Surfaces methods-heavy papers that can inform benchmark design and human-comparison protocol
+- Keeps the screening decision inspectable in JSONL output

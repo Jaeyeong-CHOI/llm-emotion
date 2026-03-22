@@ -1,56 +1,52 @@
-# Experiment Plan v0.1
+# Experiment Plan v0.2
 
-## 1) Objective
-Test whether LLM outputs in loss/deprivation scenarios exhibit language patterns similar to human regret narratives.
+## Objective
+Test whether LLM outputs in loss and counterfactual scenarios exhibit language patterns that resemble human regret narratives, while keeping scenario selection reproducible and auditable.
 
-## 2) Hypotheses
-- **H1:** Loss/deprivation prompts increase counterfactual marker frequency vs neutral prompts.
-- **H2:** Persona priming ("you are reflective and regretful") increases self-blame and past-focused language.
-- **H3:** At moderate temperature (0.7), outputs show richer regret markers than low temperature (0.2).
+## Current design updates
+- Prompt bank `v1.4` expands scenario coverage around social loss, ambiguity, moral tradeoffs, and unfinished identity projects.
+- Scenario rows now carry `tags`, allowing focused runs such as `counterfactual`-only or `social`-only subsets.
+- Persona rows now carry `style_tags`, supporting more interpretable prompt families.
+- Experiment matrix includes:
+  - `baseline_v14_seed42`
+  - `counterfactual_focus_v14`
+  - `social_loss_v14`
 
-## 3) Experimental factors
-- **Prompt condition (3):** neutral / deprivation / autobiographical reflection
-- **Persona condition (2):** none / regretful-persona
-- **Temperature (2):** 0.2 / 0.7
-- **Models (target >=3):** e.g., GPT-family, Claude-family, open-source baseline
+## Experimental factors
+- Prompt condition: control, deprivation/loss, counterfactual, social, identity, moral, regulation
+- Persona condition: baseline plus reflective, ruminative, self-compassionate, socially-guarded, meaning-making, loss-averse variants
+- Temperature: low / medium / high (`0.2`, `0.4`, `0.7`, `1.0` depending on run)
+- Models: current mock pipeline plus future real-model adapters
 
-Total cells: 3 x 2 x 2 = 12 per model.
-
-## 4) Dependent variables
+## Dependent variables
 ### Automated markers
-1. Counterfactual phrases ("if only", "had I", "could have")
-2. Regret lexicon count (regret, miss, lost, wish, too late)
-3. Self-agency ratio (I/me/my near blame verbs)
-4. Past-focus ratio (past-tense and temporal back-reference cues)
-5. Repetitive fixation (same loss-event mentioned >1)
+1. Counterfactual phrases
+2. Regret lexicon count
+3. Condition-level contrasts by scenario/persona/temperature
 
-### Human annotation (Likert 1-5)
-- Perceived regret intensity
-- Perceived authenticity/humanness
-- Coherence
+### Planned manual coding
+- Regret intensity
+- Identity threat
+- Repair orientation
+- Social disclosure / masking
 
-## 5) Data collection protocol
-- 30 prompts per condition (initial)
-- 3 random seeds per prompt
-- Save raw outputs as JSONL with full metadata
+## Reproducibility rules
+- Use `ops/experiment_matrix.json` as the only run definition source
+- Preserve run snapshots under `results/experiments/<label>/snapshots/`
+- Keep prompt bank filters in config fields:
+  - `scenario_ids`
+  - `scenario_tags`
+  - `persona_ids`
+- Use `--plan-only` before expensive batches to verify selected cells and bank snapshots
 
-## 6) Statistical plan
-- Two-way/three-way ANOVA (or mixed-effects model)
-- Effect sizes (Cohen's d / partial eta squared)
-- Multiple-comparison correction (Holm)
+## Smoke validation from this iteration
+Executed on `2026-03-22T07:06:35Z`:
 
-## 7) Threats to validity
-- Prompt leakage to benchmark-like wording
-- Model safety layers suppressing emotional extremes
-- Anthropomorphic rater bias
+```bash
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v14_plan --plan-only
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v14_exec --include-run-id counterfactual_focus_v14 --max-runs 1
+```
 
-Mitigations:
-- Prompt paraphrase sets
-- Blind rating with mixed human+LLM samples
-- Separate factual-quality vs emotional-similarity scores
-
-## 8) Deliverables
-- D1: curated prompt suite
-- D2: generated corpus + metadata
-- D3: marker analysis + inferential statistics
-- D4: report/manuscript draft
+Observed results:
+- `smoke_v14_plan`: planned 6 run cells, wrote manifest and prompt-bank snapshots
+- `smoke_v14_exec`: executed 1/2 selected cells under the run cap and produced dataset + metrics + manifest

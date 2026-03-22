@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import argparse
 import json
-import random
 import pathlib
-from typing import Dict, List
+import random
+from typing import Dict, Iterable, List
 
 
 LEGACY_SCENARIOS = {
@@ -42,8 +42,49 @@ def load_prompt_bank(path: pathlib.Path) -> Dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def validate_prompt_bank(bank: Dict) -> None:
+    scenarios = bank.get("scenarios", [])
+    personas = bank.get("personas", [])
+    if not scenarios:
+        raise ValueError("prompt bank has no scenarios")
+    if not personas:
+        raise ValueError("prompt bank has no personas")
+
+    for bucket_name, rows in (("scenario", scenarios), ("persona", personas)):
+        seen = set()
+        for row in rows:
+            row_id = (row.get("id") or "").strip()
+            if not row_id:
+                raise ValueError(f"{bucket_name} entry missing id")
+            if row_id in seen:
+                raise ValueError(f"duplicate {bucket_name} id: {row_id}")
+            seen.add(row_id)
+
+
 def parse_temperatures(value: str) -> List[float]:
     return [float(v.strip()) for v in value.split(",") if v.strip()]
+
+
+def parse_csv_set(value: str) -> set[str]:
+    return {v.strip() for v in value.split(",") if v.strip()}
+
+
+def scenario_matches(scenario: Dict, scenario_ids: set[str], scenario_tags: set[str]) -> bool:
+    if scenario_ids and scenario.get("id") not in scenario_ids:
+        return False
+    if scenario_tags:
+        tags = {str(tag).strip() for tag in scenario.get("tags", []) if str(tag).strip()}
+        if not scenario_tags.issubset(tags):
+            return False
+    return True
+
+
+def persona_matches(persona: Dict, persona_ids: set[str]) -> bool:
+    return not persona_ids or persona.get("id") in persona_ids
+
+
+def select_rows(rows: Iterable[Dict], predicate) -> List[Dict]:
+    return [row for row in rows if predicate(row)]
 
 
 def main():
@@ -53,6 +94,9 @@ def main():
     ap.add_argument("--prompt-bank", default="prompts/prompt_bank_ko.json")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--temperatures", default="", help="override comma-separated temps, e.g. 0.2,0.7,1.0")
+    ap.add_argument("--scenario-ids", default="", help="optional comma-separated scenario ids")
+    ap.add_argument("--scenario-tags", default="", help="optional comma-separated tags that every scenario must include")
+    ap.add_argument("--persona-ids", default="", help="optional comma-separated persona ids")
     args = ap.parse_args()
 
     random.seed(args.seed)
@@ -61,9 +105,26 @@ def main():
     out.parent.mkdir(parents=True, exist_ok=True)
 
     bank = load_prompt_bank(pathlib.Path(args.prompt_bank))
-    scenarios = bank.get("scenarios", [])
-    personas = bank.get("personas", LEGACY_PERSONAS)
+    validate_prompt_bank(bank)
+
+    scenario_ids = parse_csv_set(args.scenario_ids)
+    scenario_tags = parse_csv_set(args.scenario_tags)
+    persona_ids = parse_csv_set(args.persona_ids)
+
+    scenarios = select_rows(
+        bank.get("scenarios", []),
+        lambda row: scenario_matches(row, scenario_ids, scenario_tags),
+    )
+    personas = select_rows(
+        bank.get("personas", LEGACY_PERSONAS),
+        lambda row: persona_matches(row, persona_ids),
+    )
     temperatures = parse_temperatures(args.temperatures) if args.temperatures else bank.get("temperatures", LEGACY_TEMPS)
+
+    if not scenarios:
+        raise SystemExit("no scenarios matched the requested filters")
+    if not personas:
+        raise SystemExit("no personas matched the requested filters")
 
     with out.open("w", encoding="utf-8") as f:
         idx = 0
@@ -71,9 +132,11 @@ def main():
             scenario_id = scenario.get("id", "unknown")
             scenario_label = scenario.get("label", scenario_id)
             scenario_prompt = scenario.get("prompt", "")
+            scenario_tags_row = scenario.get("tags", [])
             for persona in personas:
                 persona_id = persona.get("id", "none")
                 persona_instruction = persona.get("instruction", "")
+                persona_style = persona.get("style_tags", [])
                 for temp in temperatures:
                     for _ in range(args.n):
                         idx += 1
@@ -84,7 +147,9 @@ def main():
                             "model": "mock-model",
                             "scenario": scenario_label,
                             "scenario_id": scenario_id,
+                            "scenario_tags": scenario_tags_row,
                             "persona": persona_id,
+                            "persona_style_tags": persona_style,
                             "temperature": temp,
                             "seed": random.randint(1, 999999),
                             "prompt_bank_version": bank.get("version", "unknown"),
@@ -92,7 +157,11 @@ def main():
                         }
                         f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
-    print(f"Wrote {idx} rows to {out} (seed={args.seed}, prompt_bank={bank.get('version', 'unknown')})")
+    print(
+        f"Wrote {idx} rows to {out} "
+        f"(seed={args.seed}, prompt_bank={bank.get('version', 'unknown')}, "
+        f"scenarios={len(scenarios)}, personas={len(personas)}, temps={len(temperatures)})"
+    )
 
 
 if __name__ == "__main__":

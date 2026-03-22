@@ -5,11 +5,15 @@ from pathlib import Path
 
 
 def classify_pillar(group_name: str) -> str:
-    if "tom" in group_name:
+    if isinstance(group_name, list):
+        joined = " ".join(group_name).lower()
+    else:
+        joined = str(group_name).lower()
+    if "tom" in joined:
         return "LLM ToM"
-    if "counterfactual" in group_name or "regret" in group_name:
+    if "counterfactual" in joined or "regret" in joined:
         return "Psychology"
-    if "anthrop" in group_name or "emotion" in group_name:
+    if "anthrop" in joined or "emotion" in joined:
         return "Anthropomorphism/Emotion"
     return "Other"
 
@@ -25,8 +29,9 @@ def row_to_md(i: int, r: dict) -> str:
     method = r.get("type") or ""
     score = r.get("screening_score", "")
     decision = r.get("screening_label", "")
+    priority = r.get("screening_priority", "")
     cites = r.get("cited_by_count", 0)
-    return f"| {i} | {title} | {year} | {venue} | {pillar} | {method} | {score} | {decision} | {cites} | {link} |"
+    return f"| {i} | {title} | {year} | {venue} | {pillar} | {method} | {score} | {decision} | {priority} | {cites} | {link} |"
 
 
 def main():
@@ -53,8 +58,8 @@ def main():
     header = [
         "# Evidence Table (Auto-generated)",
         "",
-        "| # | Title | Year | Venue | Pillar | Type | ScreenScore | Decision | Cites | DOI/URL |",
-        "|---:|---|---:|---|---|---|---:|---|---:|---|",
+        "| # | Title | Year | Venue | Pillar | Type | ScreenScore | Decision | Priority | Cites | DOI/URL |",
+        "|---:|---|---:|---|---|---|---:|---|---|---:|---|",
     ]
     body = [row_to_md(i + 1, r) for i, r in enumerate(rows)]
     text = "\n".join(header + body) + "\n"

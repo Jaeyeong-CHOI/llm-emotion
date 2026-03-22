@@ -38,12 +38,31 @@ DEFAULT_SCREENING_RULES = {
         ["large language model", "llm", "language model"],
         ["regret", "counterfactual", "emotion", "affect", "anthropomorphism", "mental state", "theory of mind"],
     ],
+    "review_priority_any": [
+        "human evaluation",
+        "annotator",
+        "behavioral experiment",
+        "psychology",
+        "emotion benchmark",
+    ],
+    "term_aliases": {
+        "large language model": ["large language model", "large language models", "llm", "llms", "language model"],
+        "counterfactual": ["counterfactual", "counterfactuals", "counterfactual thinking"],
+        "regret": ["regret", "regretful"],
+        "emotion": ["emotion", "emotions", "emotional", "affect", "affective"],
+        "anthropomorphism": ["anthropomorphism", "anthropomorphic"],
+        "theory of mind": ["theory of mind", "mentalizing", "mental state"],
+        "self-reflection": ["self-reflection", "self reflection", "reflective reasoning"],
+    },
     "weights": {
         "include_any": 1.0,
         "high_priority": 2.0,
         "cited_by_log1p": 0.35,
         "query_overlap": 0.2,
         "concept_diversity": 0.15,
+        "title_hit": 0.35,
+        "review_priority": 0.5,
+        "abstract_density": 0.25,
     },
     "penalties": {
         "exclude_hit": 2.0,
@@ -97,8 +116,19 @@ def _contains_phrase(text: str, phrase: str) -> bool:
     return re.search(phrase_re, text) is not None
 
 
-def _hit_terms(text: str, terms: Sequence[str]) -> List[str]:
-    return [k for k in terms if _contains_phrase(text, k)]
+def _term_variants(term: str, rules: Dict) -> List[str]:
+    aliases = rules.get("term_aliases", {})
+    values = aliases.get(term, [term])
+    return [str(v).lower() for v in values if str(v).strip()]
+
+
+def _hit_terms(text: str, terms: Sequence[str], rules: Dict) -> List[str]:
+    hits = []
+    for term in terms:
+        variants = _term_variants(term, rules)
+        if any(_contains_phrase(text, variant) for variant in variants):
+            hits.append(term)
+    return hits
 
 
 def _query_terms(query: str) -> List[str]:
@@ -112,20 +142,32 @@ def _token_count(text: str) -> int:
     return len(re.findall(r"\w+", text or ""))
 
 
+def _priority_label(label: str, exclude_hits: List[str], missing_groups: int, review_hits: List[str], score: float) -> str:
+    if label == "include":
+        return "high"
+    if label == "review" and not exclude_hits and missing_groups <= 1 and (review_hits or score >= 2.5):
+        return "high"
+    if label == "review":
+        return "medium"
+    return "low"
+
+
 def score_screening(title: str, abstract: str, query: str, language: str, pub_type: str, year: int, cited_by_count: int, rules: Dict) -> Dict:
     title_l = (title or "").lower()
     abstract_l = (abstract or "").lower()
     text = f"{title_l}\n{abstract_l}"
 
-    include_hits: List[str] = _hit_terms(text, rules["include_any"])
-    high_priority_hits: List[str] = _hit_terms(text, rules["high_priority"])
-    exclude_hits: List[str] = _hit_terms(text, rules["exclude_if_any"])
+    include_hits: List[str] = _hit_terms(text, rules["include_any"], rules)
+    high_priority_hits: List[str] = _hit_terms(text, rules["high_priority"], rules)
+    exclude_hits: List[str] = _hit_terms(text, rules["exclude_if_any"], rules)
+    review_hits: List[str] = _hit_terms(text, rules.get("review_priority_any", []), rules)
+    title_hits: List[str] = _hit_terms(title_l, rules["include_any"], rules)
 
     concept_groups = rules.get("required_concepts_any", [])
     concept_hits = []
     missing_groups = 0
     for group in concept_groups:
-        g_hits = _hit_terms(text, group)
+        g_hits = _hit_terms(text, group, rules)
         concept_hits.append(g_hits)
         if not g_hits:
             missing_groups += 1
@@ -143,6 +185,13 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
 
     concept_diversity = sum(1 for g_hits in concept_hits if g_hits)
     concept_diversity_bonus = concept_diversity * float(weights.get("concept_diversity", 0.15))
+    title_bonus = len(title_hits) * float(weights.get("title_hit", 0.35))
+    review_priority_bonus = len(review_hits) * float(weights.get("review_priority", 0.5))
+    abstract_tokens = _token_count(abstract)
+    density_bonus = 0.0
+    if abstract_tokens:
+        hit_density = (len(include_hits) + len(high_priority_hits) + len(review_hits)) / abstract_tokens
+        density_bonus = min(hit_density, 0.08) * float(weights.get("abstract_density", 0.25)) * 100.0
 
     penalty_exclude = len(exclude_hits) * float(penalties.get("exclude_hit", 2.0))
     penalty_missing_group = missing_groups * float(penalties.get("missing_concept_group", 1.0))
@@ -162,7 +211,6 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     if min_year and (year or 0) < min_year:
         year_penalty = 0.5
 
-    abstract_tokens = _token_count(abstract)
     short_abstract_penalty = 0.0
     min_abstract_tokens = int(rules.get("min_abstract_tokens", 0) or 0)
     if min_abstract_tokens and abstract_tokens < min_abstract_tokens:
@@ -174,6 +222,9 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
         + citation_bonus
         + query_overlap_bonus
         + concept_diversity_bonus
+        + title_bonus
+        + review_priority_bonus
+        + density_bonus
         - penalty_exclude
         - penalty_missing_group
         - lang_penalty
@@ -193,11 +244,17 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     else:
         label = "exclude"
 
+    priority = _priority_label(label, exclude_hits, missing_groups, review_hits, weighted_score)
+
     reasons = []
     if include_hits:
         reasons.append(f"include_hits={', '.join(include_hits[:6])}")
     if high_priority_hits:
         reasons.append(f"high_priority={', '.join(high_priority_hits[:6])}")
+    if title_hits:
+        reasons.append(f"title_hits={', '.join(title_hits[:4])}")
+    if review_hits:
+        reasons.append(f"review_priority={', '.join(review_hits[:4])}")
     if exclude_hits:
         reasons.append(f"exclude_hits={', '.join(exclude_hits[:6])}")
     if query_overlap_n:
@@ -216,16 +273,19 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     return {
         "screening_score": weighted_score,
         "screening_label": label,
+        "screening_priority": priority,
         "screening_reasons": reasons,
-        "matched_terms": sorted(set(include_hits + high_priority_hits)),
+        "matched_terms": sorted(set(include_hits + high_priority_hits + review_hits)),
         "screening_features": {
             "include_hits": len(include_hits),
             "high_priority_hits": len(high_priority_hits),
+            "review_priority_hits": len(review_hits),
             "exclude_hits": len(exclude_hits),
             "missing_concept_groups": missing_groups,
             "cited_by_count": cited_by_count or 0,
             "query_overlap": query_overlap_n,
             "concept_diversity": concept_diversity,
+            "title_hits": len(title_hits),
             "abstract_tokens": abstract_tokens,
             "language": language,
             "type": pub_type,
@@ -295,6 +355,15 @@ def merge_rows(existing: Dict, new_row: Dict) -> Dict:
 
     merged = dict(better)
     merged["query"] = sorted(_query_set(existing.get("query")) | _query_set(new_row.get("query")))
+    merged["group"] = sorted(_query_set(existing.get("group")) | _query_set(new_row.get("group")))
+    merged["matched_terms"] = sorted(_query_set(existing.get("matched_terms")) | _query_set(new_row.get("matched_terms")))
+    merged["screening_reasons"] = sorted(_query_set(existing.get("screening_reasons")) | _query_set(new_row.get("screening_reasons")))
+    if "high" in {existing.get("screening_priority"), new_row.get("screening_priority")}:
+        merged["screening_priority"] = "high"
+    elif "medium" in {existing.get("screening_priority"), new_row.get("screening_priority")}:
+        merged["screening_priority"] = "medium"
+    else:
+        merged["screening_priority"] = merged.get("screening_priority", "low")
     return merged
 
 
@@ -303,6 +372,14 @@ def summarize_labels(rows: List[Dict]) -> Dict[str, int]:
     for r in rows:
         label = r.get("screening_label", "exclude")
         out[label] = out.get(label, 0) + 1
+    return out
+
+
+def summarize_priorities(rows: List[Dict]) -> Dict[str, int]:
+    out = {"high": 0, "medium": 0, "low": 0}
+    for r in rows:
+        priority = r.get("screening_priority", "low")
+        out[priority] = out.get(priority, 0) + 1
     return out
 
 
@@ -338,6 +415,7 @@ def main():
                 "group": gname,
                 "fetched": len(normalized),
                 "labels": summarize_labels(normalized),
+                "priorities": summarize_priorities(normalized),
                 "top_score": max((r.get("screening_score", 0.0) for r in normalized), default=0.0),
             }
             time.sleep(0.5)
@@ -381,7 +459,9 @@ def main():
             "raw_records": len(rows),
             "deduped_records": len(deduped),
             "labels": summarize_labels(ordered),
+            "priorities": summarize_priorities(ordered),
             "per_query": query_stats,
+            "top_priority_titles": [r.get("title") for r in ordered[:10] if r.get("screening_priority") == "high"],
         }
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"report: {report_path}")

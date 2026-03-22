@@ -5,6 +5,7 @@ import datetime as dt
 import hashlib
 import json
 import platform
+import shlex
 import statistics
 import subprocess
 from pathlib import Path
@@ -32,6 +33,35 @@ def load_metrics(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def load_prompt_bank(path: Path) -> dict:
+    if not path.exists():
+        raise FileNotFoundError(f"prompt bank not found: {path}")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set[str], persona_ids: set[str]) -> dict:
+    scenarios = bank.get("scenarios", [])
+    personas = bank.get("personas", [])
+
+    selected_scenarios = []
+    for scenario in scenarios:
+        row_tags = {str(tag).strip() for tag in scenario.get("tags", []) if str(tag).strip()}
+        if scenario_ids and scenario.get("id") not in scenario_ids:
+            continue
+        if scenario_tags and not scenario_tags.issubset(row_tags):
+            continue
+        selected_scenarios.append(scenario)
+
+    selected_personas = [persona for persona in personas if not persona_ids or persona.get("id") in persona_ids]
+
+    return {
+        "scenario_count": len(selected_scenarios),
+        "persona_count": len(selected_personas),
+        "scenario_ids": [row.get("id") for row in selected_scenarios],
+        "persona_ids": [row.get("id") for row in selected_personas],
+    }
+
+
 def aggregate_metrics(metric_paths):
     rows = []
     for p in metric_paths:
@@ -57,6 +87,22 @@ def get_git_commit() -> str:
     return out.strip() if code == 0 else "unknown"
 
 
+def parse_csv_set(value) -> set[str]:
+    if isinstance(value, list):
+        return {str(v).strip() for v in value if str(v).strip()}
+    if isinstance(value, str):
+        return {v.strip() for v in value.split(",") if v.strip()}
+    return set()
+
+
+def shell_join(parts: list[str]) -> str:
+    return " ".join(shlex.quote(part) for part in parts)
+
+
+def write_json(path: Path, payload: dict):
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def write_runs_csv(path: Path, runs: list[dict]):
     if not runs:
         return
@@ -68,6 +114,9 @@ def write_runs_csv(path: Path, runs: list[dict]):
         "seed",
         "temperatures",
         "prompt_bank",
+        "scenario_ids",
+        "scenario_tags",
+        "persona_ids",
         "dataset",
         "metrics",
         "status",
@@ -80,6 +129,10 @@ def write_runs_csv(path: Path, runs: list[dict]):
             temps = out.get("temperatures")
             if isinstance(temps, list):
                 out["temperatures"] = ",".join(str(t) for t in temps)
+            for field in ("scenario_ids", "scenario_tags", "persona_ids"):
+                value = out.get(field)
+                if isinstance(value, list):
+                    out[field] = ",".join(str(v) for v in value)
             w.writerow(out)
 
 
@@ -90,6 +143,8 @@ def main():
     ap.add_argument("--run-label", default="")
     ap.add_argument("--resume", action="store_true", help="reuse existing label and skip completed run cells")
     ap.add_argument("--max-runs", type=int, default=0, help="optional cap on number of run cells executed")
+    ap.add_argument("--plan-only", action="store_true", help="write manifest/plan without executing generation or analysis")
+    ap.add_argument("--include-run-id", action="append", default=[], help="restrict execution to specific run id(s)")
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -98,6 +153,8 @@ def main():
     label = args.run_label.strip() or utc_stamp()
     outdir = ROOT / args.outdir / label
     outdir.mkdir(parents=True, exist_ok=True)
+    snapshots_dir = outdir / "snapshots"
+    snapshots_dir.mkdir(exist_ok=True)
 
     manifest_path = outdir / "manifest.json"
     existing_manifest = {}
@@ -113,15 +170,33 @@ def main():
     runs = []
     all_metric_paths = []
     executed = 0
+    include_run_ids = set(args.include_run_id)
+    executed_ids = []
+
+    write_json(snapshots_dir / "experiment_matrix.json", cfg)
 
     for exp in cfg.get("runs", []):
         run_id = exp["id"]
+        if include_run_ids and run_id not in include_run_ids:
+            continue
         n = int(exp.get("n", 20))
         seed = int(exp.get("seed", 42))
         temperatures = exp.get("temperatures", [0.2, 0.7])
         repeats = int(exp.get("repeats", 1))
         temp_csv = ",".join(str(t) for t in temperatures)
         prompt_bank = exp.get("prompt_bank", "prompts/prompt_bank_ko.json")
+        scenario_ids = sorted(parse_csv_set(exp.get("scenario_ids")))
+        scenario_tags = sorted(parse_csv_set(exp.get("scenario_tags")))
+        persona_ids = sorted(parse_csv_set(exp.get("persona_ids")))
+        prompt_bank_path = ROOT / prompt_bank
+        bank = load_prompt_bank(prompt_bank_path)
+        prompt_summary = summarize_prompt_bank(bank, set(scenario_ids), set(scenario_tags), set(persona_ids))
+        if prompt_summary["scenario_count"] == 0:
+            raise RuntimeError(f"{run_id}: no scenarios selected from {prompt_bank}")
+        if prompt_summary["persona_count"] == 0:
+            raise RuntimeError(f"{run_id}: no personas selected from {prompt_bank}")
+
+        write_json(snapshots_dir / f"{run_id}.prompt_bank.json", bank)
 
         for rep in range(repeats):
             rep_seed = seed + rep
@@ -137,6 +212,11 @@ def main():
                 "seed": rep_seed,
                 "temperatures": temperatures,
                 "prompt_bank": prompt_bank,
+                "scenario_ids": scenario_ids,
+                "scenario_tags": scenario_tags,
+                "persona_ids": persona_ids,
+                "scenario_count": prompt_summary["scenario_count"],
+                "persona_count": prompt_summary["persona_count"],
                 "dataset": str(dataset_path.relative_to(ROOT)),
                 "metrics": str(metrics_path.relative_to(ROOT)),
                 "status": "planned",
@@ -153,15 +233,42 @@ def main():
                 runs.append(row)
                 continue
 
-            gen_cmd = (
-                f"python3 scripts/generate_dataset.py --out {dataset_path} --n {n} "
-                f"--seed {rep_seed} --prompt-bank {prompt_bank} --temperatures {temp_csv}"
+            gen_parts = [
+                "python3",
+                "scripts/generate_dataset.py",
+                "--out",
+                str(dataset_path),
+                "--n",
+                str(n),
+                "--seed",
+                str(rep_seed),
+                "--prompt-bank",
+                prompt_bank,
+                "--temperatures",
+                temp_csv,
+            ]
+            if scenario_ids:
+                gen_parts.extend(["--scenario-ids", ",".join(scenario_ids)])
+            if scenario_tags:
+                gen_parts.extend(["--scenario-tags", ",".join(scenario_tags)])
+            if persona_ids:
+                gen_parts.extend(["--persona-ids", ",".join(persona_ids)])
+            gen_cmd = shell_join(gen_parts)
+            analyze_cmd = shell_join(
+                ["python3", "scripts/analyze_regret_markers.py", "--in", str(dataset_path), "--out", str(metrics_path)]
             )
+            row["generation_command"] = gen_cmd
+            row["analysis_command"] = analyze_cmd
+
+            if args.plan_only:
+                row["status"] = "planned_only"
+                runs.append(row)
+                continue
+
             code, _, err = run(gen_cmd)
             if code != 0:
                 raise RuntimeError(f"generation failed for {run_key}: {err}")
 
-            analyze_cmd = f"python3 scripts/analyze_regret_markers.py --in {dataset_path} --out {metrics_path}"
             code, _, err2 = run(analyze_cmd)
             if code != 0:
                 raise RuntimeError(f"analysis failed for {run_key}: {err2}")
@@ -170,6 +277,7 @@ def main():
             runs.append(row)
             all_metric_paths.append(metrics_path)
             executed += 1
+            executed_ids.append(run_key)
 
     summary = aggregate_metrics(all_metric_paths)
     manifest = {
@@ -184,13 +292,18 @@ def main():
             "git_commit": get_git_commit(),
         },
         "summary": summary,
+        "selected_run_ids": sorted(include_run_ids),
+        "plan_only": args.plan_only,
+        "executed_run_keys": executed_ids,
         "runs": runs,
     }
-    manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    write_json(manifest_path, manifest)
     write_runs_csv(outdir / "runs.csv", runs)
 
     ok_n = sum(1 for r in runs if r.get("status") == "ok")
     print(f"[OK] executed {ok_n}/{len(runs)} run cells -> {outdir}")
+    if args.plan_only:
+        print(f"planned_only: {sum(1 for r in runs if r.get('status') == 'planned_only')}")
     print(f"manifest: {manifest_path}")
 
 

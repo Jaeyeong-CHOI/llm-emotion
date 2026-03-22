@@ -24,6 +24,15 @@
     "emotional attribution",
     "self-reflection"
   ],
+  "review_priority_any": [
+    "human evaluation",
+    "annotator",
+    "behavioral experiment",
+    "emotion benchmark",
+    "social reasoning benchmark",
+    "manual coding",
+    "psychology"
+  ],
   "exclude_if_any": [
     "speech recognition",
     "medical imaging",
@@ -36,12 +45,27 @@
     ["large language model", "llm", "language model"],
     ["regret", "counterfactual", "emotion", "affect", "anthropomorphism", "mental state", "theory of mind"]
   ],
+  "term_aliases": {
+    "large language model": ["large language model", "large language models", "llm", "llms", "language model", "language models"],
+    "counterfactual": ["counterfactual", "counterfactuals", "counterfactual thinking"],
+    "counterfactual thinking": ["counterfactual thinking", "counterfactual reasoning"],
+    "regret": ["regret", "regretful"],
+    "emotion": ["emotion", "emotions", "emotional", "affect", "affective"],
+    "affect": ["affect", "affective", "emotion", "emotional"],
+    "anthropomorphism": ["anthropomorphism", "anthropomorphic"],
+    "theory of mind": ["theory of mind", "mentalizing", "mental state reasoning"],
+    "mental state": ["mental state", "mental states", "mentalizing"],
+    "self-reflection": ["self-reflection", "self reflection", "reflective reasoning"]
+  },
   "weights": {
     "include_any": 1.0,
     "high_priority": 2.0,
     "cited_by_log1p": 0.35,
     "query_overlap": 0.2,
-    "concept_diversity": 0.15
+    "concept_diversity": 0.15,
+    "title_hit": 0.35,
+    "review_priority": 0.5,
+    "abstract_density": 0.25
   },
   "penalties": {
     "exclude_hit": 2.0,
