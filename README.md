@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year top5 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top5-query-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-top5-over-global-top5-ratio`)를 추가해, top4까지 통과해도 남는 누적 과점을 fail-fast로 차단합니다.
+- Prompt bank expanded to `v10.5` with **unknown-year top5 ratio guard / top5 tail counterbalance patch / temperature top7 uniformity tripwire** 시나리오와 신규 페르소나(`temperature_top7_uniformity_guard_v105`)를 추가했습니다.
+- Experiment runner preflight에 **temperature top7 share + top7-over-uniform guardrail** (`--max-planned-sample-temperature-top7-share`, `--max-planned-sample-temperature-top7-over-uniform-ratio`)을 추가해, top6는 통과해도 상위 7개 온도 누적 집중이 과도한 배치를 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year top4 absolute share 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top4-query-share`)를 추가해, top1~top3가 통과해도 top4 누적 과점이 남는 케이스를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v10.4` with **unknown-year group tail ratio backstop / countervoice query-group tail ladder / runner timeout topology tripwire** 시나리오를 추가했습니다 (`screening_unknown_year_group_tail_ratio_backstop_v104`, `prompt_bank_countervoice_query_group_tail_ladder_v104`, `runner_timeout_stage_topology_tripwire_v104`).
 - Experiment runner preflight의 **temperature top6 guardrail 실효성**을 보강해 `--max-planned-sample-temperature-top6-share`, `--max-planned-sample-temperature-top6-over-uniform-ratio` 임계치가 실제 fail-fast 체크와 설정 스냅샷에 모두 반영되도록 고정했습니다.

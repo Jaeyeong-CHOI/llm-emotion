@@ -1,5 +1,5 @@
 {
-  "version": "v10.4",
+  "version": "v10.5",
   "language": "ko",
   "scenarios": [
     {
@@ -4551,6 +4551,74 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 러너에서 generation/analysis timeout share는 개별 임계치를 통과했지만 특정 run-id에서 stage topology(연속 실패 위치)가 한쪽으로 고착돼 배치가 느려진 사건을 7~10문장으로 회고하라. timeout share와 failure streak topology를 왜 함께 봐야 했는지, 조기 중단 tripwire와 재개 전 검증 절차를 수치로 포함하라."
+    },
+    {
+      "id": "screening_unknown_year_top5_ratio_guard_v105",
+      "label": "review",
+      "tags": [
+        "research",
+        "screening",
+        "unknown_year",
+        "query_balance",
+        "top5_ratio",
+        "quality_gate"
+      ],
+      "domains": [
+        "literature_screening",
+        "quality_control"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "fairness",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable-known-query 표본에서 unknown-year 구간의 query top5 누적 점유율이 global known-query top5 대비 과열된 징후를 7~10문장으로 점검하라. top1~top5 누적 점유율, unknown-year query coverage/entropy, global 대비 top5 ratio를 함께 기록하고, gate 임계치 실패 시 어떤 쿼리 확장/재샘플링 순서로 복구할지 제시하라."
+    },
+    {
+      "id": "prompt_bank_top5_tail_counterbalance_patch_v105",
+      "label": "deprivation",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "tail_balance",
+        "top5",
+        "repair"
+      ],
+      "domains": [
+        "prompt_engineering",
+        "dataset_design"
+      ],
+      "emotion_axes": [
+        "frustration",
+        "reflection",
+        "stability"
+      ],
+      "difficulty": "medium",
+      "prompt": "프롬프트 뱅크에서 상위 query 5개가 장기적으로 과대표집되는 현상을 줄이기 위해 tail 질의군 countervoice를 보강한 패치를 6~9문장으로 설명하라. 어떤 태그/도메인 축을 추가해 top5 집중을 분산했는지, 실패 모드와 재검증 체크리스트를 함께 포함하라."
+    },
+    {
+      "id": "runner_temperature_top7_uniformity_tripwire_v105",
+      "label": "deprivation",
+      "tags": [
+        "runner",
+        "temperature",
+        "top7_share",
+        "uniform_ratio",
+        "tripwire"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "control",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 러너 preflight에서 top6 guardrail은 통과했지만 top7 누적 share와 uniform 대비 비율이 경고를 내며 batch 다양성이 저하된 사건을 7~10문장으로 회고하라. top7 share/top7-over-uniform ratio를 어떻게 해석했는지, fail-fast 기준과 재계획 절차를 수치와 함께 정리하라."
     }
   ],
   "personas": [
@@ -6850,6 +6918,19 @@
         "runner",
         "temperature",
         "top6_share",
+        "uniform_ratio",
+        "guardrail"
+      ]
+    },
+    {
+      "id": "temperature_top7_uniformity_guard_v105",
+      "name": "Temperature Top7 Uniformity Guard",
+      "style": "top7 누적 온도 점유율과 균등 baseline 대비 과열 비율을 함께 감시해 숨은 집중을 조기 차단한다.",
+      "tone": "엄격하고 재현성 중심",
+      "tags": [
+        "runner",
+        "temperature",
+        "top7_share",
         "uniform_ratio",
         "guardrail"
       ]
