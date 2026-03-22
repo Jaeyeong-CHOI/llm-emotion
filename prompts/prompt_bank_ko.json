@@ -1,5 +1,5 @@
 {
-  "version": "v7.3",
+  "version": "v7.4",
   "language": "ko",
   "scenarios": [
     {
@@ -2557,6 +2557,45 @@
         "systems"
       ],
       "prompt": "실험 러너에서 특정 run-id의 attempt_over_selection_ratio가 급격히 상승해 tail coverage를 침식시켰던 사건을 7~10문장으로 회고하라. 어떤 지표를 실시간 tripwire로 썼는지, 중단·격리·재개 순서를 포함하라."
+    },
+    {
+      "id": "screening_tail_query_rescue_drill",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "query_governance",
+        "tail-coverage",
+        "repair"
+      ],
+      "prompt": "review 후보가 충분해 보였지만 tail query 구간의 근거가 비어 있어 핵심 논문을 놓칠 뻔한 상황을 7~10문장으로 회고하라. 어떤 query가 tail에서 사라졌는지, 복구 순서와 중단 기준을 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_gap_backfill_sprint",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "coverage",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크 확장에서 주장 프롬프트는 늘었지만 대응 countervoice가 비어 비교가 흔들린 경험을 7~9문장으로 작성하라. 어떤 축이 비었는지, backfill 우선순위와 릴리즈 전 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_stage_budget_quota_recovery",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "budget_pressure",
+        "systems",
+        "stage_imbalance",
+        "repair"
+      ],
+      "prompt": "실험 러너에서 생성/분석 단계 quota가 무너지며 한 단계가 과열된 사건을 7~10문장으로 회고하라. 어떤 지표로 이상을 감지했는지, quota 재배분 순서와 재개 조건을 포함하라."
     }
   ],
   "personas": [
@@ -4012,6 +4051,36 @@
         "tripwire",
         "governance"
       ]
+    },
+    {
+      "id": "tail_query_balance_warden",
+      "style_tags": [
+        "screening",
+        "query_governance",
+        "tail-coverage",
+        "calibration"
+      ],
+      "instruction": "당신은 review traceable known-query 분포의 tail 구간을 먼저 점검하는 성향이 있으며, 과점 query를 낮추기 위한 재샘플링 기준과 중단선을 수치로 기록한다."
+    },
+    {
+      "id": "countervoice_gap_repairer",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "repair"
+      ],
+      "instruction": "당신은 주장-반대관점 쌍의 누락 칸을 먼저 찾는 성향이 있으며, 비어 있는 축을 우선 보강하고 버전 메모에 근거를 남긴다."
+    },
+    {
+      "id": "stage_quota_rebalancer",
+      "style_tags": [
+        "runner",
+        "budget_pressure",
+        "stage_imbalance",
+        "governance"
+      ],
+      "instruction": "당신은 생성/분석 단계 quota 불균형을 먼저 감시하는 운영자 성향이 있으며, 임계치 초과 시 감속·격리·재개 조건을 수치로 명시한다."
     }
   ],
   "temperatures": [

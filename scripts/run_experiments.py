@@ -87,6 +87,8 @@ def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set
         "scenario_tags": sorted(selected_tags),
         "scenario_label_count": len(selected_labels),
         "scenario_labels": sorted(selected_labels),
+        "scenario_label_counts": {label: sum(1 for row in selected_scenarios if str(row.get("label") or "").strip() == label) for label in sorted(selected_labels)},
+        "scenario_label_dominance": round((max((sum(1 for row in selected_scenarios if str(row.get("label") or "").strip() == label) for label in selected_labels), default=0) / max(1, len(selected_scenarios))), 4) if selected_scenarios else 0.0,
         "persona_style_tag_count": len(selected_persona_style_tags),
         "persona_style_tags": sorted(selected_persona_style_tags),
     }
@@ -282,6 +284,7 @@ def write_selection_csv(path: Path, rows: list[dict]):
         "scenario_count",
         "persona_count",
         "scenario_label_count",
+        "scenario_label_dominance",
         "scenario_labels",
         "scenario_tag_count",
         "scenario_tags",
@@ -302,7 +305,11 @@ def write_selection_csv(path: Path, rows: list[dict]):
                 value = out.get(field)
                 if isinstance(value, list):
                     out[field] = ",".join(str(v) for v in value)
+            label_counts = out.get("scenario_label_counts")
+            if isinstance(label_counts, dict):
+                out["scenario_label_counts"] = json.dumps(label_counts, ensure_ascii=False, sort_keys=True)
             w.writerow(out)
+        return
 
 
 def write_preflight_csv(path: Path, rows: list[dict]):
@@ -319,6 +326,7 @@ def write_preflight_csv(path: Path, rows: list[dict]):
         "condition_cells",
         "planned_samples",
         "scenario_label_count",
+        "scenario_label_dominance",
         "scenario_labels",
         "scenario_tag_count",
         "scenario_tags",
@@ -352,6 +360,7 @@ def write_preflight_markdown(path: Path, payload: dict):
         f"- min_temperature_span: `{summary.get('min_temperature_span', 0.0)}`",
         f"- min_condition_cells: `{summary.get('min_condition_cells', 0)}`",
         f"- min_planned_samples: `{summary.get('min_planned_samples', 0)}`",
+        f"- max_scenario_label_dominance: `{summary.get('max_scenario_label_dominance', 0.0)}`",
         f"- unique_selected_scenarios: `{summary.get('unique_selected_scenarios', 0)}`",
         f"- unique_selected_personas: `{summary.get('unique_selected_personas', 0)}`",
         f"- unique_selected_scenario_labels: `{summary.get('unique_selected_scenario_labels', 0)}`",
@@ -887,6 +896,12 @@ def main():
         type=int,
         default=0,
         help="fail if a selected run has fewer than this many unique scenario labels",
+    )
+    ap.add_argument(
+        "--require-max-scenario-label-dominance",
+        type=float,
+        default=0.0,
+        help="fail if a selected run has one scenario label above this share (0 disables)",
     )
     ap.add_argument(
         "--require-min-unique-persona-style-tags",
@@ -1488,6 +1503,11 @@ def main():
                 f"{run_id}: scenario_label_count={prompt_summary['scenario_label_count']} < "
                 f"require_min_unique_scenario_labels={args.require_min_unique_scenario_labels}"
             )
+        if args.require_max_scenario_label_dominance and prompt_summary["scenario_label_dominance"] > args.require_max_scenario_label_dominance:
+            raise RuntimeError(
+                f"{run_id}: scenario_label_dominance={prompt_summary['scenario_label_dominance']} > "
+                f"require_max_scenario_label_dominance={args.require_max_scenario_label_dominance}"
+            )
         if (
             args.require_min_unique_persona_style_tags
             and prompt_summary["persona_style_tag_count"] < args.require_min_unique_persona_style_tags
@@ -1514,6 +1534,8 @@ def main():
                 "condition_cells": condition_cells,
                 "planned_samples": planned_samples,
                 "scenario_label_count": prompt_summary["scenario_label_count"],
+                "scenario_label_counts": prompt_summary["scenario_label_counts"],
+                "scenario_label_dominance": prompt_summary["scenario_label_dominance"],
                 "scenario_tag_count": prompt_summary["scenario_tag_count"],
                 "scenario_tags": prompt_summary["scenario_tags"],
                 "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
@@ -1532,6 +1554,8 @@ def main():
                 "condition_cells": condition_cells,
                 "planned_samples": planned_samples,
                 "scenario_label_count": prompt_summary["scenario_label_count"],
+                "scenario_label_counts": prompt_summary["scenario_label_counts"],
+                "scenario_label_dominance": prompt_summary["scenario_label_dominance"],
                 "scenario_labels": prompt_summary["scenario_labels"],
                 "scenario_tag_count": prompt_summary["scenario_tag_count"],
                 "scenario_tags": prompt_summary["scenario_tags"],
@@ -2483,6 +2507,7 @@ def main():
         "unique_selected_scenario_labels": len(aggregate_scenario_labels),
         "unique_selected_scenario_tags": len(aggregate_scenario_tags),
         "unique_selected_persona_style_tags": len(aggregate_persona_style_tags),
+        "max_scenario_label_dominance": max((row.get("scenario_label_dominance", 0.0) for row in run_preflight_rows), default=0.0),
     }
     snapshot_hashes = {
         "experiment_matrix": file_sha256(matrix_snapshot),
@@ -2750,6 +2775,7 @@ def main():
         "require_min_repeats": args.require_min_repeats,
         "require_min_temperature_span": args.require_min_temperature_span,
         "require_min_unique_scenario_labels": args.require_min_unique_scenario_labels,
+        "require_max_scenario_label_dominance": args.require_max_scenario_label_dominance,
         "require_min_unique_scenario_tags": args.require_min_unique_scenario_tags,
         "require_min_unique_persona_style_tags": args.require_min_unique_persona_style_tags,
         "require_min_selected_scenario_labels": args.require_min_selected_scenario_labels,
