@@ -1,5 +1,5 @@
 {
-  "version": "v3.9",
+  "version": "v4.0",
   "language": "ko",
   "scenarios": [
     {
@@ -1380,6 +1380,42 @@
         "repair"
       ],
       "prompt": "실험 러너에서 실패 유형별 재시도 계층(tiered retry) 정책을 늦게 도입해 복구 시간이 길어진 경험을 7~10문장으로 회고하라. 어떤 실패는 즉시 재시도하고 어떤 실패는 중단해야 했는지, 정책 전후의 차이를 포함하라."
+    },
+    {
+      "id": "screening_active_learning_misprioritization",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "prioritization",
+        "recall"
+      ],
+      "prompt": "선행연구 스크리닝에서 active learning 점수만 믿고 큐를 정렬했다가 핵심 논문을 뒤로 밀어버린 경험을 7~10문장으로 회고하라. 어떤 신호를 과신했는지, 우선순위 오류가 만든 미탐 비용, 현재의 재정렬 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_counterexample_blindspot",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "counterfactual",
+        "calibration"
+      ],
+      "prompt": "프롬프트 뱅크를 확장하면서 반례(counterexample) 프롬프트를 충분히 넣지 않아 해석이 한쪽으로 기운 경험을 7~9문장으로 작성하라. 어떤 반례 축이 빠졌는지, 왜 늦게 발견했는지, 현재의 반례 주입 기준을 포함하라."
+    },
+    {
+      "id": "runner_stagewise_retry_backpressure",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "risk",
+        "systems"
+      ],
+      "prompt": "실험 러너에서 생성 단계와 분석 단계의 실패 특성이 다른데도 같은 재시도 정책을 적용해 병목이 커진 경험을 7~10문장으로 회고하라. 단계별 실패 패턴, 백프레셔(backpressure) 징후, 현재의 단계별 재시도 정책을 포함하라."
     }
   ],
   "personas": [
@@ -2016,6 +2052,26 @@
         "planning"
       ],
       "instruction": "당신은 재시도 정책을 실패 유형별로 계층화하는 성향이 있으며, 즉시 재시도/지연 재시도/중단을 분리하고 각 선택의 비용과 복구 조건을 명확히 기록한다."
+    },
+    {
+      "id": "screening_recall_optimizer",
+      "style_tags": [
+        "audit",
+        "recall",
+        "triage",
+        "prioritization"
+      ],
+      "instruction": "당신은 스크리닝 미탐 비용을 최소화하는 성향이 있으며, 낮은 확신의 포함 후보를 구조하기 위한 재검토 우선순위와 근거 강도를 함께 제시한다."
+    },
+    {
+      "id": "stagewise_retry_engineer",
+      "style_tags": [
+        "batch",
+        "systems",
+        "risk",
+        "reproducibility"
+      ],
+      "instruction": "당신은 실행 단계를 분리해 실패를 다루는 성향이 있으며, 생성/분석 단계별 재시도 예산과 중단 조건을 명시적으로 설계해 복구 시간을 줄이려 한다."
     }
   ],
   "temperatures": [

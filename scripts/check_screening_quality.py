@@ -73,6 +73,8 @@ def write_markdown(path: Path, payload: dict):
             f"- balanced_min_per_label_missing: `{payload['summary']['balanced_min_per_label_missing']}`",
             f"- risk_reason_diversity: `{payload['summary']['risk_reason_diversity']}`",
             f"- top_risk_reason_share: `{payload['summary']['top_risk_reason_share']}`",
+            f"- screening_reason_diversity: `{payload['summary']['screening_reason_diversity']}`",
+            f"- top_screening_reason_share: `{payload['summary']['top_screening_reason_share']}`",
             f"- review_to_include_ratio: `{payload['summary']['review_to_include_ratio']}`",
             f"- manual_qc_include_rows: `{payload['summary']['manual_qc_include_rows']}`",
             f"- manual_qc_label_counts: `{payload['summary']['manual_qc_label_counts']}`",
@@ -117,6 +119,8 @@ def main():
     ap.add_argument("--max-manual-qc-high-risk-share", type=float, default=0.85)
     ap.add_argument("--min-manual-qc-include-rows", type=int, default=2)
     ap.add_argument("--max-manual-qc-label-dominance", type=float, default=0.75)
+    ap.add_argument("--min-screening-reason-diversity", type=int, default=6)
+    ap.add_argument("--max-top-screening-reason-share", type=float, default=0.65)
     args = ap.parse_args()
 
     report_path = ROOT / args.report
@@ -170,9 +174,18 @@ def main():
     include_count = int(labels.get("include", 0) or 0)
     review_count = int(labels.get("review", 0) or 0)
     manual_qc_label_counts: dict[str, int] = {}
+    screening_reason_counts: dict[str, int] = {}
     for row in manual_qc_rows:
         label = str(row.get("label") or "").strip().lower() or "unknown"
         manual_qc_label_counts[label] = manual_qc_label_counts.get(label, 0) + 1
+        reason_field = str(row.get("screening_reasons") or "")
+        tokens = [token.strip().lower() for token in reason_field.replace("|", ";").split(";") if token.strip()]
+        seen = set()
+        for token in tokens:
+            if token in seen:
+                continue
+            screening_reason_counts[token] = screening_reason_counts.get(token, 0) + 1
+            seen.add(token)
     manual_qc_include_rows = int(manual_qc_label_counts.get("include", 0) or 0)
     manual_qc_label_dominance = (
         round(max(manual_qc_label_counts.values(), default=0) / max(1, len(manual_qc_rows)), 4)
@@ -186,6 +199,13 @@ def main():
     top_risk_reason_share = (
         round(max((int(v or 0) for v in risk_reason_summary.values()), default=0) / total_risk_reason_hits, 4)
         if total_risk_reason_hits > 0
+        else 0.0
+    )
+    screening_reason_diversity = sum(1 for _, v in screening_reason_counts.items() if int(v or 0) > 0)
+    total_screening_reason_hits = sum(int(v or 0) for v in screening_reason_counts.values())
+    top_screening_reason_share = (
+        round(max((int(v or 0) for v in screening_reason_counts.values()), default=0) / total_screening_reason_hits, 4)
+        if total_screening_reason_hits > 0
         else 0.0
     )
 
@@ -292,6 +312,18 @@ def main():
             "threshold": f"<={args.max_top_risk_reason_share}",
         },
         {
+            "name": "screening_reason_diversity_floor",
+            "status": "pass" if screening_reason_diversity >= args.min_screening_reason_diversity else "fail",
+            "observed": screening_reason_diversity,
+            "threshold": f">={args.min_screening_reason_diversity}",
+        },
+        {
+            "name": "top_screening_reason_share_ceiling",
+            "status": "pass" if top_screening_reason_share <= args.max_top_screening_reason_share else "fail",
+            "observed": top_screening_reason_share,
+            "threshold": f"<={args.max_top_screening_reason_share}",
+        },
+        {
             "name": "review_to_include_ratio_ceiling",
             "status": "pass" if review_to_include_ratio <= args.max_review_to_include_ratio else "fail",
             "observed": review_to_include_ratio,
@@ -323,6 +355,7 @@ def main():
 
     hotspots = [
         {"label": "top_qc_risk_reasons", "value": top_items(risk_reason_summary, limit=5)},
+        {"label": "top_screening_reasons", "value": top_items(screening_reason_counts, limit=6)},
         {"label": "balanced_qc_by_label", "value": balanced_summary.get("by_label") or {}},
         {"label": "manual_qc_label_counts", "value": manual_qc_label_counts},
         {"label": "balanced_qc_by_confidence", "value": balanced_summary.get("by_confidence") or {}},
@@ -364,6 +397,8 @@ def main():
             "balanced_min_per_label_missing": balanced_min_per_label_missing,
             "risk_reason_diversity": risk_reason_diversity,
             "top_risk_reason_share": top_risk_reason_share,
+            "screening_reason_diversity": screening_reason_diversity,
+            "top_screening_reason_share": top_screening_reason_share,
             "review_to_include_ratio": review_to_include_ratio,
             "manual_qc_include_rows": manual_qc_include_rows,
             "manual_qc_label_counts": manual_qc_label_counts,

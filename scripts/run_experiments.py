@@ -440,6 +440,12 @@ def main():
         default=0.0,
         help="fail if successful_cells/selected_run_cells is below this ratio (0 disables)",
     )
+    ap.add_argument(
+        "--require-min-run-id-success-rate",
+        type=float,
+        default=0.0,
+        help="fail if any selected run-id success rate falls below this ratio (0 disables)",
+    )
     ap.add_argument("--require-min-condition-cells", type=int, default=0, help="fail if any run selects fewer than this many scenario×persona×temperature condition cells")
     ap.add_argument("--require-min-total-samples", type=int, default=0, help="fail if total selected samples (sum of n×condition_cells×repeats) is below this threshold")
     ap.add_argument("--require-min-run-ids", type=int, default=0, help="fail if selected unique run ids are fewer than this minimum")
@@ -506,6 +512,18 @@ def main():
     )
     ap.add_argument("--max-retries", type=int, default=0, help="retry each generation/analysis command up to N additional times")
     ap.add_argument(
+        "--max-generation-retries",
+        type=int,
+        default=-1,
+        help="override retry budget for generation stage only (-1 uses --max-retries)",
+    )
+    ap.add_argument(
+        "--max-analysis-retries",
+        type=int,
+        default=-1,
+        help="override retry budget for analysis stage only (-1 uses --max-retries)",
+    )
+    ap.add_argument(
         "--retry-backoff-seconds",
         type=float,
         default=0.0,
@@ -563,6 +581,11 @@ def main():
     git_status = get_git_status()
     if args.strict_clean and git_status.get("dirty"):
         raise RuntimeError("git working tree is dirty; commit/stash changes or run without --strict-clean")
+
+    generation_retry_budget = args.max_retries if args.max_generation_retries < 0 else args.max_generation_retries
+    analysis_retry_budget = args.max_retries if args.max_analysis_retries < 0 else args.max_analysis_retries
+    if generation_retry_budget < 0 or analysis_retry_budget < 0:
+        raise RuntimeError("retry budget cannot be negative")
 
     label = args.run_label.strip() or utc_stamp()
     outdir = ROOT / args.outdir / label
@@ -625,6 +648,8 @@ def main():
     selected_run_cells = 0
     selected_total_samples = 0
     planned_samples_by_run: dict[str, int] = {}
+    selected_cells_by_run_id: dict[str, int] = {}
+    successful_cells_by_run_id: dict[str, int] = {}
     run_preflight_rows: list[dict] = []
     aggregate_scenario_ids: set[str] = set()
     aggregate_persona_ids: set[str] = set()
@@ -814,6 +839,7 @@ def main():
             }
             selected_run_cells += 1
             selected_total_samples += n * condition_cells
+            selected_cells_by_run_id[run_id] = selected_cells_by_run_id.get(run_id, 0) + 1
 
             if run_key in completed:
                 row["status"] = "skipped_resume"
@@ -822,6 +848,7 @@ def main():
                 runs.append(row)
                 all_metric_paths.append(metrics_path)
                 run_metric_paths.setdefault(run_id, []).append(metrics_path)
+                successful_cells_by_run_id[run_id] = successful_cells_by_run_id.get(run_id, 0) + 1
                 continue
 
             if args.max_runs > 0 and executed >= args.max_runs:
@@ -867,7 +894,7 @@ def main():
                 gen_cmd,
                 run_key=run_key,
                 stage="generate_dataset",
-                max_retries=max(0, args.max_retries),
+                max_retries=generation_retry_budget,
                 retry_backoff_seconds=max(0.0, args.retry_backoff_seconds),
                 execution_log_path=execution_log_path,
             )
@@ -908,7 +935,7 @@ def main():
                 analyze_cmd,
                 run_key=run_key,
                 stage="analyze_regret_markers",
-                max_retries=max(0, args.max_retries),
+                max_retries=analysis_retry_budget,
                 retry_backoff_seconds=max(0.0, args.retry_backoff_seconds),
                 execution_log_path=execution_log_path,
             )
@@ -954,11 +981,16 @@ def main():
             runs.append(row)
             all_metric_paths.append(metrics_path)
             run_metric_paths.setdefault(run_id, []).append(metrics_path)
+            successful_cells_by_run_id[run_id] = successful_cells_by_run_id.get(run_id, 0) + 1
             executed += 1
             executed_ids.append(run_key)
 
     successful_cells = sum(1 for row in runs if row.get("status") in {"ok", "skipped_resume"})
     success_rate = round(successful_cells / max(1, selected_run_cells), 4) if selected_run_cells else 0.0
+    run_id_success_rates = {
+        run_id: round(successful_cells_by_run_id.get(run_id, 0) / max(1, selected_cells_by_run_id.get(run_id, 0)), 4)
+        for run_id in sorted(selected_cells_by_run_id)
+    }
 
     if args.require_min_run_cells and selected_run_cells < args.require_min_run_cells:
         raise RuntimeError(
@@ -972,6 +1004,17 @@ def main():
         raise RuntimeError(
             f"success_rate={success_rate} < require_min_success_rate={args.require_min_success_rate}"
         )
+    if args.require_min_run_id_success_rate:
+        underfilled = [
+            f"{run_id}:{rate}"
+            for run_id, rate in run_id_success_rates.items()
+            if rate < args.require_min_run_id_success_rate
+        ]
+        if underfilled:
+            raise RuntimeError(
+                "run-id success rate below floor "
+                f"{args.require_min_run_id_success_rate}: {', '.join(underfilled)}"
+            )
     if args.require_min_total_samples and selected_total_samples < args.require_min_total_samples:
         raise RuntimeError(
             f"selected_total_samples={selected_total_samples} < require_min_total_samples={args.require_min_total_samples}"
@@ -1091,11 +1134,13 @@ def main():
         "selected_run_cells": selected_run_cells,
         "successful_cells": successful_cells,
         "success_rate": success_rate,
+        "run_id_success_rates": run_id_success_rates,
         "selected_total_samples": selected_total_samples,
         "planned_samples_by_run": planned_samples_by_run,
         "require_min_condition_cells": args.require_min_condition_cells,
         "require_min_successful_cells": args.require_min_successful_cells,
         "require_min_success_rate": args.require_min_success_rate,
+        "require_min_run_id_success_rate": args.require_min_run_id_success_rate,
         "require_min_temperature_count": args.require_min_temperature_count,
         "require_min_total_samples": args.require_min_total_samples,
         "require_min_run_ids": args.require_min_run_ids,
@@ -1111,6 +1156,8 @@ def main():
         "resume_verified": resume_verified,
         "run_id_file": args.run_id_file,
         "max_retries": args.max_retries,
+        "max_generation_retries": generation_retry_budget,
+        "max_analysis_retries": analysis_retry_budget,
         "retry_backoff_seconds": args.retry_backoff_seconds,
         "execution_log_jsonl": str(execution_log_path.relative_to(ROOT)),
         "require_freeze_artifacts": args.require_freeze_artifact,
