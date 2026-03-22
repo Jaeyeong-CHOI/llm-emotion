@@ -1,5 +1,5 @@
 {
-  "version": "v6.0",
+  "version": "v6.1",
   "language": "ko",
   "scenarios": [
     {
@@ -2079,6 +2079,42 @@
         "tripwire"
       ],
       "prompt": "실험 러너에서 생성/분석 단계 시도 총량 격차가 실시간으로 커졌는데도 뒤늦게 알아차려 배치 효율이 무너진 사건을 7~10문장으로 회고하라. 어떤 시점에 경보를 걸었어야 했는지, live gap tripwire 임계치, 중단·재개 조건을 포함하라."
+    },
+    {
+      "id": "screening_evidence_conflict_graph_repair",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "traceability",
+        "consensus"
+      ],
+      "prompt": "선행연구 스크리닝에서 근거 문장들이 서로 충돌하는 그래프를 정리해 판단을 복구했던 경험을 7~10문장으로 회고하라. 어떤 근거 노드가 충돌했는지, 충돌 해소 순서를 어떻게 정했는지, 현재의 conflict graph 점검 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_sparse_cluster_patch",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크에서 countervoice 항목이 특정 클러스터에 희소하게 분포해 비교 해석이 흔들렸던 경험을 7~9문장으로 작성하라. 어떤 클러스터가 비어 있었는지, 패치 기준과 회전 계획, 버전 메모 규칙을 포함하라."
+    },
+    {
+      "id": "runner_stage_budget_quota_guard",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "budget_pressure",
+        "systems",
+        "governance"
+      ],
+      "prompt": "실험 러너에서 단계별 시도 점유율이 편향될 때 quota guard를 도입해 배치를 안정화했던 사건을 7~10문장으로 회고하라. 어떤 quota를 정의했는지, 임계치 초과 시 어떤 순서로 감속·격리·재개했는지, 현재 운영 규칙을 포함하라."
     }
   ],
   "personas": [
@@ -3186,6 +3222,26 @@
         "risk"
       ],
       "instruction": "당신은 실행 중 단계별 시도 총량 격차를 실시간 감시하는 성향이 있으며, 임계치 초과 시 즉시 중단·격리·재개 조건을 수치로 기록한다."
+    },
+    {
+      "id": "evidence_conflict_resolver",
+      "style_tags": [
+        "screening",
+        "traceability",
+        "consensus",
+        "repair"
+      ],
+      "instruction": "당신은 충돌하는 근거를 해결하는 성향이 있으며, review 판단에서 근거 노드 간 충돌을 분리 기록하고 합의 순서를 명시한다."
+    },
+    {
+      "id": "stage_quota_controller",
+      "style_tags": [
+        "runner",
+        "budget_pressure",
+        "systems",
+        "governance"
+      ],
+      "instruction": "당신은 단계별 시도 quota를 관리하는 성향이 있으며, 생성/분석 단계 점유율이 임계치를 넘으면 즉시 감속·격리·재개 조건을 수치로 남긴다."
     }
   ],
   "temperatures": [

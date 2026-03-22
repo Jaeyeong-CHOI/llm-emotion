@@ -91,6 +91,7 @@ def write_markdown(path: Path, payload: dict):
             f"- top_screening_reason_share: `{payload['summary']['top_screening_reason_share']}`",
             f"- screening_reason_entropy: `{payload['summary']['screening_reason_entropy']}`",
             f"- manual_qc_query_entropy: `{payload['summary']['manual_qc_query_entropy']}`",
+            f"- manual_qc_review_query_entropy: `{payload['summary']['manual_qc_review_query_entropy']}`",
             f"- manual_qc_risk_reason_entropy: `{payload['summary']['manual_qc_risk_reason_entropy']}`",
             f"- manual_qc_review_reason_entropy: `{payload['summary']['manual_qc_review_reason_entropy']}`",
             f"- review_to_include_ratio: `{payload['summary']['review_to_include_ratio']}`",
@@ -120,6 +121,7 @@ def write_markdown(path: Path, payload: dict):
             f"- review_bridge_counterexample_coupled_share: `{payload['summary']['review_bridge_counterexample_coupled_share']}`",
             f"- review_bridge_counterexample_traceable_coupled_rows: `{payload['summary']['review_bridge_counterexample_traceable_coupled_rows']}`",
             f"- review_bridge_counterexample_traceable_coupled_share: `{payload['summary']['review_bridge_counterexample_traceable_coupled_share']}`",
+            f"- review_bridge_counterexample_traceability_given_coupled_share: `{payload['summary']['review_bridge_counterexample_traceability_given_coupled_share']}`",
             f"- review_bridge_counterexample_traceability_gap_share: `{payload['summary']['review_bridge_counterexample_traceability_gap_share']}`",
             f"- review_counterexample_without_bridge_rows: `{payload['summary']['review_counterexample_without_bridge_rows']}`",
             f"- review_counterexample_without_bridge_share: `{payload['summary']['review_counterexample_without_bridge_share']}`",
@@ -187,6 +189,7 @@ def main():
     ap.add_argument("--max-empty-screening-reason-share", type=float, default=0.1)
     ap.add_argument("--min-screening-reason-entropy", type=float, default=0.55)
     ap.add_argument("--min-manual-qc-query-entropy", type=float, default=0.5)
+    ap.add_argument("--min-manual-qc-review-query-entropy", type=float, default=0.45)
     ap.add_argument("--min-manual-qc-risk-reason-entropy", type=float, default=0.45)
     ap.add_argument("--min-manual-qc-review-reason-entropy", type=float, default=0.35)
     ap.add_argument("--min-manual-qc-review-confidence-bins", type=int, default=2)
@@ -204,6 +207,7 @@ def main():
     ap.add_argument("--min-manual-qc-review-counterexample-traceability-share", type=float, default=0.55)
     ap.add_argument("--min-review-bridge-counterexample-coupled-share", type=float, default=0.15)
     ap.add_argument("--min-review-bridge-counterexample-traceable-share", type=float, default=0.1)
+    ap.add_argument("--min-review-bridge-counterexample-traceability-given-coupled-share", type=float, default=0.55)
     ap.add_argument("--max-review-bridge-counterexample-traceability-gap-share", type=float, default=0.45)
     ap.add_argument("--max-review-counterexample-without-bridge-share", type=float, default=0.35)
     ap.add_argument("--max-manual-qc-review-evidence-link-decay-share", type=float, default=0.45)
@@ -270,6 +274,7 @@ def main():
     review_confidence_counts: dict[str, int] = {}
     manual_qc_source_group_counts: dict[str, int] = {}
     manual_qc_source_query_counts: dict[str, int] = {}
+    manual_qc_review_source_query_counts: dict[str, int] = {}
     manual_qc_year_counts: dict[str, int] = {}
     manual_qc_review_source_group_counts: dict[str, int] = {}
     empty_screening_reason_rows = 0
@@ -330,6 +335,7 @@ def main():
         manual_qc_year_counts[year] = manual_qc_year_counts.get(year, 0) + 1
         if label == "review":
             manual_qc_review_source_group_counts[source_group] = manual_qc_review_source_group_counts.get(source_group, 0) + 1
+            manual_qc_review_source_query_counts[source_query] = manual_qc_review_source_query_counts.get(source_query, 0) + 1
         tokens = [token.strip().lower() for token in reason_field.replace("|", ";").split(";") if token.strip()]
         seen = set()
         for token in tokens:
@@ -385,6 +391,10 @@ def main():
         review_bridge_counterexample_traceable_coupled_rows,
         manual_qc_review_rows,
     )
+    review_bridge_counterexample_traceability_given_coupled_share = pct(
+        review_bridge_counterexample_traceable_coupled_rows,
+        review_bridge_counterexample_coupled_rows,
+    )
     review_bridge_counterexample_traceability_gap_share = pct(
         review_bridge_counterexample_coupled_rows - review_bridge_counterexample_traceable_coupled_rows,
         review_bridge_counterexample_coupled_rows,
@@ -404,6 +414,7 @@ def main():
     )
     screening_reason_entropy = normalized_entropy(screening_reason_counts)
     manual_qc_query_entropy = normalized_entropy(manual_qc_source_query_counts)
+    manual_qc_review_query_entropy = normalized_entropy(manual_qc_review_source_query_counts)
     manual_qc_risk_reason_entropy = normalized_entropy(risk_reason_summary)
     manual_qc_review_reason_entropy = normalized_entropy(review_screening_reason_counts)
     manual_qc_review_confidence_bins = sum(1 for _, v in review_confidence_counts.items() if int(v or 0) > 0)
@@ -552,6 +563,14 @@ def main():
             "threshold": f">={args.min_manual_qc_query_entropy}",
         },
         {
+            "name": "manual_qc_review_query_entropy_floor",
+            "status": "pass"
+            if manual_qc_review_query_entropy >= args.min_manual_qc_review_query_entropy
+            else "fail",
+            "observed": manual_qc_review_query_entropy,
+            "threshold": f">={args.min_manual_qc_review_query_entropy}",
+        },
+        {
             "name": "manual_qc_risk_reason_entropy_floor",
             "status": "pass" if manual_qc_risk_reason_entropy >= args.min_manual_qc_risk_reason_entropy else "fail",
             "observed": manual_qc_risk_reason_entropy,
@@ -662,6 +681,15 @@ def main():
             else "fail",
             "observed": review_bridge_counterexample_traceable_coupled_share,
             "threshold": f">={args.min_review_bridge_counterexample_traceable_share}",
+        },
+        {
+            "name": "review_bridge_counterexample_traceability_given_coupled_share_floor",
+            "status": "pass"
+            if review_bridge_counterexample_traceability_given_coupled_share
+            >= args.min_review_bridge_counterexample_traceability_given_coupled_share
+            else "fail",
+            "observed": review_bridge_counterexample_traceability_given_coupled_share,
+            "threshold": f">={args.min_review_bridge_counterexample_traceability_given_coupled_share}",
         },
         {
             "name": "review_bridge_counterexample_traceability_gap_share_ceiling",
@@ -854,6 +882,7 @@ def main():
             "top_screening_reason_share": top_screening_reason_share,
             "screening_reason_entropy": screening_reason_entropy,
             "manual_qc_query_entropy": manual_qc_query_entropy,
+            "manual_qc_review_query_entropy": manual_qc_review_query_entropy,
             "manual_qc_risk_reason_entropy": manual_qc_risk_reason_entropy,
             "manual_qc_review_reason_entropy": manual_qc_review_reason_entropy,
             "review_to_include_ratio": review_to_include_ratio,
@@ -883,6 +912,7 @@ def main():
             "review_bridge_counterexample_coupled_share": review_bridge_counterexample_coupled_share,
             "review_bridge_counterexample_traceable_coupled_rows": review_bridge_counterexample_traceable_coupled_rows,
             "review_bridge_counterexample_traceable_coupled_share": review_bridge_counterexample_traceable_coupled_share,
+            "review_bridge_counterexample_traceability_given_coupled_share": review_bridge_counterexample_traceability_given_coupled_share,
             "review_bridge_counterexample_traceability_gap_share": review_bridge_counterexample_traceability_gap_share,
             "review_counterexample_without_bridge_rows": review_counterexample_without_bridge_rows,
             "review_counterexample_without_bridge_share": review_counterexample_without_bridge_share,
@@ -896,6 +926,7 @@ def main():
             "manual_qc_source_group_counts": manual_qc_source_group_counts,
             "manual_qc_single_query_share": manual_qc_single_query_share,
             "manual_qc_source_query_counts": manual_qc_source_query_counts,
+            "manual_qc_review_source_query_counts": manual_qc_review_source_query_counts,
             "manual_qc_review_source_group_diversity": manual_qc_review_source_group_diversity,
             "manual_qc_review_source_group_counts": manual_qc_review_source_group_counts,
             "manual_qc_review_group_dominance": manual_qc_review_group_dominance,

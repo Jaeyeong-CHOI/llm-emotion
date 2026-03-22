@@ -1091,6 +1091,31 @@
         "live_budget_tripwire_operator",
         "stage_share_gap_controller"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_quota_v61",
+      "n": 12,
+      "seed": 44241,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_crossquery_consensus_repair",
+        "screening_evidence_conflict_graph_repair",
+        "prompt_bank_countervoice_sparse_cluster_patch",
+        "runner_stage_budget_quota_guard",
+        "runner_live_stage_gap_tripwire"
+      ],
+      "persona_ids": [
+        "crossquery_consensus_moderator",
+        "evidence_conflict_resolver",
+        "stage_quota_controller",
+        "live_budget_tripwire_operator"
+      ]
     }
   ]
 }
