@@ -1579,6 +1579,31 @@
         0.8
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_entropy_tail_v81",
+      "description": "v8.1 screening source-group tail 복구 + countervoice mid-band + runner metadata entropy gate smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "group_tail_coverage_steward_v80",
+        "countervoice_rotation_architect",
+        "batch_metadata_floor_guard_v80",
+        "live_retry_ratio_guard"
+      ],
+      "scenario_ids": [
+        "screening_source_group_tail_recovery_protocol_v81",
+        "prompt_bank_countervoice_midband_fill_v81",
+        "runner_metadata_entropy_gate_postmortem_v81",
+        "screening_group_tail_recovery_drill_v80"
+      ],
+      "n": 18,
+      "seed": 481,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1
     }
   ]
 }

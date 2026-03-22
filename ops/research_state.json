@@ -1,5 +1,5 @@
 {
-  "last_run": "2026-03-22T17:28:34",
+  "last_run": "2026-03-22T17:30:00",
   "last_success": "2026-03-22T17:21:24",
   "last_error": null,
   "stats": {
@@ -49,6 +49,10 @@
     "[2026-03-22T17:28:34] OK screening_confidence_balanced_qc_v26",
     "[2026-03-22T17:28:34] OK prompt_bank_v26_expansion",
     "[2026-03-22T17:28:34] OK experiment_runner_min_planned_samples_per_run",
-    "[2026-03-22T17:28:34] OK run_smoke_v26_plan"
+    "[2026-03-22T17:28:34] OK run_smoke_v26_plan",
+    "[2026-03-22T17:30:00] OK screening_quality_unknown_group_share_gate_v81",
+    "[2026-03-22T17:30:00] OK prompt_bank_v8_1_tail_entropy_expansion",
+    "[2026-03-22T17:30:00] OK experiment_runner_selected_cell_share_gap_guard_v81",
+    "[2026-03-22T17:30:00] OK run_smoke_v81_plan"
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "version": "v8.0",
+  "version": "v8.1",
   "language": "ko",
   "scenarios": [
     {
@@ -2916,6 +2916,78 @@
       ],
       "difficulty": "hard",
       "prompt": "여러 run-id를 묶은 배치에서 scenario domain/emotion axis/difficulty aggregate coverage floor가 미달된 사건을 사후 점검하는 감사 메모를 7~10문장으로 작성하라. 어떤 floor가 왜 무너졌는지, 선행 탐지 지표, 다음 배치에서의 fail-fast 규칙을 포함하라."
+    },
+    {
+      "id": "screening_source_group_tail_recovery_protocol_v81",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "source-group",
+        "tail-coverage",
+        "protocol"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query 표본에서 source group top2가 과점된 상황을 가정하고, 48시간 내 tail group 복구 프로토콜을 7~10문장으로 작성하라. 우선순위 group 선정 기준, 근거 문장 보강 순서, 중단/재개 기준을 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_midband_fill_v81",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "calibration",
+        "rotation"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "regret",
+        "self_distancing",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 countervoice 강도 사다리의 중간 밴드가 비어 비교 해석이 단조로워진 상황을 7~9문장으로 회고하라. 어떤 도메인 칸이 비었는지, mid-band 보강 기준, 릴리즈 전 parity 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_metadata_entropy_gate_postmortem_v81",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "metadata",
+        "preflight",
+        "label-balance",
+        "postmortem"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 러너 preflight에서 scenario label count는 통과했지만 domain×emotion axis entropy floor를 놓쳐 배치가 편중된 사건을 7~10문장으로 사후 회고하라. 어떤 축이 붕괴했는지, 왜 count gate가 실패했는지, entropy 기반 fail-fast와 재개 조건을 수치로 포함하라."
     }
   ],
   "personas": [

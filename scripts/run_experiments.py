@@ -689,6 +689,13 @@ def build_budget_report(
             else 0.0,
             "max_selected_cell_share_run_id": (max_selected or {}).get("id", ""),
             "max_selected_cell_share": (max_selected or {}).get("selected_cell_share", 0.0),
+            "min_selected_cell_share_run_id": (min(rows, key=lambda row: (row["selected_cell_share"], row["id"]), default={}) or {}).get("id", ""),
+            "min_selected_cell_share": (min(rows, key=lambda row: (row["selected_cell_share"], row["id"]), default={}) or {}).get("selected_cell_share", 0.0),
+            "selected_cell_share_gap": round(
+                ((max_selected or {}).get("selected_cell_share", 0.0))
+                - ((min(rows, key=lambda row: (row["selected_cell_share"], row["id"]), default={}) or {}).get("selected_cell_share", 0.0)),
+                4,
+            ) if rows else 0.0,
             "max_combined_attempt_share_run_id": (max_attempt or {}).get("id", ""),
             "max_combined_attempt_share": (max_attempt or {}).get("combined_attempt_share", 0.0),
             "max_failed_cells_run_id": (max_failed or {}).get("id", ""),
@@ -736,6 +743,8 @@ def write_budget_report_markdown(path: Path, payload: dict):
         f"- combined_retries_total: `{summary.get('combined_retries_total', 0)}`",
         f"- combined_attempts_total: `{summary.get('combined_attempts_total', 0)}`",
         f"- max_selected_cell_share: `{summary.get('max_selected_cell_share', 0.0)}` (`{summary.get('max_selected_cell_share_run_id', '')}`)",
+        f"- min_selected_cell_share: `{summary.get('min_selected_cell_share', 0.0)}` (`{summary.get('min_selected_cell_share_run_id', '')}`)",
+        f"- selected_cell_share_gap: `{summary.get('selected_cell_share_gap', 0.0)}`",
         f"- max_combined_attempt_share: `{summary.get('max_combined_attempt_share', 0.0)}` (`{summary.get('max_combined_attempt_share_run_id', '')}`)",
         f"- max_attempt_over_selection_ratio: `{summary.get('max_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_attempt_over_selection_ratio_run_id', '')}`)",
         f"- max_retry_share: `{summary.get('max_retry_share', 0.0)}` (`{summary.get('max_retry_share_run_id', '')}`)",
@@ -1319,6 +1328,12 @@ def main():
         type=float,
         default=0.0,
         help="fail if a single run id occupies more than this share of selected run cells; 0 disables",
+    )
+    ap.add_argument(
+        "--max-selected-cell-share-gap-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if max(selected_cell_share)-min(selected_cell_share) across selected run ids exceeds this value; 0 disables",
     )
     ap.add_argument(
         "--max-attempt-over-selection-ratio",
@@ -2593,6 +2608,11 @@ def main():
         run_id: pct(selected_cells_by_run_id.get(run_id, 0), selected_run_cells)
         for run_id in sorted(selected_cells_by_run_id)
     }
+    selected_cell_share_gap = (
+        round(max(selected_cell_shares.values()) - min(selected_cell_shares.values()), 4)
+        if len(selected_cell_shares) > 1
+        else 0.0
+    )
     combined_attempts_by_run_id = {
         run_id: int(generation_attempts_by_run_id.get(run_id, 0) or 0) + int(analysis_attempts_by_run_id.get(run_id, 0) or 0)
         for run_id in sorted(selected_cells_by_run_id)
@@ -2735,6 +2755,11 @@ def main():
                 "run-id selected cell share above ceiling "
                 f"{args.max_selected_cell_share_per_run_id}: {', '.join(overfilled)}"
             )
+    if args.max_selected_cell_share_gap_per_run_id and selected_cell_share_gap > args.max_selected_cell_share_gap_per_run_id:
+        raise RuntimeError(
+            "selected cell share gap above ceiling "
+            f"{args.max_selected_cell_share_gap_per_run_id}: observed={selected_cell_share_gap}"
+        )
     if args.max_attempt_share_per_run_id:
         overfilled = [
             f"{run_id}:{share}"
@@ -3145,6 +3170,7 @@ def main():
         "budget_violations": budget_violations,
         "budget_report_summary": budget_report.get("summary") or {},
         "selected_cell_shares": selected_cell_shares,
+        "selected_cell_share_gap": selected_cell_share_gap,
         "combined_attempt_shares": combined_attempt_shares,
         "generation_attempt_shares": generation_attempt_shares,
         "analysis_attempt_shares": analysis_attempt_shares,
@@ -3159,6 +3185,7 @@ def main():
         "max_live_retry_over_selection_ratio_per_run_id": args.max_live_retry_over_selection_ratio_per_run_id,
         "max_live_attempt_over_selection_ratio_per_run_id": args.max_live_attempt_over_selection_ratio_per_run_id,
         "max_selected_cell_share_per_run_id": args.max_selected_cell_share_per_run_id,
+        "max_selected_cell_share_gap_per_run_id": args.max_selected_cell_share_gap_per_run_id,
         "max_attempt_over_selection_ratio": args.max_attempt_over_selection_ratio,
         "max_retry_share_per_run_id": args.max_retry_share_per_run_id,
         "max_generation_retry_share_per_run_id": args.max_generation_retry_share_per_run_id,

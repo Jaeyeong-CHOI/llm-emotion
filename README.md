@@ -61,6 +61,14 @@ python3 scripts/generate_dataset.py \
 
 ## Experiment reproducibility
 - Run definitions live in `ops/experiment_matrix.json`
+
+### v8.1 스모크 프리플라이트 (2026-03-23)
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v81 --max-manual-qc-review-traceable-known-query-unknown-group-share 0.20
+
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v81_plan --plan-only --include-run-id screening_prompt_runner_entropy_tail_v81 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v81.json --selection-csv results/selection_report_smoke_v81.csv --preflight-markdown --require-prompt-bank-version v8.1 --max-selected-cell-share-gap-per-run-id 0.0 --manifest-note "preflight v81 entropy-tail"
+```
 - `results/experiments/<label>/manifest.json` records environment and cell status
 - `results/experiments/<label>/snapshots/` stores the config and prompt-bank snapshots used for the batch
 - `results/experiments/<label>/preflight.json` and `preflight.csv` capture selection/preflight diagnostics for review before or after execution
