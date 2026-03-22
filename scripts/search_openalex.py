@@ -102,6 +102,10 @@ DEFAULT_SCREENING_RULES = {
         "require_title_or_bridge_signal": True,
         "min_bridge_sentence_hits": 1,
     },
+    "review_requires_any": {
+        "min_include_hits_or_priority": 1,
+        "method_or_review_signal": False,
+    },
 }
 
 
@@ -328,9 +332,19 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     include_margin = round(weighted_score - include_threshold, 4)
     include_guard_ok = include_margin >= include_margin_min and total_penalty <= max_penalty_for_include
 
+    review_constraints = rules.get("review_requires_any", {})
+    min_include_hits_or_priority = int(review_constraints.get("min_include_hits_or_priority", 0) or 0)
+    review_requires_signal = bool(review_constraints.get("method_or_review_signal", False))
+    review_gate_ok = True
+    signal_hits = len(include_hits) + len(high_priority_hits)
+    if min_include_hits_or_priority and signal_hits < min_include_hits_or_priority:
+        review_gate_ok = False
+    if review_requires_signal and not (method_hits or review_hits):
+        review_gate_ok = False
+
     if weighted_score >= include_threshold and not exclude_hits and missing_groups == 0 and include_gate_ok and include_guard_ok:
         label = "include"
-    elif weighted_score >= review_threshold:
+    elif weighted_score >= review_threshold and review_gate_ok:
         label = "review"
     else:
         label = "exclude"
@@ -376,6 +390,8 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
             reasons.append("no_title_or_bridge_signal")
     if include_gate_ok and not include_guard_ok and weighted_score >= include_threshold:
         reasons.append("include_guard=failed")
+    if weighted_score >= review_threshold and not review_gate_ok:
+        reasons.append("review_gate=failed")
 
     confidence = "high"
     if missing_groups > 0 or total_penalty > max_penalty_for_include:
@@ -412,6 +428,7 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
             "include_margin": include_margin,
             "include_gate_ok": include_gate_ok,
             "include_guard_ok": include_guard_ok,
+            "review_gate_ok": review_gate_ok,
         },
     }
 

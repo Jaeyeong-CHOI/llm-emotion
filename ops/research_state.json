@@ -1,13 +1,13 @@
 {
-  "last_run": "2026-03-22T16:34:30",
-  "last_success": "2026-03-22T16:34:30",
+  "last_run": "2026-03-22T16:45:58",
+  "last_success": "2026-03-22T16:45:58",
   "last_error": null,
   "stats": {
     "papers_collected": 279,
     "evidence_rows": 279,
-    "mock_samples_generated": 39100,
-    "screen_include": 35,
-    "screen_review": 140
+    "mock_samples_generated": 56000,
+    "screen_include": 23,
+    "screen_review": 151
   },
   "notes": [
     "[2026-03-22T15:28:22] OK literature_search",
@@ -35,6 +35,18 @@
     "[2026-03-22T16:34:51] OK literature_search",
     "[2026-03-22T16:34:51] OK evidence_table",
     "[2026-03-22T16:34:52] OK mock_generate",
-    "[2026-03-22T16:34:52] OK mock_analyze"
+    "[2026-03-22T16:34:52] OK mock_analyze",
+    "[2026-03-22T16:42:15] OK literature_search",
+    "[2026-03-22T16:42:16] OK evidence_table",
+    "[2026-03-22T16:42:16] OK mock_generate",
+    "[2026-03-22T16:42:16] OK mock_analyze",
+    "[2026-03-22T16:42:18] OK snapshot_cron_status",
+    "[2026-03-22T16:42:18] OK update_live_status",
+    "[2026-03-22T16:46:21] OK literature_search",
+    "[2026-03-22T16:46:21] OK evidence_table",
+    "[2026-03-22T16:46:21] OK mock_generate",
+    "[2026-03-22T16:46:22] OK mock_analyze",
+    "[2026-03-22T16:46:25] OK snapshot_cron_status",
+    "[2026-03-22T16:46:25] OK update_live_status"
   ]
 }

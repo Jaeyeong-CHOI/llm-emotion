@@ -224,6 +224,7 @@ def main():
     ap.add_argument("--strict-clean", action="store_true", help="fail if git working tree is dirty")
     ap.add_argument("--list-run-ids", action="store_true", help="print run ids from config and exit")
     ap.add_argument("--selection-report", default="", help="optional JSON path for selected scenario/persona counts")
+    ap.add_argument("--print-selection", action="store_true", help="print selected scenario/persona counts per run id")
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -439,6 +440,14 @@ def main():
         report_path = ROOT / args.selection_report
         report_path.parent.mkdir(parents=True, exist_ok=True)
         write_json(report_path, selection_payload)
+
+    if args.print_selection:
+        for row in selection_rows:
+            rid = row.get("id")
+            sc = row.get("scenario_count")
+            pc = row.get("persona_count")
+            fp = row.get("prompt_bank_fingerprint", "")
+            print(f"selection {rid}: scenarios={sc}, personas={pc}, prompt_bank_sha256={fp}")
 
     ok_n = sum(1 for r in runs if r.get("status") == "ok")
     print(f"[OK] executed {ok_n}/{len(runs)} run cells -> {outdir}")

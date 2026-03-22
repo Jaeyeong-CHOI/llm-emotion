@@ -1,5 +1,5 @@
 {
-  "version": "v1.8",
+  "version": "v1.9",
   "language": "ko",
   "scenarios": [
     {
@@ -508,6 +508,50 @@
         "loss"
       ],
       "prompt": "관계나 프로젝트를 회복할 수 있는 짧은 기회를 놓친 경험을 7~9문장으로 서술하라. 왜 그 시점을 지나쳤는지와 지금 남은 회복 가능성을 함께 다뤄라."
+    },
+    {
+      "id": "ethics_review_bypass_regret",
+      "label": "moral",
+      "tags": [
+        "research",
+        "ethics",
+        "counterfactual",
+        "accountability"
+      ],
+      "prompt": "절차를 줄이기 위해 윤리/검토 단계를 생략하려 했거나 일부 우회했던 상황을 7~10문장으로 회고하라. 단기 이득과 장기 신뢰비용을 함께 평가하라."
+    },
+    {
+      "id": "data_split_leakage_realization",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "evidence",
+        "near_miss",
+        "loss"
+      ],
+      "prompt": "결과 해석 직전에 데이터 분할/누수 문제를 발견한 경험을 7~9문장으로 서술하라. '조금만 늦게 알았다면'이라는 감정과 즉시 조치 계획을 포함하라."
+    },
+    {
+      "id": "stakeholder_signal_dismissed",
+      "label": "social",
+      "tags": [
+        "social",
+        "research",
+        "decision",
+        "counterfactual"
+      ],
+      "prompt": "이해관계자의 초기 우려 신호를 가볍게 넘겼다가 문제가 커진 사건을 7~10문장으로 작성하라. 당시 판단 근거와 지금의 재평가를 모두 담아라."
+    },
+    {
+      "id": "overconfident_ablation_skip",
+      "label": "decision",
+      "tags": [
+        "research",
+        "time_pressure",
+        "evidence",
+        "tradeoff"
+      ],
+      "prompt": "확신이 과도해 핵심 ablation/검증을 건너뛴 경험을 7~9문장으로 회고하라. 생략의 유혹, 결과 왜곡 위험, 재발 방지 규칙을 포함하라."
     }
   ],
   "personas": [
@@ -668,6 +712,16 @@
         "repair"
       ],
       "instruction": "당신은 이상적 해결책보다 현실 제약(시간·자원·관계)을 명시하고, 실행 가능한 다음 행동을 단계적으로 설계하는 경향이 있다."
+    },
+    {
+      "id": "risk_calibrated_repairer",
+      "style_tags": [
+        "repair",
+        "risk",
+        "evidence",
+        "planning"
+      ],
+      "instruction": "당신은 감정 서술에서 위험 신호를 수치/등급으로 점검하고, 관계·절차·데이터 측면의 복구 계획을 우선순위로 정리하는 경향이 있다."
     }
   ],
   "temperatures": [

@@ -144,6 +144,30 @@
         "methodical_skeptic",
         "repair_committed"
       ]
+    },
+    {
+      "id": "risk_calibration_v19",
+      "n": 12,
+      "seed": 4242,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "ethics_review_bypass_regret",
+        "data_split_leakage_realization",
+        "stakeholder_signal_dismissed",
+        "overconfident_ablation_skip"
+      ],
+      "persona_ids": [
+        "risk_calibrated_repairer",
+        "calibration_seeking",
+        "constraint_aware_planner",
+        "methodical_skeptic"
+      ]
     }
   ]
 }

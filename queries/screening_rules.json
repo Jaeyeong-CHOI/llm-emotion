@@ -167,5 +167,9 @@
     "min_abstract_tokens_for_include": 50,
     "require_title_or_bridge_signal": true,
     "min_bridge_sentence_hits": 1
+  },
+  "review_requires_any": {
+    "min_include_hits_or_priority": 1,
+    "method_or_review_signal": false
   }
 }

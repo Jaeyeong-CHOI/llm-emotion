@@ -38,7 +38,7 @@ This repository applies a weighted, auditable screening layer during OpenAlex in
 
 ## Labeling and triage policy
 - `include`: score >= include threshold, no exclude hit, no missing concept groups, include-gate constraints satisfied (`min_include_hits`, method/review/high-priority signal, `min_concept_diversity`, `min_abstract_tokens_for_include`, `min_bridge_sentence_hits`, title-or-bridge requirement), and include-guard passed (`include_margin_min`, `max_penalty_for_include`)
-- `review`: score >= review threshold
+- `review`: score >= review threshold and review-gate constraints satisfied (`min_include_hits_or_priority`, optional method/review signal requirement)
 - `exclude`: otherwise
 
 Manual follow-up should use `screening_priority`:
