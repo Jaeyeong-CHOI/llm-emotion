@@ -1186,6 +1186,30 @@
         "runner_scenario_label_guardrail",
         "screening_conflict_reason_pairing_repair"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_live_traceability_v65",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "query_provenance_guard",
+        "countervoice_translation_curator",
+        "live_tripwire_controller",
+        "review_query_traceability_auditor"
+      ],
+      "n": 24,
+      "seed": 465,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_ids": [
+        "screening_review_query_traceability_patch",
+        "screening_query_provenance_gap_repair",
+        "prompt_bank_countervoice_translation_hole",
+        "runner_live_share_tripwire_recovery"
+      ]
     }
   ]
 }

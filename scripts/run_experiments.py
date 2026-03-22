@@ -207,6 +207,26 @@ def pct(numerator: int, denominator: int) -> float:
     return round(numerator / denominator, 4)
 
 
+def live_attempt_share_exceeded(*, run_id: str, generation_attempts_by_run_id: dict[str, int], analysis_attempts_by_run_id: dict[str, int], generation_attempts_total: int, analysis_attempts_total: int, max_live_generation_attempt_share_per_run_id: float, max_live_analysis_attempt_share_per_run_id: float, max_live_combined_attempt_share_per_run_id: float) -> tuple[bool, str]:
+    run_generation = int(generation_attempts_by_run_id.get(run_id, 0) or 0)
+    run_analysis = int(analysis_attempts_by_run_id.get(run_id, 0) or 0)
+    run_combined = run_generation + run_analysis
+    combined_total = generation_attempts_total + analysis_attempts_total
+    if max_live_generation_attempt_share_per_run_id > 0 and generation_attempts_total > 0:
+        share = run_generation / generation_attempts_total
+        if share > max_live_generation_attempt_share_per_run_id:
+            return True, f"generation_share={round(share,4)}>{max_live_generation_attempt_share_per_run_id}"
+    if max_live_analysis_attempt_share_per_run_id > 0 and analysis_attempts_total > 0:
+        share = run_analysis / analysis_attempts_total
+        if share > max_live_analysis_attempt_share_per_run_id:
+            return True, f"analysis_share={round(share,4)}>{max_live_analysis_attempt_share_per_run_id}"
+    if max_live_combined_attempt_share_per_run_id > 0 and combined_total > 0:
+        share = run_combined / combined_total
+        if share > max_live_combined_attempt_share_per_run_id:
+            return True, f"combined_share={round(share,4)}>{max_live_combined_attempt_share_per_run_id}"
+    return False, ""
+
+
 def write_run_summary_csv(path: Path, rows: list[dict]):
     if not rows:
         return
@@ -975,6 +995,24 @@ def main():
         help="fail if a single run id consumes more than this share of total analysis attempts; 0 disables",
     )
     ap.add_argument(
+        "--max-live-generation-attempt-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="stop early if a run id exceeds this share of generation attempts while batch is running; 0 disables",
+    )
+    ap.add_argument(
+        "--max-live-analysis-attempt-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="stop early if a run id exceeds this share of analysis attempts while batch is running; 0 disables",
+    )
+    ap.add_argument(
+        "--max-live-combined-attempt-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="stop early if a run id exceeds this share of combined attempts while batch is running; 0 disables",
+    )
+    ap.add_argument(
         "--max-selected-cell-share-per-run-id",
         type=float,
         default=0.0,
@@ -1526,6 +1564,22 @@ def main():
             generation_retries = max(0, len(gen_attempts) - 1)
             generation_retries_total += generation_retries
             generation_retries_by_run_id[run_id] = generation_retries_by_run_id.get(run_id, 0) + generation_retries
+            exceeded, exceeded_reason = live_attempt_share_exceeded(
+                run_id=run_id,
+                generation_attempts_by_run_id=generation_attempts_by_run_id,
+                analysis_attempts_by_run_id=analysis_attempts_by_run_id,
+                generation_attempts_total=generation_attempts_total,
+                analysis_attempts_total=analysis_attempts_total,
+                max_live_generation_attempt_share_per_run_id=args.max_live_generation_attempt_share_per_run_id,
+                max_live_analysis_attempt_share_per_run_id=args.max_live_analysis_attempt_share_per_run_id,
+                max_live_combined_attempt_share_per_run_id=args.max_live_combined_attempt_share_per_run_id,
+            )
+            if exceeded:
+                print(
+                    "[WARN] live attempt share ceiling exceeded; stopping batch early "
+                    f"({run_key}: {exceeded_reason})"
+                )
+                stop_requested = True
             if code != 0:
                 row["status"] = "failed_generation"
                 row["error"] = str(err).strip()
@@ -1606,6 +1660,14 @@ def main():
             if args.max_generation_attempts_total > 0 and generation_attempts_total >= args.max_generation_attempts_total:
                 print(f"[WARN] generation_attempts_total reached ceiling ({generation_attempts_total}/{args.max_generation_attempts_total}); stopping batch early")
                 stop_requested = True
+                break
+            if stop_requested:
+                row["status"] = "failed_live_attempt_share"
+                row["error"] = f"live attempt share ceiling exceeded after generation ({exceeded_reason})"
+                row["dataset_sha256"] = maybe_file_sha256(dataset_path)
+                runs.append(row)
+                failed_cells += 1
+                failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
                 break
 
             generation_successful_cells += 1
@@ -1808,6 +1870,22 @@ def main():
             analysis_retries = max(0, len(analyze_attempts) - 1)
             analysis_retries_total += analysis_retries
             analysis_retries_by_run_id[run_id] = analysis_retries_by_run_id.get(run_id, 0) + analysis_retries
+            exceeded, exceeded_reason = live_attempt_share_exceeded(
+                run_id=run_id,
+                generation_attempts_by_run_id=generation_attempts_by_run_id,
+                analysis_attempts_by_run_id=analysis_attempts_by_run_id,
+                generation_attempts_total=generation_attempts_total,
+                analysis_attempts_total=analysis_attempts_total,
+                max_live_generation_attempt_share_per_run_id=args.max_live_generation_attempt_share_per_run_id,
+                max_live_analysis_attempt_share_per_run_id=args.max_live_analysis_attempt_share_per_run_id,
+                max_live_combined_attempt_share_per_run_id=args.max_live_combined_attempt_share_per_run_id,
+            )
+            if exceeded:
+                print(
+                    "[WARN] live attempt share ceiling exceeded; stopping batch early "
+                    f"({run_key}: {exceeded_reason})"
+                )
+                stop_requested = True
             if code != 0:
                 row["status"] = "failed_analysis"
                 row["error"] = str(err2).strip()
@@ -1888,6 +1966,15 @@ def main():
             if args.max_analysis_attempts_total > 0 and analysis_attempts_total >= args.max_analysis_attempts_total:
                 print(f"[WARN] analysis_attempts_total reached ceiling ({analysis_attempts_total}/{args.max_analysis_attempts_total}); stopping batch early")
                 stop_requested = True
+                break
+            if stop_requested:
+                row["status"] = "failed_live_attempt_share"
+                row["error"] = f"live attempt share ceiling exceeded after analysis ({exceeded_reason})"
+                row["dataset_sha256"] = maybe_file_sha256(dataset_path)
+                row["metrics_sha256"] = maybe_file_sha256(metrics_path)
+                runs.append(row)
+                failed_cells += 1
+                failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
                 break
 
             total_cell_attempts = len(gen_attempts) + len(analyze_attempts)
@@ -2503,6 +2590,9 @@ def main():
         "max_attempt_share_per_run_id": args.max_attempt_share_per_run_id,
         "max_generation_attempt_share_per_run_id": args.max_generation_attempt_share_per_run_id,
         "max_analysis_attempt_share_per_run_id": args.max_analysis_attempt_share_per_run_id,
+        "max_live_generation_attempt_share_per_run_id": args.max_live_generation_attempt_share_per_run_id,
+        "max_live_analysis_attempt_share_per_run_id": args.max_live_analysis_attempt_share_per_run_id,
+        "max_live_combined_attempt_share_per_run_id": args.max_live_combined_attempt_share_per_run_id,
         "max_selected_cell_share_per_run_id": args.max_selected_cell_share_per_run_id,
         "max_attempt_over_selection_ratio": args.max_attempt_over_selection_ratio,
         "max_retry_share_per_run_id": args.max_retry_share_per_run_id,

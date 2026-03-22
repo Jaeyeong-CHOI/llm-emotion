@@ -1,5 +1,5 @@
 {
-  "version": "v6.4",
+  "version": "v6.5",
   "language": "ko",
   "scenarios": [
     {
@@ -2223,6 +2223,42 @@
         "preflight"
       ],
       "prompt": "실험 러너 preflight에서 scenario label coverage가 너무 좁아 배치를 중단했던 경험을 7~10문장으로 회고하라. 어떤 label 축이 빠졌는지, 왜 기존 tag 기준만으로는 부족했는지, 현재의 label coverage guardrail과 재개 기준을 포함하라."
+    },
+    {
+      "id": "screening_query_provenance_gap_repair",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "traceability",
+        "query_governance",
+        "repair"
+      ],
+      "prompt": "선행연구 스크리닝에서 include/review 판단 근거는 있었지만 source_query 출처가 비어 재검토가 꼬였던 경험을 7~10문장으로 회고하라. 어떤 단계에서 출처가 끊겼는지, 복구 규칙을 어떻게 세웠는지, 다음 라운드 점검 기준을 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_translation_hole",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "multilingual",
+        "coverage"
+      ],
+      "prompt": "프롬프트 뱅크에서 반대관점(countervoice) 항목이 원문에는 있었지만 번역본에서 빠져 비교 해석이 흔들린 경험을 7~9문장으로 작성하라. 어떤 언어 축이 비었는지, 보강 우선순위와 동기화 규칙을 포함하라."
+    },
+    {
+      "id": "runner_live_share_tripwire_recovery",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "budget_pressure",
+        "tripwire",
+        "reproducibility"
+      ],
+      "prompt": "실험 러너에서 run-id별 시도 점유율 live tripwire가 발동해 배치를 중단하고 복구했던 사건을 7~10문장으로 회고하라. 어떤 점유율이 임계치를 넘었는지, 중단 후 재분배 절차와 재개 조건을 포함하라."
     }
   ],
   "personas": [
@@ -3430,6 +3466,36 @@
         "preflight"
       ],
       "instruction": "당신은 실험 전 scenario label coverage floor를 우선 점검하는 운영자 성향이 있으며, label 축이 비면 즉시 중단하고 보강 순서를 수치와 함께 남긴다."
+    },
+    {
+      "id": "query_provenance_guard",
+      "style_tags": [
+        "screening",
+        "traceability",
+        "query_governance",
+        "audit"
+      ],
+      "instruction": "당신은 스크리닝 근거의 query provenance를 먼저 점검하는 성향이 있으며, 판단 근거 문장과 source_query 연결이 끊기면 즉시 보류하고 복구 규칙을 기록한다."
+    },
+    {
+      "id": "countervoice_translation_curator",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "multilingual",
+        "coverage"
+      ],
+      "instruction": "당신은 다국어 반대관점 항목의 대응 관계를 우선 점검하는 성향이 있으며, 원문-번역본 간 누락이 있으면 비교 가능성 보존 기준과 동기화 메모를 먼저 남긴다."
+    },
+    {
+      "id": "live_tripwire_controller",
+      "style_tags": [
+        "runner",
+        "budget_pressure",
+        "tripwire",
+        "systems"
+      ],
+      "instruction": "당신은 실행 중 run-id 점유율 과열을 실시간으로 감시하는 성향이 있으며, 임계치 초과 시 중단·격리·재개 조건을 수치로 분리해 기록한다."
     }
   ],
   "temperatures": [
