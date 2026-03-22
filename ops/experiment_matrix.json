@@ -1139,6 +1139,29 @@
         "screening_review_query_traceability_patch",
         "prompt_bank_evidence_anchor_recovery_drill"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_circuit_v63",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "reason_pair_traceability_keeper",
+        "countervoice_stress_tester",
+        "stage_share_circuit_operator",
+        "review_traceability_maintainer"
+      ],
+      "n": 30,
+      "seed": 463,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_ids": [
+        "screening_conflict_reason_pairing_repair",
+        "prompt_bank_countervoice_pressure_test",
+        "runner_stage_attempt_share_circuit_breaker"
+      ]
     }
   ]
 }

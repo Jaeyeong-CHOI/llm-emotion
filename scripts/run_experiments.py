@@ -938,6 +938,18 @@ def main():
         help="fail if a single run id consumes more than this share of total attempts; 0 disables",
     )
     ap.add_argument(
+        "--max-generation-attempt-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if a single run id consumes more than this share of total generation attempts; 0 disables",
+    )
+    ap.add_argument(
+        "--max-analysis-attempt-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if a single run id consumes more than this share of total analysis attempts; 0 disables",
+    )
+    ap.add_argument(
         "--max-selected-cell-share-per-run-id",
         type=float,
         default=0.0,
@@ -2014,6 +2026,14 @@ def main():
         run_id: pct(combined_attempts_by_run_id.get(run_id, 0), combined_attempts_total)
         for run_id in sorted(combined_attempts_by_run_id)
     }
+    generation_attempt_shares = {
+        run_id: pct(generation_attempts_by_run_id.get(run_id, 0), generation_attempts_total)
+        for run_id in sorted(selected_cells_by_run_id)
+    }
+    analysis_attempt_shares = {
+        run_id: pct(analysis_attempts_by_run_id.get(run_id, 0), analysis_attempts_total)
+        for run_id in sorted(selected_cells_by_run_id)
+    }
 
     if args.require_min_run_cells and selected_run_cells < args.require_min_run_cells:
         raise RuntimeError(
@@ -2119,6 +2139,28 @@ def main():
             raise RuntimeError(
                 "run-id attempt share above ceiling "
                 f"{args.max_attempt_share_per_run_id}: {', '.join(overfilled)}"
+            )
+    if args.max_generation_attempt_share_per_run_id:
+        over_generation_share = [
+            f"{run_id}:{share}"
+            for run_id, share in generation_attempt_shares.items()
+            if share > args.max_generation_attempt_share_per_run_id
+        ]
+        if over_generation_share:
+            raise RuntimeError(
+                "run-id generation attempt share above ceiling "
+                f"{args.max_generation_attempt_share_per_run_id}: {', '.join(over_generation_share)}"
+            )
+    if args.max_analysis_attempt_share_per_run_id:
+        over_analysis_share = [
+            f"{run_id}:{share}"
+            for run_id, share in analysis_attempt_shares.items()
+            if share > args.max_analysis_attempt_share_per_run_id
+        ]
+        if over_analysis_share:
+            raise RuntimeError(
+                "run-id analysis attempt share above ceiling "
+                f"{args.max_analysis_attempt_share_per_run_id}: {', '.join(over_analysis_share)}"
             )
     if args.max_stage_total_attempt_gap_share and stage_total_attempt_gap_share > args.max_stage_total_attempt_gap_share:
         raise RuntimeError(
@@ -2410,7 +2452,11 @@ def main():
         "budget_report_summary": budget_report.get("summary") or {},
         "selected_cell_shares": selected_cell_shares,
         "combined_attempt_shares": combined_attempt_shares,
+        "generation_attempt_shares": generation_attempt_shares,
+        "analysis_attempt_shares": analysis_attempt_shares,
         "max_attempt_share_per_run_id": args.max_attempt_share_per_run_id,
+        "max_generation_attempt_share_per_run_id": args.max_generation_attempt_share_per_run_id,
+        "max_analysis_attempt_share_per_run_id": args.max_analysis_attempt_share_per_run_id,
         "max_selected_cell_share_per_run_id": args.max_selected_cell_share_per_run_id,
         "max_attempt_over_selection_ratio": args.max_attempt_over_selection_ratio,
         "max_retry_share_per_run_id": args.max_retry_share_per_run_id,

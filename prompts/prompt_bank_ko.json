@@ -1,5 +1,5 @@
 {
-  "version": "v6.2",
+  "version": "v6.3",
   "language": "ko",
   "scenarios": [
     {
@@ -2151,6 +2151,42 @@
         "governance"
       ],
       "prompt": "실험 러너에서 특정 run id의 재시도가 과열될 때 retry pressure를 재균형한 운영 경험을 7~10문장으로 회고하라. 어떤 지표를 경보로 사용했고, 상한 초과 시 어떤 순서로 완화했는지 수치와 함께 제시하라."
+    },
+    {
+      "id": "screening_conflict_reason_pairing_repair",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "triage",
+        "traceability",
+        "counterfactual"
+      ],
+      "prompt": "선행연구 스크리닝에서 포함/보류 판단 근거는 있었지만 주장-반례(reason pair)가 분리되어 재검토가 길어진 경험을 7~10문장으로 회고하라. 어떤 근거쌍이 끊겼는지, 다시 연결한 규칙, 다음 라운드의 최소 기록 단위를 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_pressure_test",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "stress_test"
+      ],
+      "prompt": "프롬프트 뱅크에서 countervoice 항목을 압박 테스트(stress test)했을 때 특정 도메인에서만 취약성이 반복된 경험을 7~9문장으로 작성하라. 취약 축, 보강 우선순위, 회전(rotation) 기준을 포함하라."
+    },
+    {
+      "id": "runner_stage_attempt_share_circuit_breaker",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "budget_pressure",
+        "systems",
+        "tripwire"
+      ],
+      "prompt": "실험 러너에서 단계별 시도 점유율이 한 run-id에 집중되자 circuit breaker로 실행을 잠시 멈춘 사건을 7~10문장으로 회고하라. 어떤 점유율 지표를 썼는지, 임계치 설정 이유, 재개 전에 확인한 검증 항목을 포함하라."
     }
   ],
   "personas": [
@@ -3298,6 +3334,36 @@
         "governance"
       ],
       "instruction": "당신은 retry pressure를 균형화하는 운영자 성향이며, run-id별 재시도 점유율이 임계치를 넘으면 단계별 완화·격리·복구 절차를 수치로 기록한다."
+    },
+    {
+      "id": "reason_pair_traceability_keeper",
+      "style_tags": [
+        "screening",
+        "traceability",
+        "counterexample",
+        "audit"
+      ],
+      "instruction": "당신은 스크리닝 판단에서 주장-반례 근거쌍의 연결성을 먼저 점검하는 성향이 있으며, 근거쌍이 끊기면 판단을 보류하고 재기록 규칙을 명시한다."
+    },
+    {
+      "id": "countervoice_stress_tester",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "stress_test"
+      ],
+      "instruction": "당신은 프롬프트 뱅크의 반대관점 강건성을 압박 테스트하는 성향이 있으며, 취약 도메인과 보강 우선순위를 명확한 기준으로 기록한다."
+    },
+    {
+      "id": "stage_share_circuit_operator",
+      "style_tags": [
+        "runner",
+        "budget_pressure",
+        "tripwire",
+        "systems"
+      ],
+      "instruction": "당신은 단계별 시도 점유율 과열을 조기 차단하는 운영자 성향이 있으며, run-id별 점유율 임계치 초과 시 circuit breaker 발동과 재개 조건을 수치로 남긴다."
     }
   ],
   "temperatures": [
