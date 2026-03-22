@@ -1393,6 +1393,12 @@ def main():
         help="fail if a run id owns more than this share of timeout failures (failed_*timeout* statuses); 0 disables",
     )
     ap.add_argument(
+        "--max-timeout-failure-over-selection-ratio-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if timeout_failure_share/selected_cell_share for any run id exceeds this value; 0 disables",
+    )
+    ap.add_argument(
         "--quarantine-json",
         default="",
         help="optional JSON path for failed run-cell quarantine candidates (defaults to <outdir>/quarantine_candidates.json)",
@@ -2927,6 +2933,22 @@ def main():
                 "threshold": args.max_timeout_failure_share_per_run_id,
                 "violations": over_timeout_share,
             })
+    if args.max_timeout_failure_over_selection_ratio_per_run_id and timeout_failures_total > 0 and selected_run_cells > 0:
+        over_timeout_pressure = []
+        for run_id, count in sorted(timeout_failures_by_run_id.items()):
+            timeout_share = count / timeout_failures_total
+            selected_share = int(selected_cells_by_run_id.get(run_id, 0) or 0) / max(1, selected_run_cells)
+            if selected_share <= 0:
+                continue
+            ratio = timeout_share / selected_share
+            if ratio > args.max_timeout_failure_over_selection_ratio_per_run_id:
+                over_timeout_pressure.append(f"{run_id}:{round(ratio, 4)}")
+        if over_timeout_pressure:
+            budget_violations.append({
+                "rule": "max_timeout_failure_over_selection_ratio_per_run_id",
+                "threshold": args.max_timeout_failure_over_selection_ratio_per_run_id,
+                "violations": over_timeout_pressure,
+            })
     write_json(budget_report_json_path, budget_report)
     write_budget_report_markdown(budget_report_md_path, budget_report)
     write_json(
@@ -3118,6 +3140,7 @@ def main():
         "max_failure_over_selection_ratio": args.max_failure_over_selection_ratio,
         "max_failed_cell_share_per_run_id": args.max_failed_cell_share_per_run_id,
         "max_timeout_failure_share_per_run_id": args.max_timeout_failure_share_per_run_id,
+        "max_timeout_failure_over_selection_ratio_per_run_id": args.max_timeout_failure_over_selection_ratio_per_run_id,
         "require_freeze_artifacts": args.require_freeze_artifact,
         "freeze_artifacts": freeze_artifacts,
         "run_preflight": run_preflight_rows,

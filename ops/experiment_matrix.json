@@ -1529,6 +1529,31 @@
       ],
       "n": 12,
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_tail_timeout_v79",
+      "description": "v7.9 screening group-drift + tail-query counterbalance + timeout-over-selection tripwire smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "tail_query_recall_engineer",
+        "query_tail_recovery_planner_v79",
+        "timeout_budget_foreman_v79",
+        "retry_pressure_balancer"
+      ],
+      "scenario_ids": [
+        "screening_query_distribution_shift_triage_v78",
+        "screening_query_tail_recovery_tabletop_v79",
+        "prompt_bank_countervoice_false_negative_backfill_v78",
+        "runner_timeout_budget_rebalance_postmortem_v79"
+      ],
+      "n": 18,
+      "seed": 479,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1
     }
   ]
 }

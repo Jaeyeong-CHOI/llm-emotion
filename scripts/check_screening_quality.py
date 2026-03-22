@@ -163,6 +163,7 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_review_traceable_known_query_group_coverage: `{payload['summary']['manual_qc_review_traceable_known_query_group_coverage']}`",
             f"- manual_qc_review_traceable_known_query_group_top_share: `{payload['summary']['manual_qc_review_traceable_known_query_group_top_share']}`",
             f"- manual_qc_review_traceable_known_query_group_top2_share: `{payload['summary']['manual_qc_review_traceable_known_query_group_top2_share']}`",
+            f"- manual_qc_review_traceable_known_query_group_js_divergence: `{payload['summary']['manual_qc_review_traceable_known_query_group_js_divergence']}`",
             f"- manual_qc_risk_reason_entropy: `{payload['summary']['manual_qc_risk_reason_entropy']}`",
             f"- manual_qc_review_reason_entropy: `{payload['summary']['manual_qc_review_reason_entropy']}`",
             f"- review_to_include_ratio: `{payload['summary']['review_to_include_ratio']}`",
@@ -291,6 +292,7 @@ def main():
     ap.add_argument("--min-manual-qc-review-traceable-known-query-group-coverage", type=int, default=2)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-group-top-share", type=float, default=0.75)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-group-top2-share", type=float, default=0.9)
+    ap.add_argument("--max-manual-qc-review-traceable-known-query-group-js-divergence", type=float, default=0.35)
     ap.add_argument("--min-review-bridge-traceable-known-query-share", type=float, default=0.6)
     ap.add_argument("--max-review-bridge-traceable-unknown-query-share", type=float, default=0.2)
     ap.add_argument("--min-manual-qc-risk-reason-entropy", type=float, default=0.45)
@@ -656,6 +658,10 @@ def main():
         if review_traceable_known_query_rows
         else 0.0
     )
+    manual_qc_review_traceable_known_query_group_js_divergence = js_divergence(
+        manual_qc_review_traceable_known_query_group_counts,
+        manual_qc_source_group_counts,
+    )
     global_known_query_counts = {
         k: int(v or 0)
         for k, v in manual_qc_source_query_counts.items()
@@ -977,6 +983,15 @@ def main():
             else "fail",
             "observed": manual_qc_review_traceable_known_query_group_top2_share,
             "threshold": f"<={args.max_manual_qc_review_traceable_known_query_group_top2_share}",
+        },
+        {
+            "name": "manual_qc_review_traceable_known_query_group_js_divergence_ceiling",
+            "status": "pass"
+            if manual_qc_review_traceable_known_query_group_js_divergence
+            <= args.max_manual_qc_review_traceable_known_query_group_js_divergence
+            else "fail",
+            "observed": manual_qc_review_traceable_known_query_group_js_divergence,
+            "threshold": f"<={args.max_manual_qc_review_traceable_known_query_group_js_divergence}",
         },
         {
             "name": "review_bridge_traceable_known_query_share_floor",
@@ -1321,6 +1336,7 @@ def main():
             "known_query_group_coverage": manual_qc_review_traceable_known_query_group_coverage,
             "known_query_group_top_share": manual_qc_review_traceable_known_query_group_top_share,
             "known_query_group_top2_share": manual_qc_review_traceable_known_query_group_top2_share,
+            "known_query_group_js_divergence": manual_qc_review_traceable_known_query_group_js_divergence,
         }},
         {"label": "review_bridge_known_query_traceability", "value": {
             "known_query_rows": review_bridge_traceable_known_query_rows,
@@ -1409,6 +1425,7 @@ def main():
             "manual_qc_review_traceable_known_query_group_coverage": manual_qc_review_traceable_known_query_group_coverage,
             "manual_qc_review_traceable_known_query_group_top_share": manual_qc_review_traceable_known_query_group_top_share,
             "manual_qc_review_traceable_known_query_group_top2_share": manual_qc_review_traceable_known_query_group_top2_share,
+            "manual_qc_review_traceable_known_query_group_js_divergence": manual_qc_review_traceable_known_query_group_js_divergence,
             "manual_qc_risk_reason_entropy": manual_qc_risk_reason_entropy,
             "manual_qc_review_reason_entropy": manual_qc_review_reason_entropy,
             "review_to_include_ratio": review_to_include_ratio,
