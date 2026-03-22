@@ -63,6 +63,10 @@ def write_markdown(path: Path, payload: dict):
             f"- single_source_share: `{payload['summary']['single_source_share']}`",
             f"- low_confidence_share: `{payload['summary']['low_confidence_share']}`",
             f"- query_drift_candidate_count: `{payload['summary']['query_drift_candidate_count']}`",
+            f"- balanced_label_bins: `{payload['summary']['balanced_label_bins']}`",
+            f"- balanced_confidence_bins: `{payload['summary']['balanced_confidence_bins']}`",
+            f"- balanced_group_bins: `{payload['summary']['balanced_group_bins']}`",
+            f"- balanced_label_dominance: `{payload['summary']['balanced_label_dominance']}`",
             "",
             "## Hotspots",
         ]
@@ -87,6 +91,11 @@ def main():
     ap.add_argument("--max-low-confidence-share", type=float, default=0.9)
     ap.add_argument("--max-zero-hit-terms", type=int, default=6)
     ap.add_argument("--max-gate-failures-near-threshold", type=int, default=180)
+    ap.add_argument("--min-balanced-label-bins", type=int, default=2)
+    ap.add_argument("--min-balanced-confidence-bins", type=int, default=3)
+    ap.add_argument("--min-balanced-group-bins", type=int, default=3)
+    ap.add_argument("--max-balanced-label-dominance", type=float, default=0.8)
+    ap.add_argument("--max-query-drift-candidates", type=int, default=30)
     args = ap.parse_args()
 
     report_path = ROOT / args.report
@@ -112,6 +121,18 @@ def main():
     zero_hit_terms = len(alias_coverage.get("zero_hit_terms") or [])
     gate_failures_near_threshold = int(triage_risk.get("gate_failures_near_threshold", 0) or 0)
     query_drift_candidate_count = int(drift_term_gaps.get("candidate_count", 0) or 0)
+    balanced_by_label = balanced_summary.get("by_label") or {}
+    balanced_by_confidence = balanced_summary.get("by_confidence") or {}
+    balanced_by_group = balanced_summary.get("by_group") or {}
+    nonzero_label_bins = sum(1 for _, v in balanced_by_label.items() if int(v or 0) > 0)
+    nonzero_confidence_bins = sum(1 for _, v in balanced_by_confidence.items() if int(v or 0) > 0)
+    nonzero_group_bins = sum(1 for _, v in balanced_by_group.items() if int(v or 0) > 0)
+    total_balanced_label = sum(int(v or 0) for v in balanced_by_label.values())
+    max_balanced_label_share = (
+        round(max((int(v or 0) for v in balanced_by_label.values()), default=0) / total_balanced_label, 4)
+        if total_balanced_label > 0
+        else 0.0
+    )
 
     gates = [
         {
@@ -152,6 +173,36 @@ def main():
             "observed": gate_failures_near_threshold,
             "threshold": f"<={args.max_gate_failures_near_threshold}",
         },
+        {
+            "name": "balanced_label_bins_floor",
+            "status": "pass" if nonzero_label_bins >= args.min_balanced_label_bins else "fail",
+            "observed": nonzero_label_bins,
+            "threshold": f">={args.min_balanced_label_bins}",
+        },
+        {
+            "name": "balanced_confidence_bins_floor",
+            "status": "pass" if nonzero_confidence_bins >= args.min_balanced_confidence_bins else "fail",
+            "observed": nonzero_confidence_bins,
+            "threshold": f">={args.min_balanced_confidence_bins}",
+        },
+        {
+            "name": "balanced_group_bins_floor",
+            "status": "pass" if nonzero_group_bins >= args.min_balanced_group_bins else "fail",
+            "observed": nonzero_group_bins,
+            "threshold": f">={args.min_balanced_group_bins}",
+        },
+        {
+            "name": "balanced_label_dominance_ceiling",
+            "status": "pass" if max_balanced_label_share <= args.max_balanced_label_dominance else "fail",
+            "observed": max_balanced_label_share,
+            "threshold": f"<={args.max_balanced_label_dominance}",
+        },
+        {
+            "name": "query_drift_candidates_ceiling",
+            "status": "pass" if query_drift_candidate_count <= args.max_query_drift_candidates else "fail",
+            "observed": query_drift_candidate_count,
+            "threshold": f"<={args.max_query_drift_candidates}",
+        },
     ]
 
     fail_count = sum(1 for gate in gates if gate["status"] == "fail")
@@ -190,6 +241,10 @@ def main():
             "zero_hit_terms": zero_hit_terms,
             "gate_failures_near_threshold": gate_failures_near_threshold,
             "query_drift_candidate_count": query_drift_candidate_count,
+            "balanced_label_bins": nonzero_label_bins,
+            "balanced_confidence_bins": nonzero_confidence_bins,
+            "balanced_group_bins": nonzero_group_bins,
+            "balanced_label_dominance": max_balanced_label_share,
             "audit_counts": audit.get("counts") or {},
         },
         "gates": gates,

@@ -366,6 +366,56 @@
         "hash_integrity_sentinel",
         "preflight_gate_keeper"
       ]
+    },
+    {
+      "id": "screening_qc_runner_stress_v34",
+      "n": 12,
+      "seed": 13939,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_precision_recall_tradeoff_review",
+        "manual_qc_hotspot_false_alarm",
+        "runner_retry_budget_exhaustion",
+        "runner_partial_resume_duplicate",
+        "screening_query_drift_false_negative"
+      ],
+      "persona_ids": [
+        "screening_gate_strategist",
+        "qc_signal_disambiguator",
+        "retry_budget_controller",
+        "runner_reliability_architect"
+      ]
+    },
+    {
+      "id": "prompt_bank_balance_v34",
+      "n": 12,
+      "seed": 14141,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "prompt_bank_cross_domain_balance",
+        "prompt_bank_counterbalance_failure",
+        "prompt_bank_boundary_regression",
+        "cross_lingual_annotation_drift",
+        "fine_grained_emotion_boundary_case"
+      ],
+      "persona_ids": [
+        "prompt_bank_curator",
+        "cross_lingual_calibrator",
+        "emotion_taxonomy_auditor",
+        "screening_gate_strategist"
+      ]
     }
   ]
 }

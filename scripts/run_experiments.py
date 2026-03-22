@@ -277,6 +277,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- duration_seconds: `{manifest.get('duration_seconds', 0)}`",
         f"- plan_only: `{manifest.get('plan_only', False)}`",
         f"- executed_run_keys: `{len(manifest.get('executed_run_keys', []))}`",
+        f"- failed_cells: `{manifest.get('failed_cells', 0)}`",
+        f"- stopped_early: `{manifest.get('stopped_early', False)}`",
         f"- preflight_json: `{manifest.get('preflight_json', '')}`",
         f"- preflight_csv: `{manifest.get('preflight_csv', '')}`",
         f"- require_prompt_bank_version: `{manifest.get('require_prompt_bank_version', '')}`",
@@ -475,6 +477,17 @@ def main():
         default="",
         help="optional JSONL path for per-attempt command logs (defaults to <outdir>/<run-label>/command_log.jsonl)",
     )
+    ap.add_argument(
+        "--continue-on-error",
+        action="store_true",
+        help="continue remaining run cells when a generation/analysis command fails",
+    )
+    ap.add_argument(
+        "--max-failed-cells",
+        type=int,
+        default=0,
+        help="when --continue-on-error, stop batch after this many failed cells (0 = no limit)",
+    )
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -555,6 +568,7 @@ def main():
     batch_started = time.perf_counter()
     run_metric_paths: dict[str, list[Path]] = {}
     executed = 0
+    failed_cells = 0
     selected_run_cells = 0
     selected_total_samples = 0
     planned_samples_by_run: dict[str, int] = {}
@@ -568,6 +582,7 @@ def main():
     selected_run_ids = set()
     executed_ids = []
     prompt_bank_versions = set()
+    stop_requested = False
 
     known_run_ids = {str(exp.get("id")) for exp in cfg.get("runs", []) if exp.get("id")}
     missing_run_ids = sorted(include_run_ids - known_run_ids)
@@ -594,6 +609,8 @@ def main():
     write_json(matrix_snapshot, cfg)
 
     for exp in cfg.get("runs", []):
+        if stop_requested:
+            break
         run_id = exp["id"]
         if include_run_ids and run_id not in include_run_ids:
             continue
@@ -794,7 +811,19 @@ def main():
             )
             row["generation_attempts"] = len(gen_attempts)
             if code != 0:
-                raise RuntimeError(f"generation failed for {run_key}: {err}")
+                row["status"] = "failed_generation"
+                row["error"] = str(err).strip()
+                runs.append(row)
+                failed_cells += 1
+                if not args.continue_on_error:
+                    raise RuntimeError(f"generation failed for {run_key}: {err}")
+                if args.max_failed_cells > 0 and failed_cells >= args.max_failed_cells:
+                    print(
+                        f"[WARN] failed_cells reached max_failed_cells ({failed_cells}/{args.max_failed_cells}); stopping batch early"
+                    )
+                    stop_requested = True
+                    break
+                continue
 
             code, _, err2, analyze_attempts = execute_with_retries(
                 analyze_cmd,
@@ -806,7 +835,20 @@ def main():
             )
             row["analysis_attempts"] = len(analyze_attempts)
             if code != 0:
-                raise RuntimeError(f"analysis failed for {run_key}: {err2}")
+                row["status"] = "failed_analysis"
+                row["error"] = str(err2).strip()
+                row["dataset_sha256"] = maybe_file_sha256(dataset_path)
+                runs.append(row)
+                failed_cells += 1
+                if not args.continue_on_error:
+                    raise RuntimeError(f"analysis failed for {run_key}: {err2}")
+                if args.max_failed_cells > 0 and failed_cells >= args.max_failed_cells:
+                    print(
+                        f"[WARN] failed_cells reached max_failed_cells ({failed_cells}/{args.max_failed_cells}); stopping batch early"
+                    )
+                    stop_requested = True
+                    break
+                continue
 
             row["duration_seconds"] = round(time.perf_counter() - cell_started, 3)
             row["dataset_sha256"] = maybe_file_sha256(dataset_path)
@@ -905,6 +947,10 @@ def main():
         "missing_run_ids": missing_run_ids,
         "plan_only": args.plan_only,
         "executed_run_keys": executed_ids,
+        "failed_cells": failed_cells,
+        "continue_on_error": args.continue_on_error,
+        "max_failed_cells": args.max_failed_cells,
+        "stopped_early": stop_requested,
         "selected_run_cells": selected_run_cells,
         "selected_total_samples": selected_total_samples,
         "planned_samples_by_run": planned_samples_by_run,
@@ -974,7 +1020,9 @@ def main():
             )
 
     ok_n = sum(1 for r in runs if r.get("status") == "ok")
+    failed_n = sum(1 for r in runs if str(r.get("status","")).startswith("failed_"))
     print(f"[OK] executed {ok_n}/{len(runs)} run cells -> {outdir}")
+    print(f"failed_cells: {failed_n}")
     print(f"selected_run_cells: {selected_run_cells}")
     print(f"selected_total_samples: {selected_total_samples}")
     if args.plan_only:

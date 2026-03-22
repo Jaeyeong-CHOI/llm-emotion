@@ -4,10 +4,10 @@
 Test whether LLM outputs in loss and counterfactual scenarios exhibit language patterns that resemble human regret narratives, while keeping scenario selection reproducible and auditable.
 
 ## Current design updates
-- Prompt bank is now `v3.3`, adding multilingual/calibration scenarios (`cross_lingual_annotation_drift`, `fine_grained_emotion_boundary_case`, `manual_qc_escalation_handoff`, `batch_resume_after_partial_failure`) on top of the prior drift/alias/hash coverage set.
-- Persona bank now also includes `cross_lingual_calibrator`, `emotion_taxonomy_auditor`, `manual_qc_triage_lead`, and `batch_recovery_planner` to probe cross-lingual calibration, fine-grained emotion coding, QC handoff, and partial-failure recovery styles.
+- Prompt bank is now `v3.4`, adding screening/prompt-runner stress scenarios (`screening_precision_recall_tradeoff_review`, `manual_qc_hotspot_false_alarm`, `prompt_bank_cross_domain_balance`, `runner_retry_budget_exhaustion`) on top of multilingual/drift/recovery sets.
+- Persona bank now also includes `screening_gate_strategist`, `prompt_bank_curator`, `retry_budget_controller`, and `qc_signal_disambiguator` to probe gate calibration, bank curation balance, retry-budget policy, and QC signal disambiguation styles.
 - Scenario rows carry `tags` and stable `id`s for reproducible focused subsets (`scenario_tags` and `scenario_ids`).
-- Experiment matrix now includes `multilingual_screening_calibration_v33` and `batch_recovery_runner_v33`, while runner supports `--run-id-file`, `--max-retries`, `--retry-backoff-seconds`, and JSONL command logs in addition to `--resume-verify-hashes`.
+- Experiment matrix now includes `screening_qc_runner_stress_v34` and `prompt_bank_balance_v34`, while runner supports `--continue-on-error` + `--max-failed-cells` in addition to existing `--run-id-file`, retry controls, JSONL command logs, and `--resume-verify-hashes`.
 
 ## Experimental factors
 - Prompt condition: control, deprivation/loss, counterfactual, social, identity, moral, regulation
@@ -43,6 +43,7 @@ Test whether LLM outputs in loss and counterfactual scenarios exhibit language p
 - Always inspect generated `preflight.json` / `preflight.csv` to confirm `prompt_bank_version`, tag breadth, temperature span, and planned sample floor before full execution
 - When resuming, use `--resume-verify-hashes` to verify `dataset_sha256`/`metrics_sha256` integrity before skipping completed cells
 - For unstable or expensive runs, use `--max-retries` plus `--retry-backoff-seconds` and archive `command_log.jsonl` with the manifest
+- When long batches should not abort on first error, use `--continue-on-error` with `--max-failed-cells` so partial progress and explicit stop-threshold state are captured in manifest
 - Enforce minimum planned cell volume via `--require-min-run-cells`, per-run condition-matrix breadth via `--require-min-condition-cells`, per-run sample floor via `--require-min-planned-samples-per-run`, repeat robustness via `--require-min-repeats`, temperature exploration spread via `--require-min-temperature-span`, scenario-tag breadth via `--require-min-unique-scenario-tags`, persona-style breadth via `--require-min-unique-persona-style-tags`
 - Archive `manifest.json` + `manifest.md` + `run_id_summary.csv` + generated `reproduce.sh` per batch
 - Track `duration_seconds` (batch and per-cell) for throughput comparisons across iterations
@@ -51,12 +52,14 @@ Test whether LLM outputs in loss and counterfactual scenarios exhibit language p
 Executed on `2026-03-22`:
 
 ```bash
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v33_plan --plan-only --print-selection --selection-report results/selection_report_smoke_v33.json --selection-csv results/selection_report_smoke_v33.csv --require-min-scenarios 4 --require-min-personas 4 --require-min-unique-scenario-tags 4 --require-min-unique-persona-style-tags 7 --require-min-temperature-count 2 --require-min-temperature-span 0.3 --require-min-repeats 1 --require-min-condition-cells 48 --require-min-run-cells 12 --require-min-run-ids 5 --require-min-total-samples 8000 --require-min-planned-samples-per-run 1100 --require-prompt-bank-version v3.3 --require-freeze-artifact refs/openalex_results.jsonl --require-freeze-artifact results/lit_search_report.json --require-freeze-artifact results/screening_quality_report.json --manifest-note-file docs/experiment-plan.md --manifest-note "preflight v33"
-printf '%s\n' multilingual_screening_calibration_v33 batch_recovery_runner_v33 > /tmp/llm_emotion_run_ids.txt
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v33_exec --run-id-file /tmp/llm_emotion_run_ids.txt --fail-on-missing-run-id --manifest-markdown --max-runs 1 --max-retries 1 --retry-backoff-seconds 1 --execution-log-jsonl results/experiments/smoke_v33_exec/command_log.jsonl --require-min-total-samples 1000
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v34
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v34_plan --plan-only --print-selection --selection-report results/selection_report_smoke_v34.json --selection-csv results/selection_report_smoke_v34.csv --require-min-scenarios 4 --require-min-personas 4 --require-min-unique-scenario-tags 4 --require-min-unique-persona-style-tags 7 --require-min-temperature-count 2 --require-min-temperature-span 0.3 --require-min-repeats 1 --require-min-condition-cells 48 --require-min-run-cells 12 --require-min-run-ids 5 --require-min-total-samples 8000 --require-min-planned-samples-per-run 1100 --require-prompt-bank-version v3.4 --require-freeze-artifact refs/openalex_results.jsonl --require-freeze-artifact results/lit_search_report.json --require-freeze-artifact results/screening_quality_report.json --manifest-note-file docs/experiment-plan.md --manifest-note "preflight v34"
+printf '%s\n' screening_qc_runner_stress_v34 prompt_bank_balance_v34 > /tmp/llm_emotion_run_ids.txt
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v34_exec --run-id-file /tmp/llm_emotion_run_ids.txt --fail-on-missing-run-id --manifest-markdown --max-runs 1 --max-retries 1 --retry-backoff-seconds 1 --continue-on-error --max-failed-cells 1 --execution-log-jsonl results/experiments/smoke_v34_exec/command_log.jsonl --require-min-total-samples 1000
 ```
 
 Observed results:
-- `smoke_v33_plan`: 16개 run id 기준 plan-only preflight가 통과했고(`selected_run_cells=32`, `selected_total_samples=288832`), 신규 v33 run 포함 selection JSON/CSV가 생성됨
-- `smoke_v33_exec`: `run-id-file` 기반 subset에서 1/4 run cell 실행이 통과했고(`selected_total_samples=2880`), `command_log.jsonl`과 manifest markdown 생성 확인
-- 실행 manifest에는 `run_id_file`, retry 설정, `execution_log_jsonl`, `dataset_sha256`/`metrics_sha256`가 함께 기록되어 부분 실패 복구와 resume 무결성 검증 기반이 확장됨
+- `screening_qc_v34`: quality gate 전체 통과(`status=pass`, `quality_score=100.0`) 및 확장 게이트(균형 bin/dominance/query drift ceiling) 계산 확인
+- `smoke_v34_plan`: 18개 run id 기준 plan-only preflight가 통과했고(`selected_run_cells=36`, `selected_total_samples=323056`), 신규 v34 run 포함 selection JSON/CSV가 생성됨
+- `smoke_v34_exec`: `run-id-file` 기반 subset에서 1/4 run cell 실행이 통과했고(`selected_total_samples=2880`), `command_log.jsonl`과 manifest markdown 생성 확인
+- 실행 manifest에는 기존 재현성 필드와 함께 `failed_cells`, `continue_on_error`, `max_failed_cells`, `stopped_early`가 기록되어 실패 허용 배치의 해석 가능성이 강화됨

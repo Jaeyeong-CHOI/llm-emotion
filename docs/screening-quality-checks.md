@@ -20,7 +20,7 @@ python3 scripts/check_screening_quality.py \
   --manual-qc-csv results/manual_qc_queue.csv \
   --out results/screening_quality_report.json \
   --out-md results/screening_quality_report.md \
-  --run-label screening_qc_v33
+  --run-label screening_qc_v34
 ```
 
 ## Default gates
@@ -30,6 +30,11 @@ python3 scripts/check_screening_quality.py \
 - `low_confidence_share <= 0.90`
 - `zero_hit_terms <= 6`
 - `gate_failures_near_threshold <= 180`
+- `balanced_label_bins >= 2`
+- `balanced_confidence_bins >= 3`
+- `balanced_group_bins >= 3`
+- `balanced_label_dominance <= 0.80`
+- `query_drift_candidate_count <= 30`
 
 ## Interpretation
 - `status=pass`: all gates passed

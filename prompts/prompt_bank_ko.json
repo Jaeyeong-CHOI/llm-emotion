@@ -1,5 +1,5 @@
 {
-  "version": "v3.3",
+  "version": "v3.4",
   "language": "ko",
   "scenarios": [
     {
@@ -1124,6 +1124,50 @@
         "repair"
       ],
       "prompt": "배치 실험이 일부 셀에서만 실패한 뒤 재시도 정책을 설계했던 경험을 7~10문장으로 서술하라. 무엇을 재실행했고 무엇을 그대로 두었는지, 로그와 체크포인트를 어떻게 사용했는지 포함하라."
+    },
+    {
+      "id": "screening_precision_recall_tradeoff_review",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "calibration"
+      ],
+      "prompt": "스크리닝에서 재현율을 높이려다 정밀도가 급락한 배치를 다시 검토한 경험을 7~10문장으로 회고하라. 어떤 컷오프를 조정했는지, 왜 그 결정이 당시 합리적으로 보였는지, 지금의 정밀도-재현율 균형 규칙을 포함하라."
+    },
+    {
+      "id": "manual_qc_hotspot_false_alarm",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "audit",
+        "prioritization",
+        "counterfactual"
+      ],
+      "prompt": "고위험 핫스팟으로 분류된 논문 묶음이 실제로는 오탐이 많았던 상황을 7~9문장으로 서술하라. 무엇이 오탐을 만들었는지, 우선순위를 어떻게 재배열했는지, 다음 라운드 경보 기준을 포함하라."
+    },
+    {
+      "id": "prompt_bank_cross_domain_balance",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "tradeoff",
+        "multilingual"
+      ],
+      "prompt": "프롬프트 뱅크를 확장하면서 심리학/방법론/윤리 도메인 균형이 무너졌던 경험을 7~10문장으로 회고하라. 어떤 도메인이 과대표집됐는지, 균형 복구 기준과 버전 관리 원칙을 함께 제시하라."
+    },
+    {
+      "id": "runner_retry_budget_exhaustion",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "risk"
+      ],
+      "prompt": "실험 러너 재시도 예산(max retries)을 모두 소진해 배치를 중단했던 경험을 7~10문장으로 회고하라. 어떤 실패 패턴이 반복됐는지, 즉시 중단 기준과 후속 복구 계획을 함께 포함하라."
     }
   ],
   "personas": [
@@ -1590,6 +1634,46 @@
         "systems"
       ],
       "instruction": "당신은 부분 실패 이후 배치 복구 경로를 설계하는 성향이 있으며, 재시도 범위·상태 일관성·로그 점검 순서를 먼저 확정한 뒤 실행을 재개한다."
+    },
+    {
+      "id": "screening_gate_strategist",
+      "style_tags": [
+        "audit",
+        "triage",
+        "calibration",
+        "planning"
+      ],
+      "instruction": "당신은 스크리닝 게이트 전략가 성향이 있으며, 임계값 변경이 정밀도/재현율/검토부하에 미치는 영향을 수치 근거와 함께 정리한다."
+    },
+    {
+      "id": "prompt_bank_curator",
+      "style_tags": [
+        "process",
+        "balance",
+        "multilingual",
+        "evidence"
+      ],
+      "instruction": "당신은 프롬프트 뱅크 큐레이터 성향이 있으며, 시나리오 다양성·도메인 균형·버전 추적성을 동시에 유지하는 기준을 명시적으로 기록한다."
+    },
+    {
+      "id": "retry_budget_controller",
+      "style_tags": [
+        "reproducibility",
+        "batch",
+        "risk",
+        "systems"
+      ],
+      "instruction": "당신은 재시도 예산을 통제하는 운영자 성향이 있으며, 실패 유형을 분류해 즉시 재시도/지연 재시도/중단을 구분하고 로그 근거를 남긴다."
+    },
+    {
+      "id": "qc_signal_disambiguator",
+      "style_tags": [
+        "audit",
+        "evidence",
+        "uncertainty",
+        "repair"
+      ],
+      "instruction": "당신은 QC 경보 신호를 해석하는 성향이 있으며, 오탐과 진짜 위험을 분리하고 다음 검토자가 바로 실행할 수 있는 재검토 체크포인트를 제시한다."
     }
   ],
   "temperatures": [
