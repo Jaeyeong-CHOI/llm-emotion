@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **review known-query source-group tail-share floor 가드**(`--min-manual-qc-review-traceable-known-query-group-tail-share`)를 추가해, source-group 상위 집중(top2) 완화 없이 겉보기 traceability만 상승하는 케이스를 fail-fast로 차단합니다.
+- Prompt bank expanded to `v8.0` with **source-group tail recovery drill / batch metadata floor audit** scenarios plus new personas (`group_tail_coverage_steward_v80`, `batch_metadata_floor_guard_v80`).
+- Experiment runner now supports **batch-level aggregate metadata floor guardrails** (`--require-min-selected-scenario-domains`, `--require-min-selected-scenario-emotion-axes`, `--require-min-selected-scenario-difficulties`) to fail-fast when selected run-id 묶음이 전체 domain/axis/difficulty 커버리지를 충분히 확보하지 못할 때 실행을 중단합니다.
 - Literature screening quality gate에 **review known-query source-group JS divergence 가드**(`--max-manual-qc-review-traceable-known-query-group-js-divergence`)를 추가해, review traceable 분포가 전체 manual QC source-group 분포에서 과도하게 벗어나는 경우를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v7.9` with **tail-query recovery tabletop / timeout budget rebalance postmortem** scenarios plus new personas (`query_tail_recovery_planner_v79`, `timeout_budget_foreman_v79`).
 - Experiment runner now supports **timeout failure pressure guardrail** (`--max-timeout-failure-over-selection-ratio-per-run-id`) in addition to timeout share ceiling (`--max-timeout-failure-share-per-run-id`) to catch run-id-level timeout concentration against selected-cell share.
@@ -25,7 +28,7 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 - Screening quality gate continues to track **review evidence-link decay share** (`--max-manual-qc-review-evidence-link-decay-share`) to fail fast when review 근거의 문장-링크 연결이 약화됩니다.
 
 ## Repository structure
-- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v79.md`)
+- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v80.md`)
 - `queries/`: retrieval queries and screening rules
 - `prompts/`: Korean prompt bank and scenario source material
 - `scripts/`: literature sync, dataset generation, analysis, experiment runner

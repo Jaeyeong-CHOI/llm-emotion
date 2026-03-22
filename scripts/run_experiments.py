@@ -1089,6 +1089,24 @@ def main():
         help="fail if the selected batch covers fewer than this many unique scenario labels in total",
     )
     ap.add_argument(
+        "--require-min-selected-scenario-domains",
+        type=int,
+        default=0,
+        help="fail if the selected batch covers fewer than this many unique scenario domains in total",
+    )
+    ap.add_argument(
+        "--require-min-selected-scenario-emotion-axes",
+        type=int,
+        default=0,
+        help="fail if the selected batch covers fewer than this many unique scenario emotion axes in total",
+    )
+    ap.add_argument(
+        "--require-min-selected-scenario-difficulties",
+        type=int,
+        default=0,
+        help="fail if the selected batch covers fewer than this many unique scenario difficulty levels in total",
+    )
+    ap.add_argument(
         "--require-min-selected-persona-style-tags",
         type=int,
         default=0,
@@ -2675,6 +2693,21 @@ def main():
             "selected_unique_scenario_labels="
             f"{len(aggregate_scenario_labels)} < require_min_selected_scenario_labels={args.require_min_selected_scenario_labels}"
         )
+    if args.require_min_selected_scenario_domains and len(aggregate_scenario_domains) < args.require_min_selected_scenario_domains:
+        raise RuntimeError(
+            "selected_unique_scenario_domains="
+            f"{len(aggregate_scenario_domains)} < require_min_selected_scenario_domains={args.require_min_selected_scenario_domains}"
+        )
+    if args.require_min_selected_scenario_emotion_axes and len(aggregate_scenario_emotion_axes) < args.require_min_selected_scenario_emotion_axes:
+        raise RuntimeError(
+            "selected_unique_scenario_emotion_axes="
+            f"{len(aggregate_scenario_emotion_axes)} < require_min_selected_scenario_emotion_axes={args.require_min_selected_scenario_emotion_axes}"
+        )
+    if args.require_min_selected_scenario_difficulties and len(aggregate_scenario_difficulties) < args.require_min_selected_scenario_difficulties:
+        raise RuntimeError(
+            "selected_unique_scenario_difficulties="
+            f"{len(aggregate_scenario_difficulties)} < require_min_selected_scenario_difficulties={args.require_min_selected_scenario_difficulties}"
+        )
     if args.require_min_selected_persona_style_tags and len(aggregate_persona_style_tags) < args.require_min_selected_persona_style_tags:
         raise RuntimeError(
             "selected_unique_persona_style_tags="
@@ -3086,6 +3119,9 @@ def main():
         "require_min_unique_persona_style_tags": args.require_min_unique_persona_style_tags,
         "require_min_selected_scenario_labels": args.require_min_selected_scenario_labels,
         "require_min_selected_scenario_tags": args.require_min_selected_scenario_tags,
+        "require_min_selected_scenario_domains": args.require_min_selected_scenario_domains,
+        "require_min_selected_scenario_emotion_axes": args.require_min_selected_scenario_emotion_axes,
+        "require_min_selected_scenario_difficulties": args.require_min_selected_scenario_difficulties,
         "require_min_selected_persona_style_tags": args.require_min_selected_persona_style_tags,
         "require_prompt_bank_version": args.require_prompt_bank_version,
         "resume_verify_hashes": args.resume_verify_hashes,

@@ -1554,6 +1554,31 @@
         0.8
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_group_tail_metadata_v80",
+      "description": "v8.0 source-group tail-share recovery + batch metadata floor guard smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "group_tail_coverage_steward_v80",
+        "batch_metadata_floor_guard_v80",
+        "query_tail_recovery_planner_v79",
+        "timeout_budget_foreman_v79"
+      ],
+      "scenario_ids": [
+        "screening_group_tail_recovery_drill_v80",
+        "runner_batch_metadata_floor_audit_v80",
+        "screening_query_tail_recovery_tabletop_v79",
+        "runner_timeout_budget_rebalance_postmortem_v79"
+      ],
+      "n": 18,
+      "seed": 480,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1
     }
   ]
 }

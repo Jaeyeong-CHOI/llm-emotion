@@ -1,5 +1,5 @@
 {
-  "version": "v7.9",
+  "version": "v8.0",
   "language": "ko",
   "scenarios": [
     {
@@ -2868,6 +2868,54 @@
       ],
       "difficulty": "hard",
       "prompt": "run-id별 timeout 실패가 집중된 배치를 사후 분석(postmortem)하는 글을 7~10문장으로 작성하라. timeout share와 selection share 불균형이 어떻게 누적됐는지, 재시도 예산 재배분 규칙과 다음 실행 전 검증 항목을 포함하라."
+    },
+    {
+      "id": "screening_group_tail_recovery_drill_v80",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "source-group",
+        "tail-coverage",
+        "recovery"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query가 특정 source group 상위 2개에 과집중된 상황을 가정하고, group tail share를 48시간 내 회복하기 위한 운영 계획을 7~10문장으로 작성하라. 최소 3개 group 확장 전략, 각 단계 종료 조건, 실패 시 롤백 기준을 수치로 포함하라."
+    },
+    {
+      "id": "runner_batch_metadata_floor_audit_v80",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "preflight",
+        "metadata",
+        "batch-coverage",
+        "audit"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "여러 run-id를 묶은 배치에서 scenario domain/emotion axis/difficulty aggregate coverage floor가 미달된 사건을 사후 점검하는 감사 메모를 7~10문장으로 작성하라. 어떤 floor가 왜 무너졌는지, 선행 탐지 지표, 다음 배치에서의 fail-fast 규칙을 포함하라."
     }
   ],
   "personas": [
@@ -4491,6 +4539,26 @@
         "operations"
       ],
       "instruction": "당신은 timeout 편중을 실시간으로 감시하는 운영자 성향이 있으며, run-id별 timeout share와 selection share를 함께 보고 중단·격리·재개 조건을 명확히 기록한다."
+    },
+    {
+      "id": "group_tail_coverage_steward_v80",
+      "style_tags": [
+        "screening",
+        "source-group",
+        "tail-coverage",
+        "operations"
+      ],
+      "instruction": "당신은 source-group 과점을 완화하는 운영자 성향이며, top2 비중을 낮추고 tail share를 늘리는 재샘플링·근거보강 순서를 수치와 함께 제시한다."
+    },
+    {
+      "id": "batch_metadata_floor_guard_v80",
+      "style_tags": [
+        "runner",
+        "metadata",
+        "preflight",
+        "governance"
+      ],
+      "instruction": "당신은 배치 단위 메타데이터 coverage floor를 감시하는 성향이며, domain·emotion axis·difficulty 축의 aggregate 누락을 실행 전에 차단하는 규칙을 우선 제안한다."
     }
   ],
   "temperatures": [
