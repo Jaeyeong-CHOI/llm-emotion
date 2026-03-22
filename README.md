@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **review traceable known-query year top1 집중 가드**(`--max-manual-qc-review-traceable-known-query-year-top1-share`)를 추가해, year top2/tail/entropy 조건을 우회하는 단일 연도 과점을 fail-fast로 차단합니다.
+- Prompt bank expanded to `v8.5` with **year-tail+unknown-query coupling 복구 / countervoice temperature band rebalance / selected-temperature span guardrail** scenarios plus new personas (`year_query_tail_recovery_operator_v85`, `countervoice_temperature_calibrator_v85`, `temperature_span_tripwire_auditor_v85`).
+- Experiment runner now supports **aggregate selected-temperature span guardrail** (`--require-min-selected-temperature-span`) so batch-level preflight에서 temperature 개수는 충분해도 span이 지나치게 좁은 실행을 사전에 차단할 수 있습니다.
 - Literature screening quality gate에 **review traceable known-query year entropy/coverage 가드**(`--min-manual-qc-review-traceable-known-query-year-entropy`, `--min-manual-qc-review-traceable-known-query-year-coverage`)를 추가해, year top2/tail 비율이 통과하더라도 실질적인 연도 분산이 무너진 케이스를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v8.4` with **year-tail counterexample rebalance / unknown-query bridge rescue / countervoice year-grid patch / selected-temperature floor audit** scenarios plus new personas (`review_year_tail_recovery_curator_v84`, `unknown_query_traceability_operator_v84`, `countervoice_year_grid_curator_v84`, `selected_temperature_floor_guard_v84`).
 - Experiment runner now supports **aggregate selected-temperature floor guardrail** (`--require-min-selected-temperatures`) so batch-level preflight에서 scenario/persona coverage는 충분해도 temperature 축이 과도하게 좁은 실행을 사전에 차단할 수 있습니다.
@@ -64,6 +67,14 @@ python3 scripts/generate_dataset.py \
 
 ## Experiment reproducibility
 - Run definitions live in `ops/experiment_matrix.json`
+
+### v8.5 스모크 프리플라이트 (2026-03-23)
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v85 --max-manual-qc-review-traceable-known-query-year-top1-share 0.70 --max-manual-qc-review-traceable-known-query-year-top2-share 0.90 --min-manual-qc-review-traceable-known-query-year-tail-share 0.10 --min-manual-qc-review-traceable-known-query-year-entropy 0.45 --min-manual-qc-review-traceable-known-query-year-coverage 3
+
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v85_plan --plan-only --include-run-id screening_prompt_runner_year_unknown_temp_v84 --include-run-id screening_prompt_runner_year_query_temp_span_v85 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v85.json --selection-csv results/selection_report_smoke_v85.csv --preflight-markdown --require-prompt-bank-version v8.5 --require-min-selected-temperatures 3 --require-min-selected-temperature-span 0.7 --max-planned-sample-share-per-run-id 0.60 --max-planned-sample-share-gap-per-run-id 0.25 --manifest-note "preflight v85 year-top1 + selected-temperature-span guard"
+```
 
 ### v8.4 스모크 프리플라이트 (2026-03-23)
 

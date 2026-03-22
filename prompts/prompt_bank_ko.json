@@ -1,5 +1,5 @@
 {
-  "version": "v8.4",
+  "version": "v8.5",
   "language": "ko",
   "scenarios": [
     {
@@ -3180,6 +3180,80 @@
       ],
       "difficulty": "hard",
       "prompt": "다중 run-id 배치 preflight에서 scenario/persona coverage는 통과했지만 선택된 온도 값이 지나치게 좁아 샘플 다양성이 떨어졌던 사건을 7~10문장으로 사후 감사하라. selected temperature 고유값 floor를 왜 놓쳤는지, 중단 기준과 재배치 순서를 수치로 포함하라."
+    },
+    {
+      "id": "screening_review_year_unknown_bridge_tail_patch_v85",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "year-tail",
+        "query_governance",
+        "traceability",
+        "repair"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query에서 older year tail 근거와 known-query 복구가 동시에 무너진 상황을 7~10문장으로 회고하라. year tail과 unknown query 누수가 어떻게 결합됐는지, 복구 순서(연도 보강→query provenance 복원→재검토 재샘플링), 그리고 year top2 share·unknown share·year entropy 목표값을 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_temperature_band_rebalance_v85",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "temperature",
+        "balance",
+        "calibration"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "regret",
+        "self_distancing",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 countervoice 항목은 충분했지만 temperature 밴드별 표현 강도가 뒤섞여 비교 해석이 흔들린 경험을 7~9문장으로 작성하라. 어떤 temperature 구간에서 과약/과강이 생겼는지, band rebalance 기준, 버전 릴리즈 전 parity 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_selected_temperature_span_guardrail_v85",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "preflight",
+        "temperature",
+        "coverage",
+        "tripwire",
+        "audit"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "배치 preflight에서 selected temperature 개수는 기준을 통과했지만 span이 너무 좁아 샘플 다양성이 무너진 사건을 7~10문장으로 사후 감사하라. 왜 count 기준만으로는 실패했는지, span tripwire 임계치, 재배치와 재개 조건을 수치로 포함하라."
     }
   ],
   "personas": [
@@ -4905,6 +4979,36 @@
         "coverage"
       ],
       "instruction": "당신은 배치 preflight에서 선택된 온도 고유값 floor를 먼저 점검하는 성향이 있으며, temperature 다양성이 기준 미달이면 즉시 중단하고 재배치 순서를 수치로 기록한다."
+    },
+    {
+      "id": "year_query_tail_recovery_operator_v85",
+      "style_tags": [
+        "screening",
+        "year-tail",
+        "query_governance",
+        "repair"
+      ],
+      "instruction": "당신은 review 근거의 year tail과 known-query provenance를 함께 복구하는 운영자 성향이 있으며, 연도 분포·query 출처·재검토 순서를 수치 기준으로 명확히 기록한다."
+    },
+    {
+      "id": "countervoice_temperature_calibrator_v85",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "temperature",
+        "calibration"
+      ],
+      "instruction": "당신은 countervoice 프롬프트를 temperature 밴드별 강도로 점검하는 성향이 있으며, 과약/과강 구간을 우선 보강하고 parity 규칙을 버전 메모로 남긴다."
+    },
+    {
+      "id": "temperature_span_tripwire_auditor_v85",
+      "style_tags": [
+        "runner",
+        "preflight",
+        "temperature",
+        "tripwire"
+      ],
+      "instruction": "당신은 selected temperature count와 span을 함께 감사하는 성향이 있으며, span이 임계치 미달이면 실행을 중단하고 재배치·재개 조건을 수치로 제시한다."
     }
   ],
   "temperatures": [

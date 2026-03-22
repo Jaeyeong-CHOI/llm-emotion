@@ -475,6 +475,7 @@ def write_preflight_markdown(path: Path, payload: dict):
         f"- unique_selected_scenarios: `{summary.get('unique_selected_scenarios', 0)}`",
         f"- unique_selected_personas: `{summary.get('unique_selected_personas', 0)}`",
         f"- unique_selected_temperatures: `{summary.get('unique_selected_temperatures', 0)}`",
+        f"- selected_temperature_span: `{summary.get('selected_temperature_span', 0.0)}`",
         f"- unique_selected_scenario_labels: `{summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{summary.get('unique_selected_scenario_tags', 0)}`",
         f"- unique_selected_scenario_domains: `{summary.get('unique_selected_scenario_domains', 0)}`",
@@ -835,6 +836,7 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- unique_selected_scenarios: `{preflight_summary.get('unique_selected_scenarios', 0)}`",
         f"- unique_selected_personas: `{preflight_summary.get('unique_selected_personas', 0)}`",
         f"- unique_selected_temperatures: `{preflight_summary.get('unique_selected_temperatures', 0)}`",
+        f"- selected_temperature_span: `{preflight_summary.get('selected_temperature_span', 0.0)}`",
         f"- unique_selected_scenario_labels: `{preflight_summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{preflight_summary.get('unique_selected_scenario_tags', 0)}`",
         f"- unique_selected_persona_style_tags: `{preflight_summary.get('unique_selected_persona_style_tags', 0)}`",
@@ -1096,6 +1098,12 @@ def main():
         type=int,
         default=0,
         help="fail if the selected batch covers fewer than this many unique temperature values in total",
+    )
+    ap.add_argument(
+        "--require-min-selected-temperature-span",
+        type=float,
+        default=0.0,
+        help="fail if max(selected_temperature)-min(selected_temperature) across the selected batch is below this value",
     )
     ap.add_argument(
         "--require-min-selected-scenario-tags",
@@ -2756,6 +2764,15 @@ def main():
             "selected_unique_temperatures="
             f"{len(aggregate_temperature_values)} < require_min_selected_temperatures={args.require_min_selected_temperatures}"
         )
+    selected_temperature_span = 0.0
+    if aggregate_temperature_values:
+        numeric_temperatures = sorted(float(v) for v in aggregate_temperature_values)
+        selected_temperature_span = round(numeric_temperatures[-1] - numeric_temperatures[0], 4)
+    if args.require_min_selected_temperature_span and selected_temperature_span < args.require_min_selected_temperature_span:
+        raise RuntimeError(
+            "selected_temperature_span="
+            f"{selected_temperature_span} < require_min_selected_temperature_span={args.require_min_selected_temperature_span}"
+        )
     if args.require_min_selected_scenario_tags and len(aggregate_scenario_tags) < args.require_min_selected_scenario_tags:
         raise RuntimeError(
             "selected_unique_scenario_tags="
@@ -2900,6 +2917,7 @@ def main():
         "unique_selected_scenarios": len(aggregate_scenario_ids),
         "unique_selected_personas": len(aggregate_persona_ids),
         "unique_selected_temperatures": len(aggregate_temperature_values),
+        "selected_temperature_span": selected_temperature_span,
         "unique_selected_scenario_labels": len(aggregate_scenario_labels),
         "unique_selected_scenario_tags": len(aggregate_scenario_tags),
         "unique_selected_scenario_domains": len(aggregate_scenario_domains),
@@ -3214,6 +3232,7 @@ def main():
         "analysis_retries_by_run_id": analysis_retries_by_run_id,
         "run_id_success_rates": run_id_success_rates,
         "selected_total_samples": selected_total_samples,
+        "selected_temperature_span": selected_temperature_span,
         "planned_samples_by_run": planned_samples_by_run,
         "require_min_condition_cells": args.require_min_condition_cells,
         "require_min_successful_cells": args.require_min_successful_cells,
@@ -3239,6 +3258,8 @@ def main():
         "require_min_selected_scenario_emotion_axes": args.require_min_selected_scenario_emotion_axes,
         "require_min_selected_scenario_difficulties": args.require_min_selected_scenario_difficulties,
         "require_min_selected_persona_style_tags": args.require_min_selected_persona_style_tags,
+        "require_min_selected_temperatures": args.require_min_selected_temperatures,
+        "require_min_selected_temperature_span": args.require_min_selected_temperature_span,
         "require_prompt_bank_version": args.require_prompt_bank_version,
         "resume_verify_hashes": args.resume_verify_hashes,
         "resume_verified": resume_verified,

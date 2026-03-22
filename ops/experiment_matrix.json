@@ -1679,6 +1679,31 @@
         0.8
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_year_query_temp_span_v85",
+      "description": "v8.5 screening year-tail+unknown-query coupling 복구 + prompt countervoice temperature rebalance + selected-temperature span guard smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "year_query_tail_recovery_operator_v85",
+        "countervoice_temperature_calibrator_v85",
+        "temperature_span_tripwire_auditor_v85",
+        "unknown_query_traceability_operator_v84"
+      ],
+      "scenario_ids": [
+        "screening_review_year_unknown_bridge_tail_patch_v85",
+        "prompt_bank_countervoice_temperature_band_rebalance_v85",
+        "runner_selected_temperature_span_guardrail_v85",
+        "screening_review_unknown_query_bridge_rescue_v84"
+      ],
+      "n": 24,
+      "seed": 485,
+      "temperatures": [
+        0.1,
+        0.5,
+        1.0
+      ],
+      "repeats": 1
     }
   ]
 }
