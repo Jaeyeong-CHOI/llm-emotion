@@ -2308,6 +2308,33 @@
         "runner_reliability_architect",
         "temperature_top10_uniformity_guard_v108"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_top9_top10_top11_v109",
+      "n": 12,
+      "seed": 1090,
+      "repeats": 2,
+      "temperatures": [
+        0.1,
+        0.3,
+        0.5,
+        0.7,
+        0.9,
+        1.0
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_top9_ratio_guard_v109",
+        "prompt_bank_top9_tail_counterbalance_patch_v109",
+        "runner_temperature_top10_top11_uniformity_tripwire_v109"
+      ],
+      "persona_ids": [
+        "screening_quality_guard",
+        "prompt_bank_curator",
+        "runner_reliability_architect",
+        "temperature_top11_uniformity_guard_v109"
+      ],
+      "description": "v10.9 unknown-year top9/global top9 ratio guard + top9 tail counterbalance patch + temperature top10/top11 uniformity guard smoke"
     }
   ]
 }

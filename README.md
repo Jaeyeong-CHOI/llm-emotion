@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year top9 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top9-query-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-top9-over-global-top9-ratio`)를 추가해, top8 통과 이후 남는 누적 과점을 fail-fast로 차단합니다.
+- Prompt bank expanded to `v10.9` with **unknown-year top9 ratio guard / top9 tail counterbalance patch / temperature top10·top11 uniformity tripwire** 시나리오와 신규 페르소나(`temperature_top11_uniformity_guard_v109`)를 추가했습니다.
+- Experiment runner preflight에 **temperature top10 share + top10-over-uniform guardrail** (`--max-planned-sample-temperature-top10-share`, `--max-planned-sample-temperature-top10-over-uniform-ratio`)을 추가해, top9은 통과해도 상위 10개 온도 누적 집중이 과도한 배치를 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year top8 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top8-query-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-top8-over-global-top8-ratio`)를 추가해, top7 통과 이후 남는 누적 과점을 fail-fast로 차단합니다.
 - Experiment runner preflight의 temperature top8/top9 guardrail이 `preflight_errors` 누락 참조로 비정상 종료될 수 있던 경로를 제거하고, **top8/top9 share + over-uniform 임계치에서 즉시 RuntimeError로 fail-fast** 하도록 고쳤습니다.
 - Prompt bank expanded to `v10.8` with **unknown-year top8 ratio guard / top8 tail counterbalance patch / temperature top10 uniformity tripwire** 시나리오와 신규 페르소나(`temperature_top10_uniformity_guard_v108`)를 추가했습니다.
