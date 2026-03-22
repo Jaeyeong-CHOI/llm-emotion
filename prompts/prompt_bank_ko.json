@@ -1,5 +1,5 @@
 {
-  "version": "v3.1",
+  "version": "v3.2",
   "language": "ko",
   "scenarios": [
     {
@@ -1036,6 +1036,50 @@
         "triage"
       ],
       "prompt": "실험 직전 증거 테이블/스크리닝 리포트가 최신인지 확인하지 않아 뒤늦게 동결 누락을 발견한 경험을 7~10문장으로 서술하라. 어떤 파일이 어긋났는지, 당시엔 왜 괜찮아 보였는지, 지금의 사전 동결 체크를 포함하라."
+    },
+    {
+      "id": "query_drift_repair_sprint",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "repair"
+      ],
+      "prompt": "검색 쿼리 드리프트를 발견한 직후 24시간 안에 복구 스프린트를 돌렸던 경험을 7~10문장으로 회고하라. 어떤 지표로 드리프트를 확인했는지, 무엇을 우선 수정했는지, 아직 남은 불확실성을 포함하라."
+    },
+    {
+      "id": "alias_gap_backfill_protocol",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "audit",
+        "evidence",
+        "repair"
+      ],
+      "prompt": "용어 alias 누락으로 핵심 논문을 뒤늦게 보강(backfill)했던 장면을 7~9문장으로 서술하라. 누락을 어떻게 발견했는지, 어떤 보강 규칙을 추가했는지, 재발 방지 체크를 포함하라."
+    },
+    {
+      "id": "resume_hash_mismatch_incident",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "risk",
+        "evidence"
+      ],
+      "prompt": "실험 재시작 중 산출물 해시가 맞지 않아 실행을 중단했던 사건을 7~10문장으로 회고하라. 어떤 파일에서 불일치를 봤는지, 왜 사전에 감지하지 못했는지, 현재의 중단 기준을 포함하라."
+    },
+    {
+      "id": "preflight_coverage_floor_enforcement",
+      "label": "decision",
+      "tags": [
+        "research",
+        "reproducibility",
+        "process",
+        "triage"
+      ],
+      "prompt": "preflight 최소 커버리지 기준(시나리오/페르소나/온도 다양성)을 엄격히 적용해 실행을 보류했던 경험을 7~9문장으로 작성하라. 보류의 단기 비용과 장기 신뢰 이득을 함께 평가하라."
     }
   ],
   "personas": [
@@ -1442,6 +1486,26 @@
         "accountability"
       ],
       "instruction": "당신은 재시작 상태 일관성을 우선 점검하며, 실행 이력·manifest·산출물 해시가 맞지 않으면 즉시 중단하고 복구 순서를 구조화해 제시한다."
+    },
+    {
+      "id": "drift_repair_forecaster",
+      "style_tags": [
+        "audit",
+        "repair",
+        "planning",
+        "risk"
+      ],
+      "instruction": "당신은 드리프트 징후를 본 즉시 복구 시나리오를 설계하는 성향이 있으며, 탐지 지표·즉시 조치·재검증 일정을 분리해 기록한다."
+    },
+    {
+      "id": "hash_integrity_sentinel",
+      "style_tags": [
+        "reproducibility",
+        "evidence",
+        "risk",
+        "accountability"
+      ],
+      "instruction": "당신은 산출물 무결성을 우선 점검하며, 해시/버전/메타데이터 불일치가 있으면 해석을 중단하고 복구 순서를 명시하는 경향이 있다."
     }
   ],
   "temperatures": [

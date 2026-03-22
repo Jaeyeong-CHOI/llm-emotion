@@ -1203,6 +1203,32 @@ def collect_query_drift_candidates(rows: List[Dict], review_th: float) -> List[D
     return candidates[:40]
 
 
+def summarize_query_drift_term_gaps(rows: List[Dict], rules: Dict, review_th: float) -> Dict[str, object]:
+    candidates = collect_query_drift_candidates(rows, review_th)
+    alias_terms = set()
+    for term, variants in (rules.get("term_aliases") or {}).items():
+        alias_terms.add(str(term).strip().lower())
+        for variant in variants or []:
+            alias_terms.add(str(variant).strip().lower())
+
+    stop = {
+        "the", "and", "for", "with", "from", "that", "this", "using", "based", "toward", "towards", "into", "within", "about", "through", "between", "among", "over", "under", "their", "they", "have", "has", "into", "across", "study", "paper", "approach", "model", "models", "language", "llm", "llms",
+    }
+    token_counts: Dict[str, int] = {}
+    for row in candidates:
+        text = f"{row.get('title') or ''} {' '.join(row.get('reasons') or [])}".lower()
+        for token in re.findall(r"[a-z][a-z\-]{3,}", text):
+            if token in stop or token in alias_terms:
+                continue
+            token_counts[token] = token_counts.get(token, 0) + 1
+
+    ranked = sorted(token_counts.items(), key=lambda x: (-x[1], x[0]))
+    return {
+        "candidate_count": len(candidates),
+        "term_suggestions": [{"term": term, "count": count} for term, count in ranked[:20]],
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
@@ -1329,6 +1355,7 @@ def main():
             "required_group_coverage": summarize_required_group_coverage(ordered, rules),
             "missing_concept_groups": summarize_missing_concept_groups(ordered, rules),
             "query_drift_candidates": collect_query_drift_candidates(ordered, review_th),
+            "query_drift_term_gaps": summarize_query_drift_term_gaps(ordered, rules, review_th),
             "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
             "label_gate_conflicts": summarize_label_gate_conflicts(ordered),
             "screening_stability": summarize_screening_stability(ordered),
@@ -1369,6 +1396,7 @@ def main():
                 "required_group_coverage": summarize_required_group_coverage(ordered, rules),
                 "missing_concept_groups": summarize_missing_concept_groups(ordered, rules),
                 "query_drift_candidates": collect_query_drift_candidates(ordered, review_th),
+                "query_drift_term_gaps": summarize_query_drift_term_gaps(ordered, rules, review_th),
                 "triage_risk": summarize_triage_risk(ordered, include_th, review_th),
                 "label_gate_conflicts": summarize_label_gate_conflicts(ordered),
                 "screening_stability": summarize_screening_stability(ordered),

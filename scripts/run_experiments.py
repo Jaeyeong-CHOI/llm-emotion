@@ -149,6 +149,8 @@ def write_runs_csv(path: Path, runs: list[dict]):
         "prompt_bank_fingerprint",
         "dataset",
         "metrics",
+        "dataset_sha256",
+        "metrics_sha256",
         "status",
     ]
     with path.open("w", encoding="utf-8", newline="") as f:
@@ -336,12 +338,23 @@ def file_sha256(path: Path) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def maybe_file_sha256(path: Path) -> str:
+    if not path.exists():
+        return ""
+    return file_sha256(path)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="ops/experiment_matrix.json")
     ap.add_argument("--outdir", default="results/experiments")
     ap.add_argument("--run-label", default="")
     ap.add_argument("--resume", action="store_true", help="reuse existing label and skip completed run cells")
+    ap.add_argument(
+        "--resume-verify-hashes",
+        action="store_true",
+        help="when --resume, verify dataset/metrics sha256 against prior manifest before skipping",
+    )
     ap.add_argument("--max-runs", type=int, default=0, help="optional cap on number of run cells executed")
     ap.add_argument("--plan-only", action="store_true", help="write manifest/plan without executing generation or analysis")
     ap.add_argument("--include-run-id", action="append", default=[], help="restrict execution to specific run id(s)")
@@ -433,11 +446,40 @@ def main():
     if args.resume and manifest_path.exists():
         existing_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
-    completed = {
-        r.get("run_key")
-        for r in existing_manifest.get("runs", [])
-        if r.get("status") == "ok" and (ROOT / r.get("dataset", "")).exists() and (ROOT / r.get("metrics", "")).exists()
-    }
+    resume_verified = []
+    completed = set()
+    for r in existing_manifest.get("runs", []):
+        if r.get("status") != "ok":
+            continue
+        dataset_rel = r.get("dataset", "")
+        metrics_rel = r.get("metrics", "")
+        dataset_path = ROOT / dataset_rel
+        metrics_path = ROOT / metrics_rel
+        if not dataset_path.exists() or not metrics_path.exists():
+            continue
+
+        if args.resume and args.resume_verify_hashes:
+            expected_dataset_hash = str(r.get("dataset_sha256") or "")
+            expected_metrics_hash = str(r.get("metrics_sha256") or "")
+            actual_dataset_hash = maybe_file_sha256(dataset_path)
+            actual_metrics_hash = maybe_file_sha256(metrics_path)
+            if expected_dataset_hash and expected_dataset_hash != actual_dataset_hash:
+                raise RuntimeError(
+                    f"resume hash mismatch ({r.get('run_key')}): dataset_sha256 expected={expected_dataset_hash} actual={actual_dataset_hash}"
+                )
+            if expected_metrics_hash and expected_metrics_hash != actual_metrics_hash:
+                raise RuntimeError(
+                    f"resume hash mismatch ({r.get('run_key')}): metrics_sha256 expected={expected_metrics_hash} actual={actual_metrics_hash}"
+                )
+            resume_verified.append(
+                {
+                    "run_key": r.get("run_key"),
+                    "dataset_sha256": actual_dataset_hash,
+                    "metrics_sha256": actual_metrics_hash,
+                }
+            )
+
+        completed.add(r.get("run_key"))
 
     runs = []
     selection_rows = []
@@ -624,6 +666,8 @@ def main():
 
             if run_key in completed:
                 row["status"] = "skipped_resume"
+                row["dataset_sha256"] = maybe_file_sha256(dataset_path)
+                row["metrics_sha256"] = maybe_file_sha256(metrics_path)
                 runs.append(row)
                 all_metric_paths.append(metrics_path)
                 run_metric_paths.setdefault(run_id, []).append(metrics_path)
@@ -676,6 +720,8 @@ def main():
                 raise RuntimeError(f"analysis failed for {run_key}: {err2}")
 
             row["duration_seconds"] = round(time.perf_counter() - cell_started, 3)
+            row["dataset_sha256"] = maybe_file_sha256(dataset_path)
+            row["metrics_sha256"] = maybe_file_sha256(metrics_path)
             row["status"] = "ok"
             runs.append(row)
             all_metric_paths.append(metrics_path)
@@ -783,6 +829,8 @@ def main():
         "require_min_unique_scenario_tags": args.require_min_unique_scenario_tags,
         "require_min_unique_persona_style_tags": args.require_min_unique_persona_style_tags,
         "require_prompt_bank_version": args.require_prompt_bank_version,
+        "resume_verify_hashes": args.resume_verify_hashes,
+        "resume_verified": resume_verified,
         "require_freeze_artifacts": args.require_freeze_artifact,
         "freeze_artifacts": freeze_artifacts,
         "run_preflight": run_preflight_rows,

@@ -291,6 +291,31 @@
         "preflight_evidence_curator",
         "manifest_integrity_guard"
       ]
+    },
+    {
+      "id": "screening_drift_hash_guard_v25",
+      "n": 12,
+      "seed": 10606,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "query_drift_repair_sprint",
+        "alias_gap_backfill_protocol",
+        "resume_hash_mismatch_incident",
+        "preflight_coverage_floor_enforcement",
+        "screening_query_drift_false_negative"
+      ],
+      "persona_ids": [
+        "query_drift_watchdog",
+        "drift_repair_forecaster",
+        "hash_integrity_sentinel",
+        "resume_consistency_checker"
+      ]
     }
   ]
 }
