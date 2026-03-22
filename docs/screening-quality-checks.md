@@ -20,7 +20,7 @@ python3 scripts/check_screening_quality.py \
   --manual-qc-csv results/manual_qc_queue.csv \
   --out results/screening_quality_report.json \
   --out-md results/screening_quality_report.md \
-  --run-label screening_qc_v36
+  --run-label screening_qc_v38 --min-balanced-min-per-label 2
 ```
 
 ## Default gates
@@ -50,3 +50,5 @@ python3 scripts/check_screening_quality.py \
 - Inspect `top_qc_risk_reasons` before editing screening rules.
 - Confirm that the balanced QC queue still contains `include` rows before trusting reviewer disagreement estimates.
 - Use `query_drift_term_suggestions` to decide if new aliases belong in `queries/screening_rules.json`.
+
+- `search_openalex.py`가 생성하는 `manual_qc_queue_balanced_min_per_label` 필드를 읽어 라벨별 최소 샘플 목표 충족 여부를 gate로 검사합니다.

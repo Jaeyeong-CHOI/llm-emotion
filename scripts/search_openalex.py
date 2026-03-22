@@ -1141,6 +1141,30 @@ def summarize_manual_qc_queue(queue: List[Dict]) -> Dict[str, Dict[str, int]]:
     return summary
 
 
+
+
+def summarize_manual_qc_min_per_label(queue: List[Dict], min_per_label: int) -> Dict[str, object]:
+    labels = ("include", "review", "exclude")
+    by_label = {label: 0 for label in labels}
+    for row in queue:
+        label = str(row.get("label") or "exclude")
+        if label in by_label:
+            by_label[label] += 1
+
+    if min_per_label <= 0:
+        missing_labels = []
+        satisfied = True
+    else:
+        missing_labels = [label for label, count in by_label.items() if count < min_per_label]
+        satisfied = len(missing_labels) == 0
+
+    return {
+        "target_min_per_label": max(0, int(min_per_label)),
+        "counts": by_label,
+        "missing_labels": missing_labels,
+        "satisfied": satisfied,
+    }
+
 def summarize_quality_queue(queue: List[Dict], key: str) -> Dict[str, int]:
     summary: Dict[str, int] = {}
     for row in queue:
@@ -1396,6 +1420,9 @@ def main():
             "manual_qc_queue": ranked_manual_qc_queue,
             "manual_qc_queue_balanced": balanced_manual_qc_queue,
             "manual_qc_queue_balanced_summary": summarize_manual_qc_queue(balanced_manual_qc_queue),
+            "manual_qc_queue_balanced_min_per_label": summarize_manual_qc_min_per_label(
+                balanced_manual_qc_queue, args.manual_qc_min_per_label
+            ),
             "manual_qc_queue_risk_reason_summary": summarize_quality_queue(balanced_manual_qc_queue, "risk_reasons"),
             "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
                 ordered, include_th, review_th, per_label_limit=args.manual_qc_per_label
@@ -1437,6 +1464,9 @@ def main():
             "manual_qc_queue": ranked_manual_qc_queue,
             "manual_qc_queue_balanced": balanced_manual_qc_queue,
             "manual_qc_queue_balanced_summary": summarize_manual_qc_queue(balanced_manual_qc_queue),
+            "manual_qc_queue_balanced_min_per_label": summarize_manual_qc_min_per_label(
+                balanced_manual_qc_queue, args.manual_qc_min_per_label
+            ),
             "manual_qc_queue_risk_reason_summary": summarize_quality_queue(balanced_manual_qc_queue, "risk_reasons"),
             "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
                 ordered, include_th, review_th, per_label_limit=args.manual_qc_per_label

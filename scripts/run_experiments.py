@@ -295,6 +295,7 @@ def write_manifest_markdown(path: Path, manifest: dict):
         "## Preflight summary",
         "",
         f"- selected_run_ids: `{preflight_summary.get('selected_run_id_count', 0)}`",
+        f"- successful_cells: `{manifest.get('successful_cells', 0)}`",
         f"- prompt_bank_versions: `{', '.join(preflight_summary.get('prompt_bank_versions', []))}`",
         f"- min_scenario_count: `{preflight_summary.get('min_scenario_count', 0)}`",
         f"- min_persona_count: `{preflight_summary.get('min_persona_count', 0)}`",
@@ -431,6 +432,7 @@ def main():
     ap.add_argument("--fail-on-missing-run-id", action="store_true", help="fail when --include-run-id contains unknown ids")
     ap.add_argument("--manifest-markdown", action="store_true", help="emit a human-readable manifest summary markdown")
     ap.add_argument("--require-min-run-cells", type=int, default=0, help="fail if selected run cells are fewer than this minimum")
+    ap.add_argument("--require-min-successful-cells", type=int, default=0, help="fail if successfully executed or resumed cells are fewer than this minimum")
     ap.add_argument("--require-min-condition-cells", type=int, default=0, help="fail if any run selects fewer than this many scenario×persona×temperature condition cells")
     ap.add_argument("--require-min-total-samples", type=int, default=0, help="fail if total selected samples (sum of n×condition_cells×repeats) is below this threshold")
     ap.add_argument("--require-min-run-ids", type=int, default=0, help="fail if selected unique run ids are fewer than this minimum")
@@ -948,9 +950,15 @@ def main():
             executed += 1
             executed_ids.append(run_key)
 
+    successful_cells = sum(1 for row in runs if row.get("status") in {"ok", "skipped_resume"})
+
     if args.require_min_run_cells and selected_run_cells < args.require_min_run_cells:
         raise RuntimeError(
             f"selected_run_cells={selected_run_cells} < require_min_run_cells={args.require_min_run_cells}"
+        )
+    if args.require_min_successful_cells and successful_cells < args.require_min_successful_cells:
+        raise RuntimeError(
+            f"successful_cells={successful_cells} < require_min_successful_cells={args.require_min_successful_cells}"
         )
     if args.require_min_total_samples and selected_total_samples < args.require_min_total_samples:
         raise RuntimeError(
@@ -1069,9 +1077,11 @@ def main():
         "final_failure_streak": failure_streak,
         "stopped_early": stop_requested,
         "selected_run_cells": selected_run_cells,
+        "successful_cells": successful_cells,
         "selected_total_samples": selected_total_samples,
         "planned_samples_by_run": planned_samples_by_run,
         "require_min_condition_cells": args.require_min_condition_cells,
+        "require_min_successful_cells": args.require_min_successful_cells,
         "require_min_temperature_count": args.require_min_temperature_count,
         "require_min_total_samples": args.require_min_total_samples,
         "require_min_run_ids": args.require_min_run_ids,
@@ -1143,6 +1153,7 @@ def main():
     print(f"[OK] executed {ok_n}/{len(runs)} run cells -> {outdir}")
     print(f"failed_cells: {failed_n}")
     print(f"selected_run_cells: {selected_run_cells}")
+    print(f"successful_cells: {successful_cells}")
     print(f"selected_total_samples: {selected_total_samples}")
     if args.plan_only:
         print(f"planned_only: {sum(1 for r in runs if r.get('status') == 'planned_only')}")

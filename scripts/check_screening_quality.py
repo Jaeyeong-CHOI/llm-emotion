@@ -69,6 +69,8 @@ def write_markdown(path: Path, payload: dict):
             f"- balanced_label_dominance: `{payload['summary']['balanced_label_dominance']}`",
             f"- balanced_include_rows: `{payload['summary']['balanced_include_rows']}`",
             f"- balanced_review_rows: `{payload['summary']['balanced_review_rows']}`",
+            f"- balanced_min_per_label_target: `{payload['summary']['balanced_min_per_label_target']}`",
+            f"- balanced_min_per_label_missing: `{payload['summary']['balanced_min_per_label_missing']}`",
             f"- risk_reason_diversity: `{payload['summary']['risk_reason_diversity']}`",
             f"- top_risk_reason_share: `{payload['summary']['top_risk_reason_share']}`",
             f"- review_to_include_ratio: `{payload['summary']['review_to_include_ratio']}`",
@@ -104,6 +106,7 @@ def main():
     ap.add_argument("--max-balanced-label-dominance", type=float, default=0.8)
     ap.add_argument("--min-balanced-include-rows", type=int, default=2)
     ap.add_argument("--min-balanced-review-rows", type=int, default=6)
+    ap.add_argument("--min-balanced-min-per-label", type=int, default=2)
     ap.add_argument("--max-query-drift-candidates", type=int, default=30)
     ap.add_argument("--min-risk-reason-diversity", type=int, default=5)
     ap.add_argument("--max-top-risk-reason-share", type=float, default=0.55)
@@ -126,6 +129,7 @@ def main():
     alias_coverage = report.get("alias_coverage") or {}
     risk_reason_summary = report.get("manual_qc_queue_risk_reason_summary") or {}
     balanced_summary = report.get("manual_qc_queue_balanced_summary") or {}
+    balanced_min_per_label = report.get("manual_qc_queue_balanced_min_per_label") or {}
     drift_term_gaps = report.get("query_drift_term_gaps") or {}
 
     deduped_records = int(report.get("deduped_records", 0) or 0)
@@ -139,6 +143,15 @@ def main():
     balanced_by_group = balanced_summary.get("by_group") or {}
     balanced_include_rows = int(balanced_by_label.get("include", 0) or 0)
     balanced_review_rows = int(balanced_by_label.get("review", 0) or 0)
+    balanced_min_per_label_target = int(balanced_min_per_label.get("target_min_per_label", 0) or 0)
+    if balanced_min_per_label_target <= 0:
+        balanced_min_per_label_target = args.min_balanced_min_per_label
+    balanced_min_per_label_missing = balanced_min_per_label.get("missing_labels") or [
+        label
+        for label in ("include", "review", "exclude")
+        if int(balanced_by_label.get(label, 0) or 0) < balanced_min_per_label_target
+    ]
+    balanced_min_per_label_satisfied = bool(balanced_min_per_label.get("satisfied", not balanced_min_per_label_missing))
     risk_reason_diversity = sum(1 for _, v in risk_reason_summary.items() if int(v or 0) > 0)
     nonzero_label_bins = sum(1 for _, v in balanced_by_label.items() if int(v or 0) > 0)
     nonzero_confidence_bins = sum(1 for _, v in balanced_by_confidence.items() if int(v or 0) > 0)
@@ -237,6 +250,15 @@ def main():
             "threshold": f">={args.min_balanced_review_rows}",
         },
         {
+            "name": "balanced_min_per_label_floor",
+            "status": "pass" if balanced_min_per_label_satisfied and balanced_min_per_label_target >= args.min_balanced_min_per_label else "fail",
+            "observed": {
+                "target": balanced_min_per_label_target,
+                "missing_labels": balanced_min_per_label_missing,
+            },
+            "threshold": f"satisfied target>={args.min_balanced_min_per_label}",
+        },
+        {
             "name": "query_drift_candidates_ceiling",
             "status": "pass" if query_drift_candidate_count <= args.max_query_drift_candidates else "fail",
             "observed": query_drift_candidate_count,
@@ -310,6 +332,8 @@ def main():
             "balanced_label_dominance": max_balanced_label_share,
             "balanced_include_rows": balanced_include_rows,
             "balanced_review_rows": balanced_review_rows,
+            "balanced_min_per_label_target": balanced_min_per_label_target,
+            "balanced_min_per_label_missing": balanced_min_per_label_missing,
             "risk_reason_diversity": risk_reason_diversity,
             "top_risk_reason_share": top_risk_reason_share,
             "review_to_include_ratio": review_to_include_ratio,
