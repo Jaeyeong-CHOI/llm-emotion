@@ -509,6 +509,7 @@ def write_preflight_markdown(path: Path, payload: dict):
         f"- planned_sample_temperature_tail_share: `{summary.get('planned_sample_temperature_tail_share', 0.0)}`",
         f"- planned_sample_temperature_min_share: `{summary.get('planned_sample_temperature_min_share', 0.0)}`",
         f"- planned_sample_temperature_floor_bins: `{summary.get('planned_sample_temperature_floor_bins', 0)}`",
+        f"- planned_sample_temperature_floor_bin_share_gap: `{summary.get('planned_sample_temperature_floor_bin_share_gap', 0.0)}`",
         f"- planned_sample_temperature_hhi: `{summary.get('planned_sample_temperature_hhi', 0.0)}`",
         f"- planned_sample_temperature_share_gap: `{summary.get('planned_sample_temperature_share_gap', 0.0)}`",
         f"- max_planned_sample_temperature_over_uniform_ratio: `{summary.get('max_planned_sample_temperature_over_uniform_ratio', 0.0)}`",
@@ -883,6 +884,7 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- planned_sample_temperature_tail_share: `{preflight_summary.get('planned_sample_temperature_tail_share', 0.0)}`",
         f"- planned_sample_temperature_min_share: `{preflight_summary.get('planned_sample_temperature_min_share', 0.0)}`",
         f"- planned_sample_temperature_floor_bins: `{preflight_summary.get('planned_sample_temperature_floor_bins', 0)}`",
+        f"- planned_sample_temperature_floor_bin_share_gap: `{preflight_summary.get('planned_sample_temperature_floor_bin_share_gap', 0.0)}`",
         f"- planned_sample_temperature_top2_over_uniform_ratio: `{preflight_summary.get('planned_sample_temperature_top2_over_uniform_ratio', 0.0)}`",
         f"- planned_sample_temperature_top3_over_uniform_ratio: `{preflight_summary.get('planned_sample_temperature_top3_over_uniform_ratio', 0.0)}`",
         f"- planned_sample_temperature_top4_over_uniform_ratio: `{preflight_summary.get('planned_sample_temperature_top4_over_uniform_ratio', 0.0)}`",
@@ -1227,6 +1229,12 @@ def main():
         type=int,
         default=0,
         help="fail if fewer than this many temperature bins meet --planned-sample-temperature-floor-share (0 disables)",
+    )
+    ap.add_argument(
+        "--max-planned-sample-temperature-floor-bin-share-gap",
+        type=float,
+        default=0.0,
+        help="fail if max-min share gap across floor-qualified temperature bins exceeds this value (0 disables)",
     )
     ap.add_argument(
         "--max-planned-sample-temperature-top2-over-uniform-ratio",
@@ -2921,10 +2929,16 @@ def main():
         min(planned_sample_temperature_shares.values()),
         4,
     ) if planned_sample_temperature_shares else 0.0
-    planned_sample_temperature_floor_bins = sum(
-        1
+    floor_qualified_temperature_shares = [
+        float(share)
         for share in planned_sample_temperature_shares.values()
         if share >= args.planned_sample_temperature_floor_share
+    ]
+    planned_sample_temperature_floor_bins = len(floor_qualified_temperature_shares)
+    planned_sample_temperature_floor_bin_share_gap = (
+        round(max(floor_qualified_temperature_shares) - min(floor_qualified_temperature_shares), 4)
+        if len(floor_qualified_temperature_shares) > 1
+        else 0.0
     )
     planned_sample_temperature_hhi = round(
         sum((float(share) ** 2) for share in planned_sample_temperature_shares.values()),
@@ -3157,6 +3171,14 @@ def main():
                 f"(floor_share={args.planned_sample_temperature_floor_share})"
             )
     if (
+        args.max_planned_sample_temperature_floor_bin_share_gap
+        and planned_sample_temperature_floor_bin_share_gap > args.max_planned_sample_temperature_floor_bin_share_gap
+    ):
+        raise RuntimeError(
+            "planned_sample_temperature_floor_bin_share_gap="
+            f"{planned_sample_temperature_floor_bin_share_gap} > max_planned_sample_temperature_floor_bin_share_gap={args.max_planned_sample_temperature_floor_bin_share_gap}"
+        )
+    if (
         args.max_planned_sample_temperature_top4_over_uniform_ratio
         and planned_sample_temperature_top4_over_uniform_ratio > args.max_planned_sample_temperature_top4_over_uniform_ratio
     ):
@@ -3368,6 +3390,7 @@ def main():
         "planned_sample_temperature_tail_share": planned_sample_temperature_tail_share,
         "planned_sample_temperature_min_share": planned_sample_temperature_min_share,
         "planned_sample_temperature_floor_bins": planned_sample_temperature_floor_bins,
+        "planned_sample_temperature_floor_bin_share_gap": planned_sample_temperature_floor_bin_share_gap,
         "planned_sample_temperature_share_gap": planned_sample_temperature_share_gap,
         "uniform_temperature_share": uniform_temperature_share,
         "planned_sample_temperature_top2_over_uniform_ratio": planned_sample_temperature_top2_over_uniform_ratio,
@@ -3739,6 +3762,7 @@ def main():
         "min_planned_sample_temperature_min_share": args.min_planned_sample_temperature_min_share,
         "planned_sample_temperature_floor_share": args.planned_sample_temperature_floor_share,
         "min_planned_sample_temperature_floor_bins": args.min_planned_sample_temperature_floor_bins,
+        "max_planned_sample_temperature_floor_bin_share_gap": args.max_planned_sample_temperature_floor_bin_share_gap,
         "max_planned_sample_temperature_top2_over_uniform_ratio": args.max_planned_sample_temperature_top2_over_uniform_ratio,
         "max_planned_sample_temperature_top3_over_uniform_ratio": args.max_planned_sample_temperature_top3_over_uniform_ratio,
         "max_planned_sample_temperature_top4_over_uniform_ratio": args.max_planned_sample_temperature_top4_over_uniform_ratio,

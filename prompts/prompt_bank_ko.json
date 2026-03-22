@@ -1,5 +1,5 @@
 {
-  "version": "v10.0",
+  "version": "v10.1",
   "language": "ko",
   "scenarios": [
     {
@@ -4344,6 +4344,51 @@
       "domain": "evaluation_ops",
       "emotion_axis": "neutral",
       "difficulty": "medium"
+    },
+    {
+      "id": "screening_unknown_year_group_tail_ratio_floor_v101",
+      "label": "screening",
+      "text": "manual QC review에서 unknown-year traceable known-query를 query-group 기준으로 재집계하라. top2 비중뿐 아니라 group tail share가 global known-query group tail 대비 과도하게 수축했는지 점검하고, tail 복구 액션(검색어 확장/소스 다변화)을 3단계로 제시하라.",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "tail_share",
+        "ratio_guard"
+      ],
+      "domain": "literature_screening",
+      "emotion_axis": "quality_control",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "prompt_bank_tail_ratio_mesh_patch_v101",
+      "label": "prompt_bank",
+      "text": "프롬프트 뱅크에서 query-group tail 근거가 비는 구간을 찾아 countervoice 시나리오를 보강하라. unknown-year 복구 세트가 특정 그룹으로 재쏠리지 않도록 domain/난이도/감정축을 교차한 4개 보강 프롬프트 설계안을 작성하라.",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "mesh",
+        "tail_ratio",
+        "coverage"
+      ],
+      "domain": "prompt_design",
+      "emotion_axis": "diversity",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "runner_temperature_floor_gap_tripwire_v101",
+      "label": "runner",
+      "text": "실험 preflight에서 floor-share를 만족한 temperature bin들 사이의 share gap을 계산하라. bin 개수는 충분해도 상·하한 bin 차이가 큰 경우 실행을 보류하고 재배분 가이드를 출력하라.",
+      "tags": [
+        "runner",
+        "temperature",
+        "preflight",
+        "floor_bin",
+        "share_gap"
+      ],
+      "domain": "experiment_ops",
+      "emotion_axis": "stability",
+      "difficulty": "advanced"
     }
   ],
   "personas": [
@@ -6534,6 +6579,43 @@
         "temperature",
         "guardrail",
         "preflight"
+      ]
+    },
+    {
+      "id": "unknown_year_group_tail_ratio_warden_v101",
+      "name": "Unknown-year Group Tail Ratio Warden",
+      "style": "unknown-year query-group tail 분포를 global baseline과 비교해 수축 리스크를 빠르게 감지하고 복구 우선순위를 정한다.",
+      "tone": "집요하고 데이터 중심",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "tail_ratio"
+      ]
+    },
+    {
+      "id": "tail_ratio_mesh_curator_v101",
+      "name": "Tail-ratio Mesh Curator",
+      "style": "프롬프트 뱅크를 domain/axis/difficulty 교차축으로 재배열해 tail query-group 근거를 촘촘히 메운다.",
+      "tone": "구조적이고 실무적",
+      "tags": [
+        "prompt_bank",
+        "mesh",
+        "tail_ratio",
+        "coverage"
+      ]
+    },
+    {
+      "id": "temperature_floor_gap_auditor_v101",
+      "name": "Temperature Floor-gap Auditor",
+      "style": "floor-bin 수뿐 아니라 floor-bin 내부 격차를 함께 보고 온도 예산의 위장 균형을 차단한다.",
+      "tone": "엄격하고 예방적",
+      "tags": [
+        "runner",
+        "temperature",
+        "floor_bin",
+        "share_gap",
+        "guardrail"
       ]
     }
   ],

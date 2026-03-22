@@ -2120,6 +2120,33 @@
       "n": 28,
       "seed": 10001,
       "repeats": 2
+    },
+    {
+      "id": "screening_prompt_runner_group_tail_floor_gap_v101",
+      "description": "v10.1 unknown-year group tail/global tail ratio floor + tail-ratio mesh 확장 + temperature floor-bin share-gap guard smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_tail_ratio_floor_v101",
+        "prompt_bank_tail_ratio_mesh_patch_v101",
+        "runner_temperature_floor_gap_tripwire_v101",
+        "screening_unknown_year_group_top2_ratio_tripwire_v100"
+      ],
+      "persona_ids": [
+        "unknown_year_group_tail_ratio_warden_v101",
+        "tail_ratio_mesh_curator_v101",
+        "temperature_floor_gap_auditor_v101",
+        "unknown_year_group_top2_ratio_triager_v100"
+      ],
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "n": 28,
+      "seed": 10101,
+      "repeats": 2
     }
   ]
 }
