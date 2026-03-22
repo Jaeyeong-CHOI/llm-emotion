@@ -9,8 +9,8 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 
 ## Current iteration highlights
 - Literature screening quality gate에 **duplicate-title / weak-evidence 가드**(`--max-manual-qc-duplicate-title-share`, `--max-review-weak-evidence-share`)를 추가해, manual QC 큐의 중복 잔존과 review 근거 희석을 기존 dedup/risk 지표와 분리해서 감시할 수 있습니다.
-- Prompt bank expanded to `v7.6` with **metadata-aware research-ops prompts** (`screening_duplicate_provenance_triage`, `prompt_bank_domain_axis_balance`, `runner_metadata_resume_guard`) plus new personas (`duplicate_provenance_auditor`, `domain_axis_balance_curator`, `metadata_resume_guardian`).
-- Experiment runner and dataset generator now support **scenario metadata filters** (`--scenario-domains`, `--scenario-emotion-axes`, `--scenario-difficulties`) and record those axes in selection/preflight CSV/markdown plus generated dataset rows. Experiment matrix now includes `screening_prompt_runner_metadata_balance_v76`.
+- Prompt bank expanded to `v7.7` with **tail-query / countervoice intensity-grid / metadata-tripwire prompts** (`screening_query_tail_cluster_leak`, `prompt_bank_countervoice_domain_intensity_grid`, `runner_resume_metadata_axis_tripwire`) plus new personas (`tail_query_recall_engineer`, `metadata_axis_safety_operator`).
+- Experiment runner now supports **scenario domain/emotion entropy guardrails** (`--require-min-scenario-domain-entropy`, `--require-min-scenario-emotion-axis-entropy`) in addition to label entropy; experiment matrix now includes `screening_prompt_runner_metadata_entropy_v77`.
 - Literature screening quality gate에 **review known-query group top2 과점 가드**(`--max-manual-qc-review-traceable-known-query-group-top2-share`)를 추가해, source group 분포가 1~2개 그룹에 몰리면서 query 다양성 복구가 지연되는 패턴을 fail-fast로 차단할 수 있습니다.
 - Literature screening quality gate에 **review known-query 하단 분포 가드**(`--min-manual-qc-review-traceable-known-query-bottom2-share`)를 추가해 top query 쏠림만 보는 것이 아니라 tail 복구 여지를 수치로 점검할 수 있습니다.
 - Literature screening quality gate now supports **review bridge-query coupling gates** (`--min-review-bridge-traceable-known-query-share`, `--max-review-bridge-traceable-unknown-query-share`) to catch cases where bridge evidence exists but query provenance remains weak.
@@ -22,7 +22,7 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 - Screening quality gate continues to track **review evidence-link decay share** (`--max-manual-qc-review-evidence-link-decay-share`) to fail fast when review 근거의 문장-링크 연결이 약화됩니다.
 
 ## Repository structure
-- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v76.md`)
+- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v77.md`)
 - `queries/`: retrieval queries and screening rules
 - `prompts/`: Korean prompt bank and scenario source material
 - `scripts/`: literature sync, dataset generation, analysis, experiment runner

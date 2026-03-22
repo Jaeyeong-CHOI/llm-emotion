@@ -1,5 +1,5 @@
 {
-  "version": "v7.6",
+  "version": "v7.7",
   "language": "ko",
   "scenarios": [
     {
@@ -2705,6 +2705,78 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 재실행 과정에서 시나리오 메타데이터 축이 기록되지 않아 같은 run처럼 보이지만 실제 조건이 달랐던 경험을 7~10문장으로 회고하라. 무엇이 누락됐는지, 왜 resume 판단이 흔들렸는지, 지금의 metadata guard를 포함하라."
+    },
+    {
+      "id": "screening_query_tail_cluster_leak",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "query_governance",
+        "tail-coverage",
+        "calibration"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "review 큐의 query cluster를 점검하다 상위 클러스터에만 근거가 몰려 tail cluster 반례가 사라진 상황을 7~10문장으로 회고하라. 어떤 cluster가 먼저 비었는지, tail 복구 순서를 어떻게 정했는지, 다음 라운드의 최소 tail coverage floor를 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_domain_intensity_grid",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "calibration",
+        "coverage"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "regret",
+        "self_distancing",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 countervoice 항목 수는 맞지만 도메인×강도 그리드가 비어 비교가 흔들린 경험을 7~9문장으로 작성하라. 어떤 칸이 비었는지, patch 우선순위와 강도 parity 기준, 릴리즈 전 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_resume_metadata_axis_tripwire",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "reproducibility",
+        "metadata",
+        "tripwire",
+        "repair"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "reproducibility"
+      ],
+      "emotion_axes": [
+        "regret",
+        "uncertainty",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 resume에서 run-id는 같지만 metadata axis(domain/emotion/difficulty) 일부가 달라 뒤늦게 재실행했던 경험을 7~10문장으로 회고하라. 어떤 축이 어긋났는지, 왜 초기에 감지하지 못했는지, 현재의 metadata tripwire와 재개 조건을 수치로 포함하라."
     }
   ],
   "personas": [
@@ -4250,6 +4322,28 @@
         "metadata",
         "resume"
       ]
+    },
+    {
+      "id": "tail_query_recall_engineer",
+      "style_tags": [
+        "screening",
+        "query_governance",
+        "tail-coverage",
+        "recall",
+        "calibration"
+      ],
+      "instruction": "당신은 review known-query 분포의 long-tail 회복을 우선 설계하는 성향이 있으며, 상위 query 과점을 낮추는 재샘플링 기준과 중단선을 수치로 기록한다."
+    },
+    {
+      "id": "metadata_axis_safety_operator",
+      "style_tags": [
+        "runner",
+        "reproducibility",
+        "metadata",
+        "tripwire",
+        "governance"
+      ],
+      "instruction": "당신은 실험 재개 전에 metadata axis 일관성을 우선 감시하는 운영자 성향이 있으며, domain/emotion/difficulty 축 불일치가 있으면 즉시 중단하고 복구 순서를 명시한다."
     }
   ],
   "temperatures": [

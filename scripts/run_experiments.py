@@ -16,6 +16,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def normalized_entropy_from_counts(counts: dict[str, int]) -> float:
+    values = [int(v or 0) for v in counts.values() if int(v or 0) > 0]
+    if not values:
+        return 0.0
+    total = sum(values)
+    if total <= 0 or len(values) <= 1:
+        return 0.0
+    probs = [v / total for v in values]
+    entropy = -sum(p * math.log2(p) for p in probs if p > 0)
+    return round(entropy / math.log2(len(values)), 4)
+
+
 def run(cmd: str, timeout_seconds: float | None = None):
     try:
         p = subprocess.run(
@@ -111,13 +123,17 @@ def summarize_prompt_bank(
         label: sum(1 for row in selected_scenarios if str(row.get("label") or "").strip() == label)
         for label in sorted(selected_labels)
     }
-    scenario_label_total = sum(int(v or 0) for v in scenario_label_counts.values())
-    if scenario_label_total > 0 and len(scenario_label_counts) > 1:
-        probs = [int(v or 0) / scenario_label_total for v in scenario_label_counts.values() if int(v or 0) > 0]
-        entropy = -sum(p * math.log2(p) for p in probs if p > 0)
-        scenario_label_entropy = round(entropy / math.log2(len(scenario_label_counts)), 4)
-    else:
-        scenario_label_entropy = 0.0
+    scenario_domain_counts = {
+        domain: sum(1 for row in selected_scenarios if domain in row_list_values(row, "domains"))
+        for domain in sorted(selected_domains)
+    }
+    scenario_emotion_axis_counts = {
+        axis: sum(1 for row in selected_scenarios if axis in row_list_values(row, "emotion_axes"))
+        for axis in sorted(selected_emotion_axes)
+    }
+    scenario_label_entropy = normalized_entropy_from_counts(scenario_label_counts)
+    scenario_domain_entropy = normalized_entropy_from_counts(scenario_domain_counts)
+    scenario_emotion_axis_entropy = normalized_entropy_from_counts(scenario_emotion_axis_counts)
 
     return {
         "scenario_count": len(selected_scenarios),
@@ -131,8 +147,12 @@ def summarize_prompt_bank(
         "scenario_label_counts": scenario_label_counts,
         "scenario_domain_count": len(selected_domains),
         "scenario_domains": sorted(selected_domains),
+        "scenario_domain_counts": scenario_domain_counts,
+        "scenario_domain_entropy": scenario_domain_entropy,
         "scenario_emotion_axis_count": len(selected_emotion_axes),
         "scenario_emotion_axes": sorted(selected_emotion_axes),
+        "scenario_emotion_axis_counts": scenario_emotion_axis_counts,
+        "scenario_emotion_axis_entropy": scenario_emotion_axis_entropy,
         "scenario_difficulty_count": len(selected_difficulties),
         "scenario_difficulties": sorted(selected_difficulties),
         "scenario_label_dominance": round((max(scenario_label_counts.values(), default=0) / max(1, len(selected_scenarios))), 4) if selected_scenarios else 0.0,
@@ -805,6 +825,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- unique_selected_persona_style_tags: `{preflight_summary.get('unique_selected_persona_style_tags', 0)}`",
         f"- max_scenario_label_dominance: `{preflight_summary.get('max_scenario_label_dominance', 0.0)}`",
         f"- min_scenario_label_entropy: `{preflight_summary.get('min_scenario_label_entropy', 0.0)}`",
+        f"- min_scenario_domain_entropy: `{preflight_summary.get('min_scenario_domain_entropy', 0.0)}`",
+        f"- min_scenario_emotion_axis_entropy: `{preflight_summary.get('min_scenario_emotion_axis_entropy', 0.0)}`",
         "",
         "## Run-id summary",
         "",
@@ -1023,6 +1045,18 @@ def main():
         type=float,
         default=0.0,
         help="fail if a selected run has normalized scenario label entropy below this value (0 disables)",
+    )
+    ap.add_argument(
+        "--require-min-scenario-domain-entropy",
+        type=float,
+        default=0.0,
+        help="fail if a selected run has normalized scenario domain entropy below this value (0 disables)",
+    )
+    ap.add_argument(
+        "--require-min-scenario-emotion-axis-entropy",
+        type=float,
+        default=0.0,
+        help="fail if a selected run has normalized scenario emotion-axis entropy below this value (0 disables)",
     )
     ap.add_argument(
         "--require-min-unique-persona-style-tags",
@@ -1675,6 +1709,16 @@ def main():
                 f"{run_id}: scenario_label_entropy={prompt_summary['scenario_label_entropy']} < "
                 f"require_min_scenario_label_entropy={args.require_min_scenario_label_entropy}"
             )
+        if args.require_min_scenario_domain_entropy and prompt_summary["scenario_domain_entropy"] < args.require_min_scenario_domain_entropy:
+            raise RuntimeError(
+                f"{run_id}: scenario_domain_entropy={prompt_summary['scenario_domain_entropy']} < "
+                f"require_min_scenario_domain_entropy={args.require_min_scenario_domain_entropy}"
+            )
+        if args.require_min_scenario_emotion_axis_entropy and prompt_summary["scenario_emotion_axis_entropy"] < args.require_min_scenario_emotion_axis_entropy:
+            raise RuntimeError(
+                f"{run_id}: scenario_emotion_axis_entropy={prompt_summary['scenario_emotion_axis_entropy']} < "
+                f"require_min_scenario_emotion_axis_entropy={args.require_min_scenario_emotion_axis_entropy}"
+            )
         if (
             args.require_min_unique_persona_style_tags
             and prompt_summary["persona_style_tag_count"] < args.require_min_unique_persona_style_tags
@@ -1708,8 +1752,12 @@ def main():
                 "scenario_tags": prompt_summary["scenario_tags"],
                 "scenario_domain_count": prompt_summary["scenario_domain_count"],
                 "scenario_domains": prompt_summary["scenario_domains"],
+                "scenario_domain_counts": prompt_summary["scenario_domain_counts"],
+                "scenario_domain_entropy": prompt_summary["scenario_domain_entropy"],
                 "scenario_emotion_axis_count": prompt_summary["scenario_emotion_axis_count"],
                 "scenario_emotion_axes": prompt_summary["scenario_emotion_axes"],
+                "scenario_emotion_axis_counts": prompt_summary["scenario_emotion_axis_counts"],
+                "scenario_emotion_axis_entropy": prompt_summary["scenario_emotion_axis_entropy"],
                 "scenario_difficulty_count": prompt_summary["scenario_difficulty_count"],
                 "scenario_difficulties": prompt_summary["scenario_difficulties"],
                 "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
@@ -1736,8 +1784,12 @@ def main():
                 "scenario_tags": prompt_summary["scenario_tags"],
                 "scenario_domain_count": prompt_summary["scenario_domain_count"],
                 "scenario_domains": prompt_summary["scenario_domains"],
+                "scenario_domain_counts": prompt_summary["scenario_domain_counts"],
+                "scenario_domain_entropy": prompt_summary["scenario_domain_entropy"],
                 "scenario_emotion_axis_count": prompt_summary["scenario_emotion_axis_count"],
                 "scenario_emotion_axes": prompt_summary["scenario_emotion_axes"],
+                "scenario_emotion_axis_counts": prompt_summary["scenario_emotion_axis_counts"],
+                "scenario_emotion_axis_entropy": prompt_summary["scenario_emotion_axis_entropy"],
                 "scenario_difficulty_count": prompt_summary["scenario_difficulty_count"],
                 "scenario_difficulties": prompt_summary["scenario_difficulties"],
                 "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
@@ -2702,6 +2754,8 @@ def main():
         "unique_selected_persona_style_tags": len(aggregate_persona_style_tags),
         "max_scenario_label_dominance": max((row.get("scenario_label_dominance", 0.0) for row in run_preflight_rows), default=0.0),
         "min_scenario_label_entropy": min((row.get("scenario_label_entropy", 0.0) for row in run_preflight_rows), default=0.0),
+        "min_scenario_domain_entropy": min((row.get("scenario_domain_entropy", 0.0) for row in run_preflight_rows), default=0.0),
+        "min_scenario_emotion_axis_entropy": min((row.get("scenario_emotion_axis_entropy", 0.0) for row in run_preflight_rows), default=0.0),
     }
     snapshot_hashes = {
         "experiment_matrix": file_sha256(matrix_snapshot),

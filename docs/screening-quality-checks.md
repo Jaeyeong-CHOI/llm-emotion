@@ -86,3 +86,5 @@ python3 scripts/check_screening_quality.py \
 - `review_weak_evidence_share`가 높으면 review 판정이 남아 있어도 근거 체인이 `include_hits`나 `query_overlap` 하나에만 의존하는 경우가 많다는 뜻이므로, review_reason traceability를 유지한 채 bridge/title 근거를 같이 복구해야 합니다.
 
 - `search_openalex.py`가 생성하는 `manual_qc_queue_balanced_min_per_label` 필드를 읽어 라벨별 최소 샘플 목표 충족 여부를 gate로 검사합니다.
+
+- `manual_qc_review_traceable_known_query_top3_share <= 0.95` (review traceable known-query 분포가 상위 3개 query에 과도하게 잠기지 않도록 점검)

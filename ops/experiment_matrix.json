@@ -1482,6 +1482,30 @@
         "prompt_bank_domain_axis_balance",
         "runner_metadata_resume_guard"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_metadata_entropy_v77",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "tail_query_recall_engineer",
+        "domain_axis_balance_curator",
+        "metadata_axis_safety_operator",
+        "review_query_traceability_triager"
+      ],
+      "n": 24,
+      "seed": 477,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_ids": [
+        "screening_query_tail_cluster_leak",
+        "prompt_bank_countervoice_domain_intensity_grid",
+        "runner_resume_metadata_axis_tripwire",
+        "screening_duplicate_provenance_triage"
+      ]
     }
   ]
 }
