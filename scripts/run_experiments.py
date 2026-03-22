@@ -879,6 +879,7 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- planned_sample_temperature_top3_share: `{preflight_summary.get('planned_sample_temperature_top3_share', 0.0)}`",
         f"- planned_sample_temperature_top4_share: `{preflight_summary.get('planned_sample_temperature_top4_share', 0.0)}`",
         f"- planned_sample_temperature_tail_share: `{preflight_summary.get('planned_sample_temperature_tail_share', 0.0)}`",
+        f"- planned_sample_temperature_top2_over_uniform_ratio: `{preflight_summary.get('planned_sample_temperature_top2_over_uniform_ratio', 0.0)}`",
         f"- planned_sample_temperature_top3_over_uniform_ratio: `{preflight_summary.get('planned_sample_temperature_top3_over_uniform_ratio', 0.0)}`",
         f"- planned_sample_temperature_top4_over_uniform_ratio: `{preflight_summary.get('planned_sample_temperature_top4_over_uniform_ratio', 0.0)}`",
         f"- planned_sample_temperature_hhi: `{preflight_summary.get('planned_sample_temperature_hhi', 0.0)}`",
@@ -1204,6 +1205,12 @@ def main():
         type=float,
         default=0.0,
         help="fail if temperatures outside the top-2 account for less than this planned-sample share (0 disables)",
+    )
+    ap.add_argument(
+        "--max-planned-sample-temperature-top2-over-uniform-ratio",
+        type=float,
+        default=0.0,
+        help="fail if top-2 temperature share exceeds this multiple of uniform top-2 share baseline (0 disables)",
     )
     ap.add_argument(
         "--max-planned-sample-temperature-top3-over-uniform-ratio",
@@ -2898,8 +2905,13 @@ def main():
         else 0.0
     )
     uniform_temperature_share = round(1.0 / max(1, len(planned_sample_temperature_shares)), 4)
+    uniform_temperature_top2_share = round(min(2, len(planned_sample_temperature_shares)) * uniform_temperature_share, 4)
     uniform_temperature_top3_share = round(min(3, len(planned_sample_temperature_shares)) * uniform_temperature_share, 4)
     uniform_temperature_top4_share = round(min(4, len(planned_sample_temperature_shares)) * uniform_temperature_share, 4)
+    planned_sample_temperature_top2_over_uniform_ratio = round(
+        planned_sample_temperature_top2_share / max(1e-9, uniform_temperature_top2_share),
+        4,
+    )
     planned_sample_temperature_top3_over_uniform_ratio = round(
         planned_sample_temperature_top3_share / max(1e-9, uniform_temperature_top3_share),
         4,
@@ -3060,6 +3072,14 @@ def main():
         raise RuntimeError(
             "planned_sample_temperature_top3_share="
             f"{planned_sample_temperature_top3_share} > max_planned_sample_temperature_top3_share={args.max_planned_sample_temperature_top3_share}"
+        )
+    if (
+        args.max_planned_sample_temperature_top2_over_uniform_ratio
+        and planned_sample_temperature_top2_over_uniform_ratio > args.max_planned_sample_temperature_top2_over_uniform_ratio
+    ):
+        raise RuntimeError(
+            "planned_sample_temperature_top2_over_uniform_ratio="
+            f"{planned_sample_temperature_top2_over_uniform_ratio} > max_planned_sample_temperature_top2_over_uniform_ratio={args.max_planned_sample_temperature_top2_over_uniform_ratio}"
         )
     if (
         args.max_planned_sample_temperature_top3_over_uniform_ratio
@@ -3297,6 +3317,7 @@ def main():
         "planned_sample_temperature_tail_share": planned_sample_temperature_tail_share,
         "planned_sample_temperature_share_gap": planned_sample_temperature_share_gap,
         "uniform_temperature_share": uniform_temperature_share,
+        "planned_sample_temperature_top2_over_uniform_ratio": planned_sample_temperature_top2_over_uniform_ratio,
         "planned_sample_temperature_top3_over_uniform_ratio": planned_sample_temperature_top3_over_uniform_ratio,
         "planned_sample_temperature_top4_over_uniform_ratio": planned_sample_temperature_top4_over_uniform_ratio,
         "planned_sample_temperature_hhi": planned_sample_temperature_hhi,
@@ -3662,6 +3683,7 @@ def main():
         "max_planned_sample_temperature_top3_share": args.max_planned_sample_temperature_top3_share,
         "max_planned_sample_temperature_top4_share": args.max_planned_sample_temperature_top4_share,
         "min_planned_sample_temperature_tail_share": args.min_planned_sample_temperature_tail_share,
+        "max_planned_sample_temperature_top2_over_uniform_ratio": args.max_planned_sample_temperature_top2_over_uniform_ratio,
         "max_planned_sample_temperature_top3_over_uniform_ratio": args.max_planned_sample_temperature_top3_over_uniform_ratio,
         "max_planned_sample_temperature_top4_over_uniform_ratio": args.max_planned_sample_temperature_top4_over_uniform_ratio,
         "max_planned_sample_temperature_hhi": args.max_planned_sample_temperature_hhi,

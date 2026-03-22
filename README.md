@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year query-group top1/global group top1 ratio guard**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top1-over-global-group-top1-ratio`)를 추가해, unknown-year group top1 share가 단독으로는 통과해도 global baseline 대비 과열된 쏠림을 fail-fast로 차단합니다.
+- Prompt bank expanded to `v9.8` with **unknown-year group baseline ratio tripwire / query-group bridge matrix expansion / temperature top2 uniform-ratio guard** 시나리오와 신규 페르소나(`unknown_year_group_ratio_auditor_v98`, `bridge_matrix_expander_v98`, `temperature_top2_uniform_guardian_v98`)를 추가했습니다.
+- Experiment runner preflight에 **planned-sample temperature top2-over-uniform guardrail** (`--max-planned-sample-temperature-top2-over-uniform-ratio`)을 추가해, top2 share가 임계치 아래여도 균등 baseline 대비 과열된 온도 집중을 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year query-group drift guard**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top1-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-vs-global-known-query-group-js-divergence`)를 추가해, raw query 분산이 통과해도 query-group 기준으로 재쏠림이 남는 케이스를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v9.7` with **unknown-year query-group drift brake / persona fairness lattice / temperature tail-share tripwire** 시나리오와 신규 페르소나(`unknown_year_group_drift_auditor_v97`, `persona_fairness_lattice_curator_v97`, `temperature_tail_share_governor_v97`)를 추가했습니다.
 - Experiment runner preflight에 **planned-sample temperature tail-share guardrail** (`--min-planned-sample-temperature-tail-share`)을 추가해, top-k share와 HHI가 통과해도 상위 2개 온도 바깥 tail budget이 너무 얇은 배치를 사전에 차단합니다.

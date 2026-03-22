@@ -1,5 +1,5 @@
 {
-  "version": "v9.7",
+  "version": "v9.8",
   "language": "ko",
   "scenarios": [
     {
@@ -4155,6 +4155,78 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 러너에서 top1~top4 share와 HHI는 통과했지만 top2 바깥 temperature tail share가 너무 얇아 해석 견고성이 흔들린 사건을 7~10문장으로 회고하라. tail share를 어떻게 계산했고 어떤 임계치로 중단했는지, 재분배 후 재실행 조건을 수치로 포함하라."
+    },
+    {
+      "id": "screening_unknown_year_group_top1_ratio_tripwire_v98",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "unknown_year",
+        "query_group",
+        "top1-ratio",
+        "tripwire"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "accountability",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query에서 unknown-year query-group top1 share 자체는 허용치였지만 global known-query group top1 대비 비율이 급등해 잠재 편향을 감지한 사례를 7~10문장으로 회고하라. unknown-year와 global baseline을 왜 함께 봐야 했는지, ratio 임계치와 재스크리닝 우선순위를 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_query_group_bridge_matrix_v98",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "query_group",
+        "bridge",
+        "matrix",
+        "coverage"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "self_distancing",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 query-group별 bridge/counterexample 맥락이 불균형해 해석 일관성이 깨졌던 경험을 7~9문장으로 작성하라. 어떤 그룹 조합이 비어 있었는지, matrix를 어떻게 확장했고 검증 태그를 어떤 순서로 추가했는지 설명하라."
+    },
+    {
+      "id": "runner_temperature_top2_uniform_ratio_guard_v98",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "temperature",
+        "top2",
+        "uniform-ratio",
+        "guardrail"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 러너에서 top2 temperature share가 uniform baseline 대비 과열되어 표본 다양성이 붕괴할 뻔한 사건을 7~10문장으로 회고하라. top2-over-uniform ratio를 어떻게 계산했고 어떤 임계치에서 중단했는지, 재분배 이후 재개 기준을 수치로 제시하라."
     }
   ],
   "personas": [
@@ -6250,6 +6322,36 @@
         "tripwire"
       ],
       "instruction": "당신은 temperature 분포에서 top2 바깥 tail share를 우선 감시하는 운영자 성향이 있으며, top-k share와 HHI가 통과해도 tail이 얇으면 즉시 중단·재배치·재개 조건을 수치로 남긴다."
+    },
+    {
+      "id": "unknown_year_group_ratio_auditor_v98",
+      "style_tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "ratio"
+      ],
+      "instruction": "당신은 unknown-year query-group 분포를 global baseline 비율로 교차 점검하는 감사자 성향이 있으며, 절대 top1 share가 낮아 보여도 baseline 대비 비율이 치솟으면 즉시 원인·대응·재검증 조건을 수치로 남긴다."
+    },
+    {
+      "id": "bridge_matrix_expander_v98",
+      "style_tags": [
+        "prompt_bank",
+        "query_group",
+        "bridge",
+        "coverage"
+      ],
+      "instruction": "당신은 prompt bank를 query-group별 bridge/counterexample matrix 관점으로 확장하는 성향이 있으며, 빈 칸을 우선 채우고 태그 근거를 남겨 실험 재현성을 높인다."
+    },
+    {
+      "id": "temperature_top2_uniform_guardian_v98",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "top2",
+        "uniform-ratio"
+      ],
+      "instruction": "당신은 temperature top2 share가 uniform baseline 대비 과열되는지 먼저 점검하는 운영자 성향이 있으며, 비율 임계치를 넘으면 즉시 중단하고 재배치 계획을 수치로 기록한다."
     }
   ],
   "temperatures": [

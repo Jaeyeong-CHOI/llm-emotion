@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-03-22T17:30:00",
-  "last_success": "2026-03-22T17:21:24",
+  "last_run": "2026-03-22T20:49:21",
+  "last_success": "2026-03-22T20:49:21",
   "last_error": null,
   "stats": {
     "papers_collected": 279,
@@ -57,6 +57,10 @@
     "[2026-03-22T17:42:54] OK screening_quality_year_drift_gate_v82",
     "[2026-03-22T17:42:54] OK prompt_bank_v8_2_year_budget_expansion",
     "[2026-03-22T17:42:54] OK experiment_runner_planned_sample_share_guard_v82",
-    "[2026-03-22T17:42:54] OK run_smoke_v82_plan"
+    "[2026-03-22T17:42:54] OK run_smoke_v82_plan",
+    "[2026-03-22T20:49:21] OK screening_quality_unknown_year_group_top1_ratio_gate_v98",
+    "[2026-03-22T20:49:21] OK prompt_bank_v9_8_group_ratio_bridge_matrix_expansion",
+    "[2026-03-22T20:49:21] OK experiment_runner_top2_over_uniform_guard_v98",
+    "[2026-03-22T20:49:21] OK run_smoke_v98_plan"
   ]
 }

@@ -2039,6 +2039,33 @@
       "n": 28,
       "seed": 9701,
       "repeats": 2
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_ratio_v98",
+      "description": "v9.8 unknown-year group baseline ratio tripwire + bridge matrix expansion + temperature top2-over-uniform guard smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top1_ratio_tripwire_v98",
+        "prompt_bank_query_group_bridge_matrix_v98",
+        "runner_temperature_top2_uniform_ratio_guard_v98",
+        "screening_unknown_year_query_group_drift_brake_v97"
+      ],
+      "persona_ids": [
+        "unknown_year_group_ratio_auditor_v98",
+        "bridge_matrix_expander_v98",
+        "temperature_top2_uniform_guardian_v98",
+        "unknown_year_group_drift_auditor_v97"
+      ],
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "n": 28,
+      "seed": 9801,
+      "repeats": 2
     }
   ]
 }
