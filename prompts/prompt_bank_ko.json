@@ -1,5 +1,5 @@
 {
-  "version": "v3.5",
+  "version": "v3.6",
   "language": "ko",
   "scenarios": [
     {
@@ -1212,6 +1212,72 @@
         "calibration"
       ],
       "prompt": "검색 쿼리 묶음별(hit cluster) 결과 편향을 발견하고 재균형을 시도했던 경험을 7~10문장으로 작성하라. 어떤 클러스터가 과대표집됐는지, 재가중 기준, 다음 라운드 모니터링 지표를 포함하라."
+    },
+    {
+      "id": "screening_include_borderline_rescue",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "evidence"
+      ],
+      "prompt": "처음에는 제외될 뻔했지만 핵심 근거를 다시 읽고 include로 구조한 논문 사례를 7~10문장으로 회고하라. 어떤 신호를 처음에 놓쳤는지, 재판단 근거, 이후 false negative 방지 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_domain_gap_backfill",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "calibration"
+      ],
+      "prompt": "프롬프트 뱅크를 점검하다 특정 연구 도메인이 거의 비어 있음을 발견하고 빈 구간을 메운 경험을 7~9문장으로 작성하라. 어떤 공백을 찾았는지, 추가 기준, 기존 항목과의 비교 가능성 유지 전략을 포함하라."
+    },
+    {
+      "id": "runner_manifest_replay_mismatch",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "evidence"
+      ],
+      "prompt": "manifest와 실제 실행 산출물이 어긋나 재현 실험을 다시 정리해야 했던 사건을 7~10문장으로 회고하라. 어떤 정보가 빠졌는지, 재생(replay) 실패 원인, 지금의 기록 규칙을 포함하라."
+    },
+    {
+      "id": "screening_borderline_confidence_flip",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "calibration"
+      ],
+      "prompt": "경계선 점수(예: include/review 사이)에 있던 논문이 재평가에서 반대로 뒤집힌 경험을 7~10문장으로 회고하라. 처음 판단의 근거, 뒤집힌 신호, 다음 라운드에서 같은 오류를 줄이기 위한 임계값 운영 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_duplicate_cluster_cleanup",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크를 확장하던 중 의미가 거의 같은 항목이 군집으로 중복된 것을 정리했던 경험을 7~9문장으로 작성하라. 어떤 기준으로 병합/삭제를 결정했는지, 다양성 손실을 어떻게 보완했는지 포함하라."
+    },
+    {
+      "id": "runner_resume_after_manifest_patch",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "repair"
+      ],
+      "prompt": "manifest 필드 누락을 패치한 뒤 실험을 재시작하면서 상태 일관성을 복구했던 사건을 7~10문장으로 회고하라. 무엇이 누락됐는지, 어떤 검증 순서로 재개했는지, 재발 방지 체크리스트를 포함하라."
     }
   ],
   "personas": [
@@ -1748,6 +1814,36 @@
         "repair"
       ],
       "instruction": "당신은 실험 러너를 장애 허용 관점에서 운영하며, 실패율 임계치·체크포인트·재시도 예산을 먼저 점검한 뒤 실행 재개 여부를 결정한다."
+    },
+    {
+      "id": "screening_recall_guardian",
+      "style_tags": [
+        "audit",
+        "triage",
+        "recall",
+        "calibration"
+      ],
+      "instruction": "당신은 스크리닝 재현율 누락을 먼저 찾는 성향이 있으며, 경계선 사례에서 미탐 위험을 계량해 재검토 우선순위를 명확히 제시한다."
+    },
+    {
+      "id": "prompt_overlap_pruner",
+      "style_tags": [
+        "process",
+        "balance",
+        "documentation",
+        "repair"
+      ],
+      "instruction": "당신은 프롬프트 간 의미 중복을 체계적으로 정리하는 성향이 있으며, 병합/삭제 근거와 남겨야 할 다양성 축을 함께 문서화한다."
+    },
+    {
+      "id": "resume_recovery_operator",
+      "style_tags": [
+        "reproducibility",
+        "batch",
+        "systems",
+        "accountability"
+      ],
+      "instruction": "당신은 재시작 복구 운영자 성향이 있으며, manifest·로그·산출물 해시를 대조해 일관성이 확인될 때만 실행을 재개한다."
     }
   ],
   "temperatures": [

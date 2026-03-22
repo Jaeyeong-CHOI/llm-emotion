@@ -20,7 +20,7 @@ python3 scripts/check_screening_quality.py \
   --manual-qc-csv results/manual_qc_queue.csv \
   --out results/screening_quality_report.json \
   --out-md results/screening_quality_report.md \
-  --run-label screening_qc_v35
+  --run-label screening_qc_v36
 ```
 
 ## Default gates
@@ -34,8 +34,10 @@ python3 scripts/check_screening_quality.py \
 - `balanced_confidence_bins >= 3`
 - `balanced_group_bins >= 3`
 - `balanced_label_dominance <= 0.80`
+- `balanced_include_rows >= 2`
 - `query_drift_candidate_count <= 30`
 - `risk_reason_diversity >= 5`
+- `top_risk_reason_share <= 0.55`
 - `review_to_include_ratio <= 5.0`
 - `manual_qc_high_risk_share <= 0.85`
 
@@ -46,4 +48,5 @@ python3 scripts/check_screening_quality.py \
 ## Reviewer checkpoints
 - Confirm whether `zero_hit_terms` reflect dead aliases or intentionally narrow concepts.
 - Inspect `top_qc_risk_reasons` before editing screening rules.
+- Confirm that the balanced QC queue still contains `include` rows before trusting reviewer disagreement estimates.
 - Use `query_drift_term_suggestions` to decide if new aliases belong in `queries/screening_rules.json`.

@@ -879,6 +879,9 @@ def collect_manual_qc_queue(rows: List[Dict], include_th: float, review_th: floa
         if label == "include" and confidence != "high":
             risk += 2.0
             reasons.append("include_non_high_confidence")
+        if label == "include" and confidence == "high":
+            risk += 0.15
+            reasons.append("include_calibration_anchor")
         if label == "review" and score >= include_th - 0.35:
             risk += 1.8
             reasons.append("review_close_to_include_threshold")
@@ -966,11 +969,13 @@ def collect_manual_qc_queue_balanced(
     review_th: float,
     limit: int = 40,
     per_label_limit: int = 10,
+    min_per_label: int = 2,
     per_confidence_limit: int = 8,
     per_group_limit: int = 12,
 ) -> List[Dict]:
     ranked = collect_manual_qc_queue(rows, include_th, review_th, limit=max(limit * 4, 80))
     selected = []
+    selected_keys = set()
     label_counts = {"include": 0, "review": 0, "exclude": 0}
     confidence_counts = {"high": 0, "medium": 0, "low": 0}
     group_counts: Dict[str, int] = {}
@@ -984,43 +989,61 @@ def collect_manual_qc_queue_balanced(
             return value if value else "unknown"
         return "unknown"
 
-    # First pass: balanced by both label and confidence to avoid review bias.
-    for row in ranked:
+    def _row_key(row: Dict) -> tuple:
+        return (
+            str(row.get("openalex_id") or ""),
+            str(row.get("title") or ""),
+            str(row.get("label") or ""),
+            str(row.get("confidence") or ""),
+        )
+
+    def _try_add(row: Dict, *, respect_confidence: bool, respect_group: bool) -> bool:
         if len(selected) >= limit:
-            break
+            return False
+        key = _row_key(row)
+        if key in selected_keys:
+            return False
         label = str(row.get("label") or "exclude")
         confidence = str(row.get("confidence") or "low").lower()
         if label not in label_counts:
-            continue
+            return False
         if label_counts[label] >= per_label_limit:
-            continue
-        if confidence_counts.get(confidence, 0) >= per_confidence_limit:
-            continue
+            return False
+        if respect_confidence and confidence_counts.get(confidence, 0) >= per_confidence_limit:
+            return False
         group_name = _norm_group(row.get("source_group"))
-        if group_counts.get(group_name, 0) >= per_group_limit:
-            continue
+        if respect_group and group_counts.get(group_name, 0) >= per_group_limit:
+            return False
         selected.append(row)
+        selected_keys.add(key)
         label_counts[label] += 1
         confidence_counts[confidence] = confidence_counts.get(confidence, 0) + 1
         group_counts[group_name] = group_counts.get(group_name, 0) + 1
+        return True
 
-    # Second pass: fill remaining slots with top-risk items while keeping label ceilings.
+    # First pass: ensure each label is represented before confidence/group balancing.
+    for label in ("include", "review", "exclude"):
+        target = min(max(0, min_per_label), per_label_limit)
+        if target == 0:
+            continue
+        for row in ranked:
+            if str(row.get("label") or "exclude") != label:
+                continue
+            if label_counts[label] >= target:
+                break
+            _try_add(row, respect_confidence=True, respect_group=True)
+
+    # Second pass: balanced by both label and confidence to avoid review bias.
     for row in ranked:
         if len(selected) >= limit:
             break
-        if row in selected:
-            continue
-        label = str(row.get("label") or "exclude")
-        if label not in label_counts:
-            continue
-        if label_counts[label] >= per_label_limit:
-            continue
-        group_name = _norm_group(row.get("source_group"))
-        if group_counts.get(group_name, 0) >= per_group_limit:
-            continue
-        selected.append(row)
-        label_counts[label] += 1
-        group_counts[group_name] = group_counts.get(group_name, 0) + 1
+        _try_add(row, respect_confidence=True, respect_group=True)
+
+    # Third pass: fill remaining slots with top-risk items while keeping label ceilings.
+    for row in ranked:
+        if len(selected) >= limit:
+            break
+        _try_add(row, respect_confidence=False, respect_group=True)
 
     return selected
 
@@ -1239,6 +1262,12 @@ def main():
     ap.add_argument("--manual-qc-limit", type=int, default=40, help="max size of ranked manual QC queue")
     ap.add_argument("--manual-qc-per-label", type=int, default=10, help="max manual QC candidates per label bucket")
     ap.add_argument(
+        "--manual-qc-min-per-label",
+        type=int,
+        default=2,
+        help="minimum balanced manual QC candidates to preserve per label bucket when available",
+    )
+    ap.add_argument(
         "--manual-qc-per-confidence",
         type=int,
         default=8,
@@ -1331,6 +1360,7 @@ def main():
         review_th,
         limit=args.manual_qc_limit,
         per_label_limit=args.manual_qc_per_label,
+        min_per_label=args.manual_qc_min_per_label,
         per_confidence_limit=args.manual_qc_per_confidence,
         per_group_limit=args.manual_qc_per_group,
     )

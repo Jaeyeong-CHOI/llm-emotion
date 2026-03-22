@@ -4,10 +4,10 @@
 Test whether LLM outputs in loss and counterfactual scenarios exhibit language patterns that resemble human regret narratives, while keeping scenario selection reproducible and auditable.
 
 ## Current design updates
-- Prompt bank is now `v3.4`, adding screening/prompt-runner stress scenarios (`screening_precision_recall_tradeoff_review`, `manual_qc_hotspot_false_alarm`, `prompt_bank_cross_domain_balance`, `runner_retry_budget_exhaustion`) on top of multilingual/drift/recovery sets.
-- Persona bank now also includes `screening_gate_strategist`, `prompt_bank_curator`, `retry_budget_controller`, and `qc_signal_disambiguator` to probe gate calibration, bank curation balance, retry-budget policy, and QC signal disambiguation styles.
+- Prompt bank is now `v3.6`, adding hardening scenarios (`screening_borderline_confidence_flip`, `prompt_bank_duplicate_cluster_cleanup`, `runner_resume_after_manifest_patch`) on top of prior multilingual/drift/recovery sets.
+- Persona bank now also includes `screening_recall_guardian`, `prompt_overlap_pruner`, and `resume_recovery_operator` to probe recall-preserving screening, semantic-overlap pruning policy, and resume-state recovery discipline.
 - Scenario rows carry `tags` and stable `id`s for reproducible focused subsets (`scenario_tags` and `scenario_ids`).
-- Experiment matrix now includes `screening_qc_runner_stress_v34` and `prompt_bank_balance_v34`, while runner supports `--continue-on-error` + `--max-failed-cells` in addition to existing `--run-id-file`, retry controls, JSONL command logs, and `--resume-verify-hashes`.
+- Experiment matrix now includes `screening_prompt_replay_v36` and `screening_prompt_runner_hardening_v37`, while runner supports aggregate batch-coverage gates (`--require-min-selected-scenarios`, `--require-min-selected-personas`) plus `--continue-on-error`, `--max-failed-cells`, retry controls, JSONL command logs, and `--resume-verify-hashes`.
 
 ## Experimental factors
 - Prompt condition: control, deprivation/loss, counterfactual, social, identity, moral, regulation
@@ -47,6 +47,20 @@ Test whether LLM outputs in loss and counterfactual scenarios exhibit language p
 - Enforce minimum planned cell volume via `--require-min-run-cells`, per-run condition-matrix breadth via `--require-min-condition-cells`, per-run sample floor via `--require-min-planned-samples-per-run`, repeat robustness via `--require-min-repeats`, temperature exploration spread via `--require-min-temperature-span`, scenario-tag breadth via `--require-min-unique-scenario-tags`, persona-style breadth via `--require-min-unique-persona-style-tags`
 - Archive `manifest.json` + `manifest.md` + `run_id_summary.csv` + generated `reproduce.sh` per batch
 - Track `duration_seconds` (batch and per-cell) for throughput comparisons across iterations
+
+## Smoke validation (v37 hardening loop)
+Executed on `2026-03-22`:
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v36 --min-balanced-include-rows 2 --max-top-risk-reason-share 0.55
+printf '%s\n' screening_precision_rebalance_v35 prompt_runner_resilience_v35 screening_prompt_replay_v36 screening_prompt_runner_hardening_v37 > /tmp/llm_emotion_run_ids_v37.txt
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v37_plan --plan-only --run-id-file /tmp/llm_emotion_run_ids_v37.txt --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v37.json --selection-csv results/selection_report_smoke_v37.csv --require-min-scenarios 4 --require-min-personas 4 --require-min-unique-scenario-tags 4 --require-min-unique-persona-style-tags 7 --require-min-temperature-count 2 --require-min-temperature-span 0.3 --require-min-repeats 1 --require-min-condition-cells 48 --require-min-run-cells 8 --require-min-run-ids 4 --require-min-total-samples 5600 --require-min-planned-samples-per-run 1100 --require-min-selected-scenarios 16 --require-min-selected-personas 12 --require-prompt-bank-version v3.6 --require-freeze-artifact refs/openalex_results.jsonl --require-freeze-artifact results/lit_search_report.json --require-freeze-artifact results/screening_quality_report.json --manifest-note "preflight v37"
+```
+
+Observed results:
+- `screening_qc_v36`: `status=review`, `quality_score=85.0`, fail gate=`top_risk_reason_share_ceiling` (편향 위험은 탐지되었고 보고서/markdown 동시 갱신됨)
+- `smoke_v37_plan`: 선택 run 4개 preflight 통과(`selected_run_cells=8`, `selected_total_samples=5760`), 신규 v37 run 포함 selection report(JSON/CSV) 및 manifest 생성 확인
+- preflight summary에 `unique_selected_scenarios`/`unique_selected_personas`가 기록되어 배치 단위 coverage 검증 재현성 확보
 
 ## Smoke validation from this iteration
 Executed on `2026-03-22`:

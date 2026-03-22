@@ -300,6 +300,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- min_persona_count: `{preflight_summary.get('min_persona_count', 0)}`",
         f"- min_temperature_span: `{preflight_summary.get('min_temperature_span', 0.0)}`",
         f"- min_planned_samples: `{preflight_summary.get('min_planned_samples', 0)}`",
+        f"- unique_selected_scenarios: `{preflight_summary.get('unique_selected_scenarios', 0)}`",
+        f"- unique_selected_personas: `{preflight_summary.get('unique_selected_personas', 0)}`",
         "",
         "## Run-id summary",
         "",
@@ -457,6 +459,18 @@ def main():
         help="fail if a selected run has fewer than this many unique persona style tags",
     )
     ap.add_argument(
+        "--require-min-selected-scenarios",
+        type=int,
+        default=0,
+        help="fail if the selected batch covers fewer than this many unique scenario ids in total",
+    )
+    ap.add_argument(
+        "--require-min-selected-personas",
+        type=int,
+        default=0,
+        help="fail if the selected batch covers fewer than this many unique persona ids in total",
+    )
+    ap.add_argument(
         "--require-prompt-bank-version",
         default="",
         help="fail if selected run prompt-bank version does not match this exact value",
@@ -582,6 +596,8 @@ def main():
     selected_total_samples = 0
     planned_samples_by_run: dict[str, int] = {}
     run_preflight_rows: list[dict] = []
+    aggregate_scenario_ids: set[str] = set()
+    aggregate_persona_ids: set[str] = set()
     include_run_ids = set(args.include_run_id)
     if args.run_id_file:
         run_id_file = ROOT / args.run_id_file
@@ -653,6 +669,8 @@ def main():
                 f"{run_id}: prompt_bank_version={prompt_bank_version} != require_prompt_bank_version={args.require_prompt_bank_version}"
             )
         prompt_bank_versions.add(prompt_bank_version)
+        aggregate_scenario_ids.update(prompt_summary["scenario_ids"])
+        aggregate_persona_ids.update(prompt_summary["persona_ids"])
         condition_cells = prompt_summary["scenario_count"] * prompt_summary["persona_count"] * max(1, len(temperatures))
         planned_samples = n * condition_cells * max(1, repeats)
         planned_samples_by_run[run_id] = planned_samples
@@ -900,6 +918,16 @@ def main():
         raise RuntimeError(
             f"selected_run_ids={len(selected_run_ids)} < require_min_run_ids={args.require_min_run_ids}"
         )
+    if args.require_min_selected_scenarios and len(aggregate_scenario_ids) < args.require_min_selected_scenarios:
+        raise RuntimeError(
+            "selected_unique_scenarios="
+            f"{len(aggregate_scenario_ids)} < require_min_selected_scenarios={args.require_min_selected_scenarios}"
+        )
+    if args.require_min_selected_personas and len(aggregate_persona_ids) < args.require_min_selected_personas:
+        raise RuntimeError(
+            "selected_unique_personas="
+            f"{len(aggregate_persona_ids)} < require_min_selected_personas={args.require_min_selected_personas}"
+        )
     if args.require_min_planned_samples_per_run:
         underfilled = [
             f"{run_id}:{planned}"
@@ -923,6 +951,8 @@ def main():
         "min_temperature_span": round(min((row.get("temperature_span", 0.0) for row in run_preflight_rows), default=0.0), 4),
         "min_condition_cells": min((row.get("condition_cells", 0) for row in run_preflight_rows), default=0),
         "min_planned_samples": min((row.get("planned_samples", 0) for row in run_preflight_rows), default=0),
+        "unique_selected_scenarios": len(aggregate_scenario_ids),
+        "unique_selected_personas": len(aggregate_persona_ids),
     }
     snapshot_hashes = {
         "experiment_matrix": file_sha256(matrix_snapshot),

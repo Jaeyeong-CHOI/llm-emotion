@@ -67,7 +67,9 @@ def write_markdown(path: Path, payload: dict):
             f"- balanced_confidence_bins: `{payload['summary']['balanced_confidence_bins']}`",
             f"- balanced_group_bins: `{payload['summary']['balanced_group_bins']}`",
             f"- balanced_label_dominance: `{payload['summary']['balanced_label_dominance']}`",
+            f"- balanced_include_rows: `{payload['summary']['balanced_include_rows']}`",
             f"- risk_reason_diversity: `{payload['summary']['risk_reason_diversity']}`",
+            f"- top_risk_reason_share: `{payload['summary']['top_risk_reason_share']}`",
             f"- review_to_include_ratio: `{payload['summary']['review_to_include_ratio']}`",
             f"- manual_qc_high_risk_rows: `{payload['summary']['manual_qc_high_risk_rows']}`",
             f"- manual_qc_high_risk_share: `{payload['summary']['manual_qc_high_risk_share']}`",
@@ -99,8 +101,10 @@ def main():
     ap.add_argument("--min-balanced-confidence-bins", type=int, default=3)
     ap.add_argument("--min-balanced-group-bins", type=int, default=3)
     ap.add_argument("--max-balanced-label-dominance", type=float, default=0.8)
+    ap.add_argument("--min-balanced-include-rows", type=int, default=2)
     ap.add_argument("--max-query-drift-candidates", type=int, default=30)
     ap.add_argument("--min-risk-reason-diversity", type=int, default=5)
+    ap.add_argument("--max-top-risk-reason-share", type=float, default=0.55)
     ap.add_argument("--max-review-to-include-ratio", type=float, default=5.0)
     ap.add_argument("--max-manual-qc-high-risk-share", type=float, default=0.85)
     args = ap.parse_args()
@@ -131,6 +135,7 @@ def main():
     balanced_by_label = balanced_summary.get("by_label") or {}
     balanced_by_confidence = balanced_summary.get("by_confidence") or {}
     balanced_by_group = balanced_summary.get("by_group") or {}
+    balanced_include_rows = int(balanced_by_label.get("include", 0) or 0)
     risk_reason_diversity = sum(1 for _, v in risk_reason_summary.items() if int(v or 0) > 0)
     nonzero_label_bins = sum(1 for _, v in balanced_by_label.items() if int(v or 0) > 0)
     nonzero_confidence_bins = sum(1 for _, v in balanced_by_confidence.items() if int(v or 0) > 0)
@@ -146,6 +151,12 @@ def main():
     review_to_include_ratio = round(review_count / max(1, include_count), 4)
     high_risk_qc_rows = sum(1 for row in manual_qc_rows if float(row.get("risk_score") or 0.0) >= 5.0)
     manual_qc_high_risk_share = pct(high_risk_qc_rows, len(manual_qc_rows))
+    total_risk_reason_hits = sum(int(v or 0) for v in risk_reason_summary.values())
+    top_risk_reason_share = (
+        round(max((int(v or 0) for v in risk_reason_summary.values()), default=0) / total_risk_reason_hits, 4)
+        if total_risk_reason_hits > 0
+        else 0.0
+    )
 
     gates = [
         {
@@ -211,6 +222,12 @@ def main():
             "threshold": f"<={args.max_balanced_label_dominance}",
         },
         {
+            "name": "balanced_include_rows_floor",
+            "status": "pass" if balanced_include_rows >= args.min_balanced_include_rows else "fail",
+            "observed": balanced_include_rows,
+            "threshold": f">={args.min_balanced_include_rows}",
+        },
+        {
             "name": "query_drift_candidates_ceiling",
             "status": "pass" if query_drift_candidate_count <= args.max_query_drift_candidates else "fail",
             "observed": query_drift_candidate_count,
@@ -221,6 +238,12 @@ def main():
             "status": "pass" if risk_reason_diversity >= args.min_risk_reason_diversity else "fail",
             "observed": risk_reason_diversity,
             "threshold": f">={args.min_risk_reason_diversity}",
+        },
+        {
+            "name": "top_risk_reason_share_ceiling",
+            "status": "pass" if top_risk_reason_share <= args.max_top_risk_reason_share else "fail",
+            "observed": top_risk_reason_share,
+            "threshold": f"<={args.max_top_risk_reason_share}",
         },
         {
             "name": "review_to_include_ratio_ceiling",
@@ -276,7 +299,9 @@ def main():
             "balanced_confidence_bins": nonzero_confidence_bins,
             "balanced_group_bins": nonzero_group_bins,
             "balanced_label_dominance": max_balanced_label_share,
+            "balanced_include_rows": balanced_include_rows,
             "risk_reason_diversity": risk_reason_diversity,
+            "top_risk_reason_share": top_risk_reason_share,
             "review_to_include_ratio": review_to_include_ratio,
             "manual_qc_high_risk_rows": high_risk_qc_rows,
             "manual_qc_high_risk_share": manual_qc_high_risk_share,

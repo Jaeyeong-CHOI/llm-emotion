@@ -8,9 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
-- Literature screening quality gate was upgraded with calibration guards: `scripts/check_screening_quality.py` now tracks risk-reason diversity, review/include ratio, and manual-QC high-risk share in addition to imbalance/drift gates.
-- Prompt bank expanded to `v3.5` with focused scenarios for screening reconciliation / query-cluster rebalancing / prompt-overlap pruning / runner-checkpoint recovery, plus three personas (`screening_signal_weigher`, `prompt_bank_librarian`, `runner_fault_tolerant_operator`).
-- Experiment runner reliability now supports failure-rate based stopping (`--max-failure-rate`) on top of `--continue-on-error` and `--max-failed-cells`, and persists `attempted_run_cells` + `failure_rate` in manifest/markdown for reproducibility audits.
+- Literature screening quality gate now checks balanced `include` coverage and top risk-reason concentration. `scripts/search_openalex.py` can preserve a minimum per-label manual-QC sample via `--manual-qc-min-per-label`, and `scripts/check_screening_quality.py` fails fast when the balanced queue omits `include` papers.
+- Prompt bank expanded to `v3.6` with additional hardening scenarios (`screening_borderline_confidence_flip`, `prompt_bank_duplicate_cluster_cleanup`, `runner_resume_after_manifest_patch`) and dedicated personas for recall/overlap-pruning/resume recovery. Experiment matrix now includes `screening_prompt_runner_hardening_v37`.
+- Experiment runner preflight now records aggregate unique scenario/persona coverage across the selected batch and can enforce those floors with `--require-min-selected-scenarios` / `--require-min-selected-personas`.
 
 ## Repository structure
 - `docs/`: review protocol, screening rubric, experiment plan, ops notes
@@ -23,13 +23,13 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 
 ## Quickstart
 ```bash
-python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl --report-out results/lit_search_report.json --audit-out results/lit_screening_audit.json --manual-qc-limit 60 --manual-qc-per-label 12 --manual-qc-per-confidence 10 --manual-qc-per-group 10 --manual-qc-csv results/manual_qc_queue.csv
-python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v35
+python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl --report-out results/lit_search_report.json --audit-out results/lit_screening_audit.json --manual-qc-limit 60 --manual-qc-per-label 12 --manual-qc-min-per-label 2 --manual-qc-per-confidence 10 --manual-qc-per-group 10 --manual-qc-csv results/manual_qc_queue.csv
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v36
 python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md
 
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v35_plan --plan-only --print-selection --selection-report results/selection_report_smoke_v35.json --selection-csv results/selection_report_smoke_v35.csv --require-min-scenarios 4 --require-min-personas 4 --require-min-unique-scenario-tags 4 --require-min-unique-persona-style-tags 7 --require-min-temperature-count 2 --require-min-temperature-span 0.3 --require-min-repeats 1 --require-min-condition-cells 48 --require-min-run-cells 12 --require-min-run-ids 6 --require-min-total-samples 9000 --require-min-planned-samples-per-run 1100 --require-prompt-bank-version v3.5 --require-freeze-artifact refs/openalex_results.jsonl --require-freeze-artifact results/lit_search_report.json --require-freeze-artifact results/screening_quality_report.json --manifest-note-file docs/experiment-plan.md --manifest-note "preflight v35"
-printf '%s\n' screening_precision_rebalance_v35 prompt_runner_resilience_v35 > /tmp/llm_emotion_run_ids_v35.txt
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v35_exec --run-id-file /tmp/llm_emotion_run_ids_v35.txt --fail-on-missing-run-id --manifest-markdown --max-runs 1 --max-retries 1 --retry-backoff-seconds 1 --continue-on-error --max-failed-cells 1 --max-failure-rate 0.5 --execution-log-jsonl results/experiments/smoke_v35_exec/command_log.jsonl --require-min-total-samples 1000
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v36_plan --plan-only --print-selection --selection-report results/selection_report_smoke_v36.json --selection-csv results/selection_report_smoke_v36.csv --require-min-scenarios 4 --require-min-personas 4 --require-min-unique-scenario-tags 4 --require-min-unique-persona-style-tags 7 --require-min-temperature-count 2 --require-min-temperature-span 0.3 --require-min-repeats 1 --require-min-condition-cells 48 --require-min-run-cells 14 --require-min-run-ids 7 --require-min-total-samples 10000 --require-min-planned-samples-per-run 1100 --require-min-selected-scenarios 30 --require-min-selected-personas 25 --require-prompt-bank-version v3.6 --require-freeze-artifact refs/openalex_results.jsonl --require-freeze-artifact results/lit_search_report.json --require-freeze-artifact results/screening_quality_report.json --manifest-note-file docs/experiment-plan.md --manifest-note "preflight v36"
+printf '%s\n' screening_precision_rebalance_v35 prompt_runner_resilience_v35 screening_prompt_replay_v36 screening_prompt_runner_hardening_v37 > /tmp/llm_emotion_run_ids_v36.txt
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v36_exec --run-id-file /tmp/llm_emotion_run_ids_v36.txt --fail-on-missing-run-id --manifest-markdown --max-runs 1 --max-retries 1 --retry-backoff-seconds 1 --continue-on-error --max-failed-cells 1 --max-failure-rate 0.5 --execution-log-jsonl results/experiments/smoke_v36_exec/command_log.jsonl --require-min-total-samples 1000
 ```
 
 ## Prompt-bank filtering
@@ -50,4 +50,5 @@ python3 scripts/generate_dataset.py \
 - `results/experiments/<label>/preflight.json` and `preflight.csv` capture selection/preflight diagnostics for review before or after execution
 - `results/experiments/<label>/command_log.jsonl` records each command attempt with timestamps, return code, stdout, and stderr when execution occurs
 - `--require-prompt-bank-version`으로 실행 전 prompt bank 버전 고정, `--require-freeze-artifact`로 필수 근거 파일 존재 여부를 강제해 evidence-freeze 누락을 fail-fast로 차단할 수 있습니다.
+- `--require-min-selected-scenarios`와 `--require-min-selected-personas`로 배치 전체의 aggregate coverage floor를 강제해, 너무 좁은 실험 묶음이 통과하지 못하게 할 수 있습니다.
 - `--run-id-file`로 배치 실행 대상을 파일 기반으로 고정하고, `--max-retries`/`--retry-backoff-seconds`로 부분 실패 복구 정책을 명시적으로 재현할 수 있습니다.
