@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year top2/global top2 ratio guard**(`--max-manual-qc-review-traceable-known-query-unknown-year-top2-over-global-top2-ratio`)를 추가해, unknown-year top2 share가 절대 임계치는 통과해도 global baseline 대비 상대 과열되는 분포를 fail-fast로 차단합니다.
+- Prompt bank expanded to `v9.9` with **unknown-year top2 ratio tripwire / countervoice mesh 확장 / temperature min-share floor** 시나리오와 신규 페르소나(`unknown_year_top2_ratio_auditor_v99`, `countervoice_mesh_curator_v99`, `temperature_min_share_guardian_v99`)를 추가했습니다.
+- Experiment runner preflight에 **planned-sample temperature min-share floor guardrail** (`--min-planned-sample-temperature-min-share`)을 추가해, top-k/entropy 지표가 통과해도 특정 온도 버킷이 사실상 비는 배치를 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year query-group top1/global group top1 ratio guard**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top1-over-global-group-top1-ratio`)를 추가해, unknown-year group top1 share가 단독으로는 통과해도 global baseline 대비 과열된 쏠림을 fail-fast로 차단합니다.
 - Prompt bank expanded to `v9.8` with **unknown-year group baseline ratio tripwire / query-group bridge matrix expansion / temperature top2 uniform-ratio guard** 시나리오와 신규 페르소나(`unknown_year_group_ratio_auditor_v98`, `bridge_matrix_expander_v98`, `temperature_top2_uniform_guardian_v98`)를 추가했습니다.
 - Experiment runner preflight에 **planned-sample temperature top2-over-uniform guardrail** (`--max-planned-sample-temperature-top2-over-uniform-ratio`)을 추가해, top2 share가 임계치 아래여도 균등 baseline 대비 과열된 온도 집중을 사전에 차단합니다.
@@ -59,7 +62,7 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 - Screening quality gate continues to track **review evidence-link decay share** (`--max-manual-qc-review-evidence-link-decay-share`) to fail fast when review 근거의 문장-링크 연결이 약화됩니다.
 
 ## Repository structure
-- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v96.md`)
+- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v99.md`)
 - `queries/`: retrieval queries and screening rules
 - `prompts/`: Korean prompt bank and scenario source material
 - `scripts/`: literature sync, dataset generation, analysis, experiment runner
