@@ -379,6 +379,8 @@ def main():
     ap.add_argument("--min-manual-qc-review-traceable-known-query-unknown-year-query-coverage", type=int, default=2)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-unknown-year-query-entropy", type=float, default=0.35)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-group-top1-share", type=float, default=0.75)
+    ap.add_argument("--min-manual-qc-review-traceable-known-query-unknown-year-group-coverage", type=int, default=2)
+    ap.add_argument("--min-manual-qc-review-traceable-known-query-unknown-year-group-entropy", type=float, default=0.35)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-vs-known-year-query-js-divergence", type=float, default=0.35)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-vs-global-known-query-js-divergence", type=float, default=0.40)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-vs-global-known-query-group-js-divergence", type=float, default=0.35)
@@ -1820,6 +1822,24 @@ def main():
             else "fail",
             "observed": manual_qc_review_traceable_known_query_unknown_year_group_top1_share,
             "threshold": f"<={args.max_manual_qc_review_traceable_known_query_unknown_year_group_top1_share}",
+        },
+        {
+            "name": "manual_qc_review_traceable_known_query_unknown_year_group_coverage_floor",
+            "status": "pass"
+            if manual_qc_review_traceable_known_query_unknown_year_group_coverage
+            >= args.min_manual_qc_review_traceable_known_query_unknown_year_group_coverage
+            else "fail",
+            "observed": manual_qc_review_traceable_known_query_unknown_year_group_coverage,
+            "threshold": f">={args.min_manual_qc_review_traceable_known_query_unknown_year_group_coverage}",
+        },
+        {
+            "name": "manual_qc_review_traceable_known_query_unknown_year_group_entropy_floor",
+            "status": "pass"
+            if manual_qc_review_traceable_known_query_unknown_year_group_entropy
+            >= args.min_manual_qc_review_traceable_known_query_unknown_year_group_entropy
+            else "fail",
+            "observed": manual_qc_review_traceable_known_query_unknown_year_group_entropy,
+            "threshold": f">={args.min_manual_qc_review_traceable_known_query_unknown_year_group_entropy}",
         },
         {
             "name": "manual_qc_review_traceable_known_query_unknown_vs_known_year_query_js_divergence_ceiling",

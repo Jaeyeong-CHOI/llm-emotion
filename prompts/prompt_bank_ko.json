@@ -1,5 +1,5 @@
 {
-  "version": "v11.0",
+  "version": "v11.1",
   "language": "ko",
   "scenarios": [
     {
@@ -4949,6 +4949,53 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 러너 사전점검에서 temperature top11/top12 누적 점유율이 균등 baseline 대비 비정상적으로 높다. 실행 중단 기준과 재시작 조건(share/ratio/floor-bin)을 명시한 운영 노트를 6~8문장으로 작성하라."
+    },
+    {
+      "id": "screening_unknown_year_group_entropy_floor_patch_v111",
+      "label": "screening",
+      "text": "manual QC review traceable known-query에서 unknown-year query-group top1/top2 비율은 기준을 통과했지만 group coverage와 entropy가 동시에 하락해 판단 근거가 좁아진 상황을 점검하라. coverage floor와 entropy floor를 함께 적용해야 하는 이유, 어떤 group을 우선 복구할지, 그리고 중단/재개 임계치를 수치로 제시하라.",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "entropy",
+        "coverage",
+        "quality_gate"
+      ],
+      "domain": "literature_screening",
+      "emotion_axis": "quality_control",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "prompt_bank_unknown_year_group_entropy_countervoice_patch_v111",
+      "label": "prompt_bank",
+      "text": "프롬프트 뱅크에서 unknown-year 복구용 countervoice 항목 수는 충분하지만 query-group coverage와 entropy가 낮아 해석이 단조로워진 문제를 보강하라. group tail을 살리기 위한 countervoice 3개를 설계하고, 각 항목의 실패 신호와 재검증 지표를 포함하라.",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "unknown_year",
+        "query_group",
+        "entropy",
+        "coverage"
+      ],
+      "domain": "prompt_design",
+      "emotion_axis": "diversity",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "runner_stage_timeout_ratio_tripwire_v111",
+      "label": "runner",
+      "text": "실험 러너에서 전체 timeout 비율은 낮지만 generation/analysis timeout이 서로 다른 run-id에 비대칭 집중되는 상황을 가정하라. stage별 timeout-over-selection ratio를 정의하고, 각 stage의 tripwire 임계치 및 재개 전 검증 절차를 운영 메모로 작성하라.",
+      "tags": [
+        "runner",
+        "timeout",
+        "stage_balance",
+        "tripwire",
+        "ratio"
+      ],
+      "domain": "experiment_ops",
+      "emotion_axis": "stability",
+      "difficulty": "advanced"
     }
   ],
   "personas": [
@@ -7320,6 +7367,16 @@
         "stability"
       ],
       "instruction": "당신은 온도 분포의 장꼬리 붕괴를 조기에 탐지하는 운영자 성향이며, top11·top12 누적 점유율과 uniform baseline 대비 비율을 함께 점검해 중단·완화·재개 조건을 수치 중심으로 제시한다."
+    },
+    {
+      "id": "timeout_stage_ratio_guardian_v111",
+      "style_tags": [
+        "runner",
+        "timeout",
+        "tripwire",
+        "risk"
+      ],
+      "instruction": "당신은 timeout 실패를 stage별로 분리해 보는 운영자 성향이 있으며, run-id 점유율 대비 timeout 압력을 수치로 비교해 조기 중단과 재개 조건을 명확히 제시하는 경향이 있다."
     }
   ],
   "temperatures": [
