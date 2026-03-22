@@ -1,5 +1,5 @@
 {
-  "version": "v8.6",
+  "version": "v8.7",
   "language": "ko",
   "scenarios": [
     {
@@ -3326,6 +3326,78 @@
       ],
       "difficulty": "hard",
       "prompt": "다중 run-id 배치 preflight에서 planned sample share top2가 과도하게 높고 entropy가 낮아 실행을 중단했던 사건을 7~10문장으로 회고하라. 왜 selected cell share만으로는 위험을 못 봤는지, top2 share·entropy 임계치, 재배치 및 재개 조건을 수치로 포함하라."
+    },
+    {
+      "id": "screening_review_year_query_tail_coupling_tripwire_v87",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "year-tail",
+        "query_governance",
+        "tripwire"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query에서 year top2 과점과 unknown query 누수가 동시에 커졌을 때, 어떤 순서로 복구 게이트를 적용해 false negative를 줄였는지 7~10문장으로 회고하라. year top2 share·unknown share·tail count를 함께 본 이유와 중단/재개 기준을 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_style_tag_tail_patch_v87",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "style-tag",
+        "coverage",
+        "repair"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "regret",
+        "self_distancing",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 countervoice 항목 수는 충분했지만 persona style-tag tail 구간이 비어 비교 해석이 단조로워진 경험을 7~9문장으로 작성하라. 어떤 style-tag 조합이 누락됐는지, backfill 우선순위, 버전 릴리즈 전 parity 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_persona_style_entropy_gate_postmortem_v87",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "preflight",
+        "persona-style",
+        "entropy",
+        "tripwire"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 러너 preflight에서 persona 수는 충분했지만 style-tag entropy가 낮아 실제로는 소수 페르소나 표현에 편중된 배치를 뒤늦게 발견한 사건을 7~10문장으로 회고하라. 왜 count gate만으로는 실패했는지, entropy tripwire 임계치, 재배치·재개 조건을 수치로 포함하라."
     }
   ],
   "personas": [
@@ -5081,6 +5153,27 @@
         "tripwire"
       ],
       "instruction": "당신은 selected temperature count와 span을 함께 감사하는 성향이 있으며, span이 임계치 미달이면 실행을 중단하고 재배치·재개 조건을 수치로 제시한다."
+    },
+    {
+      "id": "year_query_coupling_recovery_operator_v87",
+      "style_tags": [
+        "screening",
+        "year-tail",
+        "query_governance",
+        "repair"
+      ],
+      "instruction": "당신은 review 근거의 연도 편향과 query provenance 누수를 함께 복구하는 운영자 성향이 있으며, year top2·unknown share·tail count를 동시에 만족하는 순차 복구 규칙을 수치로 기록한다."
+    },
+    {
+      "id": "persona_entropy_gatekeeper_v87",
+      "style_tags": [
+        "runner",
+        "preflight",
+        "persona-style",
+        "entropy",
+        "tripwire"
+      ],
+      "instruction": "당신은 실험 전 persona style-tag 다양성을 우선 점검하는 성향이 있으며, persona 수가 충분해도 entropy가 낮으면 실행을 중단하고 재배치 조건을 수치로 제시한다."
     }
   ],
   "temperatures": [

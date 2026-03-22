@@ -1729,6 +1729,31 @@
         1.0
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_year_query_persona_entropy_v87",
+      "description": "v8.7 screening year-query 결합 복구 + prompt countervoice style-tag tail patch + runner persona-style entropy guard smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "year_query_coupling_recovery_operator_v87",
+        "persona_entropy_gatekeeper_v87",
+        "countervoice_temperature_calibrator_v85",
+        "year_query_tail_recovery_operator_v85"
+      ],
+      "scenario_ids": [
+        "screening_review_year_query_tail_coupling_tripwire_v87",
+        "prompt_bank_countervoice_style_tag_tail_patch_v87",
+        "runner_persona_style_entropy_gate_postmortem_v87",
+        "screening_year_query_tail_joint_repair_v86"
+      ],
+      "n": 24,
+      "seed": 487,
+      "temperatures": [
+        0.1,
+        0.5,
+        1.0
+      ],
+      "repeats": 1
     }
   ]
 }

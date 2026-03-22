@@ -72,10 +72,12 @@ def summarize_prompt_bank(
     bank: dict,
     scenario_ids: set[str],
     scenario_tags: set[str],
+    scenario_tags_any: set[str],
     scenario_domains: set[str],
     scenario_emotion_axes: set[str],
     scenario_difficulties: set[str],
     persona_ids: set[str],
+    persona_style_tags_any: set[str],
 ) -> dict:
     scenarios = bank.get("scenarios", [])
     personas = bank.get("personas", [])
@@ -95,6 +97,8 @@ def summarize_prompt_bank(
             continue
         if scenario_tags and not scenario_tags.issubset(row_tags):
             continue
+        if scenario_tags_any and not row_tags.intersection(scenario_tags_any):
+            continue
         if scenario_domains and not scenario_domains.issubset(row_domains):
             continue
         if scenario_emotion_axes and not scenario_emotion_axes.issubset(row_emotion_axes):
@@ -111,7 +115,15 @@ def summarize_prompt_bank(
         if row_difficulty:
             selected_difficulties.add(row_difficulty)
 
-    selected_personas = [persona for persona in personas if not persona_ids or persona.get("id") in persona_ids]
+    selected_personas = []
+    for persona in personas:
+        if persona_ids and persona.get("id") not in persona_ids:
+            continue
+        if persona_style_tags_any:
+            style_tags = row_list_values(persona, "style_tags")
+            if not style_tags.intersection(persona_style_tags_any):
+                continue
+        selected_personas.append(persona)
     selected_persona_style_tags = {
         str(tag).strip()
         for persona in selected_personas
@@ -1710,20 +1722,24 @@ def main():
         prompt_bank = exp.get("prompt_bank", "prompts/prompt_bank_ko.json")
         scenario_ids = sorted(parse_csv_set(exp.get("scenario_ids")))
         scenario_tags = sorted(parse_csv_set(exp.get("scenario_tags")))
+        scenario_tags_any = sorted(parse_csv_set(exp.get("scenario_tags_any")))
         scenario_domains = sorted(parse_csv_set(exp.get("scenario_domains")))
         scenario_emotion_axes = sorted(parse_csv_set(exp.get("scenario_emotion_axes")))
         scenario_difficulties = sorted(parse_csv_set(exp.get("scenario_difficulties")))
         persona_ids = sorted(parse_csv_set(exp.get("persona_ids")))
+        persona_style_tags_any = sorted(parse_csv_set(exp.get("persona_style_tags_any")))
         prompt_bank_path = ROOT / prompt_bank
         bank = load_prompt_bank(prompt_bank_path)
         prompt_summary = summarize_prompt_bank(
             bank,
             set(scenario_ids),
             set(scenario_tags),
+            set(scenario_tags_any),
             set(scenario_domains),
             set(scenario_emotion_axes),
             set(scenario_difficulties),
             set(persona_ids),
+            set(persona_style_tags_any),
         )
         prompt_bank_version = str(bank.get("version") or "unknown")
         if args.require_prompt_bank_version and prompt_bank_version != args.require_prompt_bank_version:
@@ -1916,11 +1932,13 @@ def main():
                 "prompt_bank_version": prompt_bank_version,
                 "scenario_ids": scenario_ids,
                 "scenario_tags": scenario_tags,
+                "scenario_tags_any": scenario_tags_any,
                 "scenario_domains": scenario_domains,
                 "scenario_emotion_axes": scenario_emotion_axes,
                 "scenario_difficulties": scenario_difficulties,
                 "scenario_labels": prompt_summary["scenario_labels"],
                 "persona_ids": persona_ids,
+                "persona_style_tags_any": persona_style_tags_any,
                 "scenario_count": prompt_summary["scenario_count"],
                 "persona_count": prompt_summary["persona_count"],
                 "temperature_count": len(temperatures),
@@ -1974,6 +1992,8 @@ def main():
                 gen_parts.extend(["--scenario-ids", ",".join(scenario_ids)])
             if scenario_tags:
                 gen_parts.extend(["--scenario-tags", ",".join(scenario_tags)])
+            if scenario_tags_any:
+                gen_parts.extend(["--scenario-tags-any", ",".join(scenario_tags_any)])
             if scenario_domains:
                 gen_parts.extend(["--scenario-domains", ",".join(scenario_domains)])
             if scenario_emotion_axes:
@@ -1982,6 +2002,8 @@ def main():
                 gen_parts.extend(["--scenario-difficulties", ",".join(scenario_difficulties)])
             if persona_ids:
                 gen_parts.extend(["--persona-ids", ",".join(persona_ids)])
+            if persona_style_tags_any:
+                gen_parts.extend(["--persona-style-tags-any", ",".join(persona_style_tags_any)])
             gen_cmd = shell_join(gen_parts)
             analyze_cmd = shell_join(
                 ["python3", "scripts/analyze_regret_markers.py", "--in", str(dataset_path), "--out", str(metrics_path)]

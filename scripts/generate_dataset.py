@@ -77,15 +77,19 @@ def scenario_matches(
     scenario: Dict,
     scenario_ids: set[str],
     scenario_tags: set[str],
+    scenario_tags_any: set[str],
     scenario_domains: set[str],
     scenario_emotion_axes: set[str],
     scenario_difficulties: set[str],
 ) -> bool:
     if scenario_ids and scenario.get("id") not in scenario_ids:
         return False
+    row_tags = row_list_values(scenario, "tags")
     if scenario_tags:
-        if not scenario_tags.issubset(row_list_values(scenario, "tags")):
+        if not scenario_tags.issubset(row_tags):
             return False
+    if scenario_tags_any and not row_tags.intersection(scenario_tags_any):
+        return False
     if scenario_domains and not scenario_domains.issubset(row_list_values(scenario, "domains")):
         return False
     if scenario_emotion_axes and not scenario_emotion_axes.issubset(row_list_values(scenario, "emotion_axes")):
@@ -97,8 +101,14 @@ def scenario_matches(
     return True
 
 
-def persona_matches(persona: Dict, persona_ids: set[str]) -> bool:
-    return not persona_ids or persona.get("id") in persona_ids
+def persona_matches(persona: Dict, persona_ids: set[str], persona_style_tags_any: set[str]) -> bool:
+    if persona_ids and persona.get("id") not in persona_ids:
+        return False
+    if persona_style_tags_any:
+        style_tags = row_list_values(persona, "style_tags")
+        if not style_tags.intersection(persona_style_tags_any):
+            return False
+    return True
 
 
 def select_rows(rows: Iterable[Dict], predicate) -> List[Dict]:
@@ -114,6 +124,11 @@ def main():
     ap.add_argument("--temperatures", default="", help="override comma-separated temps, e.g. 0.2,0.7,1.0")
     ap.add_argument("--scenario-ids", default="", help="optional comma-separated scenario ids")
     ap.add_argument("--scenario-tags", default="", help="optional comma-separated tags that every scenario must include")
+    ap.add_argument(
+        "--scenario-tags-any",
+        default="",
+        help="optional comma-separated tags where at least one must appear in each scenario",
+    )
     ap.add_argument("--scenario-domains", default="", help="optional comma-separated domains that every scenario must include")
     ap.add_argument(
         "--scenario-emotion-axes",
@@ -126,6 +141,11 @@ def main():
         help="optional comma-separated difficulty levels matched against scenario difficulty",
     )
     ap.add_argument("--persona-ids", default="", help="optional comma-separated persona ids")
+    ap.add_argument(
+        "--persona-style-tags-any",
+        default="",
+        help="optional comma-separated persona style_tags where at least one must match",
+    )
     args = ap.parse_args()
 
     random.seed(args.seed)
@@ -138,10 +158,12 @@ def main():
 
     scenario_ids = parse_csv_set(args.scenario_ids)
     scenario_tags = parse_csv_set(args.scenario_tags)
+    scenario_tags_any = parse_csv_set(args.scenario_tags_any)
     scenario_domains = parse_csv_set(args.scenario_domains)
     scenario_emotion_axes = parse_csv_set(args.scenario_emotion_axes)
     scenario_difficulties = parse_csv_set(args.scenario_difficulties)
     persona_ids = parse_csv_set(args.persona_ids)
+    persona_style_tags_any = parse_csv_set(args.persona_style_tags_any)
 
     scenarios = select_rows(
         bank.get("scenarios", []),
@@ -149,6 +171,7 @@ def main():
             row,
             scenario_ids,
             scenario_tags,
+            scenario_tags_any,
             scenario_domains,
             scenario_emotion_axes,
             scenario_difficulties,
@@ -156,7 +179,7 @@ def main():
     )
     personas = select_rows(
         bank.get("personas", LEGACY_PERSONAS),
-        lambda row: persona_matches(row, persona_ids),
+        lambda row: persona_matches(row, persona_ids, persona_style_tags_any),
     )
     temperatures = parse_temperatures(args.temperatures) if args.temperatures else bank.get("temperatures", LEGACY_TEMPS)
 
