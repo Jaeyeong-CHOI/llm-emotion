@@ -1,4 +1,4 @@
-# Literature Screening Rubric (v0.7)
+# Literature Screening Rubric (v0.8)
 
 This repository applies a weighted, auditable screening layer during OpenAlex ingestion.
 
@@ -10,6 +10,7 @@ This repository applies a weighted, auditable screening layer during OpenAlex in
 - `screening_score`: weighted score
 - `screening_label`: `include` / `review` / `exclude`
 - `screening_priority`: `high` / `medium` / `low` manual follow-up priority
+- `screening_confidence`: `high` / `medium` / `low` evidence-confidence estimate for triage
 - `matched_terms`
 - `screening_reasons`
 - `screening_features`
@@ -35,7 +36,7 @@ This repository applies a weighted, auditable screening layer during OpenAlex in
    - very short abstracts
 
 ## Labeling and triage policy
-- `include`: score >= include threshold, no exclude hit, no missing concept groups, include-gate constraints satisfied (`min_include_hits`, method/review/high-priority signal), and include-guard passed (`include_margin_min`, `max_penalty_for_include`)
+- `include`: score >= include threshold, no exclude hit, no missing concept groups, include-gate constraints satisfied (`min_include_hits`, method/review/high-priority signal, `min_concept_diversity`, `min_abstract_tokens_for_include`), and include-guard passed (`include_margin_min`, `max_penalty_for_include`)
 - `review`: score >= review threshold
 - `exclude`: otherwise
 

@@ -19,7 +19,7 @@ python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-lab
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_accountability_$(date -u +%Y%m%d) --include-run-id accountability_tradeoff_v16 --strict-clean
 ```
 
-Each batch now emits `run_id_summary.csv` (aggregated across repeats/cells per run id) and snapshot hashes in `manifest.json` for provenance checks.
+Each batch now emits `run_id_summary.csv` (aggregated across repeats/cells per run id), per-cell and batch `duration_seconds`, snapshot hashes in `manifest.json`, and a generated `reproduce.sh` script for one-command reruns.
 
 ## Validation log
 Smoke checks executed on `2026-03-22T07:06:35Z`:

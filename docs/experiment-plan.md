@@ -1,16 +1,13 @@
-# Experiment Plan v0.2
+# Experiment Plan v0.3
 
 ## Objective
 Test whether LLM outputs in loss and counterfactual scenarios exhibit language patterns that resemble human regret narratives, while keeping scenario selection reproducible and auditable.
 
 ## Current design updates
-- Prompt bank `v1.4` expands scenario coverage around social loss, ambiguity, moral tradeoffs, and unfinished identity projects.
-- Scenario rows now carry `tags`, allowing focused runs such as `counterfactual`-only or `social`-only subsets.
-- Persona rows now carry `style_tags`, supporting more interpretable prompt families.
-- Experiment matrix includes:
-  - `baseline_v14_seed42`
-  - `counterfactual_focus_v14`
-  - `social_loss_v14`
+- Prompt bank is now `v1.7`, adding research-process regret situations (replication shortcut pressure, peer-review misread, late bug discovery, credit-allocation regret, expectation overfit).
+- Scenario rows carry `tags` and stable `id`s for reproducible focused subsets (`scenario_tags` and `scenario_ids`).
+- Persona bank now includes `methodical_skeptic` and `repair_committed` to separate evidence-checking vs action-oriented repair styles.
+- Experiment matrix now includes dedicated `research_process_v17` cells in addition to legacy baseline/counterfactual/social lanes.
 
 ## Experimental factors
 - Prompt condition: control, deprivation/loss, counterfactual, social, identity, moral, regulation
@@ -38,6 +35,8 @@ Test whether LLM outputs in loss and counterfactual scenarios exhibit language p
   - `scenario_tags`
   - `persona_ids`
 - Use `--plan-only` before expensive batches to verify selected cells and bank snapshots
+- Archive `manifest.json` + `run_id_summary.csv` + generated `reproduce.sh` per batch
+- Track `duration_seconds` (batch and per-cell) for throughput comparisons across iterations
 
 ## Smoke validation from this iteration
 Executed on `2026-03-22T07:06:35Z`:

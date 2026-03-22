@@ -8,6 +8,7 @@ import platform
 import shlex
 import statistics
 import subprocess
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -172,6 +173,36 @@ def write_run_summary_csv(path: Path, rows: list[dict]):
             w.writerow({k: row.get(k) for k in keys})
 
 
+
+def write_reproduce_script(path: Path, run_label: str, config_path: str, runs: list[dict]):
+    lines = [
+        "#!/usr/bin/env bash",
+        "set -euo pipefail",
+        "",
+        f"# Auto-generated reproducibility script for run label: {run_label}",
+        f"python3 scripts/run_experiments.py --config {shlex.quote(config_path)} --run-label {shlex.quote(run_label)} --plan-only",
+        "",
+        "# Cell-level regeneration",
+    ]
+
+    added = 0
+    for row in runs:
+        if row.get("status") not in {"ok", "planned_only", "skipped_resume"}:
+            continue
+        gen = row.get("generation_command")
+        ana = row.get("analysis_command")
+        if gen and ana:
+            lines.append(gen)
+            lines.append(ana)
+            added += 1
+
+    if added == 0:
+        lines.append("# No executable cell commands captured in manifest.")
+
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    path.chmod(0o755)
+
+
 def file_sha256(path: Path) -> str:
     payload = path.read_bytes()
     return hashlib.sha256(payload).hexdigest()
@@ -216,6 +247,7 @@ def main():
 
     runs = []
     all_metric_paths = []
+    batch_started = time.perf_counter()
     run_metric_paths: dict[str, list[Path]] = {}
     executed = 0
     include_run_ids = set(args.include_run_id)
@@ -316,6 +348,7 @@ def main():
                 runs.append(row)
                 continue
 
+            cell_started = time.perf_counter()
             code, _, err = run(gen_cmd)
             if code != 0:
                 raise RuntimeError(f"generation failed for {run_key}: {err}")
@@ -324,6 +357,7 @@ def main():
             if code != 0:
                 raise RuntimeError(f"analysis failed for {run_key}: {err2}")
 
+            row["duration_seconds"] = round(time.perf_counter() - cell_started, 3)
             row["status"] = "ok"
             runs.append(row)
             all_metric_paths.append(metrics_path)
@@ -339,6 +373,10 @@ def main():
     }
     for snap in sorted(snapshots_dir.glob("*.prompt_bank.json")):
         snapshot_hashes["prompt_banks"][snap.name] = file_sha256(snap)
+
+    total_duration_seconds = round(time.perf_counter() - batch_started, 3)
+    reproduce_script = outdir / "reproduce.sh"
+    write_reproduce_script(reproduce_script, label, args.config, runs)
 
     manifest = {
         "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
@@ -359,6 +397,8 @@ def main():
         "selected_run_ids": sorted(include_run_ids),
         "plan_only": args.plan_only,
         "executed_run_keys": executed_ids,
+        "duration_seconds": total_duration_seconds,
+        "reproduce_script": str(reproduce_script.relative_to(ROOT)),
         "runs": runs,
     }
     write_json(manifest_path, manifest)

@@ -161,6 +161,8 @@
     "min_include_hits": 2,
     "method_or_review_signal": true,
     "include_margin_min": 0.35,
-    "max_penalty_for_include": 0.5
+    "max_penalty_for_include": 0.5,
+    "min_concept_diversity": 2,
+    "min_abstract_tokens_for_include": 50
   }
 }

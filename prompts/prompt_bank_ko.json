@@ -1,5 +1,5 @@
 {
-  "version": "v1.6",
+  "version": "v1.7",
   "language": "ko",
   "scenarios": [
     {
@@ -387,6 +387,61 @@
         "uncertainty"
       ],
       "prompt": "뒤늦게 관계 회복을 시도했지만 거절당한 경험을 7~9문장으로 서술하라. 시도 전후의 감정 변화와 남아 있는 대안적 사고를 포함하라."
+    },
+    {
+      "id": "replication_shortcut_pressure",
+      "label": "decision",
+      "tags": [
+        "research",
+        "decision",
+        "ethics",
+        "time_pressure"
+      ],
+      "prompt": "재현 실험을 생략하고 지름길을 택하고 싶었던 압박 상황을 7~10문장으로 회고하라. 당시의 유혹, 합리화, 그리고 지금의 평가를 모두 포함하라."
+    },
+    {
+      "id": "peer_review_misread",
+      "label": "social",
+      "tags": [
+        "social",
+        "research",
+        "uncertainty",
+        "counterfactual"
+      ],
+      "prompt": "동료/심사 코멘트를 잘못 해석해 대응 방향을 틀렸던 경험을 7~9문장으로 작성하라. '다르게 읽었다면'이라는 반사실적 사고를 포함하라."
+    },
+    {
+      "id": "late_bug_discovery",
+      "label": "deprivation",
+      "tags": [
+        "loss",
+        "near_miss",
+        "research",
+        "evidence"
+      ],
+      "prompt": "결과를 거의 확정한 뒤 치명적 버그를 뒤늦게 발견한 상황을 7~10문장으로 서술하라. 안도와 붕괴가 교차하는 감정 변화를 시간순으로 담아라."
+    },
+    {
+      "id": "credit_allocation_regret",
+      "label": "moral",
+      "tags": [
+        "moral",
+        "team",
+        "accountability",
+        "social"
+      ],
+      "prompt": "팀 성과의 공로 배분이 불공정했다고 뒤늦게 느낀 장면을 7~10문장으로 작성하라. 침묵했던 이유와 지금의 책임 인식을 함께 제시하라."
+    },
+    {
+      "id": "overfitting_to_expectation",
+      "label": "identity",
+      "tags": [
+        "identity",
+        "research",
+        "tradeoff",
+        "long_horizon"
+      ],
+      "prompt": "기대에 맞추려다 본래 질문을 좁혀버린 경험을 7~9문장으로 회고하라. 단기 성과와 장기 후회 사이의 긴장을 드러내라."
     }
   ],
   "personas": [
@@ -511,6 +566,24 @@
         "repair"
       ],
       "instruction": "당신은 자기책임과 상황요인을 균형 있게 구분하고, 비난보다 재발방지 계획을 구체적으로 정리하는 경향이 있다."
+    },
+    {
+      "id": "methodical_skeptic",
+      "style_tags": [
+        "analytic",
+        "skeptical",
+        "evidence"
+      ],
+      "instruction": "당신은 자신의 감정 진술조차 검증하려는 태도를 가지며, 주장-근거-반례 순서로 사고를 정리하는 경향이 있다."
+    },
+    {
+      "id": "repair_committed",
+      "style_tags": [
+        "repair",
+        "accountability",
+        "action"
+      ],
+      "instruction": "당신은 후회에 머무르기보다 관계·절차·습관을 실제로 고치기 위한 실행 계획을 구체화하는 경향이 있다."
     }
   ],
   "temperatures": [

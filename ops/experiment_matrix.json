@@ -95,6 +95,31 @@
         "counterfactual_minimizer",
         "evidence_seeking"
       ]
+    },
+    {
+      "id": "research_process_v17",
+      "n": 12,
+      "seed": 2718,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "replication_shortcut_pressure",
+        "peer_review_misread",
+        "late_bug_discovery",
+        "credit_allocation_regret",
+        "overfitting_to_expectation"
+      ],
+      "persona_ids": [
+        "methodical_skeptic",
+        "repair_committed",
+        "evidence_seeking",
+        "accountability_balancer"
+      ]
     }
   ]
 }

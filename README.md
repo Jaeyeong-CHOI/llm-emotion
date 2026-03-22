@@ -6,9 +6,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
-- Literature screening upgraded with an additional include-guard (`include_margin_min`, `max_penalty_for_include`) so borderline high-penalty hits are downgraded to `review` instead of auto-included
-- Prompt bank expanded to `v1.6` with new distributed-responsibility / evidence-warning / value-drift / failed-repair scenarios plus `counterfactual_minimizer` and `accountability_balancer` personas
-- Experiment runner now writes per-run-id aggregates (`run_id_summary` in manifest + `run_id_summary.csv`) and SHA-256 hashes for config/prompt snapshots for reproducible provenance auditing
+- Literature screening include quality tightened via additional include gates (`min_concept_diversity`, `min_abstract_tokens_for_include`) plus a `screening_confidence` field to separate high-confidence includes from borderline candidates
+- Prompt bank expanded to `v1.7` with research-process regret scenarios (replication shortcuts, peer-review misread, late bug discovery, credit allocation, expectation overfit) and two personas (`methodical_skeptic`, `repair_committed`)
+- Experiment runner reproducibility upgraded with per-cell runtime tracking (`duration_seconds`) and an auto-generated `reproduce.sh` script in each run folder, in addition to per-run-id aggregates and snapshot SHA-256 hashes
 
 ## Repository structure
 - `docs/`: review protocol, screening rubric, experiment plan, ops notes

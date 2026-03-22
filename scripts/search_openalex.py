@@ -96,6 +96,8 @@ DEFAULT_SCREENING_RULES = {
         "method_or_review_signal": True,
         "include_margin_min": 0.35,
         "max_penalty_for_include": 0.5,
+        "min_concept_diversity": 2,
+        "min_abstract_tokens_for_include": 50,
     },
 }
 
@@ -272,11 +274,17 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     require_method_or_review = bool(include_constraints.get("method_or_review_signal", False))
     include_margin_min = float(include_constraints.get("include_margin_min", 0.0) or 0.0)
     max_penalty_for_include = float(include_constraints.get("max_penalty_for_include", 999.0) or 999.0)
+    min_concept_diversity = int(include_constraints.get("min_concept_diversity", 0) or 0)
+    min_abstract_tokens_for_include = int(include_constraints.get("min_abstract_tokens_for_include", 0) or 0)
 
     include_gate_ok = True
     if min_include_hits and len(include_hits) < min_include_hits:
         include_gate_ok = False
     if require_method_or_review and not (method_hits or review_hits or high_priority_hits):
+        include_gate_ok = False
+    if min_concept_diversity and concept_diversity < min_concept_diversity:
+        include_gate_ok = False
+    if min_abstract_tokens_for_include and abstract_tokens < min_abstract_tokens_for_include:
         include_gate_ok = False
 
     total_penalty = round(
@@ -322,8 +330,18 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
         reasons.append(f"short_abstract_tokens={abstract_tokens}")
     if not include_gate_ok:
         reasons.append("include_gate=failed")
+        if min_concept_diversity and concept_diversity < min_concept_diversity:
+            reasons.append(f"low_concept_diversity={concept_diversity}")
+        if min_abstract_tokens_for_include and abstract_tokens < min_abstract_tokens_for_include:
+            reasons.append(f"include_abstract_tokens_too_short={abstract_tokens}")
     if include_gate_ok and not include_guard_ok and weighted_score >= include_threshold:
         reasons.append("include_guard=failed")
+
+    confidence = "high"
+    if missing_groups > 0 or total_penalty > max_penalty_for_include:
+        confidence = "low"
+    elif abstract_tokens < max(min_abstract_tokens, 60) or concept_diversity < 2:
+        confidence = "medium"
 
     return {
         "screening_score": weighted_score,
@@ -331,6 +349,7 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
         "screening_priority": priority,
         "screening_reasons": reasons,
         "matched_terms": sorted(set(include_hits + high_priority_hits + review_hits)),
+        "screening_confidence": confidence,
         "screening_features": {
             "include_hits": len(include_hits),
             "high_priority_hits": len(high_priority_hits),
