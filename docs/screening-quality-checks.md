@@ -20,7 +20,8 @@ python3 scripts/check_screening_quality.py \
   --manual-qc-csv results/manual_qc_queue.csv \
   --out results/screening_quality_report.json \
   --out-md results/screening_quality_report.md \
-  --run-label screening_qc_v41 --min-balanced-min-per-label 2 --min-screening-reason-diversity 6 --max-top-screening-reason-share 0.65
+  --run-label screening_qc_v42 --min-balanced-min-per-label 2 --min-screening-reason-diversity 6 --max-top-screening-reason-share 0.65 \
+  --min-manual-qc-source-groups 3 --max-manual-qc-single-query-share 0.45 --max-empty-screening-reason-share 0.10
 ```
 
 ## Default gates
@@ -42,6 +43,9 @@ python3 scripts/check_screening_quality.py \
 - `top_screening_reason_share <= 0.65`
 - `review_to_include_ratio <= 5.0`
 - `manual_qc_high_risk_share <= 0.85`
+- `manual_qc_source_group_diversity >= 3`
+- `manual_qc_single_query_share <= 0.45`
+- `empty_screening_reason_share <= 0.10`
 
 ## Interpretation
 - `status=pass`: all gates passed

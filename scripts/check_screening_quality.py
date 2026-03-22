@@ -78,6 +78,9 @@ def write_markdown(path: Path, payload: dict):
             f"- review_to_include_ratio: `{payload['summary']['review_to_include_ratio']}`",
             f"- manual_qc_include_rows: `{payload['summary']['manual_qc_include_rows']}`",
             f"- manual_qc_label_counts: `{payload['summary']['manual_qc_label_counts']}`",
+            f"- manual_qc_source_group_diversity: `{payload['summary']['manual_qc_source_group_diversity']}`",
+            f"- manual_qc_single_query_share: `{payload['summary']['manual_qc_single_query_share']}`",
+            f"- empty_screening_reason_share: `{payload['summary']['empty_screening_reason_share']}`",
             f"- manual_qc_label_dominance: `{payload['summary']['manual_qc_label_dominance']}`",
             f"- manual_qc_high_risk_rows: `{payload['summary']['manual_qc_high_risk_rows']}`",
             f"- manual_qc_high_risk_share: `{payload['summary']['manual_qc_high_risk_share']}`",
@@ -121,6 +124,9 @@ def main():
     ap.add_argument("--max-manual-qc-label-dominance", type=float, default=0.75)
     ap.add_argument("--min-screening-reason-diversity", type=int, default=6)
     ap.add_argument("--max-top-screening-reason-share", type=float, default=0.65)
+    ap.add_argument("--min-manual-qc-source-groups", type=int, default=3)
+    ap.add_argument("--max-manual-qc-single-query-share", type=float, default=0.45)
+    ap.add_argument("--max-empty-screening-reason-share", type=float, default=0.1)
     args = ap.parse_args()
 
     report_path = ROOT / args.report
@@ -175,10 +181,19 @@ def main():
     review_count = int(labels.get("review", 0) or 0)
     manual_qc_label_counts: dict[str, int] = {}
     screening_reason_counts: dict[str, int] = {}
+    manual_qc_source_group_counts: dict[str, int] = {}
+    manual_qc_source_query_counts: dict[str, int] = {}
+    empty_screening_reason_rows = 0
     for row in manual_qc_rows:
         label = str(row.get("label") or "").strip().lower() or "unknown"
         manual_qc_label_counts[label] = manual_qc_label_counts.get(label, 0) + 1
         reason_field = str(row.get("screening_reasons") or "")
+        if not reason_field.strip():
+            empty_screening_reason_rows += 1
+        source_group = str(row.get("source_group") or "").strip().lower() or "unknown"
+        source_query = str(row.get("source_query") or "").strip().lower() or "unknown"
+        manual_qc_source_group_counts[source_group] = manual_qc_source_group_counts.get(source_group, 0) + 1
+        manual_qc_source_query_counts[source_query] = manual_qc_source_query_counts.get(source_query, 0) + 1
         tokens = [token.strip().lower() for token in reason_field.replace("|", ";").split(";") if token.strip()]
         seen = set()
         for token in tokens:
@@ -192,6 +207,13 @@ def main():
         if manual_qc_rows
         else 0.0
     )
+    manual_qc_source_group_diversity = sum(1 for _, v in manual_qc_source_group_counts.items() if int(v or 0) > 0)
+    manual_qc_single_query_share = (
+        round(max(manual_qc_source_query_counts.values(), default=0) / max(1, len(manual_qc_rows)), 4)
+        if manual_qc_rows
+        else 0.0
+    )
+    empty_screening_reason_share = pct(empty_screening_reason_rows, len(manual_qc_rows))
     review_to_include_ratio = round(review_count / max(1, include_count), 4)
     high_risk_qc_rows = sum(1 for row in manual_qc_rows if float(row.get("risk_score") or 0.0) >= 5.0)
     manual_qc_high_risk_share = pct(high_risk_qc_rows, len(manual_qc_rows))
@@ -324,6 +346,24 @@ def main():
             "threshold": f"<={args.max_top_screening_reason_share}",
         },
         {
+            "name": "manual_qc_source_group_diversity_floor",
+            "status": "pass" if manual_qc_source_group_diversity >= args.min_manual_qc_source_groups else "fail",
+            "observed": manual_qc_source_group_diversity,
+            "threshold": f">={args.min_manual_qc_source_groups}",
+        },
+        {
+            "name": "manual_qc_single_query_share_ceiling",
+            "status": "pass" if manual_qc_single_query_share <= args.max_manual_qc_single_query_share else "fail",
+            "observed": manual_qc_single_query_share,
+            "threshold": f"<={args.max_manual_qc_single_query_share}",
+        },
+        {
+            "name": "empty_screening_reason_share_ceiling",
+            "status": "pass" if empty_screening_reason_share <= args.max_empty_screening_reason_share else "fail",
+            "observed": empty_screening_reason_share,
+            "threshold": f"<={args.max_empty_screening_reason_share}",
+        },
+        {
             "name": "review_to_include_ratio_ceiling",
             "status": "pass" if review_to_include_ratio <= args.max_review_to_include_ratio else "fail",
             "observed": review_to_include_ratio,
@@ -358,6 +398,8 @@ def main():
         {"label": "top_screening_reasons", "value": top_items(screening_reason_counts, limit=6)},
         {"label": "balanced_qc_by_label", "value": balanced_summary.get("by_label") or {}},
         {"label": "manual_qc_label_counts", "value": manual_qc_label_counts},
+        {"label": "manual_qc_source_groups", "value": top_items(manual_qc_source_group_counts, limit=6)},
+        {"label": "manual_qc_source_queries", "value": top_items(manual_qc_source_query_counts, limit=6)},
         {"label": "balanced_qc_by_confidence", "value": balanced_summary.get("by_confidence") or {}},
         {"label": "top_borderline_review_risk", "value": top_items(triage_risk, limit=4)},
         {"label": "query_drift_term_suggestions", "value": (drift_term_gaps.get("term_suggestions") or [])[:8]},
@@ -402,6 +444,12 @@ def main():
             "review_to_include_ratio": review_to_include_ratio,
             "manual_qc_include_rows": manual_qc_include_rows,
             "manual_qc_label_counts": manual_qc_label_counts,
+            "manual_qc_source_group_diversity": manual_qc_source_group_diversity,
+            "manual_qc_source_group_counts": manual_qc_source_group_counts,
+            "manual_qc_single_query_share": manual_qc_single_query_share,
+            "manual_qc_source_query_counts": manual_qc_source_query_counts,
+            "empty_screening_reason_rows": empty_screening_reason_rows,
+            "empty_screening_reason_share": empty_screening_reason_share,
             "manual_qc_label_dominance": manual_qc_label_dominance,
             "manual_qc_high_risk_rows": high_risk_qc_rows,
             "manual_qc_high_risk_share": manual_qc_high_risk_share,

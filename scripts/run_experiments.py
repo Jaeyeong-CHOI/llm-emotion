@@ -15,9 +15,19 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def run(cmd: str):
-    p = subprocess.run(cmd, cwd=ROOT, shell=True, text=True, capture_output=True)
-    return p.returncode, p.stdout, p.stderr
+def run(cmd: str, timeout_seconds: float | None = None):
+    try:
+        p = subprocess.run(
+            cmd,
+            cwd=ROOT,
+            shell=True,
+            text=True,
+            capture_output=True,
+            timeout=None if timeout_seconds is None or timeout_seconds <= 0 else timeout_seconds,
+        )
+        return p.returncode, p.stdout, p.stderr
+    except subprocess.TimeoutExpired as exc:
+        return 124, str(exc.stdout or ""), f"timeout_after_seconds={timeout_seconds}"
 
 
 def utc_stamp() -> str:
@@ -377,11 +387,12 @@ def execute_with_retries(
     max_retries: int,
     retry_backoff_seconds: float,
     execution_log_path: Path | None,
+    timeout_seconds: float | None = None,
 ) -> tuple[int, str, str, list[dict]]:
     attempts = []
     for attempt_index in range(max_retries + 1):
         started_at = dt.datetime.now(dt.UTC).isoformat(timespec="seconds")
-        code, out, err = run(cmd)
+        code, out, err = run(cmd, timeout_seconds=timeout_seconds)
         finished_at = dt.datetime.now(dt.UTC).isoformat(timespec="seconds")
         attempt_payload = {
             "run_key": run_key,
@@ -394,6 +405,7 @@ def execute_with_retries(
             "stdout": out,
             "stderr": err,
             "command": cmd,
+            "timeout_seconds": timeout_seconds,
         }
         attempts.append(attempt_payload)
         if execution_log_path is not None:
@@ -528,6 +540,18 @@ def main():
         type=float,
         default=0.0,
         help="sleep duration between retries when --max-retries > 0",
+    )
+    ap.add_argument(
+        "--generation-timeout-seconds",
+        type=float,
+        default=0.0,
+        help="timeout per generation command (0 disables timeout)",
+    )
+    ap.add_argument(
+        "--analysis-timeout-seconds",
+        type=float,
+        default=0.0,
+        help="timeout per analysis command (0 disables timeout)",
     )
     ap.add_argument(
         "--execution-log-jsonl",
@@ -897,6 +921,7 @@ def main():
                 max_retries=generation_retry_budget,
                 retry_backoff_seconds=max(0.0, args.retry_backoff_seconds),
                 execution_log_path=execution_log_path,
+                timeout_seconds=args.generation_timeout_seconds,
             )
             row["generation_attempts"] = len(gen_attempts)
             if code != 0:
@@ -938,6 +963,7 @@ def main():
                 max_retries=analysis_retry_budget,
                 retry_backoff_seconds=max(0.0, args.retry_backoff_seconds),
                 execution_log_path=execution_log_path,
+                timeout_seconds=args.analysis_timeout_seconds,
             )
             row["analysis_attempts"] = len(analyze_attempts)
             if code != 0:
@@ -1159,6 +1185,8 @@ def main():
         "max_generation_retries": generation_retry_budget,
         "max_analysis_retries": analysis_retry_budget,
         "retry_backoff_seconds": args.retry_backoff_seconds,
+        "generation_timeout_seconds": args.generation_timeout_seconds,
+        "analysis_timeout_seconds": args.analysis_timeout_seconds,
         "execution_log_jsonl": str(execution_log_path.relative_to(ROOT)),
         "require_freeze_artifacts": args.require_freeze_artifact,
         "freeze_artifacts": freeze_artifacts,

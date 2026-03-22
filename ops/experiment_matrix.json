@@ -616,6 +616,31 @@
         "prompt_balance_curator",
         "stagewise_retry_engineer"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_timeout_v42",
+      "n": 12,
+      "seed": 24141,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_reason_entropy_guard",
+        "screening_active_learning_misprioritization",
+        "prompt_bank_counterpair_injection",
+        "runner_stage_timeout_failover",
+        "runner_stagewise_retry_backpressure"
+      ],
+      "persona_ids": [
+        "screening_entropy_guardian",
+        "screening_recall_optimizer",
+        "counterpair_prompt_curator",
+        "timeout_failover_operator"
+      ]
     }
   ]
 }

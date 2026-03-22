@@ -1,5 +1,5 @@
 {
-  "version": "v4.0",
+  "version": "v4.1",
   "language": "ko",
   "scenarios": [
     {
@@ -1416,6 +1416,42 @@
         "systems"
       ],
       "prompt": "실험 러너에서 생성 단계와 분석 단계의 실패 특성이 다른데도 같은 재시도 정책을 적용해 병목이 커진 경험을 7~10문장으로 회고하라. 단계별 실패 패턴, 백프레셔(backpressure) 징후, 현재의 단계별 재시도 정책을 포함하라."
+    },
+    {
+      "id": "screening_reason_entropy_guard",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "calibration",
+        "recall"
+      ],
+      "prompt": "수동 QC에서 배제 사유가 몇 가지 문구로만 반복되어 false negative가 늘어났던 경험을 7~10문장으로 회고하라. 사유 분산이 왜 무너졌는지, 어떤 사례를 놓쳤는지, 지금의 사유 엔트로피 점검 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_counterpair_injection",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "counterfactual",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크 확장 중 주장 프롬프트마다 대응 반례 프롬프트(counterpair)를 붙여 해석 왜곡을 줄였던 경험을 7~9문장으로 작성하라. 어떤 쌍이 비어 있었는지, 보강 기준, 비교 가능성 유지 원칙을 포함하라."
+    },
+    {
+      "id": "runner_stage_timeout_failover",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "systems",
+        "risk"
+      ],
+      "prompt": "실험 러너에서 단계별 timeout을 두지 않아 배치가 교착 상태에 빠졌고, 이후 failover 정책으로 복구했던 사건을 7~10문장으로 회고하라. 어느 단계가 막혔는지, timeout/재시도/중단 기준을 어떻게 분리했는지, 현재의 운영 규칙을 포함하라."
     }
   ],
   "personas": [
@@ -2072,6 +2108,36 @@
         "reproducibility"
       ],
       "instruction": "당신은 실행 단계를 분리해 실패를 다루는 성향이 있으며, 생성/분석 단계별 재시도 예산과 중단 조건을 명시적으로 설계해 복구 시간을 줄이려 한다."
+    },
+    {
+      "id": "screening_entropy_guardian",
+      "style_tags": [
+        "audit",
+        "triage",
+        "calibration",
+        "recall"
+      ],
+      "instruction": "당신은 스크리닝 근거 분산을 먼저 점검하는 성향이 있으며, 특정 사유 문구 과집중이 보이면 즉시 미탐 위험을 계량해 재검토 순서를 제시한다."
+    },
+    {
+      "id": "counterpair_prompt_curator",
+      "style_tags": [
+        "process",
+        "balance",
+        "counterfactual",
+        "evidence"
+      ],
+      "instruction": "당신은 주장 프롬프트와 반례 프롬프트를 쌍으로 관리하는 성향이 있으며, 확장 시 의미 중복·도메인 공백·비교 가능성 손실을 동시에 점검한다."
+    },
+    {
+      "id": "timeout_failover_operator",
+      "style_tags": [
+        "batch",
+        "systems",
+        "risk",
+        "reproducibility"
+      ],
+      "instruction": "당신은 실행 지연을 단계별로 분리해 다루는 운영자 성향이 있으며, timeout·재시도·중단·재개 조건을 명시적으로 기록해 배치 교착을 예방한다."
     }
   ],
   "temperatures": [

@@ -4,10 +4,10 @@
 Test whether LLM outputs in loss and counterfactual scenarios exhibit language patterns that resemble human regret narratives, while keeping scenario selection reproducible and auditable.
 
 ## Current design updates
-- Prompt bank is now `v4.0`, adding active-learning recall rescue / counterexample blindspot / stagewise retry backpressure scenarios (`screening_active_learning_misprioritization`, `prompt_bank_counterexample_blindspot`, `runner_stagewise_retry_backpressure`) on top of prior recall/drift/recovery sets.
-- Persona bank now also includes `screening_recall_optimizer` and `stagewise_retry_engineer` to probe recall-first screening recovery and stage-aware retry 운영 전략.
+- Prompt bank is now `v4.1`, adding screening reason entropy / counterpair injection / stage timeout failover scenarios (`screening_reason_entropy_guard`, `prompt_bank_counterpair_injection`, `runner_stage_timeout_failover`) on top of prior recall/drift/recovery sets.
+- Persona bank now also includes `screening_entropy_guardian`, `counterpair_prompt_curator`, and `timeout_failover_operator` to probe screening 근거 분산, 반례쌍 설계, 단계별 timeout 운영 전략.
 - Scenario rows carry `tags` and stable `id`s for reproducible focused subsets (`scenario_tags` and `scenario_ids`).
-- Experiment matrix now includes `screening_prompt_runner_stagewise_v41`, while runner supports aggregate batch-coverage gates (`--require-min-selected-scenarios`, `--require-min-selected-personas`, `--require-min-selected-scenario-tags`, `--require-min-selected-persona-style-tags`) plus `--continue-on-error`, `--max-failed-cells`, `--max-failure-streak`, `--require-min-successful-cells`, `--require-min-success-rate`, `--require-min-run-id-success-rate`, stage-specific retry controls (`--max-generation-retries`, `--max-analysis-retries`), JSONL command logs, and `--resume-verify-hashes`.
+- Experiment matrix now includes `screening_prompt_runner_timeout_v42`, while runner supports aggregate batch-coverage gates (`--require-min-selected-scenarios`, `--require-min-selected-personas`, `--require-min-selected-scenario-tags`, `--require-min-selected-persona-style-tags`) plus `--continue-on-error`, `--max-failed-cells`, `--max-failure-streak`, `--require-min-successful-cells`, `--require-min-success-rate`, `--require-min-run-id-success-rate`, stage-specific retry controls (`--max-generation-retries`, `--max-analysis-retries`), stage timeout controls (`--generation-timeout-seconds`, `--analysis-timeout-seconds`), JSONL command logs, and `--resume-verify-hashes`.
 
 ## Experimental factors
 - Prompt condition: control, deprivation/loss, counterfactual, social, identity, moral, regulation
@@ -123,3 +123,17 @@ Observed results (v41):
 - `screening_qc_v41`: `status=pass`, `quality_score=100.0`, 신규 근거 분산 게이트(`screening_reason_diversity_floor`, `top_screening_reason_share_ceiling`) 계산/보고 확인
 - `smoke_v41_plan`: 8개 run id preflight 통과(`selected_run_cells=16`, `selected_total_samples=11520`), 신규 `screening_prompt_runner_stagewise_v41` 포함 selection report(JSON/CSV) 생성
 - `smoke_v41_exec`: v41 run subset 실행에서 `successful_cells=1`, `success_rate=0.5`로 단계별 재시도 옵션 및 run-id success floor(`--require-min-run-id-success-rate`) 동작 검증
+
+## Smoke validation (v42 timeout+entropy loop)
+Executed on `2026-03-22`:
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v42 --min-balanced-review-rows 6 --min-manual-qc-include-rows 2 --max-manual-qc-label-dominance 0.75 --min-screening-reason-diversity 6 --max-top-screening-reason-share 0.65 --min-manual-qc-source-groups 3 --max-manual-qc-single-query-share 0.45 --max-empty-screening-reason-share 0.10
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v42_timeout_plan --plan-only --include-run-id screening_prompt_runner_timeout_v42 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v42_timeout.json --selection-csv results/selection_report_smoke_v42_timeout.csv --require-min-scenarios 5 --require-min-personas 4 --require-min-temperature-count 3 --require-min-temperature-span 0.49 --require-min-condition-cells 60 --require-min-run-cells 2 --require-min-run-ids 1 --require-min-total-samples 1400 --require-min-planned-samples-per-run 1400 --require-min-unique-scenario-tags 5 --require-min-unique-persona-style-tags 8 --require-prompt-bank-version v4.1 --require-freeze-artifact refs/openalex_results.jsonl --require-freeze-artifact results/lit_search_report.json --require-freeze-artifact results/screening_quality_report.json --manifest-markdown --manifest-note "timeout/entropy/counterpair preflight v42"
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v42_timeout_exec --include-run-id screening_prompt_runner_timeout_v42 --fail-on-missing-run-id --max-runs 1 --max-retries 1 --max-generation-retries 1 --max-analysis-retries 0 --retry-backoff-seconds 1 --generation-timeout-seconds 120 --analysis-timeout-seconds 90 --continue-on-error --max-failed-cells 1 --max-failure-rate 0.5 --max-failure-streak 1 --require-min-successful-cells 1 --require-min-success-rate 0.4 --require-min-run-id-success-rate 0.4 --require-min-total-samples 700 --execution-log-jsonl results/experiments/smoke_v42_timeout_exec/command_log.jsonl --manifest-markdown
+```
+
+Observed results (v42):
+- `screening_qc_v42`: `status=pass`, `quality_score=100.0`, 신규 QC 소스 다변성/집중도 게이트(`manual_qc_source_group_diversity_floor`, `manual_qc_single_query_share_ceiling`, `empty_screening_reason_share_ceiling`) 계산/보고 확인
+- `smoke_v42_timeout_plan`: 신규 run preflight 통과(`selected_run_cells=2`, `selected_total_samples=1440`), prompt bank `v4.1` 고정 및 selection report(JSON/CSV) 생성
+- `smoke_v42_timeout_exec`: subset 실행에서 `successful_cells=1`, `success_rate=0.5`, stage timeout 옵션(`--generation-timeout-seconds`, `--analysis-timeout-seconds`)과 run-id success floor 동작 검증
