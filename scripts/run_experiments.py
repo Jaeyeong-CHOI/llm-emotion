@@ -595,6 +595,18 @@ def main():
         default=0,
         help="when --continue-on-error, stop batch after this many consecutive failed cells (0 = no limit)",
     )
+    ap.add_argument(
+        "--max-generation-attempts-total",
+        type=int,
+        default=0,
+        help="global ceiling on generation command attempts (including retries); 0 disables",
+    )
+    ap.add_argument(
+        "--max-analysis-attempts-total",
+        type=int,
+        default=0,
+        help="global ceiling on analysis command attempts (including retries); 0 disables",
+    )
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -686,6 +698,8 @@ def main():
     generation_successful_cells = 0
     analysis_attempted_cells = 0
     analysis_successful_cells = 0
+    generation_attempts_total = 0
+    analysis_attempts_total = 0
     failure_streak = 0
     selected_run_cells = 0
     selected_total_samples = 0
@@ -943,6 +957,7 @@ def main():
                 timeout_seconds=args.generation_timeout_seconds,
             )
             row["generation_attempts"] = len(gen_attempts)
+            generation_attempts_total += len(gen_attempts)
             if code != 0:
                 row["status"] = "failed_generation"
                 row["error"] = str(err).strip()
@@ -975,6 +990,11 @@ def main():
                         break
                 continue
 
+            if args.max_generation_attempts_total > 0 and generation_attempts_total >= args.max_generation_attempts_total:
+                print(f"[WARN] generation_attempts_total reached ceiling ({generation_attempts_total}/{args.max_generation_attempts_total}); stopping batch early")
+                stop_requested = True
+                break
+
             generation_successful_cells += 1
             analysis_attempted_cells += 1
             code, _, err2, analyze_attempts = execute_with_retries(
@@ -987,6 +1007,7 @@ def main():
                 timeout_seconds=args.analysis_timeout_seconds,
             )
             row["analysis_attempts"] = len(analyze_attempts)
+            analysis_attempts_total += len(analyze_attempts)
             if code != 0:
                 row["status"] = "failed_analysis"
                 row["error"] = str(err2).strip()
@@ -1019,6 +1040,11 @@ def main():
                         stop_requested = True
                         break
                 continue
+
+            if args.max_analysis_attempts_total > 0 and analysis_attempts_total >= args.max_analysis_attempts_total:
+                print(f"[WARN] analysis_attempts_total reached ceiling ({analysis_attempts_total}/{args.max_analysis_attempts_total}); stopping batch early")
+                stop_requested = True
+                break
 
             analysis_successful_cells += 1
             row["duration_seconds"] = round(time.perf_counter() - cell_started, 3)
@@ -1197,6 +1223,8 @@ def main():
         "max_failed_cells": args.max_failed_cells,
         "max_failure_rate": args.max_failure_rate,
         "max_failure_streak": args.max_failure_streak,
+        "max_generation_attempts_total": args.max_generation_attempts_total,
+        "max_analysis_attempts_total": args.max_analysis_attempts_total,
         "final_failure_streak": failure_streak,
         "stopped_early": stop_requested,
         "selected_run_cells": selected_run_cells,
@@ -1208,6 +1236,8 @@ def main():
         "analysis_attempted_cells": analysis_attempted_cells,
         "analysis_successful_cells": analysis_successful_cells,
         "analysis_success_rate": analysis_success_rate,
+        "generation_attempts_total": generation_attempts_total,
+        "analysis_attempts_total": analysis_attempts_total,
         "run_id_success_rates": run_id_success_rates,
         "selected_total_samples": selected_total_samples,
         "planned_samples_by_run": planned_samples_by_run,

@@ -91,11 +91,13 @@ def write_markdown(path: Path, payload: dict):
             f"- top_screening_reason_share: `{payload['summary']['top_screening_reason_share']}`",
             f"- screening_reason_entropy: `{payload['summary']['screening_reason_entropy']}`",
             f"- manual_qc_query_entropy: `{payload['summary']['manual_qc_query_entropy']}`",
+            f"- manual_qc_risk_reason_entropy: `{payload['summary']['manual_qc_risk_reason_entropy']}`",
             f"- review_to_include_ratio: `{payload['summary']['review_to_include_ratio']}`",
             f"- manual_qc_include_rows: `{payload['summary']['manual_qc_include_rows']}`",
             f"- manual_qc_label_counts: `{payload['summary']['manual_qc_label_counts']}`",
             f"- manual_qc_source_group_diversity: `{payload['summary']['manual_qc_source_group_diversity']}`",
             f"- manual_qc_single_query_share: `{payload['summary']['manual_qc_single_query_share']}`",
+            f"- manual_qc_unknown_query_share: `{payload['summary']['manual_qc_unknown_query_share']}`",
             f"- empty_screening_reason_share: `{payload['summary']['empty_screening_reason_share']}`",
             f"- manual_qc_label_dominance: `{payload['summary']['manual_qc_label_dominance']}`",
             f"- manual_qc_high_risk_rows: `{payload['summary']['manual_qc_high_risk_rows']}`",
@@ -145,6 +147,8 @@ def main():
     ap.add_argument("--max-empty-screening-reason-share", type=float, default=0.1)
     ap.add_argument("--min-screening-reason-entropy", type=float, default=0.55)
     ap.add_argument("--min-manual-qc-query-entropy", type=float, default=0.5)
+    ap.add_argument("--min-manual-qc-risk-reason-entropy", type=float, default=0.45)
+    ap.add_argument("--max-manual-qc-unknown-query-share", type=float, default=0.20)
     args = ap.parse_args()
 
     report_path = ROOT / args.report
@@ -232,8 +236,11 @@ def main():
         else 0.0
     )
     empty_screening_reason_share = pct(empty_screening_reason_rows, len(manual_qc_rows))
+    unknown_query_rows = int(manual_qc_source_query_counts.get("unknown", 0) or 0)
+    manual_qc_unknown_query_share = pct(unknown_query_rows, len(manual_qc_rows))
     screening_reason_entropy = normalized_entropy(screening_reason_counts)
     manual_qc_query_entropy = normalized_entropy(manual_qc_source_query_counts)
+    manual_qc_risk_reason_entropy = normalized_entropy(risk_reason_summary)
     review_to_include_ratio = round(review_count / max(1, include_count), 4)
     high_risk_qc_rows = sum(1 for row in manual_qc_rows if float(row.get("risk_score") or 0.0) >= 5.0)
     manual_qc_high_risk_share = pct(high_risk_qc_rows, len(manual_qc_rows))
@@ -378,6 +385,18 @@ def main():
             "threshold": f">={args.min_manual_qc_query_entropy}",
         },
         {
+            "name": "manual_qc_risk_reason_entropy_floor",
+            "status": "pass" if manual_qc_risk_reason_entropy >= args.min_manual_qc_risk_reason_entropy else "fail",
+            "observed": manual_qc_risk_reason_entropy,
+            "threshold": f">={args.min_manual_qc_risk_reason_entropy}",
+        },
+        {
+            "name": "manual_qc_unknown_query_share_ceiling",
+            "status": "pass" if manual_qc_unknown_query_share <= args.max_manual_qc_unknown_query_share else "fail",
+            "observed": manual_qc_unknown_query_share,
+            "threshold": f"<={args.max_manual_qc_unknown_query_share}",
+        },
+        {
             "name": "manual_qc_source_group_diversity_floor",
             "status": "pass" if manual_qc_source_group_diversity >= args.min_manual_qc_source_groups else "fail",
             "observed": manual_qc_source_group_diversity,
@@ -475,6 +494,7 @@ def main():
             "top_screening_reason_share": top_screening_reason_share,
             "screening_reason_entropy": screening_reason_entropy,
             "manual_qc_query_entropy": manual_qc_query_entropy,
+            "manual_qc_risk_reason_entropy": manual_qc_risk_reason_entropy,
             "review_to_include_ratio": review_to_include_ratio,
             "manual_qc_include_rows": manual_qc_include_rows,
             "manual_qc_label_counts": manual_qc_label_counts,
@@ -482,6 +502,7 @@ def main():
             "manual_qc_source_group_counts": manual_qc_source_group_counts,
             "manual_qc_single_query_share": manual_qc_single_query_share,
             "manual_qc_source_query_counts": manual_qc_source_query_counts,
+            "manual_qc_unknown_query_share": manual_qc_unknown_query_share,
             "empty_screening_reason_rows": empty_screening_reason_rows,
             "empty_screening_reason_share": empty_screening_reason_share,
             "manual_qc_label_dominance": manual_qc_label_dominance,

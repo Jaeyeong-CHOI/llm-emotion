@@ -666,6 +666,31 @@
         "prompt_antithesis_designer",
         "stage_budget_orchestrator"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_multilingual_v44",
+      "n": 12,
+      "seed": 26363,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_multilingual_false_friend_drift",
+        "screening_temporal_holdout_blindspot",
+        "prompt_bank_counterpair_coverage_hole",
+        "runner_stage_budget_reallocation_incident",
+        "runner_stage_budget_starvation"
+      ],
+      "persona_ids": [
+        "multilingual_recall_guard",
+        "counterpair_balance_curator",
+        "stage_budget_governor",
+        "screening_recall_triager"
+      ]
     }
   ]
 }

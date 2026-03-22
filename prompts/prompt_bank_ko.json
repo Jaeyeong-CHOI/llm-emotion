@@ -1,5 +1,5 @@
 {
-  "version": "v4.2",
+  "version": "v4.3",
   "language": "ko",
   "scenarios": [
     {
@@ -1488,6 +1488,42 @@
         "risk"
       ],
       "prompt": "실험 러너에서 특정 단계에 재시도 예산이 과도하게 몰려 다른 단계가 굶주린(starvation) 경험을 7~10문장으로 회고하라. 어떤 단계가 병목이 되었는지, 예산 재배분 기준, 현재의 stage budget 가드를 포함하라."
+    },
+    {
+      "id": "screening_multilingual_false_friend_drift",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "multilingual",
+        "triage",
+        "recall"
+      ],
+      "prompt": "다국어 검색에서 같은 단어처럼 보이지만 의미가 다른 false friend 때문에 핵심 논문을 놓친 경험을 7~10문장으로 회고하라. 어떤 표현 쌍이 문제였는지, 초기 판단 근거, 현재의 언어별 점검 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_counterpair_coverage_hole",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "counterfactual",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크에서 주장-반례(counterpair) 쌍을 관리하다 특정 도메인에 대응 반례가 비어 있음을 발견한 경험을 7~9문장으로 작성하라. 어떤 구멍이 있었는지, 보강 기준, 비교 가능성 유지 규칙을 포함하라."
+    },
+    {
+      "id": "runner_stage_budget_reallocation_incident",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "systems",
+        "risk"
+      ],
+      "prompt": "실험 러너에서 생성 단계 재시도에 예산이 과도하게 몰려 분석 단계가 지연된 사건을 7~10문장으로 회고하라. 어떤 지표로 불균형을 감지했는지, 예산 재배분 기준, 재발 방지 가드를 포함하라."
     }
   ],
   "personas": [
@@ -2204,6 +2240,36 @@
         "planning"
       ],
       "instruction": "당신은 단계별 실행 예산을 조정하는 운영자 성향이 있으며, 단계별 실패비용과 복구시간을 기준으로 retry budget과 중단 임계치를 설계한다."
+    },
+    {
+      "id": "multilingual_recall_guard",
+      "style_tags": [
+        "multilingual",
+        "audit",
+        "recall",
+        "calibration"
+      ],
+      "instruction": "당신은 다국어 스크리닝에서 의미 충돌로 인한 미탐을 먼저 점검하는 성향이 있으며, 언어별 근거 문장과 번역 손실 위험을 분리해 기록한다."
+    },
+    {
+      "id": "counterpair_balance_curator",
+      "style_tags": [
+        "process",
+        "balance",
+        "counterfactual",
+        "documentation"
+      ],
+      "instruction": "당신은 주장-반례 프롬프트 쌍의 균형을 관리하는 성향이 있으며, 신규 항목 추가 시 대응 반례 존재 여부와 비교 가능성 보존 근거를 함께 기록한다."
+    },
+    {
+      "id": "stage_budget_governor",
+      "style_tags": [
+        "batch",
+        "systems",
+        "risk",
+        "planning"
+      ],
+      "instruction": "당신은 단계별 실행 예산을 조정하는 운영자 성향이 있으며, 생성/분석 단계의 실패 비용을 분리해 재시도 예산·중단선·재개 조건을 명시한다."
     }
   ],
   "temperatures": [
