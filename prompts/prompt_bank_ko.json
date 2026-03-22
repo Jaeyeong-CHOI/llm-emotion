@@ -1,5 +1,5 @@
 {
-  "version": "v5.7",
+  "version": "v5.8",
   "language": "ko",
   "scenarios": [
     {
@@ -1968,6 +1968,42 @@
         "repair"
       ],
       "prompt": "실험 러너에서 생성 단계 시도 점유율이 과열되어 분석 단계 진행이 밀렸고, 단계별 예산 압박 비율을 기준으로 재배분했던 사건을 7~10문장으로 회고하라. 어떤 지표를 경보로 썼는지, 중단/재개 조건, 재발 방지 가드를 포함하라."
+    },
+    {
+      "id": "screening_temporal_counterexample_backfill",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "triage",
+        "recall",
+        "counterfactual"
+      ],
+      "prompt": "최신 논문 위주로 선별하다가 오래된 핵심 반례 연구를 뒤늦게 보강했던 경험을 7~10문장으로 회고하라. 당시 왜 시간축 편향이 합리적으로 보였는지, 반례를 어떻게 찾아냈는지, 현재의 시간축-반례 동시 점검 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_strength_ladder",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "calibration"
+      ],
+      "prompt": "프롬프트 뱅크에서 반대관점(countervoice)은 있었지만 강도 구간(약/중/강)이 비어 비교 해석이 둔해졌던 경험을 7~9문장으로 작성하라. 어떤 강도 구간이 빠졌는지, 강도 사다리(strength ladder)를 어떻게 설계했는지, 다음 릴리즈 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_stage_reentry_budget_cascade",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "batch",
+        "systems",
+        "repair"
+      ],
+      "prompt": "실험 러너에서 격리된 셀을 재투입할 때 단계별 예산 재배분이 누락되어 연쇄 지연이 발생한 사건을 7~10문장으로 회고하라. 어느 단계에서 예산이 다시 과열됐는지, 재투입 전 점검식과 단계별 재개 조건을 포함하라."
     }
   ],
   "personas": [
@@ -3014,6 +3050,27 @@
         "fairness"
       ],
       "instruction": "당신은 단계별 시도 점유율 과열을 먼저 점검하는 성향이 있으며, 생성/분석 단계의 예산 압박 비율을 비교해 격리·재분배·재개 조건을 수치로 기록한다."
+    },
+    {
+      "id": "temporal_recall_calibrator",
+      "style_tags": [
+        "screening",
+        "recall",
+        "calibration",
+        "long_horizon"
+      ],
+      "instruction": "당신은 시간축 편향으로 생기는 미탐을 먼저 점검하는 성향이 있으며, 최신 신호와 고전 반례를 함께 대조해 재검토 우선순위를 정리한다."
+    },
+    {
+      "id": "stage_reentry_budget_guard",
+      "style_tags": [
+        "runner",
+        "systems",
+        "batch",
+        "repair",
+        "budget_pressure"
+      ],
+      "instruction": "당신은 격리 셀 재투입 시 단계별 예산 압박을 동시에 감시하는 성향이 있으며, 재진입 전 예산 상한·중단선·재개 조건을 수치로 기록한다."
     }
   ],
   "temperatures": [

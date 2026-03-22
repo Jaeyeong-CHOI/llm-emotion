@@ -1016,6 +1016,31 @@
         "review_traceability_maintainer",
         "stage_failure_streak_monitor"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_temporal_v58",
+      "n": 12,
+      "seed": 40908,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_temporal_counterexample_backfill",
+        "screening_review_evidence_decay_countermeasure",
+        "prompt_bank_countervoice_strength_ladder",
+        "runner_stage_reentry_budget_cascade",
+        "runner_stage_budget_pressure_rebalance"
+      ],
+      "persona_ids": [
+        "temporal_recall_calibrator",
+        "review_link_decay_sentinel",
+        "stage_reentry_budget_guard",
+        "stage_budget_pressure_auditor"
+      ]
     }
   ]
 }

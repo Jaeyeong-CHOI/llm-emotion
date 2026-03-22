@@ -93,11 +93,14 @@ python3 scripts/check_screening_quality.py \
   --manual-qc-csv results/manual_qc_queue.csv \
   --out results/screening_quality_report.json \
   --out-md results/screening_quality_report.md \
-  --run-label screening_qc_v33
+  --run-label screening_qc_v58 \
+  --min-review-bridge-counterexample-coupled-share 0.18 \
+  --min-review-bridge-counterexample-traceable-share 0.12
 ```
 
 This checkpoint freezes:
 - threshold pass/fail status for deduped volume, manual-QC coverage, low-confidence share, zero-hit alias count, and near-threshold gate failures
+- review traceability 결합 신호(`bridge × counterexample`) 커버리지와 추적 가능 결합 비율
 - top QC risk reasons and balanced manual-QC distribution by label/confidence
 - query-drift term suggestions that should be considered before changing retrieval rules
 

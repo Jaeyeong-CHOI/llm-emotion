@@ -116,6 +116,10 @@ def write_markdown(path: Path, payload: dict):
             f"- review_counterexample_share: `{payload['summary']['review_counterexample_share']}`",
             f"- review_counterexample_traceable_rows: `{payload['summary']['review_counterexample_traceable_rows']}`",
             f"- review_counterexample_traceability_share: `{payload['summary']['review_counterexample_traceability_share']}`",
+            f"- review_bridge_counterexample_coupled_rows: `{payload['summary']['review_bridge_counterexample_coupled_rows']}`",
+            f"- review_bridge_counterexample_coupled_share: `{payload['summary']['review_bridge_counterexample_coupled_share']}`",
+            f"- review_bridge_counterexample_traceable_coupled_rows: `{payload['summary']['review_bridge_counterexample_traceable_coupled_rows']}`",
+            f"- review_bridge_counterexample_traceable_coupled_share: `{payload['summary']['review_bridge_counterexample_traceable_coupled_share']}`",
             f"- review_evidence_link_decay_rows: `{payload['summary']['review_evidence_link_decay_rows']}`",
             f"- review_evidence_link_decay_share: `{payload['summary']['review_evidence_link_decay_share']}`",
             f"- manual_qc_bridge_signal_rows: `{payload['summary']['manual_qc_bridge_signal_rows']}`",
@@ -195,6 +199,8 @@ def main():
     ap.add_argument("--min-manual-qc-bridge-signal-share", type=float, default=0.2)
     ap.add_argument("--max-manual-qc-unknown-query-share", type=float, default=0.20)
     ap.add_argument("--min-manual-qc-review-counterexample-traceability-share", type=float, default=0.55)
+    ap.add_argument("--min-review-bridge-counterexample-coupled-share", type=float, default=0.15)
+    ap.add_argument("--min-review-bridge-counterexample-traceable-share", type=float, default=0.1)
     ap.add_argument("--max-manual-qc-review-evidence-link-decay-share", type=float, default=0.45)
     ap.add_argument("--min-manual-qc-review-source-groups", type=int, default=2)
     ap.add_argument("--max-manual-qc-review-group-dominance", type=float, default=0.7)
@@ -268,6 +274,8 @@ def main():
     review_bridge_traceable_rows = 0
     review_counterexample_rows = 0
     review_counterexample_traceable_rows = 0
+    review_bridge_counterexample_coupled_rows = 0
+    review_bridge_counterexample_traceable_coupled_rows = 0
     review_evidence_link_decay_rows = 0
     include_traceable_reason_rows = 0
     review_traceable_reason_rows = 0
@@ -292,10 +300,15 @@ def main():
             include_traceable_reason_rows += 1
         if label == "review" and row_is_traceable:
             review_traceable_reason_rows += 1
-        if label == "review" and "counterexample" in reason_field.lower():
+        has_counterexample_signal = label == "review" and "counterexample" in reason_field.lower()
+        if has_counterexample_signal:
             review_counterexample_rows += 1
             if row_is_traceable:
                 review_counterexample_traceable_rows += 1
+        if label == "review" and has_bridge_signal and has_counterexample_signal:
+            review_bridge_counterexample_coupled_rows += 1
+            if row_is_traceable:
+                review_bridge_counterexample_traceable_coupled_rows += 1
         if label == "review":
             has_evidence_link = ("query_overlap=" in reason_field) or ("title_hits=" in reason_field) or ("include_hits=" in reason_field)
             if not has_evidence_link:
@@ -359,6 +372,11 @@ def main():
     review_bridge_traceability_given_bridge_share = pct(review_bridge_traceable_rows, review_bridge_signal_rows)
     review_counterexample_share = pct(review_counterexample_rows, manual_qc_review_rows)
     review_counterexample_traceability_share = pct(review_counterexample_traceable_rows, review_counterexample_rows)
+    review_bridge_counterexample_coupled_share = pct(review_bridge_counterexample_coupled_rows, manual_qc_review_rows)
+    review_bridge_counterexample_traceable_coupled_share = pct(
+        review_bridge_counterexample_traceable_coupled_rows,
+        manual_qc_review_rows,
+    )
     review_evidence_link_decay_share = pct(review_evidence_link_decay_rows, manual_qc_review_rows)
     manual_qc_bridge_signal_share = pct(bridge_signal_rows, len(manual_qc_rows))
     unknown_query_rows = int(manual_qc_source_query_counts.get("unknown", 0) or 0)
@@ -614,6 +632,22 @@ def main():
             "threshold": f">={args.min_manual_qc_review_counterexample_traceability_share}",
         },
         {
+            "name": "review_bridge_counterexample_coupled_share_floor",
+            "status": "pass"
+            if review_bridge_counterexample_coupled_share >= args.min_review_bridge_counterexample_coupled_share
+            else "fail",
+            "observed": review_bridge_counterexample_coupled_share,
+            "threshold": f">={args.min_review_bridge_counterexample_coupled_share}",
+        },
+        {
+            "name": "review_bridge_counterexample_traceable_share_floor",
+            "status": "pass"
+            if review_bridge_counterexample_traceable_coupled_share >= args.min_review_bridge_counterexample_traceable_share
+            else "fail",
+            "observed": review_bridge_counterexample_traceable_coupled_share,
+            "threshold": f">={args.min_review_bridge_counterexample_traceable_share}",
+        },
+        {
             "name": "review_evidence_link_decay_share_ceiling",
             "status": "pass"
             if review_evidence_link_decay_share <= args.max_manual_qc_review_evidence_link_decay_share
@@ -736,6 +770,12 @@ def main():
             "review": review_reason_traceability_share,
             "overall": screening_reason_traceability_share,
         }},
+        {"label": "review_bridge_counterexample_coupling", "value": {
+            "coupled_rows": review_bridge_counterexample_coupled_rows,
+            "coupled_share": review_bridge_counterexample_coupled_share,
+            "traceable_coupled_rows": review_bridge_counterexample_traceable_coupled_rows,
+            "traceable_coupled_share": review_bridge_counterexample_traceable_coupled_share,
+        }},
         {"label": "manual_qc_year_distribution", "value": top_items(manual_qc_year_counts, limit=8)},
         {"label": "balanced_qc_by_confidence", "value": balanced_summary.get("by_confidence") or {}},
         {"label": "top_borderline_review_risk", "value": top_items(triage_risk, limit=4)},
@@ -805,6 +845,10 @@ def main():
             "review_counterexample_share": review_counterexample_share,
             "review_counterexample_traceable_rows": review_counterexample_traceable_rows,
             "review_counterexample_traceability_share": review_counterexample_traceability_share,
+            "review_bridge_counterexample_coupled_rows": review_bridge_counterexample_coupled_rows,
+            "review_bridge_counterexample_coupled_share": review_bridge_counterexample_coupled_share,
+            "review_bridge_counterexample_traceable_coupled_rows": review_bridge_counterexample_traceable_coupled_rows,
+            "review_bridge_counterexample_traceable_coupled_share": review_bridge_counterexample_traceable_coupled_share,
             "review_evidence_link_decay_rows": review_evidence_link_decay_rows,
             "review_evidence_link_decay_share": review_evidence_link_decay_share,
             "manual_qc_bridge_signal_rows": bridge_signal_rows,
