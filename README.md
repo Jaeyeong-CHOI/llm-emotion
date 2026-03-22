@@ -21,8 +21,8 @@ We do **behavioral-linguistic comparison**, not claims about machine consciousne
 - `docs/experiment-plan.md`: hypotheses, design, metrics, stats plan
 - `docs/research-ops.md`: continuous research operations playbook
 - `queries/search_queries.json`: query groups for ongoing literature scans
-- `prompts/`: scenario templates and expanded prompt bank (`prompt_bank_ko.json`, v1.2)
-- `scripts/`: data generation + analysis + literature sync + reproducible experiment runner utilities (repeat support + run manifest summary)
+- `prompts/`: scenario templates and expanded prompt bank (`prompt_bank_ko.json`, v1.3)
+- `scripts/`: data generation + analysis + literature sync + reproducible experiment runner utilities (repeat/resume support + run manifest + CSV summary)
 - `refs/`: bibliography + machine-collected paper metadata
 - `data/`: collected generations + annotation files
 - `results/`: metrics and figures
@@ -30,7 +30,7 @@ We do **behavioral-linguistic comparison**, not claims about machine consciousne
 ## Quickstart
 ### 1) Systematic prior-work scan
 ```bash
-python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl
+python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl --report-out results/lit_search_report.json
 python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md
 ```
 
@@ -40,7 +40,9 @@ python3 scripts/generate_dataset.py --out data/raw/mock_generations.jsonl --n 30
 python3 scripts/analyze_regret_markers.py --in data/raw/mock_generations.jsonl --out results/mock_metrics.json
 
 # reproducible multi-run experiment bundle
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v12
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v13
+# later continuation from same label (skip completed cells)
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v13 --resume
 ```
 
 ## Initial milestone checklist

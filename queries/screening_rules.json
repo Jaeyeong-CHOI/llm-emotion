@@ -39,17 +39,21 @@
   "weights": {
     "include_any": 1.0,
     "high_priority": 2.0,
-    "cited_by_log1p": 0.35
+    "cited_by_log1p": 0.35,
+    "query_overlap": 0.2,
+    "concept_diversity": 0.15
   },
   "penalties": {
     "exclude_hit": 2.0,
     "missing_concept_group": 1.0,
     "non_preferred_language": 1.0,
-    "non_preferred_type": 1.0
+    "non_preferred_type": 1.0,
+    "short_abstract": 0.4
   },
   "preferred_languages": ["en", "ko"],
   "preferred_types": ["article", "preprint", "conference", "book-chapter"],
   "min_year": 2018,
+  "min_abstract_tokens": 40,
   "threshold_include": 3.0,
   "threshold_review": 1.5
 }

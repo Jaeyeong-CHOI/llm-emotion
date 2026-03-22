@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import csv
 import datetime as dt
 import hashlib
 import json
@@ -51,11 +52,44 @@ def aggregate_metrics(metric_paths):
     }
 
 
+def get_git_commit() -> str:
+    code, out, _ = run("git rev-parse HEAD")
+    return out.strip() if code == 0 else "unknown"
+
+
+def write_runs_csv(path: Path, runs: list[dict]):
+    if not runs:
+        return
+    keys = [
+        "id",
+        "run_key",
+        "repeat_index",
+        "n",
+        "seed",
+        "temperatures",
+        "prompt_bank",
+        "dataset",
+        "metrics",
+        "status",
+    ]
+    with path.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=keys)
+        w.writeheader()
+        for row in runs:
+            out = {k: row.get(k) for k in keys}
+            temps = out.get("temperatures")
+            if isinstance(temps, list):
+                out["temperatures"] = ",".join(str(t) for t in temps)
+            w.writerow(out)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="ops/experiment_matrix.json")
     ap.add_argument("--outdir", default="results/experiments")
     ap.add_argument("--run-label", default="")
+    ap.add_argument("--resume", action="store_true", help="reuse existing label and skip completed run cells")
+    ap.add_argument("--max-runs", type=int, default=0, help="optional cap on number of run cells executed")
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -65,8 +99,21 @@ def main():
     outdir = ROOT / args.outdir / label
     outdir.mkdir(parents=True, exist_ok=True)
 
+    manifest_path = outdir / "manifest.json"
+    existing_manifest = {}
+    if args.resume and manifest_path.exists():
+        existing_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+    completed = {
+        r.get("run_key")
+        for r in existing_manifest.get("runs", [])
+        if r.get("status") == "ok" and (ROOT / r.get("dataset", "")).exists() and (ROOT / r.get("metrics", "")).exists()
+    }
+
     runs = []
     all_metric_paths = []
+    executed = 0
+
     for exp in cfg.get("runs", []):
         run_id = exp["id"]
         n = int(exp.get("n", 20))
@@ -82,33 +129,47 @@ def main():
             dataset_path = outdir / f"{run_key}.jsonl"
             metrics_path = outdir / f"{run_key}.metrics.json"
 
+            row = {
+                "id": run_id,
+                "run_key": run_key,
+                "repeat_index": rep + 1,
+                "n": n,
+                "seed": rep_seed,
+                "temperatures": temperatures,
+                "prompt_bank": prompt_bank,
+                "dataset": str(dataset_path.relative_to(ROOT)),
+                "metrics": str(metrics_path.relative_to(ROOT)),
+                "status": "planned",
+            }
+
+            if run_key in completed:
+                row["status"] = "skipped_resume"
+                runs.append(row)
+                all_metric_paths.append(metrics_path)
+                continue
+
+            if args.max_runs > 0 and executed >= args.max_runs:
+                row["status"] = "skipped_cap"
+                runs.append(row)
+                continue
+
             gen_cmd = (
                 f"python3 scripts/generate_dataset.py --out {dataset_path} --n {n} "
                 f"--seed {rep_seed} --prompt-bank {prompt_bank} --temperatures {temp_csv}"
             )
-            code, out, err = run(gen_cmd)
+            code, _, err = run(gen_cmd)
             if code != 0:
                 raise RuntimeError(f"generation failed for {run_key}: {err}")
 
             analyze_cmd = f"python3 scripts/analyze_regret_markers.py --in {dataset_path} --out {metrics_path}"
-            code, out2, err2 = run(analyze_cmd)
+            code, _, err2 = run(analyze_cmd)
             if code != 0:
                 raise RuntimeError(f"analysis failed for {run_key}: {err2}")
 
-            runs.append(
-                {
-                    "id": run_id,
-                    "run_key": run_key,
-                    "repeat_index": rep + 1,
-                    "n": n,
-                    "seed": rep_seed,
-                    "temperatures": temperatures,
-                    "prompt_bank": prompt_bank,
-                    "dataset": str(dataset_path.relative_to(ROOT)),
-                    "metrics": str(metrics_path.relative_to(ROOT)),
-                }
-            )
+            row["status"] = "ok"
+            runs.append(row)
             all_metric_paths.append(metrics_path)
+            executed += 1
 
     summary = aggregate_metrics(all_metric_paths)
     manifest = {
@@ -116,17 +177,20 @@ def main():
         "config": args.config,
         "config_fingerprint": config_fingerprint(cfg),
         "run_label": label,
+        "resume_mode": args.resume,
         "environment": {
             "python": platform.python_version(),
             "platform": platform.platform(),
+            "git_commit": get_git_commit(),
         },
         "summary": summary,
         "runs": runs,
     }
-    manifest_path = outdir / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+    write_runs_csv(outdir / "runs.csv", runs)
 
-    print(f"[OK] completed {len(runs)} runs -> {outdir}")
+    ok_n = sum(1 for r in runs if r.get("status") == "ok")
+    print(f"[OK] executed {ok_n}/{len(runs)} run cells -> {outdir}")
     print(f"manifest: {manifest_path}")
 
 

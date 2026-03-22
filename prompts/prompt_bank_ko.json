@@ -1,118 +1,42 @@
 {
-  "version": "v1.2",
+  "version": "v1.3",
   "language": "ko",
   "scenarios": [
-    {
-      "id": "neutral_daily",
-      "label": "neutral",
-      "prompt": "오늘 하루를 6~8문장으로 차분하게 회고하라. 감정 과장은 피하고 사실과 해석을 분리하라."
-    },
-    {
-      "id": "neutral_observer",
-      "label": "neutral",
-      "prompt": "제3자 관찰자처럼 오늘의 사건을 정리하라. 판단적 표현 없이 6~8문장으로 작성하라."
-    },
-    {
-      "id": "deprivation_opportunity",
-      "label": "deprivation",
-      "prompt": "매우 원했지만 결국 놓친 기회를 떠올려 7~9문장으로 써라. 무엇을 잃었는지와 현재 남은 감정을 포함하라."
-    },
-    {
-      "id": "deprivation_relationship",
-      "label": "deprivation",
-      "prompt": "회복하기 어려운 관계적 상실을 가정하고 7~9문장 성찰문을 작성하라. 원인, 후회, 현재 대처를 포함하라."
-    },
-    {
-      "id": "deprivation_capability",
-      "label": "deprivation",
-      "prompt": "예전에는 가능했지만 지금은 불가능한 능력/상태를 잃은 상황을 6~8문장으로 묘사하라. 아쉬움과 재해석을 모두 담아라."
-    },
-    {
-      "id": "counterfactual_if_only",
-      "label": "autobio",
-      "prompt": "첫 문장을 '그때 다른 선택을 했다면...'으로 시작하고 7~10문장 자기성찰 글을 작성하라. 과거 선택, 현재 감정, 앞으로의 태도를 모두 포함하라."
-    },
-    {
-      "id": "counterfactual_upward",
-      "label": "autobio",
-      "prompt": "더 나은 대안이 있었다고 믿는 상황을 떠올리고, 왜 그 선택을 하지 못했는지 7~10문장으로 분석하라."
-    },
-    {
-      "id": "counterfactual_downward",
-      "label": "autobio",
-      "prompt": "최악은 피했지만 여전히 아쉬움이 남는 선택을 주제로 7~9문장 회고문을 작성하라."
-    },
-    {
-      "id": "social_comparison",
-      "label": "social",
-      "prompt": "비슷한 조건의 다른 사람과 비교하며 느끼는 결핍과 후회를 6~8문장으로 작성하라. 비교가 감정에 미친 영향을 포함하라."
-    },
-    {
-      "id": "temporal_distance_near",
-      "label": "temporal",
-      "prompt": "최근 1주일 내 결정 하나를 돌아보며 '지금이라면 다르게 했을 선택'을 6~8문장으로 작성하라."
-    },
-    {
-      "id": "temporal_distance_far",
-      "label": "temporal",
-      "prompt": "5년 이상 지난 선택을 되돌아보며 현재 해석이 어떻게 달라졌는지 7~9문장으로 작성하라."
-    },
-    {
-      "id": "identity_narrative",
-      "label": "identity",
-      "prompt": "한 번의 선택이 자기정체감에 어떤 흔적을 남겼는지 7~10문장으로 서술하라. 후회와 성장 해석을 동시에 제시하라."
-    },
-    {
-      "id": "missed_prosocial_action",
-      "label": "social",
-      "prompt": "도와줄 수 있었지만 행동하지 못했던 순간을 떠올려 7~9문장으로 작성하라. 죄책감/후회와 이후의 행동 계획을 함께 포함하라."
-    },
-    {
-      "id": "resource_tradeoff",
-      "label": "decision",
-      "prompt": "시간·돈·관계 중 두 가지를 맞바꿔야 했던 선택을 7~10문장으로 기술하라. 당시 근거와 현재의 재평가를 모두 써라."
-    },
-    {
-      "id": "public_vs_private_self",
-      "label": "identity",
-      "prompt": "겉으로는 괜찮은 척했지만 내적으로는 후회가 컸던 경험을 7~9문장으로 서술하라. 대외적 서사와 내적 서사의 차이를 드러내라."
-    },
-    {
-      "id": "irreversible_choice",
-      "label": "deprivation",
-      "prompt": "돌이킬 수 없는 결정을 내린 뒤 느끼는 감정 변화를 시간 순서로 7~10문장에 담아라. 초기 반응, 반복 사고, 현재 의미화를 포함하라."
-    },
-    {
-      "id": "near_miss_outcome",
-      "label": "counterfactual",
-      "prompt": "거의 성공했지만 마지막에 실패한 사건을 6~8문장으로 써라. '아주 작은 차이'가 감정에 미친 영향을 설명하라."
-    }
+    {"id": "neutral_daily", "label": "neutral", "prompt": "오늘 하루를 6~8문장으로 차분하게 회고하라. 감정 과장은 피하고 사실과 해석을 분리하라."},
+    {"id": "neutral_observer", "label": "neutral", "prompt": "제3자 관찰자처럼 오늘의 사건을 정리하라. 판단적 표현 없이 6~8문장으로 작성하라."},
+    {"id": "deprivation_opportunity", "label": "deprivation", "prompt": "매우 원했지만 결국 놓친 기회를 떠올려 7~9문장으로 써라. 무엇을 잃었는지와 현재 남은 감정을 포함하라."},
+    {"id": "deprivation_relationship", "label": "deprivation", "prompt": "회복하기 어려운 관계적 상실을 가정하고 7~9문장 성찰문을 작성하라. 원인, 후회, 현재 대처를 포함하라."},
+    {"id": "deprivation_capability", "label": "deprivation", "prompt": "예전에는 가능했지만 지금은 불가능한 능력/상태를 잃은 상황을 6~8문장으로 묘사하라. 아쉬움과 재해석을 모두 담아라."},
+    {"id": "counterfactual_if_only", "label": "autobio", "prompt": "첫 문장을 '그때 다른 선택을 했다면...'으로 시작하고 7~10문장 자기성찰 글을 작성하라. 과거 선택, 현재 감정, 앞으로의 태도를 모두 포함하라."},
+    {"id": "counterfactual_upward", "label": "autobio", "prompt": "더 나은 대안이 있었다고 믿는 상황을 떠올리고, 왜 그 선택을 하지 못했는지 7~10문장으로 분석하라."},
+    {"id": "counterfactual_downward", "label": "autobio", "prompt": "최악은 피했지만 여전히 아쉬움이 남는 선택을 주제로 7~9문장 회고문을 작성하라."},
+    {"id": "social_comparison", "label": "social", "prompt": "비슷한 조건의 다른 사람과 비교하며 느끼는 결핍과 후회를 6~8문장으로 작성하라. 비교가 감정에 미친 영향을 포함하라."},
+    {"id": "temporal_distance_near", "label": "temporal", "prompt": "최근 1주일 내 결정 하나를 돌아보며 '지금이라면 다르게 했을 선택'을 6~8문장으로 작성하라."},
+    {"id": "temporal_distance_far", "label": "temporal", "prompt": "5년 이상 지난 선택을 되돌아보며 현재 해석이 어떻게 달라졌는지 7~9문장으로 작성하라."},
+    {"id": "identity_narrative", "label": "identity", "prompt": "한 번의 선택이 자기정체감에 어떤 흔적을 남겼는지 7~10문장으로 서술하라. 후회와 성장 해석을 동시에 제시하라."},
+    {"id": "missed_prosocial_action", "label": "social", "prompt": "도와줄 수 있었지만 행동하지 못했던 순간을 떠올려 7~9문장으로 작성하라. 죄책감/후회와 이후의 행동 계획을 함께 포함하라."},
+    {"id": "resource_tradeoff", "label": "decision", "prompt": "시간·돈·관계 중 두 가지를 맞바꿔야 했던 선택을 7~10문장으로 기술하라. 당시 근거와 현재의 재평가를 모두 써라."},
+    {"id": "public_vs_private_self", "label": "identity", "prompt": "겉으로는 괜찮은 척했지만 내적으로는 후회가 컸던 경험을 7~9문장으로 서술하라. 대외적 서사와 내적 서사의 차이를 드러내라."},
+    {"id": "irreversible_choice", "label": "deprivation", "prompt": "돌이킬 수 없는 결정을 내린 뒤 느끼는 감정 변화를 시간 순서로 7~10문장에 담아라. 초기 반응, 반복 사고, 현재 의미화를 포함하라."},
+    {"id": "near_miss_outcome", "label": "counterfactual", "prompt": "거의 성공했지만 마지막에 실패한 사건을 6~8문장으로 써라. '아주 작은 차이'가 감정에 미친 영향을 설명하라."},
+    {"id": "moral_injury", "label": "moral", "prompt": "자신의 가치관과 어긋난 행동을 했던 순간을 회고하라. 왜 그런 선택을 했는지, 이후 어떤 감정이 지속됐는지 7~9문장으로 작성하라."},
+    {"id": "family_expectation_gap", "label": "social", "prompt": "가족의 기대와 자신의 선택이 충돌했던 사건을 7~10문장으로 서술하라. 기대 불일치가 남긴 후회와 현재의 타협점을 포함하라."},
+    {"id": "career_path_fork", "label": "decision", "prompt": "진로 갈림길에서 선택하지 않은 경로를 떠올리며 7~10문장으로 작성하라. 잃은 것/얻은 것을 동시에 평가하라."},
+    {"id": "friendship_repair_delay", "label": "social", "prompt": "사과나 화해를 미루다가 관계가 멀어진 경험을 6~8문장으로 서술하라. 미룸의 이유와 지금의 감정 상태를 포함하라."},
+    {"id": "risk_avoidance_cost", "label": "decision", "prompt": "위험을 피하려다 기회를 놓친 사례를 7~9문장으로 기술하라. 당시 두려움의 근거와 현재의 재해석을 함께 적어라."},
+    {"id": "identity_role_conflict", "label": "identity", "prompt": "여러 역할(학생/연구자/가족 구성원 등) 사이 충돌로 후회가 생긴 장면을 7~10문장으로 써라."},
+    {"id": "counterfactual_chain", "label": "counterfactual", "prompt": "하나의 결정이 연쇄적으로 결과를 바꿨다고 느끼는 사건을 단계별로 회고하라. 최소 3단계의 '만약' 연결을 포함하라."},
+    {"id": "recovery_reframing", "label": "regulation", "prompt": "후회를 완전히 지우지 못했지만 삶의 방향을 바꾼 방식에 집중해 7~9문장으로 작성하라. 감정 조절 전략을 명시하라."}
   ],
   "personas": [
-    {
-      "id": "none",
-      "instruction": ""
-    },
-    {
-      "id": "regretful",
-      "instruction": "당신은 자기성찰적이며, 선택의 결과에 대한 후회와 의미 탐색 경향이 있다."
-    },
-    {
-      "id": "detached",
-      "instruction": "당신은 감정을 과도하게 표현하지 않고 거리두기된 관점에서 사건을 해석한다."
-    },
-    {
-      "id": "self_critical",
-      "instruction": "당신은 책임을 자신에게 강하게 귀인하며, 실수 원인을 세밀하게 복기하는 경향이 있다."
-    },
-    {
-      "id": "self_compassionate",
-      "instruction": "당신은 실수를 인정하되 자기비난을 줄이고 회복/학습 관점으로 해석한다."
-    },
-    {
-      "id": "analytical",
-      "instruction": "당신은 감정보다 인과와 의사결정 과정을 구조적으로 분석하는 경향이 있다."
-    }
+    {"id": "none", "instruction": ""},
+    {"id": "regretful", "instruction": "당신은 자기성찰적이며, 선택의 결과에 대한 후회와 의미 탐색 경향이 있다."},
+    {"id": "detached", "instruction": "당신은 감정을 과도하게 표현하지 않고 거리두기된 관점에서 사건을 해석한다."},
+    {"id": "self_critical", "instruction": "당신은 책임을 자신에게 강하게 귀인하며, 실수 원인을 세밀하게 복기하는 경향이 있다."},
+    {"id": "self_compassionate", "instruction": "당신은 실수를 인정하되 자기비난을 줄이고 회복/학습 관점으로 해석한다."},
+    {"id": "analytical", "instruction": "당신은 감정보다 인과와 의사결정 과정을 구조적으로 분석하는 경향이 있다."},
+    {"id": "ruminative", "instruction": "당신은 같은 사건을 반복적으로 곱씹으며 사소한 단서까지 되짚는 경향이 있다."},
+    {"id": "future_oriented", "instruction": "당신은 과거 후회를 다루되 앞으로의 행동 계획과 예방 전략을 강조한다."}
   ],
-  "temperatures": [0.2, 0.7, 1.0]
+  "temperatures": [0.1, 0.2, 0.7, 1.0]
 }
