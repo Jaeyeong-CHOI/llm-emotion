@@ -493,6 +493,7 @@ def write_preflight_markdown(path: Path, payload: dict):
         f"- min_scenario_count: `{summary.get('min_scenario_count', 0)}`",
         f"- min_persona_count: `{summary.get('min_persona_count', 0)}`",
         f"- min_temperature_count: `{summary.get('min_temperature_count', 0)}`",
+        f"- min_temperature_entropy: `{summary.get('min_temperature_entropy', 0.0)}`",
         f"- min_temperature_span: `{summary.get('min_temperature_span', 0.0)}`",
         f"- min_condition_cells: `{summary.get('min_condition_cells', 0)}`",
         f"- min_planned_samples: `{summary.get('min_planned_samples', 0)}`",
@@ -856,6 +857,7 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- prompt_bank_versions: `{', '.join(preflight_summary.get('prompt_bank_versions', []))}`",
         f"- min_scenario_count: `{preflight_summary.get('min_scenario_count', 0)}`",
         f"- min_persona_count: `{preflight_summary.get('min_persona_count', 0)}`",
+        f"- min_temperature_entropy: `{preflight_summary.get('min_temperature_entropy', 0.0)}`",
         f"- min_temperature_span: `{preflight_summary.get('min_temperature_span', 0.0)}`",
         f"- min_planned_samples: `{preflight_summary.get('min_planned_samples', 0)}`",
         f"- unique_selected_scenarios: `{preflight_summary.get('unique_selected_scenarios', 0)}`",
@@ -864,6 +866,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- selected_temperature_span: `{preflight_summary.get('selected_temperature_span', 0.0)}`",
         f"- planned_sample_top2_share: `{preflight_summary.get('planned_sample_top2_share', 0.0)}`",
         f"- planned_sample_entropy: `{preflight_summary.get('planned_sample_entropy', 0.0)}`",
+        f"- planned_sample_temperature_top1_share: `{preflight_summary.get('planned_sample_temperature_top1_share', 0.0)}`",
+        f"- planned_sample_temperature_entropy: `{preflight_summary.get('planned_sample_temperature_entropy', 0.0)}`",
         f"- unique_selected_scenario_labels: `{preflight_summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{preflight_summary.get('unique_selected_scenario_tags', 0)}`",
         f"- unique_selected_persona_style_tags: `{preflight_summary.get('unique_selected_persona_style_tags', 0)}`",
@@ -1067,6 +1071,12 @@ def main():
         help="fail if max(temperature)-min(temperature) is below this minimum for any selected run",
     )
     ap.add_argument(
+        "--require-min-temperature-entropy",
+        type=float,
+        default=0.0,
+        help="fail if normalized entropy of per-run temperature distribution is below this value (0 disables)",
+    )
+    ap.add_argument(
         "--require-min-unique-scenario-tags",
         type=int,
         default=0,
@@ -1143,6 +1153,18 @@ def main():
         type=float,
         default=0.0,
         help="fail if max(selected_temperature)-min(selected_temperature) across the selected batch is below this value",
+    )
+    ap.add_argument(
+        "--min-planned-sample-temperature-entropy",
+        type=float,
+        default=0.0,
+        help="fail if normalized entropy of planned-sample distribution across temperatures is below this floor (0 disables)",
+    )
+    ap.add_argument(
+        "--max-planned-sample-temperature-top1-share",
+        type=float,
+        default=0.0,
+        help="fail if one temperature accounts for more than this planned-sample share (0 disables)",
     )
     ap.add_argument(
         "--require-min-selected-scenario-tags",
@@ -1686,6 +1708,7 @@ def main():
     failed_cells_by_run_id: dict[str, int] = {}
     selected_total_samples = 0
     planned_samples_by_run: dict[str, int] = {}
+    planned_samples_by_temperature: dict[str, int] = {}
     selected_cells_by_run_id: dict[str, int] = {}
     successful_cells_by_run_id: dict[str, int] = {}
     run_preflight_rows: list[dict] = []
@@ -1753,9 +1776,14 @@ def main():
         temp_span = 0.0
         if temperatures:
             temp_span = max(float(t) for t in temperatures) - min(float(t) for t in temperatures)
+        temperature_entropy = normalized_entropy_from_counts({str(t): 1 for t in temperatures})
         if args.require_min_temperature_span and temp_span < args.require_min_temperature_span:
             raise RuntimeError(
                 f"{run_id}: temperature_span={round(temp_span, 4)} < require_min_temperature_span={args.require_min_temperature_span}"
+            )
+        if args.require_min_temperature_entropy and temperature_entropy < args.require_min_temperature_entropy:
+            raise RuntimeError(
+                f"{run_id}: temperature_entropy={temperature_entropy} < require_min_temperature_entropy={args.require_min_temperature_entropy}"
             )
         temp_csv = ",".join(str(t) for t in temperatures)
         prompt_bank = exp.get("prompt_bank", "prompts/prompt_bank_ko.json")
@@ -1802,6 +1830,10 @@ def main():
         condition_cells = prompt_summary["scenario_count"] * prompt_summary["persona_count"] * max(1, len(temperatures))
         planned_samples = n * condition_cells * max(1, repeats)
         planned_samples_by_run[run_id] = planned_samples
+        samples_per_temperature = n * prompt_summary["scenario_count"] * prompt_summary["persona_count"] * max(1, repeats)
+        for temp in temperatures:
+            temp_key = str(temp)
+            planned_samples_by_temperature[temp_key] = planned_samples_by_temperature.get(temp_key, 0) + samples_per_temperature
         if prompt_summary["scenario_count"] == 0:
             raise RuntimeError(f"{run_id}: no scenarios selected from {prompt_bank}")
         if prompt_summary["persona_count"] == 0:
@@ -1910,6 +1942,7 @@ def main():
                 "scenario_labels": prompt_summary["scenario_labels"],
                 "persona_ids": prompt_summary["persona_ids"],
                 "temperature_count": len(temperatures),
+                "temperature_entropy": temperature_entropy,
                 "condition_cells": condition_cells,
                 "planned_samples": planned_samples,
                 "scenario_label_count": prompt_summary["scenario_label_count"],
@@ -1943,6 +1976,7 @@ def main():
                 "scenario_count": prompt_summary["scenario_count"],
                 "persona_count": prompt_summary["persona_count"],
                 "temperature_count": len(temperatures),
+                "temperature_entropy": temperature_entropy,
                 "temperature_span": round(temp_span, 4),
                 "repeats": repeats,
                 "condition_cells": condition_cells,
@@ -2761,6 +2795,12 @@ def main():
         else 0.0
     )
     planned_sample_entropy = normalized_entropy_from_counts(planned_samples_by_run)
+    planned_sample_temperature_shares = {
+        temp: pct(count, selected_total_samples)
+        for temp, count in sorted(planned_samples_by_temperature.items())
+    }
+    planned_sample_temperature_top1_share = max(planned_sample_temperature_shares.values(), default=0.0)
+    planned_sample_temperature_entropy = normalized_entropy_from_counts(planned_samples_by_temperature)
     planned_sample_over_selection_ratio_by_run_id = {
         run_id: round(
             planned_sample_shares.get(run_id, 0.0) / max(1e-9, selected_cell_shares.get(run_id, 0.0)),
@@ -2873,6 +2913,22 @@ def main():
         raise RuntimeError(
             "selected_temperature_span="
             f"{selected_temperature_span} < require_min_selected_temperature_span={args.require_min_selected_temperature_span}"
+        )
+    if (
+        args.min_planned_sample_temperature_entropy
+        and planned_sample_temperature_entropy < args.min_planned_sample_temperature_entropy
+    ):
+        raise RuntimeError(
+            "planned_sample_temperature_entropy="
+            f"{planned_sample_temperature_entropy} < min_planned_sample_temperature_entropy={args.min_planned_sample_temperature_entropy}"
+        )
+    if (
+        args.max_planned_sample_temperature_top1_share
+        and planned_sample_temperature_top1_share > args.max_planned_sample_temperature_top1_share
+    ):
+        raise RuntimeError(
+            "planned_sample_temperature_top1_share="
+            f"{planned_sample_temperature_top1_share} > max_planned_sample_temperature_top1_share={args.max_planned_sample_temperature_top1_share}"
         )
     if args.require_min_selected_scenario_tags and len(aggregate_scenario_tags) < args.require_min_selected_scenario_tags:
         raise RuntimeError(
@@ -3038,6 +3094,7 @@ def main():
         "min_scenario_count": min((row.get("scenario_count", 0) for row in run_preflight_rows), default=0),
         "min_persona_count": min((row.get("persona_count", 0) for row in run_preflight_rows), default=0),
         "min_temperature_count": min((row.get("temperature_count", 0) for row in run_preflight_rows), default=0),
+        "min_temperature_entropy": round(min((row.get("temperature_entropy", 0.0) for row in run_preflight_rows), default=0.0), 4),
         "min_temperature_span": round(min((row.get("temperature_span", 0.0) for row in run_preflight_rows), default=0.0), 4),
         "min_condition_cells": min((row.get("condition_cells", 0) for row in run_preflight_rows), default=0),
         "min_planned_samples": min((row.get("planned_samples", 0) for row in run_preflight_rows), default=0),
@@ -3045,6 +3102,9 @@ def main():
         "unique_selected_personas": len(aggregate_persona_ids),
         "unique_selected_temperatures": len(aggregate_temperature_values),
         "selected_temperature_span": selected_temperature_span,
+        "planned_sample_temperature_entropy": planned_sample_temperature_entropy,
+        "planned_sample_temperature_top1_share": planned_sample_temperature_top1_share,
+        "planned_sample_temperature_shares": planned_sample_temperature_shares,
         "unique_selected_scenario_labels": len(aggregate_scenario_labels),
         "unique_selected_scenario_tags": len(aggregate_scenario_tags),
         "unique_selected_scenario_domains": len(aggregate_scenario_domains),
@@ -3380,6 +3440,7 @@ def main():
         "require_min_planned_samples_per_run": args.require_min_planned_samples_per_run,
         "require_min_repeats": args.require_min_repeats,
         "require_min_temperature_span": args.require_min_temperature_span,
+        "require_min_temperature_entropy": args.require_min_temperature_entropy,
         "require_min_unique_scenario_labels": args.require_min_unique_scenario_labels,
         "require_max_scenario_label_dominance": args.require_max_scenario_label_dominance,
         "require_min_scenario_label_entropy": args.require_min_scenario_label_entropy,
@@ -3397,6 +3458,8 @@ def main():
         "require_min_selected_persona_style_tag_entropy": args.require_min_selected_persona_style_tag_entropy,
         "require_min_selected_temperatures": args.require_min_selected_temperatures,
         "require_min_selected_temperature_span": args.require_min_selected_temperature_span,
+        "min_planned_sample_temperature_entropy": args.min_planned_sample_temperature_entropy,
+        "max_planned_sample_temperature_top1_share": args.max_planned_sample_temperature_top1_share,
         "require_prompt_bank_version": args.require_prompt_bank_version,
         "resume_verify_hashes": args.resume_verify_hashes,
         "resume_verified": resume_verified,

@@ -1779,6 +1779,56 @@
         1.0
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_temperature_parity_v88",
+      "description": "v8.8 screening tail bridge-counterexample pairing + prompt countervoice temperature parity + runner planned-temperature parity tripwire smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "tail_bridge_pairing_reviewer_v88",
+        "temperature_parity_guard_v88",
+        "year_query_coupling_recovery_operator_v87",
+        "countervoice_temperature_calibrator_v85"
+      ],
+      "scenario_ids": [
+        "screening_tail_bridge_counterexample_pairing_v88",
+        "prompt_bank_countervoice_domain_temperature_parity_v88",
+        "runner_planned_temperature_parity_tripwire_v88",
+        "screening_review_year_query_tail_coupling_tripwire_v87"
+      ],
+      "n": 24,
+      "seed": 488,
+      "temperatures": [
+        0.1,
+        0.5,
+        1.0
+      ],
+      "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_temperature_v89",
+      "description": "v8.9 unknown-year query concentration 완화 + prompt temperature countervoice rotation + runner temperature entropy circuit breaker smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "unknown_year_query_dispersion_auditor_v89",
+        "temperature_countervoice_rotation_curator_v89",
+        "temperature_entropy_tripwire_steward_v89",
+        "temperature_parity_guard_v88"
+      ],
+      "scenario_ids": [
+        "screening_review_unknown_year_query_concentration_relief_v89",
+        "prompt_bank_temperature_countervoice_rotation_patch_v89",
+        "runner_temperature_entropy_circuit_breaker_postmortem_v89",
+        "runner_planned_temperature_parity_tripwire_v88"
+      ],
+      "n": 24,
+      "seed": 489,
+      "temperatures": [
+        0.1,
+        0.5,
+        1.0
+      ],
+      "repeats": 1
     }
   ]
 }

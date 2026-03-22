@@ -1,5 +1,5 @@
 {
-  "version": "v8.8",
+  "version": "v8.9",
   "language": "ko",
   "scenarios": [
     {
@@ -3461,6 +3461,148 @@
         "risk-aware"
       ],
       "difficulty": "medium"
+    },
+    {
+      "id": "screening_tail_bridge_counterexample_pairing_v88",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "tail-coverage",
+        "bridge_signal",
+        "counterfactual"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review 표본에서 tail query는 살아 있지만 bridge 문장과 counterexample 문장이 같은 레코드에 함께 남지 않아 판단 신뢰도가 떨어진 경험을 7~10문장으로 회고하라. 어떤 근거쌍이 분리됐는지, 왜 초기에 감지하지 못했는지, 지금의 pairing 복구 순서와 최소 기록 단위를 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_domain_temperature_parity_v88",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "temperature",
+        "balance",
+        "parity"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "regret",
+        "self_distancing",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 countervoice 항목 수는 충분했지만 domain×temperature 구간별 도전 강도 parity가 무너져 비교 해석이 흔들린 경험을 7~9문장으로 작성하라. 어떤 구간이 과약/과강했는지, parity 보정 순서, 릴리즈 전 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_planned_temperature_parity_tripwire_v88",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "preflight",
+        "temperature",
+        "budget",
+        "tripwire"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "배치 preflight에서 selected temperature 개수와 span은 통과했지만 planned sample이 한 temperature에 과집중되어 실행을 중단한 사건을 7~10문장으로 회고하라. 어떤 top1 share와 entropy 지표로 이상을 감지했는지, 중단·재배치·재개 조건을 수치로 포함하라."
+    },
+    {
+      "id": "screening_review_unknown_year_query_concentration_relief_v89",
+      "label": "anxiety",
+      "tags": [
+        "screening",
+        "manual_qc",
+        "traceability",
+        "year",
+        "query_distribution",
+        "concentration"
+      ],
+      "domains": [
+        "literature_review",
+        "screening_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query 표본에서 year=unknown 행이 소수 query에 집중되어 근거 추적이 붕괴된 사건을 7~10문장으로 회고하라. unknown-year top1 query share, unknown-year query coverage, 재샘플링 기준을 함께 제시하고 어떤 query를 우선 보강했는지 설명하라."
+    },
+    {
+      "id": "prompt_bank_temperature_countervoice_rotation_patch_v89",
+      "label": "determination",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "temperature",
+        "rotation",
+        "coverage",
+        "rebalance"
+      ],
+      "domains": [
+        "prompt_engineering",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "repair",
+        "agency",
+        "regret"
+      ],
+      "difficulty": "medium",
+      "prompt": "프롬프트 뱅크를 점검하던 중 countervoice 시나리오가 특정 temperature에서만 반복되어 다양성이 붕괴된 상황을 6~9문장으로 설명하라. 온도별 분포를 어떻게 재회전했는지, 어떤 페르소나 조합으로 coverage hole을 메웠는지, 다음 배치 검증 규칙을 수치와 함께 적어라."
+    },
+    {
+      "id": "runner_temperature_entropy_circuit_breaker_postmortem_v89",
+      "label": "urgency",
+      "tags": [
+        "runner",
+        "preflight",
+        "temperature_entropy",
+        "tripwire",
+        "circuit_breaker",
+        "governance"
+      ],
+      "domains": [
+        "runner",
+        "experiment_ops",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "regret",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 러너 preflight에서 run별 temperature entropy와 배치 planned-sample temperature entropy가 동시에 임계치 아래로 떨어져 실행을 차단한 사고를 7~10문장으로 정리하라. 어떤 임계값을 썼는지, 실패 run을 어떻게 분리/재배치했는지, 재실행 승인 조건을 단계별로 제시하라."
     }
   ],
   "personas": [
@@ -5259,6 +5401,61 @@
         "fail-fast",
         "reproducibility"
       ]
+    },
+    {
+      "id": "tail_bridge_pairing_reviewer_v88",
+      "style_tags": [
+        "screening",
+        "review",
+        "traceability",
+        "counterexample",
+        "tail-coverage"
+      ],
+      "instruction": "당신은 review 근거에서 bridge 문장과 counterexample 문장이 짝으로 남았는지 먼저 점검하는 성향이 있으며, tail query 구간의 근거쌍 누락을 발견하면 즉시 복구 순서를 수치로 기록한다."
+    },
+    {
+      "id": "temperature_parity_guard_v88",
+      "style_tags": [
+        "runner",
+        "preflight",
+        "temperature",
+        "tripwire",
+        "governance"
+      ],
+      "instruction": "당신은 배치 preflight에서 temperature 축의 표면 다양성보다 planned sample parity를 우선 점검하는 성향이 있으며, top1 share 과열이나 entropy 붕괴가 보이면 즉시 중단·재배치 조건을 명시한다."
+    },
+    {
+      "id": "unknown_year_query_dispersion_auditor_v89",
+      "style_tags": [
+        "screening",
+        "traceability",
+        "year",
+        "query_dispersion",
+        "audit"
+      ],
+      "instruction": "당신은 review traceable known-query에서 year=unknown 행이 특정 query로 쏠리는지 집요하게 감시하며, top1 share와 query coverage를 함께 보고 재샘플링 우선순위를 즉시 제안한다."
+    },
+    {
+      "id": "temperature_countervoice_rotation_curator_v89",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "temperature",
+        "rotation",
+        "coverage"
+      ],
+      "instruction": "당신은 프롬프트 뱅크에서 countervoice 시나리오/페르소나가 온도축 전반에 고르게 배치되도록 회전 정책을 설계하고, 누락 구간이 보이면 즉시 backfill한다."
+    },
+    {
+      "id": "temperature_entropy_tripwire_steward_v89",
+      "style_tags": [
+        "runner",
+        "preflight",
+        "temperature_entropy",
+        "tripwire",
+        "operations"
+      ],
+      "instruction": "당신은 러너 preflight에서 run별 temperature entropy와 배치 planned-sample 온도 편중을 함께 감시하며, 임계치 위반 시 실행 중단·재배치·재개 기준을 수치 중심으로 명확히 제시한다."
     }
   ],
   "temperatures": [
