@@ -53,6 +53,10 @@
     "[2026-03-22T17:30:00] OK screening_quality_unknown_group_share_gate_v81",
     "[2026-03-22T17:30:00] OK prompt_bank_v8_1_tail_entropy_expansion",
     "[2026-03-22T17:30:00] OK experiment_runner_selected_cell_share_gap_guard_v81",
-    "[2026-03-22T17:30:00] OK run_smoke_v81_plan"
+    "[2026-03-22T17:30:00] OK run_smoke_v81_plan",
+    "[2026-03-22T17:42:54] OK screening_quality_year_drift_gate_v82",
+    "[2026-03-22T17:42:54] OK prompt_bank_v8_2_year_budget_expansion",
+    "[2026-03-22T17:42:54] OK experiment_runner_planned_sample_share_guard_v82",
+    "[2026-03-22T17:42:54] OK run_smoke_v82_plan"
   ]
 }

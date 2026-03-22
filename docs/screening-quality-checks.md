@@ -28,6 +28,7 @@ python3 scripts/check_screening_quality.py \
   --max-manual-qc-duplicate-title-share 0.20 --max-review-weak-evidence-share 0.40 \
   --max-review-bridge-counterexample-traceability-gap-share 0.45 \
   --max-manual-qc-review-evidence-link-decay-share 0.45 \
+  --max-manual-qc-review-traceable-known-query-year-js-divergence 0.25 \
   --max-manual-qc-unknown-query-share 0.20 --max-empty-screening-reason-share 0.10
 ```
 
@@ -58,6 +59,7 @@ python3 scripts/check_screening_quality.py \
 - `review_counterexample_share >= 0.0` (review subset에서 반례 근거가 언급되는 비율을 점검; 0.25+ 권장)
 - `review_bridge_counterexample_traceability_gap_share <= 0.45` (bridge+counterexample가 잡힌 review 중 traceability가 비는 비율 상한)
 - `review_evidence_link_decay_share <= 0.45` (review 근거에서 query/title/include 링크가 빠진 비율 상한)
+- `manual_qc_review_traceable_known_query_year_js_divergence <= 0.25` (review traceable known-query 연도 분포가 전체 manual QC 연도 분포에서 과도하게 멀어지는지 점검)
 - `manual_qc_high_risk_share <= 0.85`
 - `manual_qc_source_group_diversity >= 3`
 - `manual_qc_bridge_signal_share >= 0.20`

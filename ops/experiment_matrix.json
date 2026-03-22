@@ -1604,6 +1604,31 @@
         0.8
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_year_budget_v82",
+      "description": "v8.2 screening review-year drift 복구 + runner planned-sample-share preflight guard smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "review_year_balance_curator_v82",
+        "planned_sample_budget_controller_v82",
+        "group_tail_coverage_steward_v80",
+        "batch_metadata_floor_guard_v80"
+      ],
+      "scenario_ids": [
+        "screening_review_year_drift_patch_v82",
+        "runner_planned_sample_share_audit_v82",
+        "screening_source_group_tail_recovery_protocol_v81",
+        "runner_batch_metadata_floor_audit_v80"
+      ],
+      "n": 24,
+      "seed": 482,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1
     }
   ]
 }

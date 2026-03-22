@@ -1,5 +1,5 @@
 {
-  "version": "v8.1",
+  "version": "v8.2",
   "language": "ko",
   "scenarios": [
     {
@@ -2988,6 +2988,54 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 러너 preflight에서 scenario label count는 통과했지만 domain×emotion axis entropy floor를 놓쳐 배치가 편중된 사건을 7~10문장으로 사후 회고하라. 어떤 축이 붕괴했는지, 왜 count gate가 실패했는지, entropy 기반 fail-fast와 재개 조건을 수치로 포함하라."
+    },
+    {
+      "id": "screening_review_year_drift_patch_v82",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "year-balance",
+        "drift",
+        "traceability"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query 표본이 최근 2개 연도에만 과도하게 몰려 older year 근거가 사라진 상황을 가정하고, 연도 분포 드리프트를 48시간 내 복구하는 패치를 7~10문장으로 작성하라. 우선 복구할 year band, query 재탐색 순서, 중단/재개 기준을 수치와 함께 포함하라."
+    },
+    {
+      "id": "runner_planned_sample_share_audit_v82",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "budget",
+        "preflight",
+        "sample-share",
+        "audit"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "여러 run-id 배치에서 selected cell share는 균형처럼 보였지만 n 차이 때문에 planned sample share가 한 run id에 과집중된 사건을 7~10문장으로 사후 감사하라. 어떤 run id가 예산을 잠식했는지, preflight에서 어떤 ceiling/gap 규칙으로 막아야 하는지, 재실행 조건을 수치로 포함하라."
     }
   ],
   "personas": [
@@ -4631,6 +4679,26 @@
         "governance"
       ],
       "instruction": "당신은 배치 단위 메타데이터 coverage floor를 감시하는 성향이며, domain·emotion axis·difficulty 축의 aggregate 누락을 실행 전에 차단하는 규칙을 우선 제안한다."
+    },
+    {
+      "id": "review_year_balance_curator_v82",
+      "style_tags": [
+        "screening",
+        "year-balance",
+        "traceability",
+        "repair"
+      ],
+      "instruction": "당신은 review traceable known-query의 연도 분포를 먼저 점검하는 운영자 성향이며, 최근 연도 과점을 줄이고 older year 근거를 되살리는 재탐색 순서를 수치와 함께 제시한다."
+    },
+    {
+      "id": "planned_sample_budget_controller_v82",
+      "style_tags": [
+        "runner",
+        "budget",
+        "preflight",
+        "sample-share"
+      ],
+      "instruction": "당신은 run-id별 planned sample share를 실행 전에 통제하는 운영자 성향이며, selected cell 수보다 실제 샘플 예산 편중을 우선 보고 ceiling·gap 규칙과 재실행 기준을 명확히 기록한다."
     }
   ],
   "temperatures": [

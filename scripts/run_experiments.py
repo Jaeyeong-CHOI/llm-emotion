@@ -480,6 +480,9 @@ def write_preflight_markdown(path: Path, payload: dict):
         f"- unique_selected_scenario_emotion_axes: `{summary.get('unique_selected_scenario_emotion_axes', 0)}`",
         f"- unique_selected_scenario_difficulties: `{summary.get('unique_selected_scenario_difficulties', 0)}`",
         f"- unique_selected_persona_style_tags: `{summary.get('unique_selected_persona_style_tags', 0)}`",
+        f"- max_planned_sample_share: `{summary.get('max_planned_sample_share', 0.0)}` (`{summary.get('max_planned_sample_share_run_id', '')}`)",
+        f"- min_planned_sample_share: `{summary.get('min_planned_sample_share', 0.0)}` (`{summary.get('min_planned_sample_share_run_id', '')}`)",
+        f"- planned_sample_share_gap: `{summary.get('planned_sample_share_gap', 0.0)}`",
         "",
         "| run_id | prompt_bank_version | scenarios | personas | temps | temp_span | condition_cells | planned_samples | labels | tags | domains | emotion_axes | difficulties | persona_style_tags |",
         "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
@@ -1334,6 +1337,18 @@ def main():
         type=float,
         default=0.0,
         help="fail if max(selected_cell_share)-min(selected_cell_share) across selected run ids exceeds this value; 0 disables",
+    )
+    ap.add_argument(
+        "--max-planned-sample-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if a single run id occupies more than this share of selected planned samples; 0 disables",
+    )
+    ap.add_argument(
+        "--max-planned-sample-share-gap-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if max(planned_sample_share)-min(planned_sample_share) across selected run ids exceeds this value; 0 disables",
     )
     ap.add_argument(
         "--max-attempt-over-selection-ratio",
@@ -2613,6 +2628,15 @@ def main():
         if len(selected_cell_shares) > 1
         else 0.0
     )
+    planned_sample_shares = {
+        run_id: pct(planned_samples_by_run.get(run_id, 0), selected_total_samples)
+        for run_id in sorted(planned_samples_by_run)
+    }
+    planned_sample_share_gap = (
+        round(max(planned_sample_shares.values()) - min(planned_sample_shares.values()), 4)
+        if len(planned_sample_shares) > 1
+        else 0.0
+    )
     combined_attempts_by_run_id = {
         run_id: int(generation_attempts_by_run_id.get(run_id, 0) or 0) + int(analysis_attempts_by_run_id.get(run_id, 0) or 0)
         for run_id in sorted(selected_cells_by_run_id)
@@ -2760,6 +2784,25 @@ def main():
             "selected cell share gap above ceiling "
             f"{args.max_selected_cell_share_gap_per_run_id}: observed={selected_cell_share_gap}"
         )
+    if args.max_planned_sample_share_per_run_id:
+        overfilled = [
+            f"{run_id}:{share}"
+            for run_id, share in planned_sample_shares.items()
+            if share > args.max_planned_sample_share_per_run_id
+        ]
+        if overfilled:
+            raise RuntimeError(
+                "run-id planned sample share above ceiling "
+                f"{args.max_planned_sample_share_per_run_id}: {', '.join(overfilled)}"
+            )
+    if (
+        args.max_planned_sample_share_gap_per_run_id
+        and planned_sample_share_gap > args.max_planned_sample_share_gap_per_run_id
+    ):
+        raise RuntimeError(
+            "planned sample share gap above ceiling "
+            f"{args.max_planned_sample_share_gap_per_run_id}: observed={planned_sample_share_gap}"
+        )
     if args.max_attempt_share_per_run_id:
         overfilled = [
             f"{run_id}:{share}"
@@ -2826,6 +2869,11 @@ def main():
         "min_scenario_label_entropy": min((row.get("scenario_label_entropy", 0.0) for row in run_preflight_rows), default=0.0),
         "min_scenario_domain_entropy": min((row.get("scenario_domain_entropy", 0.0) for row in run_preflight_rows), default=0.0),
         "min_scenario_emotion_axis_entropy": min((row.get("scenario_emotion_axis_entropy", 0.0) for row in run_preflight_rows), default=0.0),
+        "max_planned_sample_share_run_id": (max(planned_sample_shares, key=planned_sample_shares.get) if planned_sample_shares else ""),
+        "max_planned_sample_share": (max(planned_sample_shares.values()) if planned_sample_shares else 0.0),
+        "min_planned_sample_share_run_id": (min(planned_sample_shares, key=planned_sample_shares.get) if planned_sample_shares else ""),
+        "min_planned_sample_share": (min(planned_sample_shares.values()) if planned_sample_shares else 0.0),
+        "planned_sample_share_gap": planned_sample_share_gap,
     }
     snapshot_hashes = {
         "experiment_matrix": file_sha256(matrix_snapshot),
@@ -3171,6 +3219,8 @@ def main():
         "budget_report_summary": budget_report.get("summary") or {},
         "selected_cell_shares": selected_cell_shares,
         "selected_cell_share_gap": selected_cell_share_gap,
+        "planned_sample_shares": planned_sample_shares,
+        "planned_sample_share_gap": planned_sample_share_gap,
         "combined_attempt_shares": combined_attempt_shares,
         "generation_attempt_shares": generation_attempt_shares,
         "analysis_attempt_shares": analysis_attempt_shares,
@@ -3186,6 +3236,8 @@ def main():
         "max_live_attempt_over_selection_ratio_per_run_id": args.max_live_attempt_over_selection_ratio_per_run_id,
         "max_selected_cell_share_per_run_id": args.max_selected_cell_share_per_run_id,
         "max_selected_cell_share_gap_per_run_id": args.max_selected_cell_share_gap_per_run_id,
+        "max_planned_sample_share_per_run_id": args.max_planned_sample_share_per_run_id,
+        "max_planned_sample_share_gap_per_run_id": args.max_planned_sample_share_gap_per_run_id,
         "max_attempt_over_selection_ratio": args.max_attempt_over_selection_ratio,
         "max_retry_share_per_run_id": args.max_retry_share_per_run_id,
         "max_generation_retry_share_per_run_id": args.max_generation_retry_share_per_run_id,
