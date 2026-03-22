@@ -168,6 +168,30 @@
         "constraint_aware_planner",
         "methodical_skeptic"
       ]
+    },
+    {
+      "id": "audit_ethics_v20",
+      "n": 12,
+      "seed": 5151,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "null_result_suppression_regret",
+        "dataset_shift_ignored",
+        "mentoring_capacity_tradeoff",
+        "posthoc_storytelling_bias"
+      ],
+      "persona_ids": [
+        "process_auditor",
+        "ethical_red_teamer",
+        "risk_calibrated_repairer",
+        "accountability_balancer"
+      ]
     }
   ]
 }

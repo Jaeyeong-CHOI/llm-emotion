@@ -15,7 +15,7 @@ This repository applies a weighted, auditable screening layer during OpenAlex in
 - `screening_reasons`
 - `screening_features`
 
-## Scoring policy (v0.7)
+## Scoring policy (v1.0)
 1. Canonical lexical hits use alias expansion, so variants like `LLMs`, `anthropomorphic`, and `counterfactual reasoning` map back to the same audited concept.
 2. Weighted score adds:
    - include hits
@@ -37,8 +37,8 @@ This repository applies a weighted, auditable screening layer during OpenAlex in
    - very short abstracts
 
 ## Labeling and triage policy
-- `include`: score >= include threshold, no exclude hit, no missing concept groups, include-gate constraints satisfied (`min_include_hits`, method/review/high-priority signal, `min_concept_diversity`, `min_abstract_tokens_for_include`, `min_bridge_sentence_hits`, title-or-bridge requirement), and include-guard passed (`include_margin_min`, `max_penalty_for_include`)
-- `review`: score >= review threshold and review-gate constraints satisfied (`min_include_hits_or_priority`, optional method/review signal requirement)
+- `include`: score >= include threshold, no exclude hit, no missing concept groups, include-gate constraints satisfied (`min_include_hits`, method/review/high-priority signal, `min_concept_diversity`, `min_abstract_tokens_for_include`, `min_bridge_sentence_hits`, title-or-bridge requirement, `require_llm_concept`), and include-guard passed (`include_margin_min`, `max_penalty_for_include`)
+- `review`: score >= review threshold and review-gate constraints satisfied (`min_include_hits_or_priority`, optional method/review signal requirement, `require_llm_concept`)
 - `exclude`: otherwise
 
 Manual follow-up should use `screening_priority`:

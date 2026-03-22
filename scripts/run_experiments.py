@@ -176,6 +176,61 @@ def write_run_summary_csv(path: Path, rows: list[dict]):
             w.writerow({k: row.get(k) for k in keys})
 
 
+def write_selection_csv(path: Path, rows: list[dict]):
+    if not rows:
+        return
+    keys = [
+        "id",
+        "prompt_bank",
+        "prompt_bank_fingerprint",
+        "scenario_count",
+        "persona_count",
+        "scenario_ids",
+        "persona_ids",
+    ]
+    with path.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=keys)
+        w.writeheader()
+        for row in rows:
+            out = {k: row.get(k) for k in keys}
+            for field in ("scenario_ids", "persona_ids"):
+                value = out.get(field)
+                if isinstance(value, list):
+                    out[field] = ",".join(str(v) for v in value)
+            w.writerow(out)
+
+
+def write_manifest_markdown(path: Path, manifest: dict):
+    summary = manifest.get("summary") or {}
+    run_id_summary = manifest.get("run_id_summary") or []
+    lines = [
+        f"# Experiment Manifest: {manifest.get('run_label', '')}",
+        "",
+        f"- generated_at_utc: `{manifest.get('generated_at_utc', '')}`",
+        f"- config: `{manifest.get('config', '')}`",
+        f"- config_fingerprint: `{manifest.get('config_fingerprint', '')}`",
+        f"- git_commit: `{((manifest.get('environment') or {}).get('git_commit') or 'unknown')}`",
+        f"- duration_seconds: `{manifest.get('duration_seconds', 0)}`",
+        f"- plan_only: `{manifest.get('plan_only', False)}`",
+        f"- executed_run_keys: `{len(manifest.get('executed_run_keys', []))}`",
+        "",
+        "## Aggregate metrics",
+        "",
+        f"- cells: `{summary.get('cells', 0)}`",
+        f"- counterfactual_per_sample_mean: `{summary.get('counterfactual_per_sample_mean', 'n/a')}`",
+        f"- regret_words_per_sample_mean: `{summary.get('regret_words_per_sample_mean', 'n/a')}`",
+        "",
+        "## Run-id summary",
+        "",
+        "| run_id | cells | counterfactual_mean | regret_mean |",
+        "|---|---:|---:|---:|",
+    ]
+    for row in run_id_summary:
+        lines.append(
+            f"| {row.get('id','')} | {row.get('cells',0)} | {row.get('counterfactual_per_sample_mean','n/a')} | {row.get('regret_words_per_sample_mean','n/a')} |"
+        )
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
 
 def write_reproduce_script(path: Path, run_label: str, config_path: str, runs: list[dict]):
     lines = [
@@ -225,6 +280,11 @@ def main():
     ap.add_argument("--list-run-ids", action="store_true", help="print run ids from config and exit")
     ap.add_argument("--selection-report", default="", help="optional JSON path for selected scenario/persona counts")
     ap.add_argument("--print-selection", action="store_true", help="print selected scenario/persona counts per run id")
+    ap.add_argument("--selection-csv", default="", help="optional CSV path for selected scenario/persona counts")
+    ap.add_argument("--require-min-scenarios", type=int, default=0, help="fail if a run selects fewer than this many scenarios")
+    ap.add_argument("--require-min-personas", type=int, default=0, help="fail if a run selects fewer than this many personas")
+    ap.add_argument("--fail-on-missing-run-id", action="store_true", help="fail when --include-run-id contains unknown ids")
+    ap.add_argument("--manifest-markdown", action="store_true", help="emit a human-readable manifest summary markdown")
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -265,6 +325,11 @@ def main():
     include_run_ids = set(args.include_run_id)
     executed_ids = []
 
+    known_run_ids = {str(exp.get("id")) for exp in cfg.get("runs", []) if exp.get("id")}
+    missing_run_ids = sorted(include_run_ids - known_run_ids)
+    if args.fail_on_missing_run_id and missing_run_ids:
+        raise RuntimeError(f"unknown include-run-id values: {', '.join(missing_run_ids)}")
+
     matrix_snapshot = snapshots_dir / "experiment_matrix.json"
     write_json(matrix_snapshot, cfg)
 
@@ -288,6 +353,14 @@ def main():
             raise RuntimeError(f"{run_id}: no scenarios selected from {prompt_bank}")
         if prompt_summary["persona_count"] == 0:
             raise RuntimeError(f"{run_id}: no personas selected from {prompt_bank}")
+        if args.require_min_scenarios and prompt_summary["scenario_count"] < args.require_min_scenarios:
+            raise RuntimeError(
+                f"{run_id}: scenario_count={prompt_summary['scenario_count']} < require_min_scenarios={args.require_min_scenarios}"
+            )
+        if args.require_min_personas and prompt_summary["persona_count"] < args.require_min_personas:
+            raise RuntimeError(
+                f"{run_id}: persona_count={prompt_summary['persona_count']} < require_min_personas={args.require_min_personas}"
+            )
 
         prompt_snapshot = snapshots_dir / f"{run_id}.prompt_bank.json"
         write_json(prompt_snapshot, bank)
@@ -419,6 +492,7 @@ def main():
         "run_id_summary": run_id_summary,
         "snapshot_hashes": snapshot_hashes,
         "selected_run_ids": sorted(include_run_ids),
+        "missing_run_ids": missing_run_ids,
         "plan_only": args.plan_only,
         "executed_run_keys": executed_ids,
         "duration_seconds": total_duration_seconds,
@@ -435,11 +509,20 @@ def main():
             "config": args.config,
             "run_label": label,
             "selected_run_ids": sorted(include_run_ids),
+            "missing_run_ids": missing_run_ids,
             "rows": selection_rows,
         }
         report_path = ROOT / args.selection_report
         report_path.parent.mkdir(parents=True, exist_ok=True)
         write_json(report_path, selection_payload)
+
+    if args.selection_csv:
+        selection_csv_path = ROOT / args.selection_csv
+        selection_csv_path.parent.mkdir(parents=True, exist_ok=True)
+        write_selection_csv(selection_csv_path, selection_rows)
+
+    if args.manifest_markdown:
+        write_manifest_markdown(outdir / "manifest.md", manifest)
 
     if args.print_selection:
         for row in selection_rows:

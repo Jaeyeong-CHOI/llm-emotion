@@ -166,10 +166,12 @@
     "min_concept_diversity": 2,
     "min_abstract_tokens_for_include": 50,
     "require_title_or_bridge_signal": true,
-    "min_bridge_sentence_hits": 1
+    "min_bridge_sentence_hits": 1,
+    "require_llm_concept": true
   },
   "review_requires_any": {
     "min_include_hits_or_priority": 1,
-    "method_or_review_signal": false
+    "method_or_review_signal": false,
+    "require_llm_concept": true
   }
 }

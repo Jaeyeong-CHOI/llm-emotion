@@ -101,10 +101,12 @@ DEFAULT_SCREENING_RULES = {
         "min_abstract_tokens_for_include": 50,
         "require_title_or_bridge_signal": True,
         "min_bridge_sentence_hits": 1,
+        "require_llm_concept": True,
     },
     "review_requires_any": {
         "min_include_hits_or_priority": 1,
         "method_or_review_signal": False,
+        "require_llm_concept": True,
     },
 }
 
@@ -310,6 +312,8 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     min_abstract_tokens_for_include = int(include_constraints.get("min_abstract_tokens_for_include", 0) or 0)
     require_title_or_bridge_signal = bool(include_constraints.get("require_title_or_bridge_signal", False))
     min_bridge_sentence_hits = int(include_constraints.get("min_bridge_sentence_hits", 0) or 0)
+    require_llm_concept_for_include = bool(include_constraints.get("require_llm_concept", False))
+    llm_concept_hits = concept_hits[0] if concept_hits else []
 
     include_gate_ok = True
     if min_include_hits and len(include_hits) < min_include_hits:
@@ -324,6 +328,8 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
         include_gate_ok = False
     if require_title_or_bridge_signal and not (title_hits or bridge_sentence_hits > 0):
         include_gate_ok = False
+    if require_llm_concept_for_include and not llm_concept_hits:
+        include_gate_ok = False
 
     total_penalty = round(
         penalty_exclude + penalty_missing_group + lang_penalty + type_penalty + year_penalty + short_abstract_penalty,
@@ -335,11 +341,14 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     review_constraints = rules.get("review_requires_any", {})
     min_include_hits_or_priority = int(review_constraints.get("min_include_hits_or_priority", 0) or 0)
     review_requires_signal = bool(review_constraints.get("method_or_review_signal", False))
+    require_llm_concept_for_review = bool(review_constraints.get("require_llm_concept", False))
     review_gate_ok = True
     signal_hits = len(include_hits) + len(high_priority_hits)
     if min_include_hits_or_priority and signal_hits < min_include_hits_or_priority:
         review_gate_ok = False
     if review_requires_signal and not (method_hits or review_hits):
+        review_gate_ok = False
+    if require_llm_concept_for_review and not llm_concept_hits:
         review_gate_ok = False
 
     if weighted_score >= include_threshold and not exclude_hits and missing_groups == 0 and include_gate_ok and include_guard_ok:
@@ -388,10 +397,14 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
             reasons.append(f"bridge_sentence_too_low={bridge_sentence_hits}")
         if require_title_or_bridge_signal and not (title_hits or bridge_sentence_hits > 0):
             reasons.append("no_title_or_bridge_signal")
+        if require_llm_concept_for_include and not llm_concept_hits:
+            reasons.append("missing_llm_concept_for_include")
     if include_gate_ok and not include_guard_ok and weighted_score >= include_threshold:
         reasons.append("include_guard=failed")
     if weighted_score >= review_threshold and not review_gate_ok:
         reasons.append("review_gate=failed")
+        if require_llm_concept_for_review and not llm_concept_hits:
+            reasons.append("missing_llm_concept_for_review")
 
     confidence = "high"
     if missing_groups > 0 or total_penalty > max_penalty_for_include:
@@ -416,6 +429,7 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
             "cited_by_count": cited_by_count or 0,
             "query_overlap": query_overlap_n,
             "concept_diversity": concept_diversity,
+            "llm_concept_hits": len(llm_concept_hits),
             "title_hits": len(title_hits),
             "abstract_tokens": abstract_tokens,
             "language": language,

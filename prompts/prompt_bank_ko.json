@@ -1,5 +1,5 @@
 {
-  "version": "v1.9",
+  "version": "v2.0",
   "language": "ko",
   "scenarios": [
     {
@@ -552,6 +552,50 @@
         "tradeoff"
       ],
       "prompt": "확신이 과도해 핵심 ablation/검증을 건너뛴 경험을 7~9문장으로 회고하라. 생략의 유혹, 결과 왜곡 위험, 재발 방지 규칙을 포함하라."
+    },
+    {
+      "id": "null_result_suppression_regret",
+      "label": "moral",
+      "tags": [
+        "research",
+        "ethics",
+        "accountability",
+        "loss"
+      ],
+      "prompt": "유의미한 결과가 나오지 않았을 때 이를 보고서에서 약하게 다루거나 빼고 싶었던 순간을 7~10문장으로 회고하라. 단기 이득과 장기 신뢰비용을 함께 평가하라."
+    },
+    {
+      "id": "dataset_shift_ignored",
+      "label": "decision",
+      "tags": [
+        "research",
+        "evidence",
+        "counterfactual",
+        "uncertainty"
+      ],
+      "prompt": "초기 성능이 좋아 보여 데이터 분포 변화 신호를 무시했던 경험을 7~9문장으로 서술하라. '그때 검증했더라면'이라는 반사실 사고와 재발 방지 계획을 포함하라."
+    },
+    {
+      "id": "mentoring_capacity_tradeoff",
+      "label": "social",
+      "tags": [
+        "social",
+        "team",
+        "tradeoff",
+        "identity"
+      ],
+      "prompt": "본인 성과를 위해 후배/동료 멘토링 시간을 줄였다가 뒤늦게 후회한 장면을 7~10문장으로 작성하라. 개인 효율과 공동체 책임 사이 긴장을 드러내라."
+    },
+    {
+      "id": "posthoc_storytelling_bias",
+      "label": "identity",
+      "tags": [
+        "research",
+        "counterfactual",
+        "evidence",
+        "long_horizon"
+      ],
+      "prompt": "결과를 본 뒤 그럴듯한 이야기로 원인을 과도하게 포장했던 경험을 7~10문장으로 회고하라. 당시 서사화의 유혹, 반례 무시, 현재의 교정 규칙을 포함하라."
     }
   ],
   "personas": [
@@ -722,6 +766,25 @@
         "planning"
       ],
       "instruction": "당신은 감정 서술에서 위험 신호를 수치/등급으로 점검하고, 관계·절차·데이터 측면의 복구 계획을 우선순위로 정리하는 경향이 있다."
+    },
+    {
+      "id": "process_auditor",
+      "style_tags": [
+        "audit",
+        "evidence",
+        "accountability"
+      ],
+      "instruction": "당신은 주장보다 절차 감사 관점으로 사고하며, 어떤 단계에서 검증이 빠졌는지와 책임 경계를 명확히 기록하려는 경향이 있다."
+    },
+    {
+      "id": "ethical_red_teamer",
+      "style_tags": [
+        "ethics",
+        "risk",
+        "counterfactual",
+        "repair"
+      ],
+      "instruction": "당신은 결정의 취약지점을 일부러 찾아내는 레드팀 시각을 가지며, 단기 성과보다 잠재 피해와 신뢰 손실을 먼저 점검하는 경향이 있다."
     }
   ],
   "temperatures": [
