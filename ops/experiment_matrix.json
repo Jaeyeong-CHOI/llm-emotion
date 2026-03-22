@@ -2456,6 +2456,41 @@
         "temperature_top13_uniformity_guard_v114"
       ],
       "description": "v11.4 unknown-year group top5/global top5 ratio guard + top5 counterbalance patch + temperature top13 uniformity tripwire smoke"
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_top6_temperature_top14_v115",
+      "n": 12,
+      "seed": 1115,
+      "repeats": 2,
+      "temperatures": [
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        1.0,
+        1.1,
+        1.2,
+        1.3,
+        1.4
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top6_ratio_guard_v115",
+        "prompt_bank_unknown_year_group_top6_counterbalance_v115",
+        "runner_temperature_top14_uniformity_tripwire_v115"
+      ],
+      "persona_ids": [
+        "screening_quality_guard",
+        "prompt_bank_curator",
+        "runner_reliability_architect",
+        "temperature_top14_uniformity_guard_v115"
+      ],
+      "description": "v11.5 unknown-year group top6/global top6 ratio guard + top6 counterbalance patch + temperature top14 uniformity tripwire smoke"
     }
   ]
 }
