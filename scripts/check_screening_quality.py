@@ -59,6 +59,18 @@ def normalized_hhi(mapping: dict[str, int]) -> float:
     return round(sum(p * p for p in probs), 4)
 
 
+def effective_query_count(mapping: dict[str, int]) -> float:
+    counts = [int(v or 0) for v in mapping.values() if int(v or 0) > 0]
+    if not counts:
+        return 0.0
+    total = sum(counts)
+    if total <= 0:
+        return 0.0
+    probs = [c / total for c in counts]
+    entropy = -sum(p * math.log2(p) for p in probs if p > 0)
+    return round(2 ** entropy, 4)
+
+
 def write_json(path: Path, payload: dict):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -117,6 +129,8 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_review_traceable_known_query_hhi: `{payload['summary']['manual_qc_review_traceable_known_query_hhi']}`",
             f"- manual_qc_review_traceable_known_query_top_share: `{payload['summary']['manual_qc_review_traceable_known_query_top_share']}`",
             f"- manual_qc_review_traceable_known_query_top2_share: `{payload['summary']['manual_qc_review_traceable_known_query_top2_share']}`",
+            f"- manual_qc_review_traceable_known_query_tail_share: `{payload['summary']['manual_qc_review_traceable_known_query_tail_share']}`",
+            f"- manual_qc_review_traceable_known_query_effective_count: `{payload['summary']['manual_qc_review_traceable_known_query_effective_count']}`",
             f"- manual_qc_review_traceable_known_query_bottom_share: `{payload['summary']['manual_qc_review_traceable_known_query_bottom_share']}`",
             f"- manual_qc_review_traceable_known_query_top_bottom_gap: `{payload['summary']['manual_qc_review_traceable_known_query_top_bottom_gap']}`",
             f"- manual_qc_review_traceable_known_query_group_entropy: `{payload['summary']['manual_qc_review_traceable_known_query_group_entropy']}`",
@@ -236,6 +250,8 @@ def main():
     ap.add_argument("--max-manual-qc-review-traceable-known-query-hhi", type=float, default=0.35)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-top-share", type=float, default=0.7)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-top2-share", type=float, default=0.9)
+    ap.add_argument("--min-manual-qc-review-traceable-known-query-tail-share", type=float, default=0.15)
+    ap.add_argument("--min-manual-qc-review-traceable-known-query-effective-count", type=float, default=3.0)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-top-bottom-gap", type=float, default=0.55)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-group-entropy", type=float, default=0.45)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-group-coverage", type=int, default=2)
@@ -539,6 +555,13 @@ def main():
         if manual_qc_review_traceable_known_query_counts
         else 0.0
     )
+    manual_qc_review_traceable_known_query_tail_share = round(
+        max(0.0, 1.0 - manual_qc_review_traceable_known_query_top2_share),
+        4,
+    )
+    manual_qc_review_traceable_known_query_effective_count = effective_query_count(
+        manual_qc_review_traceable_known_query_counts
+    )
     manual_qc_review_traceable_known_query_top_bottom_gap = round(
         manual_qc_review_traceable_known_query_top_share - manual_qc_review_traceable_known_query_bottom_share,
         4,
@@ -776,6 +799,24 @@ def main():
             else "fail",
             "observed": manual_qc_review_traceable_known_query_top2_share,
             "threshold": f"<={args.max_manual_qc_review_traceable_known_query_top2_share}",
+        },
+        {
+            "name": "manual_qc_review_traceable_known_query_tail_share_floor",
+            "status": "pass"
+            if manual_qc_review_traceable_known_query_tail_share
+            >= args.min_manual_qc_review_traceable_known_query_tail_share
+            else "fail",
+            "observed": manual_qc_review_traceable_known_query_tail_share,
+            "threshold": f">={args.min_manual_qc_review_traceable_known_query_tail_share}",
+        },
+        {
+            "name": "manual_qc_review_traceable_known_query_effective_count_floor",
+            "status": "pass"
+            if manual_qc_review_traceable_known_query_effective_count
+            >= args.min_manual_qc_review_traceable_known_query_effective_count
+            else "fail",
+            "observed": manual_qc_review_traceable_known_query_effective_count,
+            "threshold": f">={args.min_manual_qc_review_traceable_known_query_effective_count}",
         },
         {
             "name": "manual_qc_review_traceable_known_query_top_bottom_gap_ceiling",
@@ -1127,6 +1168,8 @@ def main():
             "known_query_hhi": manual_qc_review_traceable_known_query_hhi,
             "known_query_top_share": manual_qc_review_traceable_known_query_top_share,
             "known_query_top2_share": manual_qc_review_traceable_known_query_top2_share,
+            "known_query_tail_share": manual_qc_review_traceable_known_query_tail_share,
+            "known_query_effective_count": manual_qc_review_traceable_known_query_effective_count,
             "known_query_bottom_share": manual_qc_review_traceable_known_query_bottom_share,
             "known_query_top_bottom_gap": manual_qc_review_traceable_known_query_top_bottom_gap,
             "known_query_group_entropy": manual_qc_review_traceable_known_query_group_entropy,
@@ -1207,6 +1250,8 @@ def main():
             "manual_qc_review_traceable_known_query_hhi": manual_qc_review_traceable_known_query_hhi,
             "manual_qc_review_traceable_known_query_top_share": manual_qc_review_traceable_known_query_top_share,
             "manual_qc_review_traceable_known_query_top2_share": manual_qc_review_traceable_known_query_top2_share,
+            "manual_qc_review_traceable_known_query_tail_share": manual_qc_review_traceable_known_query_tail_share,
+            "manual_qc_review_traceable_known_query_effective_count": manual_qc_review_traceable_known_query_effective_count,
             "manual_qc_review_traceable_known_query_bottom_share": manual_qc_review_traceable_known_query_bottom_share,
             "manual_qc_review_traceable_known_query_top_bottom_gap": manual_qc_review_traceable_known_query_top_bottom_gap,
             "manual_qc_review_traceable_known_query_group_entropy": manual_qc_review_traceable_known_query_group_entropy,

@@ -207,7 +207,7 @@ def pct(numerator: int, denominator: int) -> float:
     return round(numerator / denominator, 4)
 
 
-def live_attempt_share_exceeded(*, run_id: str, generation_attempts_by_run_id: dict[str, int], analysis_attempts_by_run_id: dict[str, int], generation_attempts_total: int, analysis_attempts_total: int, generation_retries_by_run_id: dict[str, int], analysis_retries_by_run_id: dict[str, int], generation_retries_total: int, analysis_retries_total: int, selected_cells_by_run_id: dict[str, int], selected_run_cells: int, max_live_generation_attempt_share_per_run_id: float, max_live_analysis_attempt_share_per_run_id: float, max_live_combined_attempt_share_per_run_id: float, max_live_stage_attempt_share_gap_per_run_id: float, max_live_retry_share_per_run_id: float, max_live_retry_over_selection_ratio_per_run_id: float) -> tuple[bool, str]:
+def live_attempt_share_exceeded(*, run_id: str, generation_attempts_by_run_id: dict[str, int], analysis_attempts_by_run_id: dict[str, int], generation_attempts_total: int, analysis_attempts_total: int, generation_retries_by_run_id: dict[str, int], analysis_retries_by_run_id: dict[str, int], generation_retries_total: int, analysis_retries_total: int, selected_cells_by_run_id: dict[str, int], selected_run_cells: int, max_live_generation_attempt_share_per_run_id: float, max_live_analysis_attempt_share_per_run_id: float, max_live_combined_attempt_share_per_run_id: float, max_live_stage_attempt_share_gap_per_run_id: float, max_live_retry_share_per_run_id: float, max_live_retry_over_selection_ratio_per_run_id: float, max_live_attempt_over_selection_ratio_per_run_id: float) -> tuple[bool, str]:
     run_generation = int(generation_attempts_by_run_id.get(run_id, 0) or 0)
     run_analysis = int(analysis_attempts_by_run_id.get(run_id, 0) or 0)
     run_combined = run_generation + run_analysis
@@ -243,6 +243,13 @@ def live_attempt_share_exceeded(*, run_id: str, generation_attempts_by_run_id: d
             retry_over_selection_ratio = retry_share / selected_share
             if retry_over_selection_ratio > max_live_retry_over_selection_ratio_per_run_id:
                 return True, f"retry_over_selection_ratio={round(retry_over_selection_ratio,4)}>{max_live_retry_over_selection_ratio_per_run_id}"
+    if max_live_attempt_over_selection_ratio_per_run_id > 0 and combined_total > 0 and selected_run_cells > 0:
+        selected_share = int(selected_cells_by_run_id.get(run_id, 0) or 0) / selected_run_cells
+        if selected_share > 0:
+            combined_share = run_combined / combined_total
+            attempt_over_selection_ratio = combined_share / selected_share
+            if attempt_over_selection_ratio > max_live_attempt_over_selection_ratio_per_run_id:
+                return True, f"attempt_over_selection_ratio={round(attempt_over_selection_ratio,4)}>{max_live_attempt_over_selection_ratio_per_run_id}"
     return False, ""
 
 
@@ -1114,6 +1121,12 @@ def main():
         help="stop early if live retry_share/selected_cell_share for a run id exceeds this value; 0 disables",
     )
     ap.add_argument(
+        "--max-live-attempt-over-selection-ratio-per-run-id",
+        type=float,
+        default=0.0,
+        help="stop early if live combined_attempt_share/selected_cell_share for a run id exceeds this value; 0 disables",
+    )
+    ap.add_argument(
         "--max-selected-cell-share-per-run-id",
         type=float,
         default=0.0,
@@ -1714,6 +1727,7 @@ def main():
                 max_live_stage_attempt_share_gap_per_run_id=args.max_live_stage_attempt_share_gap_per_run_id,
                 max_live_retry_share_per_run_id=args.max_live_retry_share_per_run_id,
                 max_live_retry_over_selection_ratio_per_run_id=args.max_live_retry_over_selection_ratio_per_run_id,
+                max_live_attempt_over_selection_ratio_per_run_id=args.max_live_attempt_over_selection_ratio_per_run_id,
             )
             if exceeded:
                 print(
@@ -2029,6 +2043,7 @@ def main():
                 max_live_stage_attempt_share_gap_per_run_id=args.max_live_stage_attempt_share_gap_per_run_id,
                 max_live_retry_share_per_run_id=args.max_live_retry_share_per_run_id,
                 max_live_retry_over_selection_ratio_per_run_id=args.max_live_retry_over_selection_ratio_per_run_id,
+                max_live_attempt_over_selection_ratio_per_run_id=args.max_live_attempt_over_selection_ratio_per_run_id,
             )
             if exceeded:
                 print(
@@ -2774,6 +2789,7 @@ def main():
         "max_live_stage_attempt_share_gap_per_run_id": args.max_live_stage_attempt_share_gap_per_run_id,
         "max_live_retry_share_per_run_id": args.max_live_retry_share_per_run_id,
         "max_live_retry_over_selection_ratio_per_run_id": args.max_live_retry_over_selection_ratio_per_run_id,
+        "max_live_attempt_over_selection_ratio_per_run_id": args.max_live_attempt_over_selection_ratio_per_run_id,
         "max_selected_cell_share_per_run_id": args.max_selected_cell_share_per_run_id,
         "max_attempt_over_selection_ratio": args.max_attempt_over_selection_ratio,
         "max_retry_share_per_run_id": args.max_retry_share_per_run_id,
