@@ -18,7 +18,10 @@
     "self narrative",
     "self-reflection",
     "social cognition",
-    "counterfactual emotion"
+    "counterfactual emotion",
+    "emotional attribution",
+    "empathy",
+    "emotion understanding"
   ],
   "high_priority": [
     "regret",
@@ -30,7 +33,9 @@
     "anthropomorphism",
     "emotional attribution",
     "emotion appraisal",
-    "self-reflection"
+    "self-reflection",
+    "empathy",
+    "social-emotional reasoning"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -45,7 +50,10 @@
     "rubric",
     "psychology",
     "crowdworker",
-    "expert rating"
+    "expert rating",
+    "intervention study",
+    "ablation study",
+    "inter-rater reliability"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -162,6 +170,26 @@
       "counterfactual affect",
       "regret emotion",
       "anticipated regret"
+    ],
+    "emotional attribution": [
+      "emotional attribution",
+      "emotion attribution",
+      "affective attribution"
+    ],
+    "empathy": [
+      "empathy",
+      "empathetic reasoning",
+      "empathic reasoning"
+    ],
+    "emotion understanding": [
+      "emotion understanding",
+      "affective understanding",
+      "emotion reasoning"
+    ],
+    "social-emotional reasoning": [
+      "social-emotional reasoning",
+      "social emotional reasoning",
+      "socioemotional reasoning"
     ]
   },
   "weights": {
@@ -212,7 +240,10 @@
     "benchmark",
     "qualitative analysis",
     "error analysis",
-    "rubric"
+    "rubric",
+    "intervention study",
+    "ablation study",
+    "inter-rater reliability"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {

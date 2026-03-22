@@ -1,5 +1,5 @@
 {
-  "version": "v10.9",
+  "version": "v11.0",
   "language": "ko",
   "scenarios": [
     {
@@ -4892,6 +4892,63 @@
       "difficulty": "hard",
       "prompt": "실험 러너 preflight에서 top9 guardrail은 통과했지만 top10/top11 누적 share와 uniform 대비 비율이 경고를 내며 온도축 다양성이 붕괴된 사건을 7~10문장으로 회고하라. top10/top11 share/top10/top11-over-uniform ratio를 해석한 근거와 fail-fast 기준, 그리고 재시도 전 예산 재배분 절차를 수치 중심으로 정리하라.",
       "title": "Runner temperature top10/top11 uniformity tripwire"
+    },
+    {
+      "id": "screening_unknown_year_top10_ratio_guard_v110",
+      "label": "research_ops",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_ratio",
+        "top10"
+      ],
+      "domains": [
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "calibration"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC에서 unknown-year review 샘플의 query 분포를 점검했더니 상위 10개 query 집중도가 global known-year baseline보다 급격히 높아졌다. 과집중 원인을 진단하고, tail query 근거를 보강해 top10 비율을 완화하는 복구 계획을 6~8문장으로 제시하라."
+    },
+    {
+      "id": "prompt_bank_top10_tail_counterbalance_patch_v110",
+      "label": "research_ops",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "tail_rebalance",
+        "top10"
+      ],
+      "domains": [
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "agency"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크가 상위 query군에 과도하게 정렬되어 tail query evidence가 약화되었다. top10 집중 완화를 목표로 countervoice 프롬프트를 재배치하고, 어떤 축(domain/axis/style)을 확장할지 6~8문장으로 설계안을 작성하라."
+    },
+    {
+      "id": "runner_temperature_top11_top12_uniformity_tripwire_v110",
+      "label": "research_ops",
+      "tags": [
+        "runner",
+        "temperature",
+        "uniformity",
+        "tripwire"
+      ],
+      "domains": [
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "control"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 러너 사전점검에서 temperature top11/top12 누적 점유율이 균등 baseline 대비 비정상적으로 높다. 실행 중단 기준과 재시작 조건(share/ratio/floor-bin)을 명시한 운영 노트를 6~8문장으로 작성하라."
     }
   ],
   "personas": [
@@ -7252,6 +7309,17 @@
         "stability"
       ],
       "instruction": "당신은 온도축 분포 편향을 조기에 탐지하는 운영자 성향이 있으며, top-k 누적 점유율과 균등 대비 비율을 함께 점검해 중단·재개 조건을 수치로 제시한다."
+    },
+    {
+      "id": "temperature_top12_uniformity_guard_v110",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "uniformity",
+        "tripwire",
+        "stability"
+      ],
+      "instruction": "당신은 온도 분포의 장꼬리 붕괴를 조기에 탐지하는 운영자 성향이며, top11·top12 누적 점유율과 uniform baseline 대비 비율을 함께 점검해 중단·완화·재개 조건을 수치 중심으로 제시한다."
     }
   ],
   "temperatures": [
