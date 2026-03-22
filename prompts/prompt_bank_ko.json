@@ -1,5 +1,5 @@
 {
-  "version": "v11.3",
+  "version": "v11.4",
   "language": "ko",
   "scenarios": [
     {
@@ -5090,6 +5090,52 @@
       "domain": "experiment_ops",
       "emotion_axis": "stability",
       "difficulty": "advanced"
+    },
+    {
+      "id": "screening_unknown_year_group_top5_ratio_guard_v114",
+      "label": "screening",
+      "text": "manual QC review traceable known-query의 unknown-year query-group 분포에서 top4는 통과했지만 top5 누적 점유율이 global known-query top5 대비 과열되는 상황을 점검하라. absolute top5 share와 global baseline 대비 top5 ratio를 함께 사용해 과점 잔존을 판별하고, tail group 복구 우선순위를 제시하라.",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "top5_ratio",
+        "quality_gate"
+      ],
+      "domain": "literature_screening",
+      "emotion_axis": "quality_control",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "prompt_bank_unknown_year_group_top5_counterbalance_v114",
+      "label": "prompt_bank",
+      "text": "프롬프트 뱅크에서 unknown-year query-group top5 과점을 완화하는 counterbalance 패치를 설계하라. 상위 group 5개를 순환 견제하도록 countervoice 5개를 추가하고, 각 voice의 실패 신호·회귀 지표·재샘플링 규칙을 정의하라.",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "unknown_year",
+        "query_group",
+        "top5",
+        "counterbalance"
+      ],
+      "domain": "prompt_design",
+      "emotion_axis": "diversity",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "runner_temperature_top13_uniformity_tripwire_v114",
+      "label": "runner",
+      "text": "실험 러너 preflight에서 top12 guardrail은 통과했지만 상위 13개 temperature 누적 비중이 균등 baseline 대비 과열되는 상황을 가정하라. top13 share와 top13-over-uniform ratio tripwire를 정의하고, 위반 시 재분배·중단·재개 절차를 운영 메모로 작성하라.",
+      "tags": [
+        "runner",
+        "temperature",
+        "top13",
+        "uniformity",
+        "tripwire"
+      ],
+      "domain": "experiment_ops",
+      "emotion_axis": "stability",
+      "difficulty": "advanced"
     }
   ],
   "personas": [
@@ -7493,6 +7539,16 @@
         "risk"
       ],
       "instruction": "당신은 temperature 분포의 상위 누적 과열을 조기에 감지하는 운영자 성향이며, top12 share와 uniform baseline ratio를 함께 해석해 샘플 재분배·중단·재개 기준을 수치 중심으로 제시한다."
+    },
+    {
+      "id": "temperature_top13_uniformity_guard_v114",
+      "style_tags": [
+        "temperature",
+        "uniformity",
+        "tripwire",
+        "preflight"
+      ],
+      "instruction": "당신은 실험 전 온도 분포의 누적 과집중을 감시하는 운영자다. top-k share와 uniform 대비 비율을 함께 보고, 임계치 초과 시 즉시 중단·재배치·재개 조건을 명확히 제시한다."
     }
   ],
   "temperatures": [
