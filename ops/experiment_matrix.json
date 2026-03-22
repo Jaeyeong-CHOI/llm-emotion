@@ -766,6 +766,31 @@
         "runid_budget_sentinel",
         "quarantine_reentry_supervisor"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_traceability_v48",
+      "n": 12,
+      "seed": 30808,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_reason_traceability_gap",
+        "screening_confidence_band_overcollapse",
+        "prompt_bank_countervoice_dropout",
+        "runner_attempt_log_granularity_debt",
+        "runner_per_run_budget_exhaustion"
+      ],
+      "persona_ids": [
+        "reason_traceability_auditor",
+        "confidence_band_calibrator",
+        "countervoice_balance_keeper",
+        "attempt_log_forensics_operator"
+      ]
     }
   ]
 }

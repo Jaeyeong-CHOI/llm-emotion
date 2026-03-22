@@ -603,6 +603,12 @@ def main():
         help="timeout per analysis command (0 disables timeout)",
     )
     ap.add_argument(
+        "--max-run-seconds",
+        type=float,
+        default=0.0,
+        help="wall-clock ceiling per run cell across generation+analysis (0 disables)",
+    )
+    ap.add_argument(
         "--execution-log-jsonl",
         default="",
         help="optional JSONL path for per-attempt command logs (defaults to <outdir>/<run-label>/command_log.jsonl)",
@@ -1134,6 +1140,53 @@ def main():
                 break
 
             generation_successful_cells += 1
+            if args.max_run_seconds > 0 and (time.perf_counter() - cell_started) > args.max_run_seconds:
+                row["status"] = "failed_run_timeout"
+                row["error"] = (
+                    f"run cell wall-clock exceeded max_run_seconds={args.max_run_seconds} before analysis"
+                )
+                row["dataset_sha256"] = maybe_file_sha256(dataset_path)
+                runs.append(row)
+                failed_cells += 1
+                failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
+                failure_streak += 1
+                if not args.continue_on_error:
+                    raise RuntimeError(f"run timeout for {run_key}: {row['error']}")
+                if (
+                    args.max_failed_cells_per_run_id > 0
+                    and failed_cells_by_run_id.get(run_id, 0) >= args.max_failed_cells_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
+                        f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
+                if args.max_failed_cells > 0 and failed_cells >= args.max_failed_cells:
+                    print(
+                        f"[WARN] failed_cells reached max_failed_cells ({failed_cells}/{args.max_failed_cells}); stopping batch early"
+                    )
+                    stop_requested = True
+                    break
+                if args.max_failure_streak > 0 and failure_streak >= args.max_failure_streak:
+                    print(
+                        "[WARN] failure_streak reached max_failure_streak "
+                        f"({failure_streak}/{args.max_failure_streak}); stopping batch early"
+                    )
+                    stop_requested = True
+                    break
+                if args.max_failure_rate > 0:
+                    current_failure_rate = failed_cells / max(1, attempted_run_cells)
+                    if current_failure_rate > args.max_failure_rate:
+                        print(
+                            "[WARN] failure_rate exceeded max_failure_rate "
+                            f"({round(current_failure_rate, 4)} > {args.max_failure_rate}); stopping batch early"
+                        )
+                        stop_requested = True
+                        break
+                continue
+
             if (
                 args.max_analysis_attempts_per_run_id > 0
                 and analysis_attempts_by_run_id.get(run_id, 0) >= args.max_analysis_attempts_per_run_id
@@ -1250,6 +1303,51 @@ def main():
 
             analysis_successful_cells += 1
             row["duration_seconds"] = round(time.perf_counter() - cell_started, 3)
+            if args.max_run_seconds > 0 and row["duration_seconds"] > args.max_run_seconds:
+                row["status"] = "failed_run_timeout"
+                row["error"] = f"run cell wall-clock exceeded max_run_seconds={args.max_run_seconds}"
+                row["dataset_sha256"] = maybe_file_sha256(dataset_path)
+                row["metrics_sha256"] = maybe_file_sha256(metrics_path)
+                runs.append(row)
+                failed_cells += 1
+                failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
+                failure_streak += 1
+                if not args.continue_on_error:
+                    raise RuntimeError(f"run timeout for {run_key}: {row['error']}")
+                if (
+                    args.max_failed_cells_per_run_id > 0
+                    and failed_cells_by_run_id.get(run_id, 0) >= args.max_failed_cells_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
+                        f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
+                if args.max_failed_cells > 0 and failed_cells >= args.max_failed_cells:
+                    print(
+                        f"[WARN] failed_cells reached max_failed_cells ({failed_cells}/{args.max_failed_cells}); stopping batch early"
+                    )
+                    stop_requested = True
+                    break
+                if args.max_failure_streak > 0 and failure_streak >= args.max_failure_streak:
+                    print(
+                        "[WARN] failure_streak reached max_failure_streak "
+                        f"({failure_streak}/{args.max_failure_streak}); stopping batch early"
+                    )
+                    stop_requested = True
+                    break
+                if args.max_failure_rate > 0:
+                    current_failure_rate = failed_cells / max(1, attempted_run_cells)
+                    if current_failure_rate > args.max_failure_rate:
+                        print(
+                            "[WARN] failure_rate exceeded max_failure_rate "
+                            f"({round(current_failure_rate, 4)} > {args.max_failure_rate}); stopping batch early"
+                        )
+                        stop_requested = True
+                        break
+                continue
             row["dataset_sha256"] = maybe_file_sha256(dataset_path)
             row["metrics_sha256"] = maybe_file_sha256(metrics_path)
             row["status"] = "ok"
@@ -1486,6 +1584,7 @@ def main():
         "retry_backoff_seconds": args.retry_backoff_seconds,
         "generation_timeout_seconds": args.generation_timeout_seconds,
         "analysis_timeout_seconds": args.analysis_timeout_seconds,
+        "max_run_seconds": args.max_run_seconds,
         "execution_log_jsonl": str(execution_log_path.relative_to(ROOT)),
         "quarantine_json": str(quarantine_json_path.relative_to(ROOT)),
         "quarantine_csv": str(quarantine_csv_path.relative_to(ROOT)),

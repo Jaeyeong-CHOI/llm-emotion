@@ -97,6 +97,8 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_include_rows: `{payload['summary']['manual_qc_include_rows']}`",
             f"- manual_qc_review_rows: `{payload['summary']['manual_qc_review_rows']}`",
             f"- manual_qc_review_share: `{payload['summary']['manual_qc_review_share']}`",
+            f"- manual_qc_review_confidence_bins: `{payload['summary']['manual_qc_review_confidence_bins']}`",
+            f"- manual_qc_review_confidence_entropy: `{payload['summary']['manual_qc_review_confidence_entropy']}`",
             f"- manual_qc_label_counts: `{payload['summary']['manual_qc_label_counts']}`",
             f"- manual_qc_source_group_diversity: `{payload['summary']['manual_qc_source_group_diversity']}`",
             f"- manual_qc_single_query_share: `{payload['summary']['manual_qc_single_query_share']}`",
@@ -157,6 +159,8 @@ def main():
     ap.add_argument("--min-manual-qc-query-entropy", type=float, default=0.5)
     ap.add_argument("--min-manual-qc-risk-reason-entropy", type=float, default=0.45)
     ap.add_argument("--min-manual-qc-review-reason-entropy", type=float, default=0.35)
+    ap.add_argument("--min-manual-qc-review-confidence-bins", type=int, default=2)
+    ap.add_argument("--min-manual-qc-review-confidence-entropy", type=float, default=0.4)
     ap.add_argument("--max-manual-qc-unknown-query-share", type=float, default=0.20)
     ap.add_argument("--min-manual-qc-year-diversity", type=int, default=3)
     ap.add_argument("--max-manual-qc-single-year-share", type=float, default=0.5)
@@ -216,6 +220,7 @@ def main():
     manual_qc_label_counts: dict[str, int] = {}
     screening_reason_counts: dict[str, int] = {}
     review_screening_reason_counts: dict[str, int] = {}
+    review_confidence_counts: dict[str, int] = {}
     manual_qc_source_group_counts: dict[str, int] = {}
     manual_qc_source_query_counts: dict[str, int] = {}
     manual_qc_year_counts: dict[str, int] = {}
@@ -228,6 +233,7 @@ def main():
             empty_screening_reason_rows += 1
         source_group = str(row.get("source_group") or "").strip().lower() or "unknown"
         source_query = str(row.get("source_query") or "").strip().lower() or "unknown"
+        review_confidence = str(row.get("confidence") or "").strip().lower() or "unknown"
         year = str(row.get("year") or "").strip() or "unknown"
         manual_qc_source_group_counts[source_group] = manual_qc_source_group_counts.get(source_group, 0) + 1
         manual_qc_source_query_counts[source_query] = manual_qc_source_query_counts.get(source_query, 0) + 1
@@ -241,6 +247,8 @@ def main():
             if label == "review":
                 review_screening_reason_counts[token] = review_screening_reason_counts.get(token, 0) + 1
             seen.add(token)
+        if label == "review":
+            review_confidence_counts[review_confidence] = review_confidence_counts.get(review_confidence, 0) + 1
     manual_qc_include_rows = int(manual_qc_label_counts.get("include", 0) or 0)
     manual_qc_review_rows = int(manual_qc_label_counts.get("review", 0) or 0)
     manual_qc_review_share = pct(manual_qc_review_rows, len(manual_qc_rows))
@@ -269,6 +277,8 @@ def main():
     manual_qc_query_entropy = normalized_entropy(manual_qc_source_query_counts)
     manual_qc_risk_reason_entropy = normalized_entropy(risk_reason_summary)
     manual_qc_review_reason_entropy = normalized_entropy(review_screening_reason_counts)
+    manual_qc_review_confidence_bins = sum(1 for _, v in review_confidence_counts.items() if int(v or 0) > 0)
+    manual_qc_review_confidence_entropy = normalized_entropy(review_confidence_counts)
     review_to_include_ratio = round(review_count / max(1, include_count), 4)
     high_risk_qc_rows = sum(1 for row in manual_qc_rows if float(row.get("risk_score") or 0.0) >= 5.0)
     manual_qc_high_risk_share = pct(high_risk_qc_rows, len(manual_qc_rows))
@@ -427,6 +437,22 @@ def main():
             "threshold": f">={args.min_manual_qc_review_reason_entropy}",
         },
         {
+            "name": "manual_qc_review_confidence_bins_floor",
+            "status": "pass"
+            if manual_qc_review_confidence_bins >= args.min_manual_qc_review_confidence_bins
+            else "fail",
+            "observed": manual_qc_review_confidence_bins,
+            "threshold": f">={args.min_manual_qc_review_confidence_bins}",
+        },
+        {
+            "name": "manual_qc_review_confidence_entropy_floor",
+            "status": "pass"
+            if manual_qc_review_confidence_entropy >= args.min_manual_qc_review_confidence_entropy
+            else "fail",
+            "observed": manual_qc_review_confidence_entropy,
+            "threshold": f">={args.min_manual_qc_review_confidence_entropy}",
+        },
+        {
             "name": "manual_qc_year_diversity_floor",
             "status": "pass" if manual_qc_year_diversity >= args.min_manual_qc_year_diversity else "fail",
             "observed": manual_qc_year_diversity,
@@ -513,6 +539,7 @@ def main():
         {"label": "manual_qc_label_counts", "value": manual_qc_label_counts},
         {"label": "manual_qc_source_groups", "value": top_items(manual_qc_source_group_counts, limit=6)},
         {"label": "manual_qc_source_queries", "value": top_items(manual_qc_source_query_counts, limit=6)},
+        {"label": "manual_qc_review_confidence_distribution", "value": top_items(review_confidence_counts, limit=5)},
         {"label": "manual_qc_year_distribution", "value": top_items(manual_qc_year_counts, limit=8)},
         {"label": "balanced_qc_by_confidence", "value": balanced_summary.get("by_confidence") or {}},
         {"label": "top_borderline_review_risk", "value": top_items(triage_risk, limit=4)},
@@ -563,6 +590,9 @@ def main():
             "manual_qc_include_rows": manual_qc_include_rows,
             "manual_qc_review_rows": manual_qc_review_rows,
             "manual_qc_review_share": manual_qc_review_share,
+            "manual_qc_review_confidence_bins": manual_qc_review_confidence_bins,
+            "manual_qc_review_confidence_entropy": manual_qc_review_confidence_entropy,
+            "manual_qc_review_confidence_counts": review_confidence_counts,
             "manual_qc_label_counts": manual_qc_label_counts,
             "manual_qc_source_group_diversity": manual_qc_source_group_diversity,
             "manual_qc_source_group_counts": manual_qc_source_group_counts,
