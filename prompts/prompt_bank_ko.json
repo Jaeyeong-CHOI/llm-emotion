@@ -1,5 +1,5 @@
 {
-  "version": "v7.4",
+  "version": "v7.5",
   "language": "ko",
   "scenarios": [
     {
@@ -2596,6 +2596,45 @@
         "repair"
       ],
       "prompt": "실험 러너에서 생성/분석 단계 quota가 무너지며 한 단계가 과열된 사건을 7~10문장으로 회고하라. 어떤 지표로 이상을 감지했는지, quota 재배분 순서와 재개 조건을 포함하라."
+    },
+    {
+      "id": "screening_review_bridge_unknown_query_repair",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "traceability",
+        "query_governance",
+        "repair"
+      ],
+      "prompt": "수동 QC에서 review+bridge 신호는 충분하지만 source_query가 unknown으로 남는 항목이 누적된 상황을 7~10문장으로 회고하라. unknown이 남는 경로를 추적해 어떤 규칙을 바꿨는지, known-query 복구 우선순위, 다음 라운드 중단 기준을 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_rotation_gap_patch",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "rotation",
+        "coverage",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크에서 주장-반대관점(countervoice) 쌍은 존재하지만 강도 회전(rotation)이 약/강 양끝으로만 몰려 중간 강도 비교가 무너진 상황을 7~9문장으로 작성하라. 어떤 도메인 칸이 비었는지, 보강 우선순위, 릴리즈 전 parity 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_scenario_label_entropy_tripwire",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "preflight",
+        "label-balance",
+        "tripwire",
+        "systems"
+      ],
+      "prompt": "실험 preflight에서 scenario label 수는 기준을 통과했지만 entropy가 낮아 실제로는 한 label에 편중된 배치를 발견한 경험을 7~10문장으로 회고하라. 왜 단순 label count만으로는 실패했는지, entropy 기반 중단 규칙, 재배치 순서를 수치와 함께 제시하라."
     }
   ],
   "personas": [
@@ -4081,6 +4120,36 @@
         "governance"
       ],
       "instruction": "당신은 생성/분석 단계 quota 불균형을 먼저 감시하는 운영자 성향이 있으며, 임계치 초과 시 감속·격리·재개 조건을 수치로 명시한다."
+    },
+    {
+      "id": "review_query_traceability_triager",
+      "instruction": "당신은 review 근거의 query 추적 가능성을 우선 점검하는 성향이 있으며, bridge 신호가 있어도 source_query가 unknown이면 즉시 복구 큐로 분리하고 known-query 회복 순서를 수치로 남긴다.",
+      "style_tags": [
+        "screening",
+        "traceability",
+        "query_governance",
+        "triage"
+      ]
+    },
+    {
+      "id": "countervoice_rotation_architect",
+      "instruction": "당신은 주장-반대관점 쌍의 강도 회전을 설계하는 성향이 있으며, 약/중/강 구간의 공백을 먼저 찾고 도메인별 parity 보강 순서를 명확히 기록한다.",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "rotation",
+        "balance"
+      ]
+    },
+    {
+      "id": "label_entropy_tripwire_operator",
+      "instruction": "당신은 실험 러너 preflight에서 label 개수보다 entropy를 우선 감시하는 성향이 있으며, 편중이 감지되면 실행을 중단하고 재배치 조건을 수치로 제시한다.",
+      "style_tags": [
+        "runner",
+        "preflight",
+        "label-balance",
+        "tripwire"
+      ]
     }
   ],
   "temperatures": [

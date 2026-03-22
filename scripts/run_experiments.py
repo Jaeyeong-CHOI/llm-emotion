@@ -4,6 +4,7 @@ import csv
 import datetime as dt
 import hashlib
 import json
+import math
 import platform
 import shlex
 import statistics
@@ -78,6 +79,18 @@ def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set
         if str(tag).strip()
     }
 
+    scenario_label_counts = {
+        label: sum(1 for row in selected_scenarios if str(row.get("label") or "").strip() == label)
+        for label in sorted(selected_labels)
+    }
+    scenario_label_total = sum(int(v or 0) for v in scenario_label_counts.values())
+    if scenario_label_total > 0 and len(scenario_label_counts) > 1:
+        probs = [int(v or 0) / scenario_label_total for v in scenario_label_counts.values() if int(v or 0) > 0]
+        entropy = -sum(p * math.log2(p) for p in probs if p > 0)
+        scenario_label_entropy = round(entropy / math.log2(len(scenario_label_counts)), 4)
+    else:
+        scenario_label_entropy = 0.0
+
     return {
         "scenario_count": len(selected_scenarios),
         "persona_count": len(selected_personas),
@@ -87,8 +100,9 @@ def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set
         "scenario_tags": sorted(selected_tags),
         "scenario_label_count": len(selected_labels),
         "scenario_labels": sorted(selected_labels),
-        "scenario_label_counts": {label: sum(1 for row in selected_scenarios if str(row.get("label") or "").strip() == label) for label in sorted(selected_labels)},
-        "scenario_label_dominance": round((max((sum(1 for row in selected_scenarios if str(row.get("label") or "").strip() == label) for label in selected_labels), default=0) / max(1, len(selected_scenarios))), 4) if selected_scenarios else 0.0,
+        "scenario_label_counts": scenario_label_counts,
+        "scenario_label_dominance": round((max(scenario_label_counts.values(), default=0) / max(1, len(selected_scenarios))), 4) if selected_scenarios else 0.0,
+        "scenario_label_entropy": scenario_label_entropy,
         "persona_style_tag_count": len(selected_persona_style_tags),
         "persona_style_tags": sorted(selected_persona_style_tags),
     }
@@ -708,6 +722,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- unique_selected_scenario_labels: `{preflight_summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{preflight_summary.get('unique_selected_scenario_tags', 0)}`",
         f"- unique_selected_persona_style_tags: `{preflight_summary.get('unique_selected_persona_style_tags', 0)}`",
+        f"- max_scenario_label_dominance: `{preflight_summary.get('max_scenario_label_dominance', 0.0)}`",
+        f"- min_scenario_label_entropy: `{preflight_summary.get('min_scenario_label_entropy', 0.0)}`",
         "",
         "## Run-id summary",
         "",
@@ -902,6 +918,12 @@ def main():
         type=float,
         default=0.0,
         help="fail if a selected run has one scenario label above this share (0 disables)",
+    )
+    ap.add_argument(
+        "--require-min-scenario-label-entropy",
+        type=float,
+        default=0.0,
+        help="fail if a selected run has normalized scenario label entropy below this value (0 disables)",
     )
     ap.add_argument(
         "--require-min-unique-persona-style-tags",
@@ -1508,6 +1530,11 @@ def main():
                 f"{run_id}: scenario_label_dominance={prompt_summary['scenario_label_dominance']} > "
                 f"require_max_scenario_label_dominance={args.require_max_scenario_label_dominance}"
             )
+        if args.require_min_scenario_label_entropy and prompt_summary["scenario_label_entropy"] < args.require_min_scenario_label_entropy:
+            raise RuntimeError(
+                f"{run_id}: scenario_label_entropy={prompt_summary['scenario_label_entropy']} < "
+                f"require_min_scenario_label_entropy={args.require_min_scenario_label_entropy}"
+            )
         if (
             args.require_min_unique_persona_style_tags
             and prompt_summary["persona_style_tag_count"] < args.require_min_unique_persona_style_tags
@@ -1536,6 +1563,7 @@ def main():
                 "scenario_label_count": prompt_summary["scenario_label_count"],
                 "scenario_label_counts": prompt_summary["scenario_label_counts"],
                 "scenario_label_dominance": prompt_summary["scenario_label_dominance"],
+                "scenario_label_entropy": prompt_summary["scenario_label_entropy"],
                 "scenario_tag_count": prompt_summary["scenario_tag_count"],
                 "scenario_tags": prompt_summary["scenario_tags"],
                 "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
@@ -1556,6 +1584,7 @@ def main():
                 "scenario_label_count": prompt_summary["scenario_label_count"],
                 "scenario_label_counts": prompt_summary["scenario_label_counts"],
                 "scenario_label_dominance": prompt_summary["scenario_label_dominance"],
+                "scenario_label_entropy": prompt_summary["scenario_label_entropy"],
                 "scenario_labels": prompt_summary["scenario_labels"],
                 "scenario_tag_count": prompt_summary["scenario_tag_count"],
                 "scenario_tags": prompt_summary["scenario_tags"],
@@ -2508,6 +2537,7 @@ def main():
         "unique_selected_scenario_tags": len(aggregate_scenario_tags),
         "unique_selected_persona_style_tags": len(aggregate_persona_style_tags),
         "max_scenario_label_dominance": max((row.get("scenario_label_dominance", 0.0) for row in run_preflight_rows), default=0.0),
+        "min_scenario_label_entropy": min((row.get("scenario_label_entropy", 0.0) for row in run_preflight_rows), default=0.0),
     }
     snapshot_hashes = {
         "experiment_matrix": file_sha256(matrix_snapshot),
@@ -2776,6 +2806,7 @@ def main():
         "require_min_temperature_span": args.require_min_temperature_span,
         "require_min_unique_scenario_labels": args.require_min_unique_scenario_labels,
         "require_max_scenario_label_dominance": args.require_max_scenario_label_dominance,
+        "require_min_scenario_label_entropy": args.require_min_scenario_label_entropy,
         "require_min_unique_scenario_tags": args.require_min_unique_scenario_tags,
         "require_min_unique_persona_style_tags": args.require_min_unique_persona_style_tags,
         "require_min_selected_scenario_labels": args.require_min_selected_scenario_labels,

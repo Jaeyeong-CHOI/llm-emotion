@@ -1426,6 +1426,30 @@
         "runner_stage_budget_quota_recovery",
         "runner_live_attempt_pressure_tail_tripwire"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_entropy_bridge_v75",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "review_query_traceability_triager",
+        "countervoice_rotation_architect",
+        "label_entropy_tripwire_operator",
+        "stage_quota_rebalancer"
+      ],
+      "n": 24,
+      "seed": 475,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_ids": [
+        "screening_review_bridge_unknown_query_repair",
+        "prompt_bank_countervoice_rotation_gap_patch",
+        "runner_scenario_label_entropy_tripwire",
+        "runner_stage_budget_quota_recovery"
+      ]
     }
   ]
 }
