@@ -51,9 +51,16 @@ python3 scripts/analyze_regret_markers.py --in data/raw/mock_generations.jsonl -
 
 ## Automation
 - GitHub Action: `.github/workflows/lit-review-sync.yml`
-  - Runs weekly (Monday UTC)
-  - Refreshes `refs/openalex_results.jsonl` and `docs/evidence-table.md`
+  - Runs **daily** (UTC)
+  - Executes full research cycle (`scripts/research_cycle.py`)
+  - Refreshes literature/evidence + smoke-test generation/analysis + state log
   - Auto-commits updates
+
+- Local one-command cycle
+```bash
+make cycle
+make status
+```
 
 ## Notes
 This repository is designed to be iteratively expanded with new models, scenarios, and annotation rounds.

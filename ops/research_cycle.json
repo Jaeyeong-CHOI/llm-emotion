@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "cycle_name": "llm-emotion-continuous-research",
+  "timezone": "Asia/Seoul",
+  "targets": {
+    "min_candidate_papers": 150,
+    "core_papers_after_screening": 40,
+    "prompt_bank_size": 100,
+    "models_for_main_run": 3
+  },
+  "cadence": {
+    "literature_sync": "daily",
+    "evidence_table_refresh": "daily",
+    "manual_screening": "weekly",
+    "experiment_smoke": "weekly",
+    "main_experiment": "biweekly"
+  }
+}
