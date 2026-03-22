@@ -52,17 +52,25 @@ python3 scripts/search_openalex.py \
   --config queries/search_queries.json \
   --screening-rules queries/screening_rules.json \
   --out refs/openalex_results.jsonl \
-  --report-out results/lit_search_report.json
+  --report-out results/lit_search_report.json \
+  --audit-out results/lit_screening_audit.json
 ```
 
 `results/lit_search_report.json` now includes:
 - overall label distribution
 - overall priority distribution
+- overall confidence distribution (`high`/`medium`/`low`)
+- LLM-concept coverage (`with_llm_concept` vs `without_llm_concept`)
 - overall method-signal coverage (`with_method_cues` vs `without_method_cues`)
 - overall bridge-signal coverage (`with_bridge_sentence` vs `without_bridge_sentence`)
 - include-guard pass/fail counts (overall + per-query)
-- per-query label/priority/method/bridge counts
+- per-query label/priority/method/bridge/confidence counts
 - top high-priority titles for manual screening
+
+`results/lit_screening_audit.json` adds manual-QC aids:
+- borderline `include` and `review` candidates near thresholds
+- high-score excludes that still miss LLM concept evidence
+- compact reasons for fast adjudication during title/abstract screening
 
 ## Why this helps
 - Better recall on lexical variants without giving up reproducibility

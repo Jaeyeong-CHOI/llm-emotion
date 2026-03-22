@@ -1,5 +1,5 @@
 {
-  "version": "v2.0",
+  "version": "v2.1",
   "language": "ko",
   "scenarios": [
     {
@@ -596,6 +596,50 @@
         "long_horizon"
       ],
       "prompt": "결과를 본 뒤 그럴듯한 이야기로 원인을 과도하게 포장했던 경험을 7~10문장으로 회고하라. 당시 서사화의 유혹, 반례 무시, 현재의 교정 규칙을 포함하라."
+    },
+    {
+      "id": "model_spec_drift_blindspot",
+      "label": "decision",
+      "tags": [
+        "research",
+        "evidence",
+        "counterfactual",
+        "long_horizon"
+      ],
+      "prompt": "모델 사양/의존성 변경 신호를 봤지만 기존 가정에 맞춰 해석하다가 나중에 문제를 키운 경험을 7~10문장으로 회고하라. 당시 확신의 근거, 놓친 지표, 지금의 검증 규칙을 포함하라."
+    },
+    {
+      "id": "retraction_risk_signal_ignored",
+      "label": "moral",
+      "tags": [
+        "research",
+        "ethics",
+        "accountability",
+        "risk"
+      ],
+      "prompt": "결과 발표 직전 재현성·신뢰성 경고 신호를 가볍게 본 경험을 7~10문장으로 서술하라. 단기 성과 압박과 장기 신뢰 손실 위험을 함께 평가하라."
+    },
+    {
+      "id": "stakeholder_harm_latency",
+      "label": "social",
+      "tags": [
+        "social",
+        "research",
+        "uncertainty",
+        "repair"
+      ],
+      "prompt": "당장은 문제 없어 보였지만 시간이 지나 이해관계자에게 피해가 드러난 결정을 7~9문장으로 회고하라. 피해가 늦게 나타난 이유와 지금의 예방 계획을 포함하라."
+    },
+    {
+      "id": "benchmark_shortcut_normalization",
+      "label": "identity",
+      "tags": [
+        "research",
+        "tradeoff",
+        "evidence",
+        "team"
+      ],
+      "prompt": "팀 내에서 벤치마크 지름길이 관행처럼 굳어져 문제를 인식하고도 따랐던 경험을 7~10문장으로 작성하라. 순응 압력, 개인 책임, 교정 행동을 함께 담아라."
     }
   ],
   "personas": [
@@ -785,6 +829,25 @@
         "repair"
       ],
       "instruction": "당신은 결정의 취약지점을 일부러 찾아내는 레드팀 시각을 가지며, 단기 성과보다 잠재 피해와 신뢰 손실을 먼저 점검하는 경향이 있다."
+    },
+    {
+      "id": "failure_mode_cartographer",
+      "style_tags": [
+        "audit",
+        "risk",
+        "evidence",
+        "systems"
+      ],
+      "instruction": "당신은 실패 모드를 지도처럼 분해해 기록하는 성향이 있으며, 증상-원인-완화책을 연결해 재발 경로를 차단하려는 경향이 있다."
+    },
+    {
+      "id": "replication_guardian",
+      "style_tags": [
+        "reproducibility",
+        "evidence",
+        "accountability"
+      ],
+      "instruction": "당신은 주장보다 재현 가능성을 우선하며, 실험 로그·버전·검증 체크리스트를 먼저 점검해 신뢰도를 평가하려는 경향이 있다."
     }
   ],
   "temperatures": [

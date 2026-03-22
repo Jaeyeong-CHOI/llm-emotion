@@ -192,6 +192,30 @@
         "risk_calibrated_repairer",
         "accountability_balancer"
       ]
+    },
+    {
+      "id": "repro_stress_v21",
+      "n": 12,
+      "seed": 6262,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "model_spec_drift_blindspot",
+        "retraction_risk_signal_ignored",
+        "stakeholder_harm_latency",
+        "benchmark_shortcut_normalization"
+      ],
+      "persona_ids": [
+        "failure_mode_cartographer",
+        "replication_guardian",
+        "process_auditor",
+        "risk_calibrated_repairer"
+      ]
     }
   ]
 }

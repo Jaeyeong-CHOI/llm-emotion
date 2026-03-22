@@ -285,6 +285,7 @@ def main():
     ap.add_argument("--require-min-personas", type=int, default=0, help="fail if a run selects fewer than this many personas")
     ap.add_argument("--fail-on-missing-run-id", action="store_true", help="fail when --include-run-id contains unknown ids")
     ap.add_argument("--manifest-markdown", action="store_true", help="emit a human-readable manifest summary markdown")
+    ap.add_argument("--require-min-run-cells", type=int, default=0, help="fail if selected run cells are fewer than this minimum")
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -322,6 +323,7 @@ def main():
     batch_started = time.perf_counter()
     run_metric_paths: dict[str, list[Path]] = {}
     executed = 0
+    selected_run_cells = 0
     include_run_ids = set(args.include_run_id)
     executed_ids = []
 
@@ -400,6 +402,7 @@ def main():
                 "metrics": str(metrics_path.relative_to(ROOT)),
                 "status": "planned",
             }
+            selected_run_cells += 1
 
             if run_key in completed:
                 row["status"] = "skipped_resume"
@@ -462,6 +465,11 @@ def main():
             executed += 1
             executed_ids.append(run_key)
 
+    if args.require_min_run_cells and selected_run_cells < args.require_min_run_cells:
+        raise RuntimeError(
+            f"selected_run_cells={selected_run_cells} < require_min_run_cells={args.require_min_run_cells}"
+        )
+
     summary = aggregate_metrics(all_metric_paths)
     run_id_summary = aggregate_by_run_id(run_metric_paths)
     snapshot_hashes = {
@@ -495,6 +503,7 @@ def main():
         "missing_run_ids": missing_run_ids,
         "plan_only": args.plan_only,
         "executed_run_keys": executed_ids,
+        "selected_run_cells": selected_run_cells,
         "duration_seconds": total_duration_seconds,
         "reproduce_script": str(reproduce_script.relative_to(ROOT)),
         "runs": runs,
@@ -534,6 +543,7 @@ def main():
 
     ok_n = sum(1 for r in runs if r.get("status") == "ok")
     print(f"[OK] executed {ok_n}/{len(runs)} run cells -> {outdir}")
+    print(f"selected_run_cells: {selected_run_cells}")
     if args.plan_only:
         print(f"planned_only: {sum(1 for r in runs if r.get('status') == 'planned_only')}")
     print(f"manifest: {manifest_path}")

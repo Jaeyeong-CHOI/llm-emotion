@@ -536,6 +536,53 @@ def summarize_priorities(rows: List[Dict]) -> Dict[str, int]:
     return out
 
 
+def summarize_confidence(rows: List[Dict]) -> Dict[str, int]:
+    out = {"high": 0, "medium": 0, "low": 0}
+    for r in rows:
+        c = (r.get("screening_confidence") or "low").lower()
+        out[c] = out.get(c, 0) + 1
+    return out
+
+
+def summarize_llm_concept(rows: List[Dict]) -> Dict[str, int]:
+    out = {"with_llm_concept": 0, "without_llm_concept": 0}
+    for r in rows:
+        features = r.get("screening_features") or {}
+        llm_hits = int(features.get("llm_concept_hits", 0) or 0)
+        if llm_hits > 0:
+            out["with_llm_concept"] += 1
+        else:
+            out["without_llm_concept"] += 1
+    return out
+
+
+def collect_borderline(rows: List[Dict], include_th: float, review_th: float, margin: float = 0.4) -> Dict[str, List[Dict]]:
+    include_borderline = []
+    review_borderline = []
+    for r in rows:
+        score = float(r.get("screening_score") or 0.0)
+        if r.get("screening_label") == "include" and abs(score - include_th) <= margin:
+            include_borderline.append(r)
+        if r.get("screening_label") == "review" and abs(score - review_th) <= margin:
+            review_borderline.append(r)
+    include_borderline = sorted(include_borderline, key=lambda x: x.get("screening_score", 0.0))[:25]
+    review_borderline = sorted(review_borderline, key=lambda x: x.get("screening_score", 0.0))[:25]
+    def compact(row: Dict) -> Dict:
+        return {
+            "title": row.get("title"),
+            "year": row.get("year"),
+            "score": row.get("screening_score"),
+            "label": row.get("screening_label"),
+            "confidence": row.get("screening_confidence"),
+            "priority": row.get("screening_priority"),
+            "reasons": row.get("screening_reasons", [])[:6],
+        }
+    return {
+        "include": [compact(r) for r in include_borderline],
+        "review": [compact(r) for r in review_borderline],
+    }
+
+
 def summarize_method_signal(rows: List[Dict]) -> Dict[str, int]:
     out = {"with_method_cues": 0, "without_method_cues": 0}
     for r in rows:
@@ -576,6 +623,7 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--screening-rules", default="queries/screening_rules.json")
     ap.add_argument("--report-out", default="", help="optional JSON report path for retrieval/screening diagnostics")
+    ap.add_argument("--audit-out", default="", help="optional JSON path for borderline/manual-QC screening candidates")
     args = ap.parse_args()
 
     cfg = json.loads(Path(args.config).read_text(encoding="utf-8"))
@@ -606,6 +654,8 @@ def main():
                 "method_signal": summarize_method_signal(normalized),
                 "bridge_signal": summarize_bridge_signal(normalized),
                 "include_guard": summarize_include_guard(normalized),
+                "confidence": summarize_confidence(normalized),
+                "llm_concept": summarize_llm_concept(normalized),
                 "top_score": max((r.get("screening_score", 0.0) for r in normalized), default=0.0),
             }
             time.sleep(0.5)
@@ -653,12 +703,45 @@ def main():
             "method_signal": summarize_method_signal(ordered),
             "bridge_signal": summarize_bridge_signal(ordered),
             "include_guard": summarize_include_guard(ordered),
+            "confidence": summarize_confidence(ordered),
+            "llm_concept": summarize_llm_concept(ordered),
             "per_query": query_stats,
             "top_priority_titles": [r.get("title") for r in ordered[:10] if r.get("screening_priority") == "high"],
         }
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"report: {report_path}")
 
+    if args.audit_out:
+        audit_path = Path(args.audit_out)
+        audit_path.parent.mkdir(parents=True, exist_ok=True)
+        include_th = float(rules.get("threshold_include", 3.0))
+        review_th = float(rules.get("threshold_review", include_th / 2))
+        audit_payload = {
+            "config": args.config,
+            "screening_rules": args.screening_rules,
+            "thresholds": {"include": include_th, "review": review_th},
+            "counts": {
+                "records": len(ordered),
+                "labels": summarize_labels(ordered),
+                "confidence": summarize_confidence(ordered),
+                "llm_concept": summarize_llm_concept(ordered),
+            },
+            "borderline": collect_borderline(ordered, include_th, review_th),
+            "exclude_high_score_without_llm": [
+                {
+                    "title": r.get("title"),
+                    "year": r.get("year"),
+                    "score": r.get("screening_score"),
+                    "reasons": r.get("screening_reasons", [])[:6],
+                }
+                for r in ordered
+                if r.get("screening_label") == "exclude"
+                and float(r.get("screening_score") or 0.0) >= review_th
+                and int(((r.get("screening_features") or {}).get("llm_concept_hits", 0) or 0)) == 0
+            ][:30],
+        }
+        audit_path.write_text(json.dumps(audit_payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"audit: {audit_path}")
 
 if __name__ == "__main__":
     main()
