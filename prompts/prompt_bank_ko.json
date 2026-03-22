@@ -1,5 +1,5 @@
 {
-  "version": "v5.4",
+  "version": "v5.5",
   "language": "ko",
   "scenarios": [
     {
@@ -1884,6 +1884,18 @@
         "governance"
       ],
       "prompt": "실험 러너에서 한 run-id가 연속 실패를 일으키는데도 즉시 차단하지 못해 배치가 지연된 사건을 7~10문장으로 회고하라. 연속 실패 기준을 어떻게 정의했는지, 차단 임계치와 재개 점검 절차를 포함하라."
+    },
+    {
+      "id": "screening_review_counterexample_traceability_audit",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "counterexample",
+        "traceability"
+      ],
+      "prompt": "review 후보의 핵심 주장과 반례 문장을 모두 찾았다고 생각했지만, 인용 근거의 traceability가 부족해 재판독이 필요했던 사례를 7~10문장으로 작성하라. 어떤 반례 문장이 누락됐는지, 근거 연결을 어떻게 보강했는지, 다음 스크리닝 체크리스트에 추가한 항목을 포함하라."
     }
   ],
   "personas": [
@@ -2880,6 +2892,16 @@
         "governance"
       ],
       "instruction": "당신은 run-id별 연속 실패를 우선 감시하는 성향이 있으며, 임계치 도달 시 남은 반복을 격리하고 재개 조건을 수치로 남긴다."
+    },
+    {
+      "id": "counterexample_traceability_auditor",
+      "style_tags": [
+        "screening",
+        "counterexample",
+        "traceability",
+        "audit"
+      ],
+      "instruction": "당신은 review 근거에서 반례 문장과 인용 traceability를 함께 점검하는 성향이 있으며, 반례가 확인되면 근거 링크/문장 위치를 재기록한 뒤에만 판단을 확정한다."
     }
   ],
   "temperatures": [

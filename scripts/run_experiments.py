@@ -773,6 +773,12 @@ def main():
         help="when --continue-on-error, stop batch after this many consecutive failed cells (0 = no limit)",
     )
     ap.add_argument(
+        "--max-failure-streak-per-run-id",
+        type=int,
+        default=0,
+        help="when --continue-on-error, skip remaining repeats for a run id after this many consecutive failed cells for that run id (0 = no limit)",
+    )
+    ap.add_argument(
         "--max-failed-cells-per-run-id",
         type=int,
         default=0,
@@ -966,6 +972,7 @@ def main():
     generation_attempts_by_run_id: dict[str, int] = {}
     analysis_attempts_by_run_id: dict[str, int] = {}
     failure_streak = 0
+    run_id_failure_streak: dict[str, int] = {}
     selected_run_cells = 0
     failed_cells_by_run_id: dict[str, int] = {}
     selected_total_samples = 0
@@ -1174,6 +1181,7 @@ def main():
                 all_metric_paths.append(metrics_path)
                 run_metric_paths.setdefault(run_id, []).append(metrics_path)
                 successful_cells_by_run_id[run_id] = successful_cells_by_run_id.get(run_id, 0) + 1
+                run_id_failure_streak[run_id] = 0
                 continue
 
             if args.max_runs > 0 and executed >= args.max_runs:
@@ -1227,6 +1235,7 @@ def main():
                 failed_cells += 1
                 failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
                 failure_streak += 1
+                run_id_failure_streak[run_id] = run_id_failure_streak.get(run_id, 0) + 1
                 if not args.continue_on_error:
                     raise RuntimeError(f"generation budget exceeded for {run_key}: {row['error']}")
                 if (
@@ -1236,6 +1245,17 @@ def main():
                     print(
                         "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
                         f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
+                if (
+                    args.max_failure_streak_per_run_id > 0
+                    and run_id_failure_streak.get(run_id, 0) >= args.max_failure_streak_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failure_streak reached max_failure_streak_per_run_id "
+                        f"({run_id}: {run_id_failure_streak.get(run_id, 0)}/{args.max_failure_streak_per_run_id}); "
                         "skipping remaining repeats for this run id"
                     )
                     run_id_blocked = True
@@ -1285,6 +1305,7 @@ def main():
                 failed_cells += 1
                 failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
                 failure_streak += 1
+                run_id_failure_streak[run_id] = run_id_failure_streak.get(run_id, 0) + 1
                 if not args.continue_on_error:
                     raise RuntimeError(f"generation failed for {run_key}: {err}")
                 if (
@@ -1294,6 +1315,17 @@ def main():
                     print(
                         "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
                         f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
+                if (
+                    args.max_failure_streak_per_run_id > 0
+                    and run_id_failure_streak.get(run_id, 0) >= args.max_failure_streak_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failure_streak reached max_failure_streak_per_run_id "
+                        f"({run_id}: {run_id_failure_streak.get(run_id, 0)}/{args.max_failure_streak_per_run_id}); "
                         "skipping remaining repeats for this run id"
                     )
                     run_id_blocked = True
@@ -1339,6 +1371,7 @@ def main():
                 failed_cells += 1
                 failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
                 failure_streak += 1
+                run_id_failure_streak[run_id] = run_id_failure_streak.get(run_id, 0) + 1
                 if not args.continue_on_error:
                     raise RuntimeError(f"cell attempt budget exceeded for {run_key}: {row['error']}")
                 if (
@@ -1348,6 +1381,17 @@ def main():
                     print(
                         "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
                         f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
+                if (
+                    args.max_failure_streak_per_run_id > 0
+                    and run_id_failure_streak.get(run_id, 0) >= args.max_failure_streak_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failure_streak reached max_failure_streak_per_run_id "
+                        f"({run_id}: {run_id_failure_streak.get(run_id, 0)}/{args.max_failure_streak_per_run_id}); "
                         "skipping remaining repeats for this run id"
                     )
                     run_id_blocked = True
@@ -1385,6 +1429,7 @@ def main():
                 failed_cells += 1
                 failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
                 failure_streak += 1
+                run_id_failure_streak[run_id] = run_id_failure_streak.get(run_id, 0) + 1
                 if not args.continue_on_error:
                     raise RuntimeError(f"run timeout for {run_key}: {row['error']}")
                 if (
@@ -1394,6 +1439,17 @@ def main():
                     print(
                         "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
                         f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
+                if (
+                    args.max_failure_streak_per_run_id > 0
+                    and run_id_failure_streak.get(run_id, 0) >= args.max_failure_streak_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failure_streak reached max_failure_streak_per_run_id "
+                        f"({run_id}: {run_id_failure_streak.get(run_id, 0)}/{args.max_failure_streak_per_run_id}); "
                         "skipping remaining repeats for this run id"
                     )
                     run_id_blocked = True
@@ -1436,6 +1492,7 @@ def main():
                 failed_cells += 1
                 failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
                 failure_streak += 1
+                run_id_failure_streak[run_id] = run_id_failure_streak.get(run_id, 0) + 1
                 if not args.continue_on_error:
                     raise RuntimeError(f"analysis budget exceeded for {run_key}: {row['error']}")
                 if (
@@ -1445,6 +1502,17 @@ def main():
                     print(
                         "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
                         f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
+                if (
+                    args.max_failure_streak_per_run_id > 0
+                    and run_id_failure_streak.get(run_id, 0) >= args.max_failure_streak_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failure_streak reached max_failure_streak_per_run_id "
+                        f"({run_id}: {run_id_failure_streak.get(run_id, 0)}/{args.max_failure_streak_per_run_id}); "
                         "skipping remaining repeats for this run id"
                     )
                     run_id_blocked = True
@@ -1494,6 +1562,7 @@ def main():
                 failed_cells += 1
                 failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
                 failure_streak += 1
+                run_id_failure_streak[run_id] = run_id_failure_streak.get(run_id, 0) + 1
                 if not args.continue_on_error:
                     raise RuntimeError(f"analysis failed for {run_key}: {err2}")
                 if (
@@ -1503,6 +1572,17 @@ def main():
                     print(
                         "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
                         f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
+                if (
+                    args.max_failure_streak_per_run_id > 0
+                    and run_id_failure_streak.get(run_id, 0) >= args.max_failure_streak_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failure_streak reached max_failure_streak_per_run_id "
+                        f"({run_id}: {run_id_failure_streak.get(run_id, 0)}/{args.max_failure_streak_per_run_id}); "
                         "skipping remaining repeats for this run id"
                     )
                     run_id_blocked = True
@@ -1549,6 +1629,7 @@ def main():
                 failed_cells += 1
                 failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
                 failure_streak += 1
+                run_id_failure_streak[run_id] = run_id_failure_streak.get(run_id, 0) + 1
                 if not args.continue_on_error:
                     raise RuntimeError(f"cell attempt budget exceeded for {run_key}: {row['error']}")
                 if (
@@ -1558,6 +1639,17 @@ def main():
                     print(
                         "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
                         f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
+                if (
+                    args.max_failure_streak_per_run_id > 0
+                    and run_id_failure_streak.get(run_id, 0) >= args.max_failure_streak_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failure_streak reached max_failure_streak_per_run_id "
+                        f"({run_id}: {run_id_failure_streak.get(run_id, 0)}/{args.max_failure_streak_per_run_id}); "
                         "skipping remaining repeats for this run id"
                     )
                     run_id_blocked = True
@@ -1597,6 +1689,7 @@ def main():
                 failed_cells += 1
                 failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
                 failure_streak += 1
+                run_id_failure_streak[run_id] = run_id_failure_streak.get(run_id, 0) + 1
                 if not args.continue_on_error:
                     raise RuntimeError(f"run timeout for {run_key}: {row['error']}")
                 if (
@@ -1606,6 +1699,17 @@ def main():
                     print(
                         "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
                         f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
+                if (
+                    args.max_failure_streak_per_run_id > 0
+                    and run_id_failure_streak.get(run_id, 0) >= args.max_failure_streak_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failure_streak reached max_failure_streak_per_run_id "
+                        f"({run_id}: {run_id_failure_streak.get(run_id, 0)}/{args.max_failure_streak_per_run_id}); "
                         "skipping remaining repeats for this run id"
                     )
                     run_id_blocked = True
@@ -1637,6 +1741,7 @@ def main():
             row["metrics_sha256"] = maybe_file_sha256(metrics_path)
             row["status"] = "ok"
             failure_streak = 0
+            run_id_failure_streak[run_id] = 0
             runs.append(row)
             all_metric_paths.append(metrics_path)
             run_metric_paths.setdefault(run_id, []).append(metrics_path)
@@ -1911,6 +2016,7 @@ def main():
         "max_failed_cells": args.max_failed_cells,
         "max_failure_rate": args.max_failure_rate,
         "max_failure_streak": args.max_failure_streak,
+        "max_failure_streak_per_run_id": args.max_failure_streak_per_run_id,
         "max_failed_cells_per_run_id": args.max_failed_cells_per_run_id,
         "failed_cells_by_run_id": failed_cells_by_run_id,
         "max_generation_attempts_total": args.max_generation_attempts_total,
@@ -1921,6 +2027,7 @@ def main():
         "generation_attempts_by_run_id": generation_attempts_by_run_id,
         "analysis_attempts_by_run_id": analysis_attempts_by_run_id,
         "final_failure_streak": failure_streak,
+        "final_run_id_failure_streak": run_id_failure_streak,
         "stopped_early": stop_requested,
         "selected_run_cells": selected_run_cells,
         "successful_cells": successful_cells,
