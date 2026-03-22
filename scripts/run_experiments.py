@@ -315,9 +315,13 @@ def build_budget_report(
     failed_cells_by_run_id: dict[str, int],
     generation_attempts_by_run_id: dict[str, int],
     analysis_attempts_by_run_id: dict[str, int],
+    generation_retries_by_run_id: dict[str, int],
+    analysis_retries_by_run_id: dict[str, int],
     selected_run_cells: int,
     generation_attempts_total: int,
     analysis_attempts_total: int,
+    generation_retries_total: int,
+    analysis_retries_total: int,
     failed_cells_total: int,
 ) -> dict:
     rows = []
@@ -325,7 +329,10 @@ def build_budget_report(
         selected_cells = int(selected_cells_by_run_id.get(run_id, 0) or 0)
         generation_attempts = int(generation_attempts_by_run_id.get(run_id, 0) or 0)
         analysis_attempts = int(analysis_attempts_by_run_id.get(run_id, 0) or 0)
+        generation_retries = int(generation_retries_by_run_id.get(run_id, 0) or 0)
+        analysis_retries = int(analysis_retries_by_run_id.get(run_id, 0) or 0)
         combined_attempts = generation_attempts + analysis_attempts
+        combined_retries = generation_retries + analysis_retries
         rows.append(
             {
                 "id": run_id,
@@ -345,6 +352,10 @@ def build_budget_report(
                 "generation_attempt_share": pct(generation_attempts, generation_attempts_total),
                 "analysis_attempts": analysis_attempts,
                 "analysis_attempt_share": pct(analysis_attempts, analysis_attempts_total),
+                "generation_retries": generation_retries,
+                "analysis_retries": analysis_retries,
+                "combined_retries": combined_retries,
+                "retry_share": pct(combined_retries, generation_retries_total + analysis_retries_total),
                 "combined_attempts": combined_attempts,
                 "combined_attempt_share": pct(
                     combined_attempts,
@@ -356,6 +367,13 @@ def build_budget_report(
                     4,
                 )
                 if selected_cells > 0 and (generation_attempts_total + analysis_attempts_total) > 0 and selected_run_cells > 0
+                else 0.0,
+                "retry_over_selection_ratio": round(
+                    pct(combined_retries, generation_retries_total + analysis_retries_total)
+                    / max(pct(selected_cells, selected_run_cells), 0.0001),
+                    4,
+                )
+                if selected_cells > 0 and (generation_retries_total + analysis_retries_total) > 0 and selected_run_cells > 0
                 else 0.0,
                 "generation_attempt_over_selection_ratio": round(
                     pct(generation_attempts, generation_attempts_total)
@@ -398,6 +416,8 @@ def build_budget_report(
     max_failed = max(rows, key=lambda row: (row["failed_cells"], row["id"]), default=None)
     max_failed_share = max(rows, key=lambda row: (row["failed_cell_share"], row["id"]), default=None)
     max_attempt_pressure = max(rows, key=lambda row: (row["attempt_over_selection_ratio"], row["id"]), default=None)
+    max_retry_share = max(rows, key=lambda row: (row["retry_share"], row["id"]), default=None)
+    max_retry_pressure = max(rows, key=lambda row: (row["retry_over_selection_ratio"], row["id"]), default=None)
     max_generation_attempt_pressure = max(rows, key=lambda row: (row["generation_attempt_over_selection_ratio"], row["id"]), default=None)
     max_analysis_attempt_pressure = max(rows, key=lambda row: (row["analysis_attempt_over_selection_ratio"], row["id"]), default=None)
     max_failure_pressure = max(rows, key=lambda row: (row["failure_over_selection_ratio"], row["id"]), default=None)
@@ -414,6 +434,9 @@ def build_budget_report(
             "selected_run_cells": selected_run_cells,
             "generation_attempts_total": generation_attempts_total,
             "analysis_attempts_total": analysis_attempts_total,
+            "generation_retries_total": generation_retries_total,
+            "analysis_retries_total": analysis_retries_total,
+            "combined_retries_total": generation_retries_total + analysis_retries_total,
             "combined_attempts_total": generation_attempts_total + analysis_attempts_total,
             "stage_total_attempt_gap_share": round(
                 abs(generation_attempts_total - analysis_attempts_total)
@@ -437,6 +460,10 @@ def build_budget_report(
             "max_failed_cell_share": (max_failed_share or {}).get("failed_cell_share", 0.0),
             "max_attempt_over_selection_ratio_run_id": (max_attempt_pressure or {}).get("id", ""),
             "max_attempt_over_selection_ratio": (max_attempt_pressure or {}).get("attempt_over_selection_ratio", 0.0),
+            "max_retry_share_run_id": (max_retry_share or {}).get("id", ""),
+            "max_retry_share": (max_retry_share or {}).get("retry_share", 0.0),
+            "max_retry_over_selection_ratio_run_id": (max_retry_pressure or {}).get("id", ""),
+            "max_retry_over_selection_ratio": (max_retry_pressure or {}).get("retry_over_selection_ratio", 0.0),
             "max_generation_attempt_over_selection_ratio_run_id": (max_generation_attempt_pressure or {}).get("id", ""),
             "max_generation_attempt_over_selection_ratio": (max_generation_attempt_pressure or {}).get("generation_attempt_over_selection_ratio", 0.0),
             "max_analysis_attempt_over_selection_ratio_run_id": (max_analysis_attempt_pressure or {}).get("id", ""),
@@ -461,10 +488,15 @@ def write_budget_report_markdown(path: Path, payload: dict):
         f"- selected_run_cells: `{summary.get('selected_run_cells', 0)}`",
         f"- generation_attempts_total: `{summary.get('generation_attempts_total', 0)}`",
         f"- analysis_attempts_total: `{summary.get('analysis_attempts_total', 0)}`",
+        f"- generation_retries_total: `{summary.get('generation_retries_total', 0)}`",
+        f"- analysis_retries_total: `{summary.get('analysis_retries_total', 0)}`",
+        f"- combined_retries_total: `{summary.get('combined_retries_total', 0)}`",
         f"- combined_attempts_total: `{summary.get('combined_attempts_total', 0)}`",
         f"- max_selected_cell_share: `{summary.get('max_selected_cell_share', 0.0)}` (`{summary.get('max_selected_cell_share_run_id', '')}`)",
         f"- max_combined_attempt_share: `{summary.get('max_combined_attempt_share', 0.0)}` (`{summary.get('max_combined_attempt_share_run_id', '')}`)",
         f"- max_attempt_over_selection_ratio: `{summary.get('max_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_attempt_over_selection_ratio_run_id', '')}`)",
+        f"- max_retry_share: `{summary.get('max_retry_share', 0.0)}` (`{summary.get('max_retry_share_run_id', '')}`)",
+        f"- max_retry_over_selection_ratio: `{summary.get('max_retry_over_selection_ratio', 0.0)}` (`{summary.get('max_retry_over_selection_ratio_run_id', '')}`)",
         f"- max_generation_attempt_over_selection_ratio: `{summary.get('max_generation_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_generation_attempt_over_selection_ratio_run_id', '')}`)",
         f"- max_analysis_attempt_over_selection_ratio: `{summary.get('max_analysis_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_analysis_attempt_over_selection_ratio_run_id', '')}`)",
         f"- max_failure_over_selection_ratio: `{summary.get('max_failure_over_selection_ratio', 0.0)}` (`{summary.get('max_failure_over_selection_ratio_run_id', '')}`)",
@@ -475,8 +507,8 @@ def write_budget_report_markdown(path: Path, payload: dict):
         f"- max_failed_cells: `{summary.get('max_failed_cells', 0)}` (`{summary.get('max_failed_cells_run_id', '')}`)",
         f"- max_failed_cell_share: `{summary.get('max_failed_cell_share', 0.0)}` (`{summary.get('max_failed_cell_share_run_id', '')}`)",
         "",
-        "| run_id | selected_cells | selected_share | success_rate | gen_attempts | gen_share | gen_pressure | ana_attempts | ana_share | ana_pressure | stage_share_gap | stage_imbalance_ratio | combined_share | attempt_pressure | failed_cells | failed_share | failure_pressure |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|", 
+        "| run_id | selected_cells | selected_share | success_rate | gen_attempts | gen_share | gen_pressure | ana_attempts | ana_share | ana_pressure | retries | retry_share | retry_pressure | stage_share_gap | stage_imbalance_ratio | combined_share | attempt_pressure | failed_cells | failed_share | failure_pressure |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|", 
     ]
     for row in payload.get("rows") or []:
         lines.append(
@@ -484,6 +516,7 @@ def write_budget_report_markdown(path: Path, payload: dict):
             f"{row.get('run_id_success_rate', 0.0)} | {row.get('generation_attempts', 0)} | "
             f"{row.get('generation_attempt_share', 0.0)} | {row.get('generation_attempt_over_selection_ratio', 0.0)} | "
             f"{row.get('analysis_attempts', 0)} | {row.get('analysis_attempt_share', 0.0)} | {row.get('analysis_attempt_over_selection_ratio', 0.0)} | "
+            f"{row.get('combined_retries', 0)} | {row.get('retry_share', 0.0)} | {row.get('retry_over_selection_ratio', 0.0)} | "
             f"{row.get('stage_attempt_share_gap', 0.0)} | {row.get('stage_attempt_imbalance_ratio', 0.0)} | {row.get('combined_attempt_share', 0.0)} | {row.get('attempt_over_selection_ratio', 0.0)} | "
             f"{row.get('failed_cells', 0)} | {row.get('failed_cell_share', 0.0)} | {row.get('failure_over_selection_ratio', 0.0)} |"
         )
@@ -917,6 +950,18 @@ def main():
         help="fail if a run id consumes attempts at more than this multiple of its selected-cell share; 0 disables",
     )
     ap.add_argument(
+        "--max-retry-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if a single run id consumes more than this share of retry attempts; 0 disables",
+    )
+    ap.add_argument(
+        "--max-retry-over-selection-ratio",
+        type=float,
+        default=0.0,
+        help="fail if a run id consumes retry attempts at more than this multiple of its selected-cell share; 0 disables",
+    )
+    ap.add_argument(
         "--max-generation-attempt-over-selection-ratio",
         type=float,
         default=0.0,
@@ -1089,8 +1134,12 @@ def main():
     analysis_successful_cells = 0
     generation_attempts_total = 0
     analysis_attempts_total = 0
+    generation_retries_total = 0
+    analysis_retries_total = 0
     generation_attempts_by_run_id: dict[str, int] = {}
     analysis_attempts_by_run_id: dict[str, int] = {}
+    generation_retries_by_run_id: dict[str, int] = {}
+    analysis_retries_by_run_id: dict[str, int] = {}
     failure_streak = 0
     generation_failure_streak = 0
     analysis_failure_streak = 0
@@ -1424,6 +1473,9 @@ def main():
             row["generation_attempts"] = len(gen_attempts)
             generation_attempts_total += len(gen_attempts)
             generation_attempts_by_run_id[run_id] = generation_attempts_by_run_id.get(run_id, 0) + len(gen_attempts)
+            generation_retries = max(0, len(gen_attempts) - 1)
+            generation_retries_total += generation_retries
+            generation_retries_by_run_id[run_id] = generation_retries_by_run_id.get(run_id, 0) + generation_retries
             if code != 0:
                 row["status"] = "failed_generation"
                 row["error"] = str(err).strip()
@@ -1703,6 +1755,9 @@ def main():
             row["analysis_attempts"] = len(analyze_attempts)
             analysis_attempts_total += len(analyze_attempts)
             analysis_attempts_by_run_id[run_id] = analysis_attempts_by_run_id.get(run_id, 0) + len(analyze_attempts)
+            analysis_retries = max(0, len(analyze_attempts) - 1)
+            analysis_retries_total += analysis_retries
+            analysis_retries_by_run_id[run_id] = analysis_retries_by_run_id.get(run_id, 0) + analysis_retries
             if code != 0:
                 row["status"] = "failed_analysis"
                 row["error"] = str(err2).strip()
@@ -2117,9 +2172,13 @@ def main():
         failed_cells_by_run_id=failed_cells_by_run_id,
         generation_attempts_by_run_id=generation_attempts_by_run_id,
         analysis_attempts_by_run_id=analysis_attempts_by_run_id,
+        generation_retries_by_run_id=generation_retries_by_run_id,
+        analysis_retries_by_run_id=analysis_retries_by_run_id,
         selected_run_cells=selected_run_cells,
         generation_attempts_total=generation_attempts_total,
         analysis_attempts_total=analysis_attempts_total,
+        generation_retries_total=generation_retries_total,
+        analysis_retries_total=analysis_retries_total,
         failed_cells_total=failed_cells,
     )
     if args.max_attempt_over_selection_ratio:
@@ -2132,6 +2191,28 @@ def main():
             raise RuntimeError(
                 "run-id attempt-over-selection ratio above ceiling "
                 f"{args.max_attempt_over_selection_ratio}: {', '.join(overpressured)}"
+            )
+    if args.max_retry_share_per_run_id:
+        over_retry_share = [
+            f"{row.get('id')}:{row.get('retry_share')}"
+            for row in budget_report.get("rows") or []
+            if float(row.get("retry_share") or 0.0) > args.max_retry_share_per_run_id
+        ]
+        if over_retry_share:
+            raise RuntimeError(
+                "run-id retry share above ceiling "
+                f"{args.max_retry_share_per_run_id}: {', '.join(over_retry_share)}"
+            )
+    if args.max_retry_over_selection_ratio:
+        over_retry_pressure = [
+            f"{row.get('id')}:{row.get('retry_over_selection_ratio')}"
+            for row in budget_report.get("rows") or []
+            if float(row.get("retry_over_selection_ratio") or 0.0) > args.max_retry_over_selection_ratio
+        ]
+        if over_retry_pressure:
+            raise RuntimeError(
+                "run-id retry-over-selection ratio above ceiling "
+                f"{args.max_retry_over_selection_ratio}: {', '.join(over_retry_pressure)}"
             )
     if args.max_generation_attempt_over_selection_ratio:
         overpressured_generation = [
@@ -2285,6 +2366,10 @@ def main():
         "analysis_success_rate": analysis_success_rate,
         "generation_attempts_total": generation_attempts_total,
         "analysis_attempts_total": analysis_attempts_total,
+        "generation_retries_total": generation_retries_total,
+        "analysis_retries_total": analysis_retries_total,
+        "generation_retries_by_run_id": generation_retries_by_run_id,
+        "analysis_retries_by_run_id": analysis_retries_by_run_id,
         "run_id_success_rates": run_id_success_rates,
         "selected_total_samples": selected_total_samples,
         "planned_samples_by_run": planned_samples_by_run,
@@ -2328,6 +2413,8 @@ def main():
         "max_attempt_share_per_run_id": args.max_attempt_share_per_run_id,
         "max_selected_cell_share_per_run_id": args.max_selected_cell_share_per_run_id,
         "max_attempt_over_selection_ratio": args.max_attempt_over_selection_ratio,
+        "max_retry_share_per_run_id": args.max_retry_share_per_run_id,
+        "max_retry_over_selection_ratio": args.max_retry_over_selection_ratio,
         "max_generation_attempt_over_selection_ratio": args.max_generation_attempt_over_selection_ratio,
         "max_analysis_attempt_over_selection_ratio": args.max_analysis_attempt_over_selection_ratio,
         "max_stage_attempt_share_gap_per_run_id": args.max_stage_attempt_share_gap_per_run_id,

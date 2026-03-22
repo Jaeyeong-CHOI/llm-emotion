@@ -1116,6 +1116,29 @@
         "stage_quota_controller",
         "live_budget_tripwire_operator"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_retry_pressure_v62",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "retry_pressure_balancer",
+        "stage_quota_controller",
+        "review_query_traceability_auditor",
+        "evidence_conflict_resolver"
+      ],
+      "n": 30,
+      "seed": 462,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_ids": [
+        "runner_retry_pressure_rebalance",
+        "screening_review_query_traceability_patch",
+        "prompt_bank_evidence_anchor_recovery_drill"
+      ]
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "version": "v6.1",
+  "version": "v6.2",
   "language": "ko",
   "scenarios": [
     {
@@ -2115,6 +2115,42 @@
         "governance"
       ],
       "prompt": "실험 러너에서 단계별 시도 점유율이 편향될 때 quota guard를 도입해 배치를 안정화했던 사건을 7~10문장으로 회고하라. 어떤 quota를 정의했는지, 임계치 초과 시 어떤 순서로 감속·격리·재개했는지, 현재 운영 규칙을 포함하라."
+    },
+    {
+      "id": "screening_review_query_traceability_patch",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "screening",
+        "traceability",
+        "query_governance",
+        "quality"
+      ],
+      "prompt": "문헌 스크리닝 review 표본에서 traceability 문장이 있는데 source_query가 비어 누락되던 문제를 수정한 과정을 7~10문장으로 서술하라. 누락 탐지 기준, 보정 규칙, 수동 QC에서 확인한 재발 방지 체크포인트를 포함하라."
+    },
+    {
+      "id": "prompt_bank_evidence_anchor_recovery_drill",
+      "label": "counterfactual",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "traceability",
+        "evidence",
+        "counterexample"
+      ],
+      "prompt": "증거 앵커가 약해진 프롬프트 뱅크를 복구하기 위해 어떤 counterexample-bridge 앵커 문장을 추가했는지 7~10문장으로 설명하라. 추가 전후의 실패 양상과 복구 후 품질 게이트 변화도 함께 기술하라."
+    },
+    {
+      "id": "runner_retry_pressure_rebalance",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "retry",
+        "budget_pressure",
+        "governance"
+      ],
+      "prompt": "실험 러너에서 특정 run id의 재시도가 과열될 때 retry pressure를 재균형한 운영 경험을 7~10문장으로 회고하라. 어떤 지표를 경보로 사용했고, 상한 초과 시 어떤 순서로 완화했는지 수치와 함께 제시하라."
     }
   ],
   "personas": [
@@ -3242,6 +3278,26 @@
         "governance"
       ],
       "instruction": "당신은 단계별 시도 quota를 관리하는 성향이 있으며, 생성/분석 단계 점유율이 임계치를 넘으면 즉시 감속·격리·재개 조건을 수치로 남긴다."
+    },
+    {
+      "id": "review_query_traceability_auditor",
+      "style_tags": [
+        "screening",
+        "traceability",
+        "query_governance",
+        "quality"
+      ],
+      "instruction": "당신은 review 표본의 traceability와 source_query 연결성을 감사하는 성향이며, 근거 문장이 있어도 쿼리 출처가 비면 즉시 수정 액션과 재검증 기준을 남긴다."
+    },
+    {
+      "id": "retry_pressure_balancer",
+      "style_tags": [
+        "runner",
+        "retry",
+        "budget_pressure",
+        "governance"
+      ],
+      "instruction": "당신은 retry pressure를 균형화하는 운영자 성향이며, run-id별 재시도 점유율이 임계치를 넘으면 단계별 완화·격리·복구 절차를 수치로 기록한다."
     }
   ],
   "temperatures": [
