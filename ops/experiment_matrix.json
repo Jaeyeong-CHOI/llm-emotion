@@ -541,6 +541,31 @@
         "failure_streak_controller",
         "resume_recovery_operator"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_autonomy_v39",
+      "n": 12,
+      "seed": 20808,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_manual_qc_recall_rescue",
+        "screening_keyword_semantic_shadow",
+        "prompt_bank_recall_counterweight_injection",
+        "runner_preflight_success_floor_tripwire",
+        "runner_failure_streak_circuit_breaker"
+      ],
+      "persona_ids": [
+        "recall_safety_analyst",
+        "retrieval_recall_mapper",
+        "prompt_balance_curator",
+        "success_floor_operator"
+      ]
     }
   ]
 }

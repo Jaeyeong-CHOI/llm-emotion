@@ -1,5 +1,5 @@
 {
-  "version": "v3.7",
+  "version": "v3.8",
   "language": "ko",
   "scenarios": [
     {
@@ -1311,6 +1311,39 @@
         "risk"
       ],
       "prompt": "실험 러너에서 연속 실패가 누적되자 회로 차단(circuit breaker) 기준으로 배치를 중단했던 경험을 7~10문장으로 회고하라. 어떤 실패 패턴을 연속 실패로 판정했는지, 중단 직전 신호, 복구 재개 조건을 포함하라."
+    },
+    {
+      "id": "screening_keyword_semantic_shadow",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "recall"
+      ],
+      "prompt": "검색 키워드가 표면적으로는 맞아 보였지만 의미 범위를 미묘하게 좁혀 핵심 논문을 가렸던 경험을 7~10문장으로 회고하라. 어떤 표현이 그림자(semantic shadow)를 만들었는지, 당시엔 왜 타당해 보였는지, 지금의 보강 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_recall_counterweight_injection",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "recall"
+      ],
+      "prompt": "프롬프트 뱅크가 특정 실패 서사에 쏠린 뒤 재현율 보호용 counterweight 프롬프트를 주입했던 경험을 7~9문장으로 작성하라. 어떤 축이 비어 있었는지, 추가 기준, 기존 비교 가능성 유지 원칙을 포함하라."
+    },
+    {
+      "id": "runner_preflight_success_floor_tripwire",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "risk"
+      ],
+      "prompt": "배치 실행에서 성공 셀 최소 기준(success floor)을 미리 설정해 조기 중단했던 사건을 7~10문장으로 회고하라. 어떤 지표를 트립와이어로 사용했는지, 중단의 단기 비용, 복구 재개 조건을 포함하라."
     }
   ],
   "personas": [
@@ -1907,6 +1940,26 @@
         "repair"
       ],
       "instruction": "당신은 연속 실패 패턴을 조기 차단하는 운영자 성향이 있으며, 중단 임계치·복구 조건·재개 순서를 분리해 기록한다."
+    },
+    {
+      "id": "retrieval_recall_mapper",
+      "style_tags": [
+        "audit",
+        "recall",
+        "triage",
+        "evidence"
+      ],
+      "instruction": "당신은 검색 누락 지형을 매핑하는 성향이 있으며, 미탐 위험이 큰 경계 사례를 먼저 분류하고 alias/쿼리 보강 우선순위를 근거와 함께 제시한다."
+    },
+    {
+      "id": "success_floor_operator",
+      "style_tags": [
+        "batch",
+        "reproducibility",
+        "risk",
+        "systems"
+      ],
+      "instruction": "당신은 배치 실행의 성공 최소선(success floor)을 관리하는 운영자 성향이 있으며, 실패율보다 성공 누적 추세를 먼저 점검해 중단/재개 결정을 기록한다."
     }
   ],
   "temperatures": [
