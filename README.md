@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year vs global known-query JS divergence 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-vs-global-known-query-js-divergence`)를 추가해, unknown-year 복구가 특정 query 군집으로만 치우치는 드리프트를 fail-fast로 차단합니다.
+- Prompt bank expanded to `v9.5` with **query-group tail floor tripwire / countervoice query-group intensity-band patch / timeout-over-selection ratio tripwire** 시나리오와 신규 페르소나(`query_group_tail_floor_guard_v95`, `countervoice_intensity_band_curator_v95`, `timeout_ratio_governor_v95`)를 추가했습니다.
+- Experiment runner preflight에 **planned-sample temperature top4 share/over-uniform guardrail** (`--max-planned-sample-temperature-top4-share`, `--max-planned-sample-temperature-top4-over-uniform-ratio`)를 추가해, top3가 통과해도 상위 4개 온도에 예산이 과집중되는 배치를 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year known-query top3 query concentration 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-top3-query-share`)를 추가해, unknown-year 복구 이후에도 소수 query로 재쏠림되는 케이스를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v9.3` with **unknown-year query gap tabletop / countervoice tail-temperature mesh / top3 uniformity repair** scenarios plus new personas (`unknown_year_query_balance_operator_v93`, `temperature_top3_uniformity_guard_v93`).
 - Experiment runner preflight에 **planned-sample temperature top3-over-uniform ratio guardrail** (`--max-planned-sample-temperature-top3-over-uniform-ratio`)를 추가해, top3 share가 통과해도 균등 분포 대비 과열된 온도 쏠림을 사전에 차단합니다.
@@ -80,6 +83,14 @@ python3 scripts/generate_dataset.py \
 
 ## Experiment reproducibility
 - Run definitions live in `ops/experiment_matrix.json`
+
+### v9.5 스모크 프리플라이트 (2026-03-23)
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v95 --max-manual-qc-review-traceable-known-query-unknown-year-top1-query-share 0.65 --max-manual-qc-review-traceable-known-query-unknown-year-top2-query-share 0.90 --max-manual-qc-review-traceable-known-query-unknown-year-top3-query-share 0.97 --min-manual-qc-review-traceable-known-query-unknown-year-query-coverage 3 --min-manual-qc-review-traceable-known-query-unknown-year-query-entropy 0.40 --max-manual-qc-review-traceable-known-query-unknown-year-vs-global-known-query-js-divergence 0.30
+
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v95_plan --plan-only --include-run-id screening_prompt_runner_query_group_timeout_ratio_v95 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v95.json --selection-csv results/selection_report_smoke_v95.csv --preflight-markdown --require-prompt-bank-version v9.5 --min-planned-sample-temperature-entropy 0.90 --max-planned-sample-temperature-top3-share 0.95 --max-planned-sample-temperature-top4-share 0.98 --max-planned-sample-temperature-top4-over-uniform-ratio 1.25 --manifest-note "preflight v95 query-group tail + timeout-ratio + temperature top4 guard"
+```
 
 ### v9.3 스모크 프리플라이트 (2026-03-23)
 

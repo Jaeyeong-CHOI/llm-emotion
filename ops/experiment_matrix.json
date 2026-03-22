@@ -1958,6 +1958,33 @@
       "n": 28,
       "seed": 9401,
       "repeats": 2
+    },
+    {
+      "id": "screening_prompt_runner_query_group_timeout_ratio_v95",
+      "description": "v9.5 query-group tail floor 복구 + countervoice intensity-band parity + timeout-over-selection ratio tripwire smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_review_query_group_tail_floor_tripwire_v95",
+        "prompt_bank_countervoice_query_group_intensity_band_patch_v95",
+        "runner_timeout_share_vs_selection_ratio_tripwire_v95",
+        "screening_query_group_entropy_recovery_v94"
+      ],
+      "persona_ids": [
+        "query_group_tail_floor_guard_v95",
+        "countervoice_intensity_band_curator_v95",
+        "timeout_ratio_governor_v95",
+        "timeout_share_governor_v94"
+      ],
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "n": 28,
+      "seed": 9501,
+      "repeats": 2
     }
   ]
 }
