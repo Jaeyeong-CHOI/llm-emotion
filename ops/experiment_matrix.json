@@ -791,6 +791,31 @@
         "countervoice_balance_keeper",
         "attempt_log_forensics_operator"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_fairness_v49",
+      "n": 12,
+      "seed": 31919,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_bridge_evidence_traceback",
+        "screening_reason_traceability_gap",
+        "prompt_bank_countervoice_pair_rotation",
+        "runner_attempt_budget_fairness_guard",
+        "runner_attempt_log_granularity_debt"
+      ],
+      "persona_ids": [
+        "evidence_traceback_moderator",
+        "countervoice_rotation_planner",
+        "cell_budget_fairness_operator",
+        "attempt_log_forensics_operator"
+      ]
     }
   ]
 }

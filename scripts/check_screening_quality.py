@@ -99,6 +99,8 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_review_share: `{payload['summary']['manual_qc_review_share']}`",
             f"- manual_qc_review_confidence_bins: `{payload['summary']['manual_qc_review_confidence_bins']}`",
             f"- manual_qc_review_confidence_entropy: `{payload['summary']['manual_qc_review_confidence_entropy']}`",
+            f"- traceable_reason_rows: `{payload['summary']['traceable_reason_rows']}`",
+            f"- screening_reason_traceability_share: `{payload['summary']['screening_reason_traceability_share']}`",
             f"- manual_qc_label_counts: `{payload['summary']['manual_qc_label_counts']}`",
             f"- manual_qc_source_group_diversity: `{payload['summary']['manual_qc_source_group_diversity']}`",
             f"- manual_qc_single_query_share: `{payload['summary']['manual_qc_single_query_share']}`",
@@ -161,6 +163,7 @@ def main():
     ap.add_argument("--min-manual-qc-review-reason-entropy", type=float, default=0.35)
     ap.add_argument("--min-manual-qc-review-confidence-bins", type=int, default=2)
     ap.add_argument("--min-manual-qc-review-confidence-entropy", type=float, default=0.4)
+    ap.add_argument("--min-screening-reason-traceability-share", type=float, default=0.6)
     ap.add_argument("--max-manual-qc-unknown-query-share", type=float, default=0.20)
     ap.add_argument("--min-manual-qc-year-diversity", type=int, default=3)
     ap.add_argument("--max-manual-qc-single-year-share", type=float, default=0.5)
@@ -271,6 +274,13 @@ def main():
         else 0.0
     )
     empty_screening_reason_share = pct(empty_screening_reason_rows, len(manual_qc_rows))
+    traceability_tokens = ("include_hits=", "title_hits=", "query_overlap=", "bridge_sentence_hits=", "high_priority=")
+    traceable_reason_rows = sum(
+        1
+        for row in manual_qc_rows
+        if any(token in str(row.get("screening_reasons") or "") for token in traceability_tokens)
+    )
+    screening_reason_traceability_share = pct(traceable_reason_rows, len(manual_qc_rows))
     unknown_query_rows = int(manual_qc_source_query_counts.get("unknown", 0) or 0)
     manual_qc_unknown_query_share = pct(unknown_query_rows, len(manual_qc_rows))
     screening_reason_entropy = normalized_entropy(screening_reason_counts)
@@ -453,6 +463,14 @@ def main():
             "threshold": f">={args.min_manual_qc_review_confidence_entropy}",
         },
         {
+            "name": "screening_reason_traceability_share_floor",
+            "status": "pass"
+            if screening_reason_traceability_share >= args.min_screening_reason_traceability_share
+            else "fail",
+            "observed": screening_reason_traceability_share,
+            "threshold": f">={args.min_screening_reason_traceability_share}",
+        },
+        {
             "name": "manual_qc_year_diversity_floor",
             "status": "pass" if manual_qc_year_diversity >= args.min_manual_qc_year_diversity else "fail",
             "observed": manual_qc_year_diversity,
@@ -592,6 +610,8 @@ def main():
             "manual_qc_review_share": manual_qc_review_share,
             "manual_qc_review_confidence_bins": manual_qc_review_confidence_bins,
             "manual_qc_review_confidence_entropy": manual_qc_review_confidence_entropy,
+            "traceable_reason_rows": traceable_reason_rows,
+            "screening_reason_traceability_share": screening_reason_traceability_share,
             "manual_qc_review_confidence_counts": review_confidence_counts,
             "manual_qc_label_counts": manual_qc_label_counts,
             "manual_qc_source_group_diversity": manual_qc_source_group_diversity,
