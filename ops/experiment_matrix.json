@@ -316,6 +316,56 @@
         "hash_integrity_sentinel",
         "resume_consistency_checker"
       ]
+    },
+    {
+      "id": "multilingual_screening_calibration_v33",
+      "n": 12,
+      "seed": 11717,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "cross_lingual_annotation_drift",
+        "fine_grained_emotion_boundary_case",
+        "manual_qc_escalation_handoff",
+        "screening_alias_coverage_gap",
+        "screening_conflict_resolution_loop"
+      ],
+      "persona_ids": [
+        "cross_lingual_calibrator",
+        "emotion_taxonomy_auditor",
+        "manual_qc_triage_lead",
+        "screening_conflict_mediator"
+      ]
+    },
+    {
+      "id": "batch_recovery_runner_v33",
+      "n": 12,
+      "seed": 12828,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "batch_resume_after_partial_failure",
+        "resume_hash_mismatch_incident",
+        "preflight_coverage_floor_enforcement",
+        "runner_partial_resume_duplicate",
+        "runner_preflight_gate_miss"
+      ],
+      "persona_ids": [
+        "batch_recovery_planner",
+        "runner_reliability_architect",
+        "hash_integrity_sentinel",
+        "preflight_gate_keeper"
+      ]
     }
   ]
 }

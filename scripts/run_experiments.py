@@ -125,6 +125,11 @@ def write_json(path: Path, payload: dict):
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def append_jsonl(path: Path, payload: dict):
+    with path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(payload, ensure_ascii=False) + "\n")
+
+
 def write_runs_csv(path: Path, runs: list[dict]):
     if not runs:
         return
@@ -344,6 +349,53 @@ def maybe_file_sha256(path: Path) -> str:
     return file_sha256(path)
 
 
+def load_run_ids_from_file(path: Path) -> set[str]:
+    run_ids = set()
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        run_ids.add(line)
+    return run_ids
+
+
+def execute_with_retries(
+    cmd: str,
+    *,
+    run_key: str,
+    stage: str,
+    max_retries: int,
+    retry_backoff_seconds: float,
+    execution_log_path: Path | None,
+) -> tuple[int, str, str, list[dict]]:
+    attempts = []
+    for attempt_index in range(max_retries + 1):
+        started_at = dt.datetime.now(dt.UTC).isoformat(timespec="seconds")
+        code, out, err = run(cmd)
+        finished_at = dt.datetime.now(dt.UTC).isoformat(timespec="seconds")
+        attempt_payload = {
+            "run_key": run_key,
+            "stage": stage,
+            "attempt": attempt_index + 1,
+            "max_retries": max_retries,
+            "started_at_utc": started_at,
+            "finished_at_utc": finished_at,
+            "return_code": code,
+            "stdout": out,
+            "stderr": err,
+            "command": cmd,
+        }
+        attempts.append(attempt_payload)
+        if execution_log_path is not None:
+            append_jsonl(execution_log_path, attempt_payload)
+        if code == 0:
+            return code, out, err, attempts
+        if attempt_index < max_retries and retry_backoff_seconds > 0:
+            time.sleep(retry_backoff_seconds)
+    last = attempts[-1]
+    return int(last["return_code"]), str(last["stdout"]), str(last["stderr"]), attempts
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="ops/experiment_matrix.json")
@@ -358,6 +410,7 @@ def main():
     ap.add_argument("--max-runs", type=int, default=0, help="optional cap on number of run cells executed")
     ap.add_argument("--plan-only", action="store_true", help="write manifest/plan without executing generation or analysis")
     ap.add_argument("--include-run-id", action="append", default=[], help="restrict execution to specific run id(s)")
+    ap.add_argument("--run-id-file", default="", help="optional text file with one run id per line")
     ap.add_argument("--manifest-note", default="", help="free-text note stored in manifest for traceability")
     ap.add_argument("--strict-clean", action="store_true", help="fail if git working tree is dirty")
     ap.add_argument("--list-run-ids", action="store_true", help="print run ids from config and exit")
@@ -410,6 +463,18 @@ def main():
         default=[],
         help="relative path(s) that must exist before execution for evidence freeze discipline",
     )
+    ap.add_argument("--max-retries", type=int, default=0, help="retry each generation/analysis command up to N additional times")
+    ap.add_argument(
+        "--retry-backoff-seconds",
+        type=float,
+        default=0.0,
+        help="sleep duration between retries when --max-retries > 0",
+    )
+    ap.add_argument(
+        "--execution-log-jsonl",
+        default="",
+        help="optional JSONL path for per-attempt command logs (defaults to <outdir>/<run-label>/command_log.jsonl)",
+    )
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -440,6 +505,9 @@ def main():
     outdir.mkdir(parents=True, exist_ok=True)
     snapshots_dir = outdir / "snapshots"
     snapshots_dir.mkdir(exist_ok=True)
+    execution_log_path = ROOT / args.execution_log_jsonl if args.execution_log_jsonl else outdir / "command_log.jsonl"
+    if execution_log_path.parent != outdir.parent:
+        execution_log_path.parent.mkdir(parents=True, exist_ok=True)
 
     manifest_path = outdir / "manifest.json"
     existing_manifest = {}
@@ -492,6 +560,11 @@ def main():
     planned_samples_by_run: dict[str, int] = {}
     run_preflight_rows: list[dict] = []
     include_run_ids = set(args.include_run_id)
+    if args.run_id_file:
+        run_id_file = ROOT / args.run_id_file
+        if not run_id_file.exists():
+            raise FileNotFoundError(f"run id file not found: {run_id_file}")
+        include_run_ids |= load_run_ids_from_file(run_id_file)
     selected_run_ids = set()
     executed_ids = []
     prompt_bank_versions = set()
@@ -711,11 +784,27 @@ def main():
                 continue
 
             cell_started = time.perf_counter()
-            code, _, err = run(gen_cmd)
+            code, _, err, gen_attempts = execute_with_retries(
+                gen_cmd,
+                run_key=run_key,
+                stage="generate_dataset",
+                max_retries=max(0, args.max_retries),
+                retry_backoff_seconds=max(0.0, args.retry_backoff_seconds),
+                execution_log_path=execution_log_path,
+            )
+            row["generation_attempts"] = len(gen_attempts)
             if code != 0:
                 raise RuntimeError(f"generation failed for {run_key}: {err}")
 
-            code, _, err2 = run(analyze_cmd)
+            code, _, err2, analyze_attempts = execute_with_retries(
+                analyze_cmd,
+                run_key=run_key,
+                stage="analyze_regret_markers",
+                max_retries=max(0, args.max_retries),
+                retry_backoff_seconds=max(0.0, args.retry_backoff_seconds),
+                execution_log_path=execution_log_path,
+            )
+            row["analysis_attempts"] = len(analyze_attempts)
             if code != 0:
                 raise RuntimeError(f"analysis failed for {run_key}: {err2}")
 
@@ -831,6 +920,10 @@ def main():
         "require_prompt_bank_version": args.require_prompt_bank_version,
         "resume_verify_hashes": args.resume_verify_hashes,
         "resume_verified": resume_verified,
+        "run_id_file": args.run_id_file,
+        "max_retries": args.max_retries,
+        "retry_backoff_seconds": args.retry_backoff_seconds,
+        "execution_log_jsonl": str(execution_log_path.relative_to(ROOT)),
         "require_freeze_artifacts": args.require_freeze_artifact,
         "freeze_artifacts": freeze_artifacts,
         "run_preflight": run_preflight_rows,

@@ -1,5 +1,5 @@
 {
-  "version": "v3.2",
+  "version": "v3.3",
   "language": "ko",
   "scenarios": [
     {
@@ -1080,6 +1080,50 @@
         "triage"
       ],
       "prompt": "preflight 최소 커버리지 기준(시나리오/페르소나/온도 다양성)을 엄격히 적용해 실행을 보류했던 경험을 7~9문장으로 작성하라. 보류의 단기 비용과 장기 신뢰 이득을 함께 평가하라."
+    },
+    {
+      "id": "cross_lingual_annotation_drift",
+      "label": "research",
+      "tags": [
+        "research",
+        "multilingual",
+        "annotation",
+        "drift"
+      ],
+      "prompt": "한국어와 영어 감정 라벨 기준이 미묘하게 어긋나 스크리닝 판단이 흔들렸던 순간을 7~9문장으로 회고하라. 어떤 표현이 충돌을 만들었는지, 교정 규칙을 어떻게 만들었는지, 아직 남은 모호성을 포함하라."
+    },
+    {
+      "id": "fine_grained_emotion_boundary_case",
+      "label": "emotion",
+      "tags": [
+        "emotion",
+        "annotation",
+        "calibration",
+        "boundary"
+      ],
+      "prompt": "후회와 수치심, 혹은 박탈감과 분노가 겹쳐 보이는 경계 사례를 7~10문장으로 기술하라. 감정을 하나로 단순화하지 말고 왜 분류가 어려운지와 판정 근거를 함께 적어라."
+    },
+    {
+      "id": "manual_qc_escalation_handoff",
+      "label": "research",
+      "tags": [
+        "research",
+        "audit",
+        "handoff",
+        "triage"
+      ],
+      "prompt": "수동 QC 큐에서 고위험 논문을 다음 검토자에게 넘기며 판단 근거를 정리했던 장면을 7~9문장으로 작성하라. 무엇을 확정했고 무엇을 보류했는지, 재검토 체크포인트를 포함하라."
+    },
+    {
+      "id": "batch_resume_after_partial_failure",
+      "label": "research",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "repair"
+      ],
+      "prompt": "배치 실험이 일부 셀에서만 실패한 뒤 재시도 정책을 설계했던 경험을 7~10문장으로 서술하라. 무엇을 재실행했고 무엇을 그대로 두었는지, 로그와 체크포인트를 어떻게 사용했는지 포함하라."
     }
   ],
   "personas": [
@@ -1506,6 +1550,46 @@
         "accountability"
       ],
       "instruction": "당신은 산출물 무결성을 우선 점검하며, 해시/버전/메타데이터 불일치가 있으면 해석을 중단하고 복구 순서를 명시하는 경향이 있다."
+    },
+    {
+      "id": "cross_lingual_calibrator",
+      "style_tags": [
+        "multilingual",
+        "calibration",
+        "annotation",
+        "evidence"
+      ],
+      "instruction": "당신은 언어 간 감정 표현 차이를 정교하게 교정하는 성향이 있으며, 번역 손실과 라벨 경계의 흔들림을 분리해서 기록하고 근거 문장을 함께 남긴다."
+    },
+    {
+      "id": "emotion_taxonomy_auditor",
+      "style_tags": [
+        "emotion",
+        "annotation",
+        "calibration",
+        "analysis"
+      ],
+      "instruction": "당신은 감정 범주를 거칠게 뭉개지 않는 성향이 있으며, 후회·수치심·박탈감·분노의 경계를 비교하고 분류 근거를 계층적으로 정리한다."
+    },
+    {
+      "id": "manual_qc_triage_lead",
+      "style_tags": [
+        "audit",
+        "handoff",
+        "triage",
+        "accountability"
+      ],
+      "instruction": "당신은 수동 QC 큐를 운영하는 리드 성향이 있으며, 검토 우선순위와 보류 사유를 분리해 전달하고 다음 검토자가 바로 이어받을 수 있게 체크포인트를 남긴다."
+    },
+    {
+      "id": "batch_recovery_planner",
+      "style_tags": [
+        "reproducibility",
+        "batch",
+        "repair",
+        "systems"
+      ],
+      "instruction": "당신은 부분 실패 이후 배치 복구 경로를 설계하는 성향이 있으며, 재시도 범위·상태 일관성·로그 점검 순서를 먼저 확정한 뒤 실행을 재개한다."
     }
   ],
   "temperatures": [

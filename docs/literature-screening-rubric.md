@@ -83,6 +83,24 @@ python3 scripts/search_openalex.py \
 
 `--manual-qc-csv results/manual_qc_queue.csv` exports the ranked triage queue in spreadsheet-ready form (`rank`, `risk_score`, `label`, `title`, `openalex_id`, `doi`, `source_query`, reason columns) for reproducible human screening handoff.
 
+## Quality gate checkpoint
+After generating the screening artifacts, run:
+
+```bash
+python3 scripts/check_screening_quality.py \
+  --report results/lit_search_report.json \
+  --audit results/lit_screening_audit.json \
+  --manual-qc-csv results/manual_qc_queue.csv \
+  --out results/screening_quality_report.json \
+  --out-md results/screening_quality_report.md \
+  --run-label screening_qc_v33
+```
+
+This checkpoint freezes:
+- threshold pass/fail status for deduped volume, manual-QC coverage, low-confidence share, zero-hit alias count, and near-threshold gate failures
+- top QC risk reasons and balanced manual-QC distribution by label/confidence
+- query-drift term suggestions that should be considered before changing retrieval rules
+
 ## Why this helps
 - Better recall on lexical variants without giving up reproducibility
 - Makes alias/개념군 누락을 직접 계량화해 쿼리·규칙 보강 우선순위를 정할 수 있음
