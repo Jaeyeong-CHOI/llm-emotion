@@ -76,6 +76,7 @@ DEFAULT_SCREENING_RULES = {
         "method_cue": 0.6,
         "recency_year": 0.08,
         "abstract_density": 0.25,
+        "bridge_sentence": 0.45,
     },
     "penalties": {
         "exclude_hit": 2.0,
@@ -98,6 +99,8 @@ DEFAULT_SCREENING_RULES = {
         "max_penalty_for_include": 0.5,
         "min_concept_diversity": 2,
         "min_abstract_tokens_for_include": 50,
+        "require_title_or_bridge_signal": True,
+        "min_bridge_sentence_hits": 1,
     },
 }
 
@@ -164,6 +167,25 @@ def _token_count(text: str) -> int:
     return len(re.findall(r"\w+", text or ""))
 
 
+def _split_sentences(text: str) -> List[str]:
+    if not text:
+        return []
+    parts = re.split(r"(?<=[.!?])\s+", text)
+    return [p.strip().lower() for p in parts if p and p.strip()]
+
+
+def _bridge_sentence_hits(text: str, group_a: Sequence[str], group_b: Sequence[str], rules: Dict) -> int:
+    # Count sentences containing at least one term from each concept group.
+    sentences = _split_sentences(text)
+    hits = 0
+    for sent in sentences:
+        a_hit = bool(_hit_terms(sent, group_a, rules))
+        b_hit = bool(_hit_terms(sent, group_b, rules))
+        if a_hit and b_hit:
+            hits += 1
+    return hits
+
+
 def _priority_label(label: str, exclude_hits: List[str], missing_groups: int, review_hits: List[str], score: float) -> str:
     if label == "include":
         return "high"
@@ -212,6 +234,11 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     review_priority_bonus = len(review_hits) * float(weights.get("review_priority", 0.5))
     method_cue_bonus = len(method_hits) * float(weights.get("method_cue", 0.6))
 
+    bridge_sentence_hits = 0
+    if len(concept_groups) >= 2:
+        bridge_sentence_hits = _bridge_sentence_hits(abstract_l, concept_groups[0], concept_groups[1], rules)
+    bridge_sentence_bonus = bridge_sentence_hits * float(weights.get("bridge_sentence", 0.45))
+
     current_year = time.gmtime().tm_year
     span = max(1, int(rules.get("max_recent_year_bonus_span", 6) or 6))
     recency_delta = max(0, min(span, current_year - (year or current_year)))
@@ -257,6 +284,7 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
         + method_cue_bonus
         + recency_bonus
         + density_bonus
+        + bridge_sentence_bonus
         - penalty_exclude
         - penalty_missing_group
         - lang_penalty
@@ -276,6 +304,8 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     max_penalty_for_include = float(include_constraints.get("max_penalty_for_include", 999.0) or 999.0)
     min_concept_diversity = int(include_constraints.get("min_concept_diversity", 0) or 0)
     min_abstract_tokens_for_include = int(include_constraints.get("min_abstract_tokens_for_include", 0) or 0)
+    require_title_or_bridge_signal = bool(include_constraints.get("require_title_or_bridge_signal", False))
+    min_bridge_sentence_hits = int(include_constraints.get("min_bridge_sentence_hits", 0) or 0)
 
     include_gate_ok = True
     if min_include_hits and len(include_hits) < min_include_hits:
@@ -285,6 +315,10 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     if min_concept_diversity and concept_diversity < min_concept_diversity:
         include_gate_ok = False
     if min_abstract_tokens_for_include and abstract_tokens < min_abstract_tokens_for_include:
+        include_gate_ok = False
+    if min_bridge_sentence_hits and bridge_sentence_hits < min_bridge_sentence_hits:
+        include_gate_ok = False
+    if require_title_or_bridge_signal and not (title_hits or bridge_sentence_hits > 0):
         include_gate_ok = False
 
     total_penalty = round(
@@ -328,19 +362,25 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
         reasons.append(f"before_min_year={year}")
     if short_abstract_penalty:
         reasons.append(f"short_abstract_tokens={abstract_tokens}")
+    if bridge_sentence_hits:
+        reasons.append(f"bridge_sentence_hits={bridge_sentence_hits}")
     if not include_gate_ok:
         reasons.append("include_gate=failed")
         if min_concept_diversity and concept_diversity < min_concept_diversity:
             reasons.append(f"low_concept_diversity={concept_diversity}")
         if min_abstract_tokens_for_include and abstract_tokens < min_abstract_tokens_for_include:
             reasons.append(f"include_abstract_tokens_too_short={abstract_tokens}")
+        if min_bridge_sentence_hits and bridge_sentence_hits < min_bridge_sentence_hits:
+            reasons.append(f"bridge_sentence_too_low={bridge_sentence_hits}")
+        if require_title_or_bridge_signal and not (title_hits or bridge_sentence_hits > 0):
+            reasons.append("no_title_or_bridge_signal")
     if include_gate_ok and not include_guard_ok and weighted_score >= include_threshold:
         reasons.append("include_guard=failed")
 
     confidence = "high"
     if missing_groups > 0 or total_penalty > max_penalty_for_include:
         confidence = "low"
-    elif abstract_tokens < max(min_abstract_tokens, 60) or concept_diversity < 2:
+    elif abstract_tokens < max(min_abstract_tokens, 60) or concept_diversity < 2 or bridge_sentence_hits == 0:
         confidence = "medium"
 
     return {
@@ -366,6 +406,8 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
             "type": pub_type,
             "year": year,
             "recency_bonus": round(recency_bonus, 4),
+            "bridge_sentence_hits": bridge_sentence_hits,
+            "bridge_sentence_bonus": round(bridge_sentence_bonus, 4),
             "total_penalty": total_penalty,
             "include_margin": include_margin,
             "include_gate_ok": include_gate_ok,
@@ -485,6 +527,18 @@ def summarize_include_guard(rows: List[Dict]) -> Dict[str, int]:
     return out
 
 
+def summarize_bridge_signal(rows: List[Dict]) -> Dict[str, int]:
+    out = {"with_bridge_sentence": 0, "without_bridge_sentence": 0}
+    for r in rows:
+        features = r.get("screening_features") or {}
+        bridge_hits = int(features.get("bridge_sentence_hits", 0) or 0)
+        if bridge_hits > 0:
+            out["with_bridge_sentence"] += 1
+        else:
+            out["without_bridge_sentence"] += 1
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
@@ -519,6 +573,7 @@ def main():
                 "labels": summarize_labels(normalized),
                 "priorities": summarize_priorities(normalized),
                 "method_signal": summarize_method_signal(normalized),
+                "bridge_signal": summarize_bridge_signal(normalized),
                 "include_guard": summarize_include_guard(normalized),
                 "top_score": max((r.get("screening_score", 0.0) for r in normalized), default=0.0),
             }
@@ -565,6 +620,7 @@ def main():
             "labels": summarize_labels(ordered),
             "priorities": summarize_priorities(ordered),
             "method_signal": summarize_method_signal(ordered),
+            "bridge_signal": summarize_bridge_signal(ordered),
             "include_guard": summarize_include_guard(ordered),
             "per_query": query_stats,
             "top_priority_titles": [r.get("title") for r in ordered[:10] if r.get("screening_priority") == "high"],

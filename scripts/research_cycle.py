@@ -42,6 +42,8 @@ def main():
             "python3 scripts/generate_dataset.py --out data/raw/mock_generations.jsonl --n 10 --seed 42 --prompt-bank prompts/prompt_bank_ko.json",
         ),
         ("mock_analyze", "python3 scripts/analyze_regret_markers.py --in data/raw/mock_generations.jsonl --out results/mock_metrics.json"),
+        ("snapshot_cron_status", "python3 scripts/snapshot_cron_status.py"),
+        ("update_live_status", "python3 scripts/update_live_status.py"),
     ]
 
     for name, cmd in steps:

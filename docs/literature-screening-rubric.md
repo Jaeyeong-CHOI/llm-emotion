@@ -1,4 +1,4 @@
-# Literature Screening Rubric (v0.8)
+# Literature Screening Rubric (v0.9)
 
 This repository applies a weighted, auditable screening layer during OpenAlex ingestion.
 
@@ -28,6 +28,7 @@ This repository applies a weighted, auditable screening layer during OpenAlex in
    - method-cue bonus (explicit study design/annotation cues)
    - recency bonus (bounded year-aware preference)
    - abstract-density bonus for concentrated relevance signals
+   - bridge-sentence bonus when the abstract contains at least one sentence that jointly mentions an LLM concept and a target affect/counterfactual concept
 3. Penalties remain in place for:
    - exclusion hits
    - missing concept groups
@@ -36,7 +37,7 @@ This repository applies a weighted, auditable screening layer during OpenAlex in
    - very short abstracts
 
 ## Labeling and triage policy
-- `include`: score >= include threshold, no exclude hit, no missing concept groups, include-gate constraints satisfied (`min_include_hits`, method/review/high-priority signal, `min_concept_diversity`, `min_abstract_tokens_for_include`), and include-guard passed (`include_margin_min`, `max_penalty_for_include`)
+- `include`: score >= include threshold, no exclude hit, no missing concept groups, include-gate constraints satisfied (`min_include_hits`, method/review/high-priority signal, `min_concept_diversity`, `min_abstract_tokens_for_include`, `min_bridge_sentence_hits`, title-or-bridge requirement), and include-guard passed (`include_margin_min`, `max_penalty_for_include`)
 - `review`: score >= review threshold
 - `exclude`: otherwise
 
@@ -58,8 +59,9 @@ python3 scripts/search_openalex.py \
 - overall label distribution
 - overall priority distribution
 - overall method-signal coverage (`with_method_cues` vs `without_method_cues`)
+- overall bridge-signal coverage (`with_bridge_sentence` vs `without_bridge_sentence`)
 - include-guard pass/fail counts (overall + per-query)
-- per-query label/priority/method counts
+- per-query label/priority/method/bridge counts
 - top high-priority titles for manual screening
 
 ## Why this helps

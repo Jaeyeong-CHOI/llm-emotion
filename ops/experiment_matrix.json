@@ -120,6 +120,30 @@
         "evidence_seeking",
         "accountability_balancer"
       ]
+    },
+    {
+      "id": "calibration_repair_v18",
+      "n": 12,
+      "seed": 3141,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "advisor_feedback_ignored",
+        "deadline_compression_error",
+        "premature_conclusion_lockin",
+        "missed_recovery_window"
+      ],
+      "persona_ids": [
+        "calibration_seeking",
+        "constraint_aware_planner",
+        "methodical_skeptic",
+        "repair_committed"
+      ]
     }
   ]
 }

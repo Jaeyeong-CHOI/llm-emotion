@@ -126,6 +126,9 @@ def write_runs_csv(path: Path, runs: list[dict]):
         "scenario_ids",
         "scenario_tags",
         "persona_ids",
+        "scenario_count",
+        "persona_count",
+        "prompt_bank_fingerprint",
         "dataset",
         "metrics",
         "status",
@@ -219,10 +222,17 @@ def main():
     ap.add_argument("--include-run-id", action="append", default=[], help="restrict execution to specific run id(s)")
     ap.add_argument("--manifest-note", default="", help="free-text note stored in manifest for traceability")
     ap.add_argument("--strict-clean", action="store_true", help="fail if git working tree is dirty")
+    ap.add_argument("--list-run-ids", action="store_true", help="print run ids from config and exit")
+    ap.add_argument("--selection-report", default="", help="optional JSON path for selected scenario/persona counts")
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
     cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+
+    if args.list_run_ids:
+        for exp in cfg.get("runs", []):
+            print(exp.get("id", "<missing-id>"))
+        return
 
     git_status = get_git_status()
     if args.strict_clean and git_status.get("dirty"):
@@ -246,6 +256,7 @@ def main():
     }
 
     runs = []
+    selection_rows = []
     all_metric_paths = []
     batch_started = time.perf_counter()
     run_metric_paths: dict[str, list[Path]] = {}
@@ -279,6 +290,17 @@ def main():
 
         prompt_snapshot = snapshots_dir / f"{run_id}.prompt_bank.json"
         write_json(prompt_snapshot, bank)
+        selection_rows.append(
+            {
+                "id": run_id,
+                "prompt_bank": prompt_bank,
+                "prompt_bank_fingerprint": file_sha256(prompt_snapshot),
+                "scenario_count": prompt_summary["scenario_count"],
+                "persona_count": prompt_summary["persona_count"],
+                "scenario_ids": prompt_summary["scenario_ids"],
+                "persona_ids": prompt_summary["persona_ids"],
+            }
+        )
 
         for rep in range(repeats):
             rep_seed = seed + rep
@@ -299,6 +321,7 @@ def main():
                 "persona_ids": persona_ids,
                 "scenario_count": prompt_summary["scenario_count"],
                 "persona_count": prompt_summary["persona_count"],
+                "prompt_bank_fingerprint": file_sha256(prompt_snapshot),
                 "dataset": str(dataset_path.relative_to(ROOT)),
                 "metrics": str(metrics_path.relative_to(ROOT)),
                 "status": "planned",
@@ -404,6 +427,18 @@ def main():
     write_json(manifest_path, manifest)
     write_runs_csv(outdir / "runs.csv", runs)
     write_run_summary_csv(outdir / "run_id_summary.csv", run_id_summary)
+
+    if args.selection_report:
+        selection_payload = {
+            "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+            "config": args.config,
+            "run_label": label,
+            "selected_run_ids": sorted(include_run_ids),
+            "rows": selection_rows,
+        }
+        report_path = ROOT / args.selection_report
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        write_json(report_path, selection_payload)
 
     ok_n = sum(1 for r in runs if r.get("status") == "ok")
     print(f"[OK] executed {ok_n}/{len(runs)} run cells -> {outdir}")

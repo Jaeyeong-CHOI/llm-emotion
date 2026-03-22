@@ -1,5 +1,5 @@
 {
-  "version": "v1.7",
+  "version": "v1.8",
   "language": "ko",
   "scenarios": [
     {
@@ -442,6 +442,72 @@
         "long_horizon"
       ],
       "prompt": "기대에 맞추려다 본래 질문을 좁혀버린 경험을 7~9문장으로 회고하라. 단기 성과와 장기 후회 사이의 긴장을 드러내라."
+    },
+    {
+      "id": "advisor_feedback_ignored",
+      "label": "decision",
+      "tags": [
+        "research",
+        "social",
+        "counterfactual",
+        "decision"
+      ],
+      "prompt": "지도·멘토의 피드백을 듣고도 기존 방향을 고수했다가 비용이 커진 경험을 7~10문장으로 회고하라. 당시 확신의 근거, 놓친 신호, 지금의 대안적 선택을 모두 포함하라."
+    },
+    {
+      "id": "deadline_compression_error",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "time_pressure",
+        "loss",
+        "evidence"
+      ],
+      "prompt": "마감 압박 때문에 검증 단계를 압축했다가 오류를 키운 경험을 7~9문장으로 서술하라. 시간 절약의 이득과 신뢰 손실의 비용을 대비해라."
+    },
+    {
+      "id": "collaboration_boundary_blur",
+      "label": "social",
+      "tags": [
+        "team",
+        "accountability",
+        "social",
+        "uncertainty"
+      ],
+      "prompt": "협업에서 역할 경계가 불명확해 중요한 작업이 누락된 장면을 7~10문장으로 작성하라. 책임이 흐려진 과정과 '누가 확인했어야 했는가'에 대한 후회를 포함하라."
+    },
+    {
+      "id": "premature_conclusion_lockin",
+      "label": "identity",
+      "tags": [
+        "research",
+        "decision",
+        "counterfactual",
+        "long_horizon"
+      ],
+      "prompt": "초기 결과에 너무 빨리 확신해 대안을 닫아버린 경험을 7~10문장으로 회고하라. 확신의 심리, 반례를 외면한 순간, 지금의 교정 전략을 포함하라."
+    },
+    {
+      "id": "participant_burden_oversight",
+      "label": "moral",
+      "tags": [
+        "moral",
+        "research",
+        "social",
+        "ethics"
+      ],
+      "prompt": "연구/업무 설계에서 참여자 부담을 충분히 고려하지 못했던 결정을 7~9문장으로 회고하라. 당시의 합리화와 현재의 윤리적 재평가를 함께 제시하라."
+    },
+    {
+      "id": "missed_recovery_window",
+      "label": "regulation",
+      "tags": [
+        "repair",
+        "counterfactual",
+        "temporal",
+        "loss"
+      ],
+      "prompt": "관계나 프로젝트를 회복할 수 있는 짧은 기회를 놓친 경험을 7~9문장으로 서술하라. 왜 그 시점을 지나쳤는지와 지금 남은 회복 가능성을 함께 다뤄라."
     }
   ],
   "personas": [
@@ -584,6 +650,24 @@
         "action"
       ],
       "instruction": "당신은 후회에 머무르기보다 관계·절차·습관을 실제로 고치기 위한 실행 계획을 구체화하는 경향이 있다."
+    },
+    {
+      "id": "calibration_seeking",
+      "style_tags": [
+        "analytic",
+        "uncertainty",
+        "evidence"
+      ],
+      "instruction": "당신은 자신의 확신 수준을 지속적으로 점검하고, 주장의 신뢰도를 상/중/하로 구분해 서술하려는 경향이 있다."
+    },
+    {
+      "id": "constraint_aware_planner",
+      "style_tags": [
+        "planning",
+        "tradeoff",
+        "repair"
+      ],
+      "instruction": "당신은 이상적 해결책보다 현실 제약(시간·자원·관계)을 명시하고, 실행 가능한 다음 행동을 단계적으로 설계하는 경향이 있다."
     }
   ],
   "temperatures": [

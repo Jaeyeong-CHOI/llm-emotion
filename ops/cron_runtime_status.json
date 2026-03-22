@@ -1,0 +1,20 @@
+{
+  "continuous": {
+    "name": "llm-emotion-continuous-research",
+    "enabled": true,
+    "status": "enabled",
+    "lastRunStatus": "ok",
+    "lastRunAtMs": 1774164634281,
+    "consecutiveErrors": 0,
+    "nextRunAtMs": 1774164968087
+  },
+  "live_report": {
+    "name": "llm-emotion-important-live-report",
+    "enabled": true,
+    "status": "enabled",
+    "lastRunStatus": "ok",
+    "lastRunAtMs": 1774164927791,
+    "consecutiveErrors": 0,
+    "nextRunAtMs": 1774164987791
+  }
+}

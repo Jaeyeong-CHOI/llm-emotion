@@ -1,14 +1,16 @@
 # llm-emotion
 
+> 🇰🇷 **실시간 진행상황 먼저 보기:** [`LIVE_STATUS.md`](./LIVE_STATUS.md)
+
 Research project on whether LLMs show human-like regret and deprivation signals in language behavior.
 
 ## Scope
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
-- Literature screening include quality tightened via additional include gates (`min_concept_diversity`, `min_abstract_tokens_for_include`) plus a `screening_confidence` field to separate high-confidence includes from borderline candidates
-- Prompt bank expanded to `v1.7` with research-process regret scenarios (replication shortcuts, peer-review misread, late bug discovery, credit allocation, expectation overfit) and two personas (`methodical_skeptic`, `repair_committed`)
-- Experiment runner reproducibility upgraded with per-cell runtime tracking (`duration_seconds`) and an auto-generated `reproduce.sh` script in each run folder, in addition to per-run-id aggregates and snapshot SHA-256 hashes
+- Literature screening quality tightened with a new sentence-level bridge signal (`bridge_sentence_hits`) that rewards abstracts explicitly connecting LLM terms and target affect/counterfactual concepts in the same sentence; include gating now also requires either title hits or bridge evidence.
+- Prompt bank expanded to `v1.8` with six new research-process/repair scenarios (advisor feedback ignored, deadline compression error, collaboration boundary blur, premature conclusion lock-in, participant-burden oversight, missed recovery window) and two personas (`calibration_seeking`, `constraint_aware_planner`).
+- Experiment runner reproducibility upgraded with: run-id listing (`--list-run-ids`), optional selection reports (`--selection-report`) containing scenario/persona counts and prompt-bank fingerprints, plus per-row fingerprint export in `runs.csv`.
 
 ## Repository structure
 - `docs/`: review protocol, screening rubric, experiment plan, ops notes
@@ -24,8 +26,8 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl --report-out results/lit_search_report.json
 python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md
 
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v15 --plan-only --manifest-note "preflight"
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v15 --include-run-id method_signal_v15 --strict-clean
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v18 --plan-only --selection-report results/selection_report_smoke_v18.json --manifest-note "preflight"
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v18 --include-run-id calibration_repair_v18 --max-runs 1
 ```
 
 ## Prompt-bank filtering
