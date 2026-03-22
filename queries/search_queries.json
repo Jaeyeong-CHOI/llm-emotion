@@ -1,0 +1,29 @@
+{
+  "groups": [
+    {
+      "name": "llm_tom",
+      "queries": [
+        "large language models theory of mind",
+        "LLM perspective taking",
+        "LLM mental state reasoning benchmark"
+      ]
+    },
+    {
+      "name": "regret_counterfactual_psych",
+      "queries": [
+        "counterfactual thinking regret psychology",
+        "regret decision making language",
+        "upward counterfactual self blame"
+      ]
+    },
+    {
+      "name": "llm_emotion_anthropomorphism",
+      "queries": [
+        "LLM emotion expression anthropomorphism",
+        "chatbot anthropomorphism emotional attribution",
+        "AI empathy language generation"
+      ]
+    }
+  ],
+  "per_query": 25
+}

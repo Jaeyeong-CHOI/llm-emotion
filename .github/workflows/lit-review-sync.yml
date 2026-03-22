@@ -1,0 +1,26 @@
+name: Literature Sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run search
+        run: |
+          python3 scripts/search_openalex.py --config queries/search_queries.json --out refs/openalex_results.jsonl
+          python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add refs/openalex_results.jsonl docs/evidence-table.md
+          git diff --cached --quiet || git commit -m "chore: weekly literature sync"
+          git push
