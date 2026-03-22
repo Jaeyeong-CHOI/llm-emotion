@@ -626,6 +626,12 @@ def main():
         help="fail if any selected run-id success rate falls below this ratio (0 disables)",
     )
     ap.add_argument(
+        "--require-min-successful-cells-per-run-id",
+        type=int,
+        default=0,
+        help="fail if any selected run id has fewer than this many successful cells (0 disables)",
+    )
+    ap.add_argument(
         "--require-min-generation-success-rate",
         type=float,
         default=0.0,
@@ -1691,6 +1697,17 @@ def main():
                 "run-id success rate below floor "
                 f"{args.require_min_run_id_success_rate}: {', '.join(underfilled)}"
             )
+    if args.require_min_successful_cells_per_run_id:
+        underfilled_success_cells = [
+            f"{run_id}:{successful_cells_by_run_id.get(run_id, 0)}"
+            for run_id in sorted(selected_cells_by_run_id)
+            if successful_cells_by_run_id.get(run_id, 0) < args.require_min_successful_cells_per_run_id
+        ]
+        if underfilled_success_cells:
+            raise RuntimeError(
+                "run-id successful cell count below floor "
+                f"{args.require_min_successful_cells_per_run_id}: {', '.join(underfilled_success_cells)}"
+            )
     if args.require_min_generation_success_rate and generation_success_rate < args.require_min_generation_success_rate:
         raise RuntimeError(
             "generation_success_rate="
@@ -1923,6 +1940,7 @@ def main():
         "require_min_successful_cells": args.require_min_successful_cells,
         "require_min_success_rate": args.require_min_success_rate,
         "require_min_run_id_success_rate": args.require_min_run_id_success_rate,
+        "require_min_successful_cells_per_run_id": args.require_min_successful_cells_per_run_id,
         "require_min_generation_success_rate": args.require_min_generation_success_rate,
         "require_min_analysis_success_rate": args.require_min_analysis_success_rate,
         "require_min_temperature_count": args.require_min_temperature_count,

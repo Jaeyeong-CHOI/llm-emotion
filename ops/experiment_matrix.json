@@ -916,6 +916,31 @@
         "failure_pressure_governor",
         "countervoice_balance_keeper"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_streak_v54",
+      "n": 12,
+      "seed": 37474,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_review_bridge_counterexample_recheck",
+        "screening_review_bridge_traceability_coupling",
+        "prompt_bank_countervoice_holdout_rotation",
+        "runner_runid_failure_streak_guard",
+        "runner_failed_cell_share_tripwire"
+      ],
+      "persona_ids": [
+        "review_bridge_traceability_keeper",
+        "runid_failure_streak_marshal",
+        "failure_share_quarantine_steward",
+        "countervoice_balance_keeper"
+      ]
     }
   ]
 }
