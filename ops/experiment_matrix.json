@@ -691,6 +691,31 @@
         "stage_budget_governor",
         "screening_recall_triager"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_quarantine_v45",
+      "n": 12,
+      "seed": 27474,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_precision_recall_pivot_debt",
+        "screening_multilingual_false_friend_drift",
+        "prompt_bank_antithesis_rotation_debt",
+        "runner_stage_quarantine_failover",
+        "runner_stage_budget_reallocation_incident"
+      ],
+      "persona_ids": [
+        "screening_precision_recall_negotiator",
+        "multilingual_recall_guard",
+        "antithesis_rotation_curator",
+        "stage_quarantine_supervisor"
+      ]
     }
   ]
 }

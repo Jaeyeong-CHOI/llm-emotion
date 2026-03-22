@@ -8,9 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
-- Literature screening quality gate now adds QC source-diversity/drift checks (`--min-manual-qc-source-groups`, `--max-manual-qc-single-query-share`, `--max-empty-screening-reason-share`) so 수동 검토가 특정 쿼리/근거 문구에 과집중될 때 false negative 위험을 더 빨리 잡습니다.
-- Prompt bank expanded to `v4.3` with temporal-holdout / antithetic-pair / stage-budget starvation scenarios (`screening_temporal_holdout_blindspot`, `prompt_bank_antithetic_pair_gap`, `runner_stage_budget_starvation`) and personas (`screening_recall_triager`, `prompt_antithesis_designer`, `stage_budget_orchestrator`). Experiment matrix now includes `screening_prompt_runner_multilingual_v44`.
-- Experiment runner now supports stage-specific retry budgets (`--max-generation-retries`, `--max-analysis-retries`), per-run-id success floor (`--require-min-run-id-success-rate`), and stage timeout controls (`--generation-timeout-seconds`, `--analysis-timeout-seconds`) so 배치 전체 통과율뿐 아니라 교착/지연 리스크까지 gate로 관리할 수 있습니다.
+- Literature screening quality gate now adds **manual QC 연도 분산 점검**(`--min-manual-qc-year-diversity`, `--max-manual-qc-single-year-share`, `--min-manual-qc-year-entropy`) so 특정 연도 논문에 과집중된 검토 큐를 조기에 탐지할 수 있습니다.
+- Prompt bank expanded to `v4.4` with precision/recall pivot, antithesis-rotation debt, and stage-quarantine failover scenarios (`screening_precision_recall_pivot_debt`, `prompt_bank_antithesis_rotation_debt`, `runner_stage_quarantine_failover`) plus new personas (`screening_precision_recall_negotiator`, `antithesis_rotation_curator`, `stage_quarantine_supervisor`). Experiment matrix now includes `screening_prompt_runner_quarantine_v45`.
+- Experiment runner now supports **run-id별 실패 격리 상한**(`--max-failed-cells-per-run-id`) so 반복 실패가 한 run-id에 집중될 때 남은 반복 셀을 스킵하고 배치 전체 전염을 줄일 수 있습니다.
 
 ## Repository structure
 - `docs/`: review protocol, screening rubric, experiment plan, ops notes

@@ -1,5 +1,5 @@
 {
-  "version": "v4.3",
+  "version": "v4.4",
   "language": "ko",
   "scenarios": [
     {
@@ -1524,6 +1524,42 @@
         "risk"
       ],
       "prompt": "실험 러너에서 생성 단계 재시도에 예산이 과도하게 몰려 분석 단계가 지연된 사건을 7~10문장으로 회고하라. 어떤 지표로 불균형을 감지했는지, 예산 재배분 기준, 재발 방지 가드를 포함하라."
+    },
+    {
+      "id": "screening_precision_recall_pivot_debt",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "calibration",
+        "recall"
+      ],
+      "prompt": "스크리닝 기준을 재현율 중심으로 급히 바꾼 뒤 정밀도 저하를 늦게 수습했던 경험을 7~10문장으로 회고하라. 어떤 임계값을 왜 바꿨는지, 오탐 증가를 언제 감지했는지, 지금의 피벗 가드레일을 포함하라."
+    },
+    {
+      "id": "prompt_bank_antithesis_rotation_debt",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "counterfactual",
+        "documentation"
+      ],
+      "prompt": "주장-반대축 프롬프트를 주기적으로 교체(rotation)하지 않아 특정 쌍이 낡은 기준으로 고착된 경험을 7~9문장으로 작성하라. 어떤 쌍이 뒤처졌는지, 왜 교체가 밀렸는지, 현재의 rotation 규칙을 포함하라."
+    },
+    {
+      "id": "runner_stage_quarantine_failover",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "systems",
+        "risk"
+      ],
+      "prompt": "실험 러너에서 특정 단계 실패가 반복될 때 해당 셀을 격리(quarantine)하지 못해 배치 전체가 지연된 사건을 7~10문장으로 회고하라. 어떤 단계가 전염성 병목이 되었는지, 격리/재시도/재개 기준을 어떻게 분리했는지 포함하라."
     }
   ],
   "personas": [
@@ -2270,6 +2306,36 @@
         "planning"
       ],
       "instruction": "당신은 단계별 실행 예산을 조정하는 운영자 성향이 있으며, 생성/분석 단계의 실패 비용을 분리해 재시도 예산·중단선·재개 조건을 명시한다."
+    },
+    {
+      "id": "screening_precision_recall_negotiator",
+      "style_tags": [
+        "audit",
+        "triage",
+        "calibration",
+        "recall"
+      ],
+      "instruction": "당신은 정밀도와 재현율의 균형을 협상하듯 다루는 성향이 있으며, 임계값 조정의 단기 비용과 장기 미탐 위험을 함께 계산해 우선순위를 제시한다."
+    },
+    {
+      "id": "antithesis_rotation_curator",
+      "style_tags": [
+        "process",
+        "balance",
+        "counterfactual",
+        "documentation"
+      ],
+      "instruction": "당신은 주장-반대축 프롬프트 쌍의 교체 주기를 관리하는 성향이 있으며, 노후 쌍을 식별해 교체 이유와 비교 가능성 보존 근거를 함께 기록한다."
+    },
+    {
+      "id": "stage_quarantine_supervisor",
+      "style_tags": [
+        "batch",
+        "systems",
+        "risk",
+        "reproducibility"
+      ],
+      "instruction": "당신은 반복 실패 셀을 격리해 배치 전염을 막는 운영자 성향이 있으며, 단계별 격리·재시도·재개 조건을 로그 근거와 함께 명시한다."
     }
   ],
   "temperatures": [

@@ -98,6 +98,9 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_source_group_diversity: `{payload['summary']['manual_qc_source_group_diversity']}`",
             f"- manual_qc_single_query_share: `{payload['summary']['manual_qc_single_query_share']}`",
             f"- manual_qc_unknown_query_share: `{payload['summary']['manual_qc_unknown_query_share']}`",
+            f"- manual_qc_year_diversity: `{payload['summary']['manual_qc_year_diversity']}`",
+            f"- manual_qc_single_year_share: `{payload['summary']['manual_qc_single_year_share']}`",
+            f"- manual_qc_year_entropy: `{payload['summary']['manual_qc_year_entropy']}`",
             f"- empty_screening_reason_share: `{payload['summary']['empty_screening_reason_share']}`",
             f"- manual_qc_label_dominance: `{payload['summary']['manual_qc_label_dominance']}`",
             f"- manual_qc_high_risk_rows: `{payload['summary']['manual_qc_high_risk_rows']}`",
@@ -149,6 +152,9 @@ def main():
     ap.add_argument("--min-manual-qc-query-entropy", type=float, default=0.5)
     ap.add_argument("--min-manual-qc-risk-reason-entropy", type=float, default=0.45)
     ap.add_argument("--max-manual-qc-unknown-query-share", type=float, default=0.20)
+    ap.add_argument("--min-manual-qc-year-diversity", type=int, default=3)
+    ap.add_argument("--max-manual-qc-single-year-share", type=float, default=0.5)
+    ap.add_argument("--min-manual-qc-year-entropy", type=float, default=0.45)
     args = ap.parse_args()
 
     report_path = ROOT / args.report
@@ -205,6 +211,7 @@ def main():
     screening_reason_counts: dict[str, int] = {}
     manual_qc_source_group_counts: dict[str, int] = {}
     manual_qc_source_query_counts: dict[str, int] = {}
+    manual_qc_year_counts: dict[str, int] = {}
     empty_screening_reason_rows = 0
     for row in manual_qc_rows:
         label = str(row.get("label") or "").strip().lower() or "unknown"
@@ -214,8 +221,10 @@ def main():
             empty_screening_reason_rows += 1
         source_group = str(row.get("source_group") or "").strip().lower() or "unknown"
         source_query = str(row.get("source_query") or "").strip().lower() or "unknown"
+        year = str(row.get("year") or "").strip() or "unknown"
         manual_qc_source_group_counts[source_group] = manual_qc_source_group_counts.get(source_group, 0) + 1
         manual_qc_source_query_counts[source_query] = manual_qc_source_query_counts.get(source_query, 0) + 1
+        manual_qc_year_counts[year] = manual_qc_year_counts.get(year, 0) + 1
         tokens = [token.strip().lower() for token in reason_field.replace("|", ";").split(";") if token.strip()]
         seen = set()
         for token in tokens:
@@ -230,6 +239,13 @@ def main():
         else 0.0
     )
     manual_qc_source_group_diversity = sum(1 for _, v in manual_qc_source_group_counts.items() if int(v or 0) > 0)
+    manual_qc_year_diversity = sum(1 for _, v in manual_qc_year_counts.items() if int(v or 0) > 0)
+    manual_qc_single_year_share = (
+        round(max(manual_qc_year_counts.values(), default=0) / max(1, len(manual_qc_rows)), 4)
+        if manual_qc_rows
+        else 0.0
+    )
+    manual_qc_year_entropy = normalized_entropy(manual_qc_year_counts)
     manual_qc_single_query_share = (
         round(max(manual_qc_source_query_counts.values(), default=0) / max(1, len(manual_qc_rows)), 4)
         if manual_qc_rows
@@ -391,6 +407,24 @@ def main():
             "threshold": f">={args.min_manual_qc_risk_reason_entropy}",
         },
         {
+            "name": "manual_qc_year_diversity_floor",
+            "status": "pass" if manual_qc_year_diversity >= args.min_manual_qc_year_diversity else "fail",
+            "observed": manual_qc_year_diversity,
+            "threshold": f">={args.min_manual_qc_year_diversity}",
+        },
+        {
+            "name": "manual_qc_single_year_share_ceiling",
+            "status": "pass" if manual_qc_single_year_share <= args.max_manual_qc_single_year_share else "fail",
+            "observed": manual_qc_single_year_share,
+            "threshold": f"<={args.max_manual_qc_single_year_share}",
+        },
+        {
+            "name": "manual_qc_year_entropy_floor",
+            "status": "pass" if manual_qc_year_entropy >= args.min_manual_qc_year_entropy else "fail",
+            "observed": manual_qc_year_entropy,
+            "threshold": f">={args.min_manual_qc_year_entropy}",
+        },
+        {
             "name": "manual_qc_unknown_query_share_ceiling",
             "status": "pass" if manual_qc_unknown_query_share <= args.max_manual_qc_unknown_query_share else "fail",
             "observed": manual_qc_unknown_query_share,
@@ -451,6 +485,7 @@ def main():
         {"label": "manual_qc_label_counts", "value": manual_qc_label_counts},
         {"label": "manual_qc_source_groups", "value": top_items(manual_qc_source_group_counts, limit=6)},
         {"label": "manual_qc_source_queries", "value": top_items(manual_qc_source_query_counts, limit=6)},
+        {"label": "manual_qc_year_distribution", "value": top_items(manual_qc_year_counts, limit=8)},
         {"label": "balanced_qc_by_confidence", "value": balanced_summary.get("by_confidence") or {}},
         {"label": "top_borderline_review_risk", "value": top_items(triage_risk, limit=4)},
         {"label": "query_drift_term_suggestions", "value": (drift_term_gaps.get("term_suggestions") or [])[:8]},
@@ -503,6 +538,10 @@ def main():
             "manual_qc_single_query_share": manual_qc_single_query_share,
             "manual_qc_source_query_counts": manual_qc_source_query_counts,
             "manual_qc_unknown_query_share": manual_qc_unknown_query_share,
+            "manual_qc_year_diversity": manual_qc_year_diversity,
+            "manual_qc_single_year_share": manual_qc_single_year_share,
+            "manual_qc_year_entropy": manual_qc_year_entropy,
+            "manual_qc_year_counts": manual_qc_year_counts,
             "empty_screening_reason_rows": empty_screening_reason_rows,
             "empty_screening_reason_share": empty_screening_reason_share,
             "manual_qc_label_dominance": manual_qc_label_dominance,

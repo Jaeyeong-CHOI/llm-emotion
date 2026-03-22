@@ -596,6 +596,12 @@ def main():
         help="when --continue-on-error, stop batch after this many consecutive failed cells (0 = no limit)",
     )
     ap.add_argument(
+        "--max-failed-cells-per-run-id",
+        type=int,
+        default=0,
+        help="when --continue-on-error, skip remaining repeats for a run id after this many failed cells (0 = no limit)",
+    )
+    ap.add_argument(
         "--max-generation-attempts-total",
         type=int,
         default=0,
@@ -702,6 +708,7 @@ def main():
     analysis_attempts_total = 0
     failure_streak = 0
     selected_run_cells = 0
+    failed_cells_by_run_id: dict[str, int] = {}
     selected_total_samples = 0
     planned_samples_by_run: dict[str, int] = {}
     selected_cells_by_run_id: dict[str, int] = {}
@@ -863,7 +870,10 @@ def main():
             }
         )
 
+        run_id_blocked = False
         for rep in range(repeats):
+            if run_id_blocked:
+                break
             rep_seed = seed + rep
             run_key = f"{run_id}__rep{rep + 1}"
             dataset_path = outdir / f"{run_key}.jsonl"
@@ -963,9 +973,21 @@ def main():
                 row["error"] = str(err).strip()
                 runs.append(row)
                 failed_cells += 1
+                failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
                 failure_streak += 1
                 if not args.continue_on_error:
                     raise RuntimeError(f"generation failed for {run_key}: {err}")
+                if (
+                    args.max_failed_cells_per_run_id > 0
+                    and failed_cells_by_run_id.get(run_id, 0) >= args.max_failed_cells_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
+                        f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
                 if args.max_failed_cells > 0 and failed_cells >= args.max_failed_cells:
                     print(
                         f"[WARN] failed_cells reached max_failed_cells ({failed_cells}/{args.max_failed_cells}); stopping batch early"
@@ -1014,9 +1036,21 @@ def main():
                 row["dataset_sha256"] = maybe_file_sha256(dataset_path)
                 runs.append(row)
                 failed_cells += 1
+                failed_cells_by_run_id[run_id] = failed_cells_by_run_id.get(run_id, 0) + 1
                 failure_streak += 1
                 if not args.continue_on_error:
                     raise RuntimeError(f"analysis failed for {run_key}: {err2}")
+                if (
+                    args.max_failed_cells_per_run_id > 0
+                    and failed_cells_by_run_id.get(run_id, 0) >= args.max_failed_cells_per_run_id
+                ):
+                    print(
+                        "[WARN] run-id failed_cells reached max_failed_cells_per_run_id "
+                        f"({run_id}: {failed_cells_by_run_id.get(run_id, 0)}/{args.max_failed_cells_per_run_id}); "
+                        "skipping remaining repeats for this run id"
+                    )
+                    run_id_blocked = True
+                    continue
                 if args.max_failed_cells > 0 and failed_cells >= args.max_failed_cells:
                     print(
                         f"[WARN] failed_cells reached max_failed_cells ({failed_cells}/{args.max_failed_cells}); stopping batch early"
@@ -1223,6 +1257,8 @@ def main():
         "max_failed_cells": args.max_failed_cells,
         "max_failure_rate": args.max_failure_rate,
         "max_failure_streak": args.max_failure_streak,
+        "max_failed_cells_per_run_id": args.max_failed_cells_per_run_id,
+        "failed_cells_by_run_id": failed_cells_by_run_id,
         "max_generation_attempts_total": args.max_generation_attempts_total,
         "max_analysis_attempts_total": args.max_analysis_attempts_total,
         "final_failure_streak": failure_streak,
