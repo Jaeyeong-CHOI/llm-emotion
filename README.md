@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **review traceable known-query unknown-year 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-share`, `--min-manual-qc-review-traceable-known-query-known-year-count`)를 추가해, query는 추적되지만 year 메타데이터가 비어 있는 review 큐를 fail-fast로 차단합니다.
+- Prompt bank expanded to `v8.8` with **unknown-year traceability backfill / persona-style entropy rebalance / selected-tag entropy tripwire** scenarios plus new personas (`unknown_year_traceability_curator_v88`, `selected_entropy_tripwire_operator_v88`).
+- Experiment runner에 **scenario-tag / persona-style-tag entropy guardrail**을 추가해 run 단위(`--require-min-scenario-tag-entropy`, `--require-min-persona-style-tag-entropy`)와 selected 배치 단위(`--require-min-selected-scenario-tag-entropy`, `--require-min-selected-persona-style-tag-entropy`) 분포 편향을 사전 차단할 수 있습니다.
 - Literature screening quality gate에 **review traceable known-query year-tail 절대량 가드**(`--min-manual-qc-review-traceable-known-query-year-tail-count`)를 추가해, share/entropy가 통과해도 tail 근거 행 수가 너무 적은 케이스를 fail-fast로 차단합니다.
 - Prompt bank expanded to `v8.7` with **year-query coupling tripwire / countervoice style-tag tail patch / persona-style entropy gate postmortem** scenarios plus new personas (`year_query_coupling_recovery_operator_v87`, `persona_entropy_gatekeeper_v87`).
 - Experiment runner/dataset generator now support **OR 필터** (`scenario_tags_any`)와 **persona style-tag 필터** (`persona_style_tags_any`)를 run config에서 직접 사용할 수 있어, 프롬프트 뱅크 확장 실험의 타깃 샘플링 재현성이 개선되었습니다.
@@ -67,6 +70,14 @@ python3 scripts/generate_dataset.py \
 
 ## Experiment reproducibility
 - Run definitions live in `ops/experiment_matrix.json`
+
+### v8.8 스모크 프리플라이트 (2026-03-23)
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v88 --max-manual-qc-review-traceable-known-query-year-top1-share 0.70 --max-manual-qc-review-traceable-known-query-year-top2-share 0.90 --min-manual-qc-review-traceable-known-query-year-tail-share 0.10 --min-manual-qc-review-traceable-known-query-year-tail-count 3 --min-manual-qc-review-traceable-known-query-year-entropy 0.45 --min-manual-qc-review-traceable-known-query-year-coverage 3 --max-manual-qc-review-traceable-known-query-unknown-year-share 0.20 --min-manual-qc-review-traceable-known-query-known-year-count 3
+
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v88_plan --plan-only --include-run-id screening_prompt_runner_year_query_persona_entropy_v87 --include-run-id screening_prompt_runner_selected_entropy_v88 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v88.json --selection-csv results/selection_report_smoke_v88.csv --preflight-markdown --require-prompt-bank-version v8.8 --require-min-selected-temperatures 3 --require-min-selected-temperature-span 0.7 --require-min-selected-scenario-tag-entropy 0.70 --require-min-selected-persona-style-tag-entropy 0.70 --require-min-scenario-tag-entropy 0.65 --require-min-persona-style-tag-entropy 0.65 --max-planned-sample-share-per-run-id 0.60 --max-planned-sample-share-gap-per-run-id 0.25 --manifest-note "preflight v88 unknown-year + selected entropy guard"
+```
 
 ### v8.7 스모크 프리플라이트 (2026-03-23)
 

@@ -1754,6 +1754,31 @@
         1.0
       ],
       "repeats": 1
+    },
+    {
+      "id": "screening_prompt_runner_selected_entropy_v88",
+      "description": "v8.8 screening unknown-year traceability backfill + prompt/persona style entropy rebalance + runner selected entropy tripwire smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "unknown_year_traceability_curator_v88",
+        "selected_entropy_tripwire_operator_v88",
+        "year_query_coupling_recovery_operator_v87",
+        "persona_entropy_gatekeeper_v87"
+      ],
+      "scenario_ids": [
+        "screening_review_unknown_year_traceability_backfill_v88",
+        "prompt_bank_persona_style_entropy_rebalance_drill_v88",
+        "runner_selected_tag_entropy_tripwire_v88",
+        "runner_persona_style_entropy_gate_postmortem_v87"
+      ],
+      "n": 24,
+      "seed": 488,
+      "temperatures": [
+        0.1,
+        0.5,
+        1.0
+      ],
+      "repeats": 1
     }
   ]
 }

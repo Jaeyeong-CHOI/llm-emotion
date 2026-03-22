@@ -130,10 +130,18 @@ def summarize_prompt_bank(
         for tag in persona.get("style_tags", [])
         if str(tag).strip()
     }
+    persona_style_tag_counts = {
+        tag: sum(1 for row in selected_personas if tag in row_list_values(row, "style_tags"))
+        for tag in sorted(selected_persona_style_tags)
+    }
 
     scenario_label_counts = {
         label: sum(1 for row in selected_scenarios if str(row.get("label") or "").strip() == label)
         for label in sorted(selected_labels)
+    }
+    scenario_tag_counts = {
+        tag: sum(1 for row in selected_scenarios if tag in row_list_values(row, "tags"))
+        for tag in sorted(selected_tags)
     }
     scenario_domain_counts = {
         domain: sum(1 for row in selected_scenarios if domain in row_list_values(row, "domains"))
@@ -144,6 +152,7 @@ def summarize_prompt_bank(
         for axis in sorted(selected_emotion_axes)
     }
     scenario_label_entropy = normalized_entropy_from_counts(scenario_label_counts)
+    scenario_tag_entropy = normalized_entropy_from_counts(scenario_tag_counts)
     scenario_domain_entropy = normalized_entropy_from_counts(scenario_domain_counts)
     scenario_emotion_axis_entropy = normalized_entropy_from_counts(scenario_emotion_axis_counts)
 
@@ -154,6 +163,8 @@ def summarize_prompt_bank(
         "persona_ids": [row.get("id") for row in selected_personas],
         "scenario_tag_count": len(selected_tags),
         "scenario_tags": sorted(selected_tags),
+        "scenario_tag_counts": scenario_tag_counts,
+        "scenario_tag_entropy": scenario_tag_entropy,
         "scenario_label_count": len(selected_labels),
         "scenario_labels": sorted(selected_labels),
         "scenario_label_counts": scenario_label_counts,
@@ -171,6 +182,8 @@ def summarize_prompt_bank(
         "scenario_label_entropy": scenario_label_entropy,
         "persona_style_tag_count": len(selected_persona_style_tags),
         "persona_style_tags": sorted(selected_persona_style_tags),
+        "persona_style_tag_counts": persona_style_tag_counts,
+        "persona_style_tag_entropy": normalized_entropy_from_counts(persona_style_tag_counts),
     }
 
 
@@ -1090,6 +1103,18 @@ def main():
         help="fail if a selected run has normalized scenario emotion-axis entropy below this value (0 disables)",
     )
     ap.add_argument(
+        "--require-min-scenario-tag-entropy",
+        type=float,
+        default=0.0,
+        help="fail if a selected run has normalized scenario tag entropy below this value (0 disables)",
+    )
+    ap.add_argument(
+        "--require-min-persona-style-tag-entropy",
+        type=float,
+        default=0.0,
+        help="fail if a selected run has normalized persona style-tag entropy below this value (0 disables)",
+    )
+    ap.add_argument(
         "--require-min-unique-persona-style-tags",
         type=int,
         default=0,
@@ -1154,6 +1179,18 @@ def main():
         type=int,
         default=0,
         help="fail if the selected batch covers fewer than this many unique persona style tags in total",
+    )
+    ap.add_argument(
+        "--require-min-selected-scenario-tag-entropy",
+        type=float,
+        default=0.0,
+        help="fail if selected batch scenario-tag entropy is below this value (0 disables)",
+    )
+    ap.add_argument(
+        "--require-min-selected-persona-style-tag-entropy",
+        type=float,
+        default=0.0,
+        help="fail if selected batch persona style-tag entropy is below this value (0 disables)",
     )
     ap.add_argument(
         "--require-prompt-bank-version",
@@ -1661,6 +1698,8 @@ def main():
     aggregate_scenario_difficulties: set[str] = set()
     aggregate_scenario_labels: set[str] = set()
     aggregate_persona_style_tags: set[str] = set()
+    aggregate_scenario_tag_counts: dict[str, int] = {}
+    aggregate_persona_style_tag_counts: dict[str, int] = {}
     include_run_ids = set(args.include_run_id)
     if args.run_id_file:
         run_id_file = ROOT / args.run_id_file
@@ -1756,6 +1795,10 @@ def main():
         aggregate_scenario_difficulties.update(prompt_summary["scenario_difficulties"])
         aggregate_scenario_labels.update(prompt_summary["scenario_labels"])
         aggregate_persona_style_tags.update(prompt_summary["persona_style_tags"])
+        for tag, count in (prompt_summary.get("scenario_tag_counts") or {}).items():
+            aggregate_scenario_tag_counts[tag] = aggregate_scenario_tag_counts.get(tag, 0) + int(count or 0)
+        for tag, count in (prompt_summary.get("persona_style_tag_counts") or {}).items():
+            aggregate_persona_style_tag_counts[tag] = aggregate_persona_style_tag_counts.get(tag, 0) + int(count or 0)
         condition_cells = prompt_summary["scenario_count"] * prompt_summary["persona_count"] * max(1, len(temperatures))
         planned_samples = n * condition_cells * max(1, repeats)
         planned_samples_by_run[run_id] = planned_samples
@@ -1834,6 +1877,16 @@ def main():
                 f"{run_id}: scenario_emotion_axis_entropy={prompt_summary['scenario_emotion_axis_entropy']} < "
                 f"require_min_scenario_emotion_axis_entropy={args.require_min_scenario_emotion_axis_entropy}"
             )
+        if args.require_min_scenario_tag_entropy and prompt_summary["scenario_tag_entropy"] < args.require_min_scenario_tag_entropy:
+            raise RuntimeError(
+                f"{run_id}: scenario_tag_entropy={prompt_summary['scenario_tag_entropy']} < "
+                f"require_min_scenario_tag_entropy={args.require_min_scenario_tag_entropy}"
+            )
+        if args.require_min_persona_style_tag_entropy and prompt_summary["persona_style_tag_entropy"] < args.require_min_persona_style_tag_entropy:
+            raise RuntimeError(
+                f"{run_id}: persona_style_tag_entropy={prompt_summary['persona_style_tag_entropy']} < "
+                f"require_min_persona_style_tag_entropy={args.require_min_persona_style_tag_entropy}"
+            )
         if (
             args.require_min_unique_persona_style_tags
             and prompt_summary["persona_style_tag_count"] < args.require_min_unique_persona_style_tags
@@ -1865,6 +1918,8 @@ def main():
                 "scenario_label_entropy": prompt_summary["scenario_label_entropy"],
                 "scenario_tag_count": prompt_summary["scenario_tag_count"],
                 "scenario_tags": prompt_summary["scenario_tags"],
+                "scenario_tag_counts": prompt_summary["scenario_tag_counts"],
+                "scenario_tag_entropy": prompt_summary["scenario_tag_entropy"],
                 "scenario_domain_count": prompt_summary["scenario_domain_count"],
                 "scenario_domains": prompt_summary["scenario_domains"],
                 "scenario_domain_counts": prompt_summary["scenario_domain_counts"],
@@ -1877,6 +1932,8 @@ def main():
                 "scenario_difficulties": prompt_summary["scenario_difficulties"],
                 "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
                 "persona_style_tags": prompt_summary["persona_style_tags"],
+                "persona_style_tag_counts": prompt_summary["persona_style_tag_counts"],
+                "persona_style_tag_entropy": prompt_summary["persona_style_tag_entropy"],
             }
         )
         run_preflight_rows.append(
@@ -2810,6 +2867,8 @@ def main():
     if aggregate_temperature_values:
         numeric_temperatures = sorted(float(v) for v in aggregate_temperature_values)
         selected_temperature_span = round(numeric_temperatures[-1] - numeric_temperatures[0], 4)
+    selected_scenario_tag_entropy = normalized_entropy_from_counts(aggregate_scenario_tag_counts)
+    selected_persona_style_tag_entropy = normalized_entropy_from_counts(aggregate_persona_style_tag_counts)
     if args.require_min_selected_temperature_span and selected_temperature_span < args.require_min_selected_temperature_span:
         raise RuntimeError(
             "selected_temperature_span="
@@ -2844,6 +2903,22 @@ def main():
         raise RuntimeError(
             "selected_unique_persona_style_tags="
             f"{len(aggregate_persona_style_tags)} < require_min_selected_persona_style_tags={args.require_min_selected_persona_style_tags}"
+        )
+    if (
+        args.require_min_selected_scenario_tag_entropy
+        and selected_scenario_tag_entropy < args.require_min_selected_scenario_tag_entropy
+    ):
+        raise RuntimeError(
+            "selected_scenario_tag_entropy="
+            f"{selected_scenario_tag_entropy} < require_min_selected_scenario_tag_entropy={args.require_min_selected_scenario_tag_entropy}"
+        )
+    if (
+        args.require_min_selected_persona_style_tag_entropy
+        and selected_persona_style_tag_entropy < args.require_min_selected_persona_style_tag_entropy
+    ):
+        raise RuntimeError(
+            "selected_persona_style_tag_entropy="
+            f"{selected_persona_style_tag_entropy} < require_min_selected_persona_style_tag_entropy={args.require_min_selected_persona_style_tag_entropy}"
         )
     if args.require_min_planned_samples_per_run:
         underfilled = [
@@ -2976,10 +3051,14 @@ def main():
         "unique_selected_scenario_emotion_axes": len(aggregate_scenario_emotion_axes),
         "unique_selected_scenario_difficulties": len(aggregate_scenario_difficulties),
         "unique_selected_persona_style_tags": len(aggregate_persona_style_tags),
+        "selected_scenario_tag_entropy": selected_scenario_tag_entropy,
+        "selected_persona_style_tag_entropy": selected_persona_style_tag_entropy,
         "max_scenario_label_dominance": max((row.get("scenario_label_dominance", 0.0) for row in run_preflight_rows), default=0.0),
         "min_scenario_label_entropy": min((row.get("scenario_label_entropy", 0.0) for row in run_preflight_rows), default=0.0),
+        "min_scenario_tag_entropy": min((row.get("scenario_tag_entropy", 0.0) for row in run_preflight_rows), default=0.0),
         "min_scenario_domain_entropy": min((row.get("scenario_domain_entropy", 0.0) for row in run_preflight_rows), default=0.0),
         "min_scenario_emotion_axis_entropy": min((row.get("scenario_emotion_axis_entropy", 0.0) for row in run_preflight_rows), default=0.0),
+        "min_persona_style_tag_entropy": min((row.get("persona_style_tag_entropy", 0.0) for row in run_preflight_rows), default=0.0),
         "max_planned_sample_share_run_id": (max(planned_sample_shares, key=planned_sample_shares.get) if planned_sample_shares else ""),
         "max_planned_sample_share": (max(planned_sample_shares.values()) if planned_sample_shares else 0.0),
         "min_planned_sample_share_run_id": (min(planned_sample_shares, key=planned_sample_shares.get) if planned_sample_shares else ""),
@@ -3304,6 +3383,8 @@ def main():
         "require_min_unique_scenario_labels": args.require_min_unique_scenario_labels,
         "require_max_scenario_label_dominance": args.require_max_scenario_label_dominance,
         "require_min_scenario_label_entropy": args.require_min_scenario_label_entropy,
+        "require_min_scenario_tag_entropy": args.require_min_scenario_tag_entropy,
+        "require_min_persona_style_tag_entropy": args.require_min_persona_style_tag_entropy,
         "require_min_unique_scenario_tags": args.require_min_unique_scenario_tags,
         "require_min_unique_persona_style_tags": args.require_min_unique_persona_style_tags,
         "require_min_selected_scenario_labels": args.require_min_selected_scenario_labels,
@@ -3312,6 +3393,8 @@ def main():
         "require_min_selected_scenario_emotion_axes": args.require_min_selected_scenario_emotion_axes,
         "require_min_selected_scenario_difficulties": args.require_min_selected_scenario_difficulties,
         "require_min_selected_persona_style_tags": args.require_min_selected_persona_style_tags,
+        "require_min_selected_scenario_tag_entropy": args.require_min_selected_scenario_tag_entropy,
+        "require_min_selected_persona_style_tag_entropy": args.require_min_selected_persona_style_tag_entropy,
         "require_min_selected_temperatures": args.require_min_selected_temperatures,
         "require_min_selected_temperature_span": args.require_min_selected_temperature_span,
         "require_prompt_bank_version": args.require_prompt_bank_version,

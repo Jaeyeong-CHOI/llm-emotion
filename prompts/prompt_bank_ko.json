@@ -1,5 +1,5 @@
 {
-  "version": "v8.7",
+  "version": "v8.8",
   "language": "ko",
   "scenarios": [
     {
@@ -3398,6 +3398,69 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 러너 preflight에서 persona 수는 충분했지만 style-tag entropy가 낮아 실제로는 소수 페르소나 표현에 편중된 배치를 뒤늦게 발견한 사건을 7~10문장으로 회고하라. 왜 count gate만으로는 실패했는지, entropy tripwire 임계치, 재배치·재개 조건을 수치로 포함하라."
+    },
+    {
+      "id": "screening_review_unknown_year_traceability_backfill_v88",
+      "label": "review",
+      "prompt": "선행연구 스크리닝 수기 검수에서 review 후보의 source_query는 채워졌지만 year 메타데이터가 unknown으로 과도하게 남은 배치를 점검하라. unknown year 비중을 줄이기 위해 DOI/venue 문맥에서 연도 단서를 복구하는 규칙과 수기 확인 순서를 제시하고, 근거 문장(traceability token)을 누락하지 않는 보정 전략을 4단계 체크리스트로 작성하라.",
+      "tags": [
+        "screening",
+        "review",
+        "year-traceability",
+        "unknown-year",
+        "metadata-repair"
+      ],
+      "domains": [
+        "literature_screening",
+        "quality_gate"
+      ],
+      "emotion_axes": [
+        "analytic",
+        "cautious"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "prompt_bank_persona_style_entropy_rebalance_drill_v88",
+      "label": "review",
+      "prompt": "프롬프트 뱅크 실험에서 persona style_tags의 커버리지는 충분하지만 분포 entropy가 낮아 특정 스타일에 편중되는 상황을 가정하라. style-tag tail을 살리기 위한 샘플링 재배치 원칙, 금지 패턴, 검증 지표를 포함해 실험 운영자용 드릴 메모를 작성하라.",
+      "tags": [
+        "prompt-bank",
+        "persona",
+        "style-tags",
+        "entropy",
+        "rebalancing"
+      ],
+      "domains": [
+        "prompt_engineering",
+        "experiment_design"
+      ],
+      "emotion_axes": [
+        "analytic",
+        "structured"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "runner_selected_tag_entropy_tripwire_v88",
+      "label": "review",
+      "prompt": "실험 러너 preflight에서 selected scenario tag entropy와 selected persona style-tag entropy를 동시에 감시해야 하는 배치를 상정하라. fail-fast 기준, 우회 방지 점검 항목, 재실행 전 최소 검증 절차를 운영 문서 형식으로 정리하라.",
+      "tags": [
+        "runner",
+        "preflight",
+        "entropy-guard",
+        "tripwire",
+        "reproducibility"
+      ],
+      "domains": [
+        "experiment_ops",
+        "quality_assurance"
+      ],
+      "emotion_axes": [
+        "analytic",
+        "risk-aware"
+      ],
+      "difficulty": "medium"
     }
   ],
   "personas": [
@@ -5174,6 +5237,28 @@
         "tripwire"
       ],
       "instruction": "당신은 실험 전 persona style-tag 다양성을 우선 점검하는 성향이 있으며, persona 수가 충분해도 entropy가 낮으면 실행을 중단하고 재배치 조건을 수치로 제시한다."
+    },
+    {
+      "id": "unknown_year_traceability_curator_v88",
+      "instruction": "너는 스크리닝 감사 담당자다. unknown year 잔존을 줄이되 근거 문장 무결성을 최우선으로 유지한다. 출처가 불명확한 추정은 명시적으로 보류하고, 확인 가능한 단서만 제안한다.",
+      "style_tags": [
+        "audit",
+        "traceability",
+        "metadata",
+        "year-repair",
+        "risk-control"
+      ]
+    },
+    {
+      "id": "selected_entropy_tripwire_operator_v88",
+      "instruction": "너는 실험 러너 운영 책임자다. 커버리지 숫자만 통과하는 얕은 배치를 경계하며, entropy 기반 분포 품질을 확인할 때까지 실행을 보류한다. 체크리스트 중심으로 간결하게 보고한다.",
+      "style_tags": [
+        "ops",
+        "entropy",
+        "tripwire",
+        "fail-fast",
+        "reproducibility"
+      ]
     }
   ],
   "temperatures": [
