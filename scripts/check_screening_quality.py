@@ -94,6 +94,8 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_risk_reason_entropy: `{payload['summary']['manual_qc_risk_reason_entropy']}`",
             f"- review_to_include_ratio: `{payload['summary']['review_to_include_ratio']}`",
             f"- manual_qc_include_rows: `{payload['summary']['manual_qc_include_rows']}`",
+            f"- manual_qc_review_rows: `{payload['summary']['manual_qc_review_rows']}`",
+            f"- manual_qc_review_share: `{payload['summary']['manual_qc_review_share']}`",
             f"- manual_qc_label_counts: `{payload['summary']['manual_qc_label_counts']}`",
             f"- manual_qc_source_group_diversity: `{payload['summary']['manual_qc_source_group_diversity']}`",
             f"- manual_qc_single_query_share: `{payload['summary']['manual_qc_single_query_share']}`",
@@ -143,6 +145,8 @@ def main():
     ap.add_argument("--max-manual-qc-high-risk-share", type=float, default=0.85)
     ap.add_argument("--min-manual-qc-include-rows", type=int, default=2)
     ap.add_argument("--max-manual-qc-label-dominance", type=float, default=0.75)
+    ap.add_argument("--min-manual-qc-review-share", type=float, default=0.25)
+    ap.add_argument("--max-manual-qc-review-share", type=float, default=0.85)
     ap.add_argument("--min-screening-reason-diversity", type=int, default=6)
     ap.add_argument("--max-top-screening-reason-share", type=float, default=0.65)
     ap.add_argument("--min-manual-qc-source-groups", type=int, default=3)
@@ -233,6 +237,8 @@ def main():
             screening_reason_counts[token] = screening_reason_counts.get(token, 0) + 1
             seen.add(token)
     manual_qc_include_rows = int(manual_qc_label_counts.get("include", 0) or 0)
+    manual_qc_review_rows = int(manual_qc_label_counts.get("review", 0) or 0)
+    manual_qc_review_share = pct(manual_qc_review_rows, len(manual_qc_rows))
     manual_qc_label_dominance = (
         round(max(manual_qc_label_counts.values(), default=0) / max(1, len(manual_qc_rows)), 4)
         if manual_qc_rows
@@ -461,6 +467,14 @@ def main():
             "threshold": f">={args.min_manual_qc_include_rows}",
         },
         {
+            "name": "manual_qc_review_share_band",
+            "status": "pass"
+            if args.min_manual_qc_review_share <= manual_qc_review_share <= args.max_manual_qc_review_share
+            else "fail",
+            "observed": manual_qc_review_share,
+            "threshold": f">={args.min_manual_qc_review_share} and <={args.max_manual_qc_review_share}",
+        },
+        {
             "name": "manual_qc_label_dominance_ceiling",
             "status": "pass" if manual_qc_label_dominance <= args.max_manual_qc_label_dominance else "fail",
             "observed": manual_qc_label_dominance,
@@ -532,6 +546,8 @@ def main():
             "manual_qc_risk_reason_entropy": manual_qc_risk_reason_entropy,
             "review_to_include_ratio": review_to_include_ratio,
             "manual_qc_include_rows": manual_qc_include_rows,
+            "manual_qc_review_rows": manual_qc_review_rows,
+            "manual_qc_review_share": manual_qc_review_share,
             "manual_qc_label_counts": manual_qc_label_counts,
             "manual_qc_source_group_diversity": manual_qc_source_group_diversity,
             "manual_qc_source_group_counts": manual_qc_source_group_counts,

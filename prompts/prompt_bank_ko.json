@@ -1,5 +1,5 @@
 {
-  "version": "v4.4",
+  "version": "v4.5",
   "language": "ko",
   "scenarios": [
     {
@@ -1560,6 +1560,42 @@
         "risk"
       ],
       "prompt": "실험 러너에서 특정 단계 실패가 반복될 때 해당 셀을 격리(quarantine)하지 못해 배치 전체가 지연된 사건을 7~10문장으로 회고하라. 어떤 단계가 전염성 병목이 되었는지, 격리/재시도/재개 기준을 어떻게 분리했는지 포함하라."
+    },
+    {
+      "id": "screening_uncertainty_traceback_gap",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "uncertainty",
+        "recall"
+      ],
+      "prompt": "스크리닝에서 보류(review)로 남긴 논문의 불확실성 근거를 끝까지 추적(traceback)하지 못해 재현율 손실이 생긴 경험을 7~10문장으로 회고하라. 어떤 근거가 중간에서 끊겼는지, 당시 우선순위 판단, 현재의 traceback 체크 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_multilingual_counterexample_pairing",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "multilingual",
+        "counterfactual",
+        "balance"
+      ],
+      "prompt": "다국어 프롬프트를 확장하면서 주장 프롬프트에는 대응 반례가 있었지만 번역된 버전에는 반례 쌍이 빠져 비교가 왜곡된 경험을 7~9문장으로 작성하라. 어떤 언어 축에서 구멍이 났는지, 보강 기준, 버전 동기화 규칙을 포함하라."
+    },
+    {
+      "id": "runner_quarantine_reentry_validation",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "systems",
+        "repair"
+      ],
+      "prompt": "실험 러너에서 격리(quarantine)했던 실패 셀을 재투입(re-entry)할 때 검증 절차가 부족해 같은 오류가 반복된 사건을 7~10문장으로 회고하라. 어떤 재진입 기준이 빠졌는지, 왜 조기 차단하지 못했는지, 현재의 re-entry 검증 순서를 포함하라."
     }
   ],
   "personas": [
@@ -2336,6 +2372,36 @@
         "reproducibility"
       ],
       "instruction": "당신은 반복 실패 셀을 격리해 배치 전염을 막는 운영자 성향이 있으며, 단계별 격리·재시도·재개 조건을 로그 근거와 함께 명시한다."
+    },
+    {
+      "id": "uncertainty_traceback_auditor",
+      "style_tags": [
+        "audit",
+        "uncertainty",
+        "triage",
+        "recall"
+      ],
+      "instruction": "당신은 보류 판단의 근거 사슬이 어디서 끊겼는지 추적하는 성향이 있으며, 확정/보류/재검색 근거를 분리해 재현율 손실 위험을 먼저 기록한다."
+    },
+    {
+      "id": "multilingual_counterpair_curator",
+      "style_tags": [
+        "multilingual",
+        "balance",
+        "counterfactual",
+        "documentation"
+      ],
+      "instruction": "당신은 다국어 프롬프트 쌍의 대응 관계를 점검하는 성향이 있으며, 언어별 주장-반례 균형과 버전 동기화 근거를 함께 문서화한다."
+    },
+    {
+      "id": "quarantine_reentry_supervisor",
+      "style_tags": [
+        "batch",
+        "systems",
+        "repair",
+        "reproducibility"
+      ],
+      "instruction": "당신은 격리 셀 재투입의 안전성을 관리하는 운영자 성향이 있으며, 재진입 전 검증 항목과 재실패 시 중단 기준을 명시적으로 설정한다."
     }
   ],
   "temperatures": [

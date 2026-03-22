@@ -273,6 +273,34 @@ def write_preflight_csv(path: Path, rows: list[dict]):
             w.writerow(out)
 
 
+def build_quarantine_candidates(runs: list[dict]) -> list[dict]:
+    candidates = []
+    for row in runs:
+        status = str(row.get("status") or "")
+        if not status.startswith("failed_"):
+            continue
+        candidates.append(
+            {
+                "id": row.get("id", ""),
+                "run_key": row.get("run_key", ""),
+                "status": status,
+                "generation_attempts": int(row.get("generation_attempts") or 0),
+                "analysis_attempts": int(row.get("analysis_attempts") or 0),
+                "error": str(row.get("error") or "").strip(),
+            }
+        )
+    return candidates
+
+
+def write_quarantine_csv(path: Path, rows: list[dict]):
+    keys = ["id", "run_key", "status", "generation_attempts", "analysis_attempts", "error"]
+    with path.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=keys)
+        w.writeheader()
+        for row in rows:
+            w.writerow({k: row.get(k) for k in keys})
+
+
 def write_manifest_markdown(path: Path, manifest: dict):
     summary = manifest.get("summary") or {}
     run_id_summary = manifest.get("run_id_summary") or []
@@ -293,6 +321,9 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- stopped_early: `{manifest.get('stopped_early', False)}`",
         f"- preflight_json: `{manifest.get('preflight_json', '')}`",
         f"- preflight_csv: `{manifest.get('preflight_csv', '')}`",
+        f"- quarantine_json: `{manifest.get('quarantine_json', '')}`",
+        f"- quarantine_csv: `{manifest.get('quarantine_csv', '')}`",
+        f"- quarantine_failed_cells: `{manifest.get('quarantine_failed_cells', 0)}`",
         f"- require_prompt_bank_version: `{manifest.get('require_prompt_bank_version', '')}`",
         f"- freeze_artifacts_checked: `{len(manifest.get('freeze_artifacts', []))}`",
         "",
@@ -613,6 +644,16 @@ def main():
         default=0,
         help="global ceiling on analysis command attempts (including retries); 0 disables",
     )
+    ap.add_argument(
+        "--quarantine-json",
+        default="",
+        help="optional JSON path for failed run-cell quarantine candidates (defaults to <outdir>/quarantine_candidates.json)",
+    )
+    ap.add_argument(
+        "--quarantine-csv",
+        default="",
+        help="optional CSV path for failed run-cell quarantine candidates (defaults to <outdir>/quarantine_candidates.csv)",
+    )
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -651,6 +692,12 @@ def main():
     execution_log_path = ROOT / args.execution_log_jsonl if args.execution_log_jsonl else outdir / "command_log.jsonl"
     if execution_log_path.parent != outdir.parent:
         execution_log_path.parent.mkdir(parents=True, exist_ok=True)
+    quarantine_json_path = ROOT / args.quarantine_json if args.quarantine_json else outdir / "quarantine_candidates.json"
+    quarantine_csv_path = ROOT / args.quarantine_csv if args.quarantine_csv else outdir / "quarantine_candidates.csv"
+    if quarantine_json_path.parent != outdir.parent:
+        quarantine_json_path.parent.mkdir(parents=True, exist_ok=True)
+    if quarantine_csv_path.parent != outdir.parent:
+        quarantine_csv_path.parent.mkdir(parents=True, exist_ok=True)
 
     manifest_path = outdir / "manifest.json"
     existing_manifest = {}
@@ -1207,6 +1254,17 @@ def main():
         snapshot_hashes["prompt_banks"][snap.name] = file_sha256(snap)
 
     total_duration_seconds = round(time.perf_counter() - batch_started, 3)
+    quarantine_candidates = build_quarantine_candidates(runs)
+    write_json(
+        quarantine_json_path,
+        {
+            "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+            "run_label": label,
+            "failed_cells": len(quarantine_candidates),
+            "rows": quarantine_candidates,
+        },
+    )
+    write_quarantine_csv(quarantine_csv_path, quarantine_candidates)
     reproduce_script = outdir / "reproduce.sh"
     preflight_json_path = outdir / "preflight.json"
     preflight_csv_path = outdir / "preflight.csv"
@@ -1304,6 +1362,9 @@ def main():
         "generation_timeout_seconds": args.generation_timeout_seconds,
         "analysis_timeout_seconds": args.analysis_timeout_seconds,
         "execution_log_jsonl": str(execution_log_path.relative_to(ROOT)),
+        "quarantine_json": str(quarantine_json_path.relative_to(ROOT)),
+        "quarantine_csv": str(quarantine_csv_path.relative_to(ROOT)),
+        "quarantine_failed_cells": len(quarantine_candidates),
         "require_freeze_artifacts": args.require_freeze_artifact,
         "freeze_artifacts": freeze_artifacts,
         "run_preflight": run_preflight_rows,

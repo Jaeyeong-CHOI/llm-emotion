@@ -716,6 +716,31 @@
         "antithesis_rotation_curator",
         "stage_quarantine_supervisor"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_reentry_v46",
+      "n": 12,
+      "seed": 28585,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_uncertainty_traceback_gap",
+        "screening_precision_recall_pivot_debt",
+        "prompt_bank_multilingual_counterexample_pairing",
+        "runner_quarantine_reentry_validation",
+        "runner_stage_quarantine_failover"
+      ],
+      "persona_ids": [
+        "uncertainty_traceback_auditor",
+        "multilingual_counterpair_curator",
+        "quarantine_reentry_supervisor",
+        "stage_quarantine_supervisor"
+      ]
     }
   ]
 }
