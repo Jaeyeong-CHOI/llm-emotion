@@ -1282,6 +1282,30 @@
         "runner_stage_retry_mix_guard",
         "runner_runid_stage_imbalance_tripwire"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_live_stage_gap_v69",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "query_cluster_diversity_guard",
+        "countervoice_ladder_calibrator",
+        "live_stage_gap_sentinel",
+        "stage_retry_mix_operator"
+      ],
+      "n": 24,
+      "seed": 469,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_ids": [
+        "screening_query_cluster_counterexample_sweep",
+        "prompt_bank_countervoice_ladder_audit",
+        "runner_live_stage_gap_recovery_drill",
+        "runner_stage_retry_mix_guard"
+      ]
     }
   ]
 }

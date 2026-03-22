@@ -1,5 +1,5 @@
 {
-  "version": "v6.8",
+  "version": "v6.9",
   "language": "ko",
   "scenarios": [
     {
@@ -2367,6 +2367,45 @@
         "tripwire"
       ],
       "prompt": "실험 러너에서 생성 단계 재시도는 많고 분석 단계 재시도는 거의 없어 retry mix가 무너진 사건을 7~10문장으로 회고하라. 어떤 비율 지표로 이상을 잡았는지, mix guard 임계치, 중단·재개 기준을 포함하라."
+    },
+    {
+      "id": "screening_query_cluster_counterexample_sweep",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "query_governance",
+        "counterfactual",
+        "calibration"
+      ],
+      "prompt": "review 후보를 빠르게 늘린 뒤 특정 query cluster에서만 반례 문장이 거의 없는 것을 발견해 재스위프했던 경험을 7~10문장으로 회고하라. 어떤 클러스터가 비었는지, 반례 수집 순서를 어떻게 정했는지, 지금의 최소 반례 밀도 기준을 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_ladder_audit",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "calibration",
+        "audit"
+      ],
+      "prompt": "프롬프트 뱅크에서 countervoice 강도 사다리(약/중/강)를 점검하다 중간 강도 구간이 비어 비교가 왜곡된 경험을 7~9문장으로 작성하라. 어떤 도메인에서 공백이 컸는지, 보강 우선순위와 릴리즈 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_live_stage_gap_recovery_drill",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "budget_pressure",
+        "stage_imbalance",
+        "tripwire",
+        "repair"
+      ],
+      "prompt": "실험 러너에서 생성/분석 단계의 live 시도 점유율 격차가 급격히 벌어져 조기 중단 후 복구 훈련을 수행했던 사건을 7~10문장으로 회고하라. 어떤 run-id가 격차를 만들었는지, gap tripwire 임계치, 재개 전 검증 순서를 포함하라."
     }
   ],
   "personas": [
@@ -3694,6 +3733,36 @@
         "tripwire"
       ],
       "instruction": "당신은 생성/분석 단계 재시도 혼합비(retry mix)를 실시간 점검하는 운영자 성향이 있으며, 임계치 초과 시 중단·격리·재개 조건을 수치로 명확히 기록한다."
+    },
+    {
+      "id": "query_cluster_diversity_guard",
+      "style_tags": [
+        "screening",
+        "review",
+        "query_governance",
+        "calibration"
+      ],
+      "instruction": "당신은 review 표본의 query cluster 다양성을 먼저 점검하는 성향이 있으며, cluster 과점을 발견하면 반례 밀도와 근거 추적성 기준을 동시에 보강해 기록한다."
+    },
+    {
+      "id": "countervoice_ladder_calibrator",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "calibration"
+      ],
+      "instruction": "당신은 countervoice 프롬프트의 강도 사다리를 조정하는 성향이 있으며, 약/중/강 구간의 공백을 찾아 도메인별 균형 기준과 버전 메모를 함께 남긴다."
+    },
+    {
+      "id": "live_stage_gap_sentinel",
+      "style_tags": [
+        "runner",
+        "budget_pressure",
+        "stage_imbalance",
+        "tripwire"
+      ],
+      "instruction": "당신은 실험 중 생성/분석 단계 점유율 격차를 실시간 감시하는 성향이 있으며, 임계치 초과 시 중단·격리·재개 절차를 수치로 명확히 기록한다."
     }
   ],
   "temperatures": [
