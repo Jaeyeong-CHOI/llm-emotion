@@ -57,6 +57,12 @@ def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set
         selected_tags.update(row_tags)
 
     selected_personas = [persona for persona in personas if not persona_ids or persona.get("id") in persona_ids]
+    selected_persona_style_tags = {
+        str(tag).strip()
+        for persona in selected_personas
+        for tag in persona.get("style_tags", [])
+        if str(tag).strip()
+    }
 
     return {
         "scenario_count": len(selected_scenarios),
@@ -65,6 +71,8 @@ def summarize_prompt_bank(bank: dict, scenario_ids: set[str], scenario_tags: set
         "persona_ids": [row.get("id") for row in selected_personas],
         "scenario_tag_count": len(selected_tags),
         "scenario_tags": sorted(selected_tags),
+        "persona_style_tag_count": len(selected_persona_style_tags),
+        "persona_style_tags": sorted(selected_persona_style_tags),
     }
 
 
@@ -131,6 +139,8 @@ def write_runs_csv(path: Path, runs: list[dict]):
         "scenario_ids",
         "scenario_tags",
         "persona_ids",
+        "persona_style_tag_count",
+        "persona_style_tags",
         "scenario_count",
         "persona_count",
         "temperature_count",
@@ -149,7 +159,7 @@ def write_runs_csv(path: Path, runs: list[dict]):
             temps = out.get("temperatures")
             if isinstance(temps, list):
                 out["temperatures"] = ",".join(str(t) for t in temps)
-            for field in ("scenario_ids", "scenario_tags", "persona_ids"):
+            for field in ("scenario_ids", "scenario_tags", "persona_ids", "persona_style_tags"):
                 value = out.get(field)
                 if isinstance(value, list):
                     out[field] = ",".join(str(v) for v in value)
@@ -197,6 +207,8 @@ def write_selection_csv(path: Path, rows: list[dict]):
         "scenario_tags",
         "scenario_ids",
         "persona_ids",
+        "persona_style_tag_count",
+        "persona_style_tags",
         "temperature_count",
         "condition_cells",
         "planned_samples",
@@ -206,7 +218,7 @@ def write_selection_csv(path: Path, rows: list[dict]):
         w.writeheader()
         for row in rows:
             out = {k: row.get(k) for k in keys}
-            for field in ("scenario_tags", "scenario_ids", "persona_ids"):
+            for field in ("scenario_tags", "scenario_ids", "persona_ids", "persona_style_tags"):
                 value = out.get(field)
                 if isinstance(value, list):
                     out[field] = ",".join(str(v) for v in value)
@@ -322,6 +334,12 @@ def main():
         type=int,
         default=0,
         help="fail if a selected run has fewer than this many unique scenario tags",
+    )
+    ap.add_argument(
+        "--require-min-unique-persona-style-tags",
+        type=int,
+        default=0,
+        help="fail if a selected run has fewer than this many unique persona style tags",
     )
     args = ap.parse_args()
 
@@ -444,6 +462,14 @@ def main():
                 f"{run_id}: scenario_tag_count={prompt_summary['scenario_tag_count']} < "
                 f"require_min_unique_scenario_tags={args.require_min_unique_scenario_tags}"
             )
+        if (
+            args.require_min_unique_persona_style_tags
+            and prompt_summary["persona_style_tag_count"] < args.require_min_unique_persona_style_tags
+        ):
+            raise RuntimeError(
+                f"{run_id}: persona_style_tag_count={prompt_summary['persona_style_tag_count']} < "
+                f"require_min_unique_persona_style_tags={args.require_min_unique_persona_style_tags}"
+            )
 
         prompt_snapshot = snapshots_dir / f"{run_id}.prompt_bank.json"
         write_json(prompt_snapshot, bank)
@@ -461,6 +487,8 @@ def main():
                 "planned_samples": planned_samples,
                 "scenario_tag_count": prompt_summary["scenario_tag_count"],
                 "scenario_tags": prompt_summary["scenario_tags"],
+                "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
+                "persona_style_tags": prompt_summary["persona_style_tags"],
             }
         )
         run_preflight_rows.append(
@@ -475,6 +503,8 @@ def main():
                 "planned_samples": planned_samples,
                 "scenario_tag_count": prompt_summary["scenario_tag_count"],
                 "scenario_tags": prompt_summary["scenario_tags"],
+                "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
+                "persona_style_tags": prompt_summary["persona_style_tags"],
             }
         )
 
@@ -500,6 +530,8 @@ def main():
                 "temperature_count": len(temperatures),
                 "condition_cells": condition_cells,
                 "planned_samples": n * condition_cells,
+                "persona_style_tag_count": prompt_summary["persona_style_tag_count"],
+                "persona_style_tags": prompt_summary["persona_style_tags"],
                 "prompt_bank_fingerprint": file_sha256(prompt_snapshot),
                 "dataset": str(dataset_path.relative_to(ROOT)),
                 "metrics": str(metrics_path.relative_to(ROOT)),
@@ -640,6 +672,7 @@ def main():
         "require_min_repeats": args.require_min_repeats,
         "require_min_temperature_span": args.require_min_temperature_span,
         "require_min_unique_scenario_tags": args.require_min_unique_scenario_tags,
+        "require_min_unique_persona_style_tags": args.require_min_unique_persona_style_tags,
         "run_preflight": run_preflight_rows,
         "duration_seconds": total_duration_seconds,
         "reproduce_script": str(reproduce_script.relative_to(ROOT)),
@@ -679,8 +712,9 @@ def main():
             cc = row.get("condition_cells")
             tc = row.get("temperature_count")
             st = row.get("scenario_tag_count")
+            pst = row.get("persona_style_tag_count")
             print(
-                f"selection {rid}: scenarios={sc}, personas={pc}, tags={st}, temps={tc}, "
+                f"selection {rid}: scenarios={sc}, personas={pc}, scenario_tags={st}, persona_style_tags={pst}, temps={tc}, "
                 f"condition_cells={cc}, prompt_bank_sha256={fp}"
             )
 

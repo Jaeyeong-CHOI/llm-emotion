@@ -12,7 +12,7 @@
 python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl --report-out results/lit_search_report.json --audit-out results/lit_screening_audit.json --manual-qc-limit 60 --manual-qc-per-label 12 --manual-qc-per-confidence 10 --manual-qc-csv results/manual_qc_queue.csv
 python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md
 
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --plan-only --manifest-note "weekly preflight" --manifest-note-file docs/experiment-plan.md --require-min-run-ids 4 --require-min-temperature-count 2 --require-min-unique-scenario-tags 4 --require-min-total-samples 6000 --require-min-planned-samples-per-run 1100
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --plan-only --manifest-note "weekly preflight" --manifest-note-file docs/experiment-plan.md --require-min-run-ids 4 --require-min-temperature-count 2 --require-min-unique-scenario-tags 4 --require-min-unique-persona-style-tags 8 --require-min-total-samples 6000 --require-min-planned-samples-per-run 1100
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --strict-clean
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_$(date -u +%Y%m%d) --resume
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_method_$(date -u +%Y%m%d) --include-run-id method_signal_v15 --strict-clean
@@ -77,3 +77,8 @@ Additional smoke checks executed on `2026-03-22T08:40:00Z`:
 - `python3 -m py_compile scripts/search_openalex.py scripts/run_experiments.py scripts/generate_dataset.py scripts/analyze_regret_markers.py`: passed
 - `python3 scripts/search_openalex.py ... --manual-qc-per-group 10 --manual-qc-csv results/manual_qc_queue.csv`: passed (dedup stability 포함 리포트/CSV 생성)
 - `python3 scripts/run_experiments.py --run-label smoke_v28_plan --plan-only --require-min-unique-scenario-tags 4 ...`: passed (`selected_run_cells=24`, `selected_total_samples=184384`, prompt bank `v2.8`)
+
+Additional smoke checks executed on `2026-03-22T08:52:00Z`:
+- `python3 scripts/search_openalex.py ... --manual-qc-per-group 10 --manual-qc-csv results/manual_qc_queue.csv`: passed (deduped 277, include=23, review=78, confidence/priority conflict 신호 포함)
+- `python3 scripts/run_experiments.py --run-label smoke_v29_plan --plan-only --require-min-unique-persona-style-tags 8 ...`: expected fail (`counterfactual_focus_v14` 등 일부 run이 persona_style_tag_count=7)
+- `python3 scripts/run_experiments.py --run-label smoke_v29_plan --plan-only --require-min-unique-persona-style-tags 7 ...`: passed (`selected_run_cells=24`, `selected_total_samples=200512`, prompt bank `v2.9`)

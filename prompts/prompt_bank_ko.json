@@ -1,5 +1,5 @@
 {
-  "version": "v2.8",
+  "version": "v2.9",
   "language": "ko",
   "scenarios": [
     {
@@ -904,6 +904,50 @@
         "repair"
       ],
       "prompt": "수동 QC 큐를 재조정하면서 특정 그룹/확신도 편향을 바로잡았던 경험을 7~9문장으로 작성하라. 편향이 누적된 이유와 재균형 기준, 남은 위험을 포함하라."
+    },
+    {
+      "id": "screening_alias_coverage_gap",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "evidence"
+      ],
+      "prompt": "키워드 별칭(alias) 설계가 부족해 중요한 선행연구를 놓친 장면을 7~10문장으로 회고하라. 어떤 용어를 빼먹었는지, 당시 판단 근거, 지금의 별칭 보강 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_counterbalance_failure",
+      "label": "social",
+      "tags": [
+        "research",
+        "process",
+        "prioritization",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크 확장에서 특정 감정/관점만 과대표집되어 비교 실험이 왜곡된 경험을 7~9문장으로 작성하라. 왜 균형이 깨졌는지와 현재의 카운터밸런스 기준을 포함하라."
+    },
+    {
+      "id": "runner_manifest_gap_discovery",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "risk",
+        "evidence"
+      ],
+      "prompt": "실험 결과는 남았지만 manifest 메타데이터가 부족해 재현 해석이 막힌 순간을 7~10문장으로 회고하라. 누락된 필드, 당시의 안일함, 지금의 기록 강제 규칙을 함께 제시하라."
+    },
+    {
+      "id": "manual_qc_reorder_after_conflict",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "repair"
+      ],
+      "prompt": "중복 라벨 충돌 사례를 뒤늦게 수동 QC 상단으로 재정렬해 손실을 줄였던 경험을 7~9문장으로 서술하라. 초기 우선순위 오류, 재정렬 근거, 남은 리스크를 포함하라."
     }
   ],
   "personas": [
@@ -1250,6 +1294,26 @@
         "accountability"
       ],
       "instruction": "당신은 실행 전 게이트를 엄격히 점검하는 성향이 있으며, 통과/중단 기준을 명시하고 누락된 전제 조건이 있으면 즉시 실행을 보류한다."
+    },
+    {
+      "id": "alias_coverage_analyst",
+      "style_tags": [
+        "audit",
+        "evidence",
+        "calibration",
+        "triage"
+      ],
+      "instruction": "당신은 용어 누락과 별칭 편향을 먼저 찾는 성향이 있으며, 검색 신호의 빈틈을 근거 강도와 함께 기록하고 즉시 보강 쿼리를 제안한다."
+    },
+    {
+      "id": "manifest_integrity_guard",
+      "style_tags": [
+        "reproducibility",
+        "process",
+        "accountability",
+        "risk"
+      ],
+      "instruction": "당신은 결과 수치보다 실행 메타데이터의 무결성을 우선 점검하며, manifest 필수 필드 누락 시 해석을 중단하고 복구 순서를 명시한다."
     }
   ],
   "temperatures": [

@@ -537,17 +537,21 @@ def attach_screening_stability(merged: Dict, raw_rows: List[Dict]) -> Dict:
     conflict = len(label_counts) > 1
     score_range = round((max(scores) - min(scores)) if scores else 0.0, 4)
 
+    priority_votes = sorted(set(priorities))
+    confidence_votes = sorted(set(confidences))
     merged["screening_stability"] = {
         "source_count": len(raw_rows),
         "dominant_label": dominant_label,
         "label_counts": label_counts,
-        "priority_votes": sorted(set(priorities)),
-        "confidence_votes": sorted(set(confidences)),
+        "priority_votes": priority_votes,
+        "confidence_votes": confidence_votes,
         "group_votes": groups,
         "score_min": round(min(scores), 4) if scores else 0.0,
         "score_max": round(max(scores), 4) if scores else 0.0,
         "score_range": score_range,
         "label_conflict": conflict,
+        "priority_conflict": len(priority_votes) > 1,
+        "confidence_conflict": len(confidence_votes) > 1,
     }
     return merged
 
@@ -555,6 +559,8 @@ def attach_screening_stability(merged: Dict, raw_rows: List[Dict]) -> Dict:
 def summarize_screening_stability(rows: List[Dict]) -> Dict[str, int]:
     out = {
         "label_conflict": 0,
+        "priority_conflict": 0,
+        "confidence_conflict": 0,
         "high_score_variance": 0,
         "single_source_only": 0,
     }
@@ -564,6 +570,10 @@ def summarize_screening_stability(rows: List[Dict]) -> Dict[str, int]:
             out["single_source_only"] += 1
         if bool(stability.get("label_conflict", False)):
             out["label_conflict"] += 1
+        if bool(stability.get("priority_conflict", False)):
+            out["priority_conflict"] += 1
+        if bool(stability.get("confidence_conflict", False)):
+            out["confidence_conflict"] += 1
         if float(stability.get("score_range", 0.0) or 0.0) >= 1.5:
             out["high_score_variance"] += 1
     return out
@@ -787,9 +797,19 @@ def collect_manual_qc_queue(rows: List[Dict], include_th: float, review_th: floa
             reasons.append("no_bridge_sentence")
 
         stability = row.get("screening_stability") or {}
+        source_count = int(stability.get("source_count", 0) or 0)
         if bool(stability.get("label_conflict", False)):
             risk += 1.1
             reasons.append("dedup_label_conflict")
+        if bool(stability.get("priority_conflict", False)):
+            risk += 0.5
+            reasons.append("dedup_priority_conflict")
+        if bool(stability.get("confidence_conflict", False)):
+            risk += 0.6
+            reasons.append("dedup_confidence_conflict")
+        if source_count <= 1:
+            risk += 0.35
+            reasons.append("dedup_single_source")
         if float(stability.get("score_range", 0.0) or 0.0) >= 1.5:
             risk += 0.8
             reasons.append("dedup_high_score_variance")
