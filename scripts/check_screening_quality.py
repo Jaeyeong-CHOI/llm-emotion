@@ -101,10 +101,14 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_review_confidence_entropy: `{payload['summary']['manual_qc_review_confidence_entropy']}`",
             f"- traceable_reason_rows: `{payload['summary']['traceable_reason_rows']}`",
             f"- screening_reason_traceability_share: `{payload['summary']['screening_reason_traceability_share']}`",
+            f"- manual_qc_bridge_signal_rows: `{payload['summary']['manual_qc_bridge_signal_rows']}`",
+            f"- manual_qc_bridge_signal_share: `{payload['summary']['manual_qc_bridge_signal_share']}`",
             f"- manual_qc_label_counts: `{payload['summary']['manual_qc_label_counts']}`",
             f"- manual_qc_source_group_diversity: `{payload['summary']['manual_qc_source_group_diversity']}`",
             f"- manual_qc_single_query_share: `{payload['summary']['manual_qc_single_query_share']}`",
             f"- manual_qc_unknown_query_share: `{payload['summary']['manual_qc_unknown_query_share']}`",
+            f"- manual_qc_review_source_group_diversity: `{payload['summary']['manual_qc_review_source_group_diversity']}`",
+            f"- manual_qc_review_group_dominance: `{payload['summary']['manual_qc_review_group_dominance']}`",
             f"- manual_qc_year_diversity: `{payload['summary']['manual_qc_year_diversity']}`",
             f"- manual_qc_single_year_share: `{payload['summary']['manual_qc_single_year_share']}`",
             f"- manual_qc_year_entropy: `{payload['summary']['manual_qc_year_entropy']}`",
@@ -164,7 +168,10 @@ def main():
     ap.add_argument("--min-manual-qc-review-confidence-bins", type=int, default=2)
     ap.add_argument("--min-manual-qc-review-confidence-entropy", type=float, default=0.4)
     ap.add_argument("--min-screening-reason-traceability-share", type=float, default=0.6)
+    ap.add_argument("--min-manual-qc-bridge-signal-share", type=float, default=0.2)
     ap.add_argument("--max-manual-qc-unknown-query-share", type=float, default=0.20)
+    ap.add_argument("--min-manual-qc-review-source-groups", type=int, default=2)
+    ap.add_argument("--max-manual-qc-review-group-dominance", type=float, default=0.7)
     ap.add_argument("--min-manual-qc-year-diversity", type=int, default=3)
     ap.add_argument("--max-manual-qc-single-year-share", type=float, default=0.5)
     ap.add_argument("--min-manual-qc-year-entropy", type=float, default=0.45)
@@ -227,13 +234,17 @@ def main():
     manual_qc_source_group_counts: dict[str, int] = {}
     manual_qc_source_query_counts: dict[str, int] = {}
     manual_qc_year_counts: dict[str, int] = {}
+    manual_qc_review_source_group_counts: dict[str, int] = {}
     empty_screening_reason_rows = 0
+    bridge_signal_rows = 0
     for row in manual_qc_rows:
         label = str(row.get("label") or "").strip().lower() or "unknown"
         manual_qc_label_counts[label] = manual_qc_label_counts.get(label, 0) + 1
         reason_field = str(row.get("screening_reasons") or "")
         if not reason_field.strip():
             empty_screening_reason_rows += 1
+        if "bridge_sentence_hits=" in reason_field:
+            bridge_signal_rows += 1
         source_group = str(row.get("source_group") or "").strip().lower() or "unknown"
         source_query = str(row.get("source_query") or "").strip().lower() or "unknown"
         review_confidence = str(row.get("confidence") or "").strip().lower() or "unknown"
@@ -241,6 +252,8 @@ def main():
         manual_qc_source_group_counts[source_group] = manual_qc_source_group_counts.get(source_group, 0) + 1
         manual_qc_source_query_counts[source_query] = manual_qc_source_query_counts.get(source_query, 0) + 1
         manual_qc_year_counts[year] = manual_qc_year_counts.get(year, 0) + 1
+        if label == "review":
+            manual_qc_review_source_group_counts[source_group] = manual_qc_review_source_group_counts.get(source_group, 0) + 1
         tokens = [token.strip().lower() for token in reason_field.replace("|", ";").split(";") if token.strip()]
         seen = set()
         for token in tokens:
@@ -261,6 +274,9 @@ def main():
         else 0.0
     )
     manual_qc_source_group_diversity = sum(1 for _, v in manual_qc_source_group_counts.items() if int(v or 0) > 0)
+    manual_qc_review_source_group_diversity = sum(
+        1 for _, v in manual_qc_review_source_group_counts.items() if int(v or 0) > 0
+    )
     manual_qc_year_diversity = sum(1 for _, v in manual_qc_year_counts.items() if int(v or 0) > 0)
     manual_qc_single_year_share = (
         round(max(manual_qc_year_counts.values(), default=0) / max(1, len(manual_qc_rows)), 4)
@@ -281,8 +297,14 @@ def main():
         if any(token in str(row.get("screening_reasons") or "") for token in traceability_tokens)
     )
     screening_reason_traceability_share = pct(traceable_reason_rows, len(manual_qc_rows))
+    manual_qc_bridge_signal_share = pct(bridge_signal_rows, len(manual_qc_rows))
     unknown_query_rows = int(manual_qc_source_query_counts.get("unknown", 0) or 0)
     manual_qc_unknown_query_share = pct(unknown_query_rows, len(manual_qc_rows))
+    manual_qc_review_group_dominance = (
+        round(max(manual_qc_review_source_group_counts.values(), default=0) / max(1, manual_qc_review_rows), 4)
+        if manual_qc_review_rows
+        else 0.0
+    )
     screening_reason_entropy = normalized_entropy(screening_reason_counts)
     manual_qc_query_entropy = normalized_entropy(manual_qc_source_query_counts)
     manual_qc_risk_reason_entropy = normalized_entropy(risk_reason_summary)
@@ -471,6 +493,12 @@ def main():
             "threshold": f">={args.min_screening_reason_traceability_share}",
         },
         {
+            "name": "manual_qc_bridge_signal_share_floor",
+            "status": "pass" if manual_qc_bridge_signal_share >= args.min_manual_qc_bridge_signal_share else "fail",
+            "observed": manual_qc_bridge_signal_share,
+            "threshold": f">={args.min_manual_qc_bridge_signal_share}",
+        },
+        {
             "name": "manual_qc_year_diversity_floor",
             "status": "pass" if manual_qc_year_diversity >= args.min_manual_qc_year_diversity else "fail",
             "observed": manual_qc_year_diversity,
@@ -499,6 +527,22 @@ def main():
             "status": "pass" if manual_qc_source_group_diversity >= args.min_manual_qc_source_groups else "fail",
             "observed": manual_qc_source_group_diversity,
             "threshold": f">={args.min_manual_qc_source_groups}",
+        },
+        {
+            "name": "manual_qc_review_source_group_diversity_floor",
+            "status": "pass"
+            if manual_qc_review_source_group_diversity >= args.min_manual_qc_review_source_groups
+            else "fail",
+            "observed": manual_qc_review_source_group_diversity,
+            "threshold": f">={args.min_manual_qc_review_source_groups}",
+        },
+        {
+            "name": "manual_qc_review_group_dominance_ceiling",
+            "status": "pass"
+            if manual_qc_review_group_dominance <= args.max_manual_qc_review_group_dominance
+            else "fail",
+            "observed": manual_qc_review_group_dominance,
+            "threshold": f"<={args.max_manual_qc_review_group_dominance}",
         },
         {
             "name": "manual_qc_single_query_share_ceiling",
@@ -612,12 +656,17 @@ def main():
             "manual_qc_review_confidence_entropy": manual_qc_review_confidence_entropy,
             "traceable_reason_rows": traceable_reason_rows,
             "screening_reason_traceability_share": screening_reason_traceability_share,
+            "manual_qc_bridge_signal_rows": bridge_signal_rows,
+            "manual_qc_bridge_signal_share": manual_qc_bridge_signal_share,
             "manual_qc_review_confidence_counts": review_confidence_counts,
             "manual_qc_label_counts": manual_qc_label_counts,
             "manual_qc_source_group_diversity": manual_qc_source_group_diversity,
             "manual_qc_source_group_counts": manual_qc_source_group_counts,
             "manual_qc_single_query_share": manual_qc_single_query_share,
             "manual_qc_source_query_counts": manual_qc_source_query_counts,
+            "manual_qc_review_source_group_diversity": manual_qc_review_source_group_diversity,
+            "manual_qc_review_source_group_counts": manual_qc_review_source_group_counts,
+            "manual_qc_review_group_dominance": manual_qc_review_group_dominance,
             "manual_qc_unknown_query_share": manual_qc_unknown_query_share,
             "manual_qc_year_diversity": manual_qc_year_diversity,
             "manual_qc_single_year_share": manual_qc_single_year_share,

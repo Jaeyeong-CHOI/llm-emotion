@@ -1,5 +1,5 @@
 {
-  "version": "v4.8",
+  "version": "v5.0",
   "language": "ko",
   "scenarios": [
     {
@@ -1704,6 +1704,42 @@
         "risk"
       ],
       "prompt": "실험 러너에서 특정 셀이 재시도 횟수를 과도하게 소모해 전체 배치 공정성이 무너졌던 사건을 7~10문장으로 회고하라. 어떤 신호로 셀 단위 예산 고갈을 감지했는지, 즉시 차단 규칙, 재개 조건을 포함하라."
+    },
+    {
+      "id": "screening_alias_semantic_bridge_gap",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "semantic_bridge",
+        "audit",
+        "recall"
+      ],
+      "prompt": "선행연구 스크리닝에서 표면 키워드는 맞았지만 의미 연결(semantic bridge)을 확인하지 않아 include 후보를 놓칠 뻔한 사례를 7~10문장으로 회고하라. 어떤 별칭(alias)이 오해를 만들었는지, abstract 문장 단위에서 무엇을 다시 확인했는지, 수정한 screening gate를 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_coverage_debt",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "coverage",
+        "documentation"
+      ],
+      "prompt": "프롬프트 뱅크를 확장하면서 일부 감정 축은 강화됐지만 반대관점(countervoice) 커버리지가 뒤처져 비교 실험 해석이 흔들린 경험을 7~9문장으로 작성하라. 어떤 축이 과대표집됐는지, coverage debt를 어떻게 기록했는지, 다음 버전의 균형 규칙을 포함하라."
+    },
+    {
+      "id": "runner_budget_pressure_handoff",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "budget_pressure",
+        "handoff",
+        "systems"
+      ],
+      "prompt": "실험 러너에서 특정 run id가 예산과 시도 횟수를 과도하게 가져가 다른 셀의 실행 기회를 압박했던 상황을 7~10문장으로 회고하라. 어떤 점유율 지표를 봤는지, 중단 또는 handoff 결정을 어떻게 내렸는지, 후속 재현 절차를 포함하라."
     }
   ],
   "personas": [
@@ -2600,6 +2636,36 @@
         "reproducibility"
       ],
       "instruction": "당신은 실험 셀 단위 재시도 예산의 공정성을 감시하는 성향이 있으며, 특정 셀의 과도한 재시도를 조기 차단하고 배치 재개 순서를 명시한다."
+    },
+    {
+      "id": "semantic_bridge_triager",
+      "style_tags": [
+        "screening",
+        "semantic_bridge",
+        "audit",
+        "recall"
+      ],
+      "instruction": "당신은 표면 키워드보다 문장 단위 의미 연결을 중시하는 성향이 있으며, alias hit와 bridge evidence가 분리될 때 review 근거를 더 보수적으로 기록한다."
+    },
+    {
+      "id": "countervoice_coverage_archivist",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "coverage",
+        "documentation"
+      ],
+      "instruction": "당신은 프롬프트 뱅크의 주장-반대관점 커버리지 부채를 기록하는 성향이 있으며, 과대표집 축과 비어 있는 대응 축을 짝지어 버전 메모로 남긴다."
+    },
+    {
+      "id": "budget_pressure_dispatcher",
+      "style_tags": [
+        "runner",
+        "budget_pressure",
+        "handoff",
+        "systems"
+      ],
+      "instruction": "당신은 run id별 예산 압박과 시도 점유율을 보고 배치 중단·handoff·재개 순서를 정하는 성향이 있으며, 점유율 상한과 후속 실행 조건을 명시한다."
     }
   ],
   "temperatures": [

@@ -816,6 +816,31 @@
         "cell_budget_fairness_operator",
         "attempt_log_forensics_operator"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_budget_pressure_v50",
+      "n": 12,
+      "seed": 33030,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_alias_semantic_bridge_gap",
+        "screening_bridge_evidence_traceback",
+        "prompt_bank_countervoice_coverage_debt",
+        "prompt_bank_countervoice_pair_rotation",
+        "runner_budget_pressure_handoff"
+      ],
+      "persona_ids": [
+        "semantic_bridge_triager",
+        "countervoice_coverage_archivist",
+        "budget_pressure_dispatcher",
+        "cell_budget_fairness_operator"
+      ]
     }
   ]
 }

@@ -7,10 +7,12 @@
     "counterfactual thinking",
     "regret",
     "emotion",
+    "emotion recognition",
     "affect",
     "anthropomorphism",
     "theory of mind",
     "mental state",
+    "perspective taking",
     "self narrative",
     "self-reflection",
     "social cognition"
@@ -20,6 +22,7 @@
     "counterfactual",
     "counterfactual thinking",
     "theory of mind",
+    "perspective taking",
     "anthropomorphism",
     "emotional attribution",
     "self-reflection"
@@ -31,7 +34,9 @@
     "emotion benchmark",
     "social reasoning benchmark",
     "manual coding",
-    "psychology"
+    "psychology",
+    "crowdworker",
+    "expert rating"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -84,7 +89,13 @@
       "emotions",
       "emotional",
       "affect",
-      "affective"
+      "affective",
+      "sentiment understanding"
+    ],
+    "emotion recognition": [
+      "emotion recognition",
+      "emotion detection",
+      "affective recognition"
     ],
     "affect": [
       "affect",
@@ -99,17 +110,23 @@
     "theory of mind": [
       "theory of mind",
       "mentalizing",
-      "mental state reasoning"
+      "mental state reasoning",
+      "perspective taking",
+      "mindreading"
     ],
     "mental state": [
       "mental state",
       "mental states",
-      "mentalizing"
+      "mentalizing",
+      "social inference",
+      "intent inference"
     ],
     "self-reflection": [
       "self-reflection",
       "self reflection",
-      "reflective reasoning"
+      "reflective reasoning",
+      "self-disclosure",
+      "self narration"
     ]
   },
   "weights": {
@@ -153,6 +170,8 @@
     "annotation",
     "behavioral experiment",
     "survey",
+    "participant study",
+    "crowdworker",
     "inter-rater",
     "manual coding",
     "benchmark"

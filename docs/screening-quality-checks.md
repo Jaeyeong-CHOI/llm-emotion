@@ -22,7 +22,9 @@ python3 scripts/check_screening_quality.py \
   --out-md results/screening_quality_report.md \
   --run-label screening_qc_v44 --min-balanced-min-per-label 2 --min-screening-reason-diversity 6 --max-top-screening-reason-share 0.65 \
   --min-screening-reason-entropy 0.55 --min-manual-qc-query-entropy 0.50 --min-manual-qc-risk-reason-entropy 0.45 \
-  --min-manual-qc-source-groups 3 --max-manual-qc-single-query-share 0.45 --max-manual-qc-unknown-query-share 0.20 --max-empty-screening-reason-share 0.10
+  --min-manual-qc-source-groups 3 --min-manual-qc-bridge-signal-share 0.20 --min-manual-qc-review-source-groups 2 \
+  --max-manual-qc-review-group-dominance 0.70 --max-manual-qc-single-query-share 0.45 \
+  --max-manual-qc-unknown-query-share 0.20 --max-empty-screening-reason-share 0.10
 ```
 
 ## Default gates
@@ -48,6 +50,9 @@ python3 scripts/check_screening_quality.py \
 - `review_to_include_ratio <= 5.0`
 - `manual_qc_high_risk_share <= 0.85`
 - `manual_qc_source_group_diversity >= 3`
+- `manual_qc_bridge_signal_share >= 0.20`
+- `manual_qc_review_source_group_diversity >= 2`
+- `manual_qc_review_group_dominance <= 0.70`
 - `manual_qc_single_query_share <= 0.45`
 - `manual_qc_unknown_query_share <= 0.20`
 - `empty_screening_reason_share <= 0.10`
@@ -61,5 +66,6 @@ python3 scripts/check_screening_quality.py \
 - Inspect `top_qc_risk_reasons` and `top_screening_reasons` before editing screening rules.
 - Confirm that the balanced QC queue still contains `include` rows before trusting reviewer disagreement estimates.
 - Use `query_drift_term_suggestions` to decide if new aliases belong in `queries/screening_rules.json`.
+- `manual_qc_bridge_signal_share`가 낮으면 alias hit만 있고 의미 연결 근거가 약한 review/include 후보가 많다는 뜻이므로 `bridge_sentence_hits`가 남는 규칙과 alias 세트를 함께 재검토합니다.
 
 - `search_openalex.py`가 생성하는 `manual_qc_queue_balanced_min_per_label` 필드를 읽어 라벨별 최소 샘플 목표 충족 여부를 gate로 검사합니다.

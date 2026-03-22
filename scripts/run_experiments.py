@@ -193,6 +193,12 @@ def aggregate_by_run_id(run_metric_paths: dict[str, list[Path]]) -> list[dict]:
     return rows
 
 
+def pct(numerator: int, denominator: int) -> float:
+    if denominator <= 0:
+        return 0.0
+    return round(numerator / denominator, 4)
+
+
 def write_run_summary_csv(path: Path, rows: list[dict]):
     if not rows:
         return
@@ -299,6 +305,97 @@ def write_quarantine_csv(path: Path, rows: list[dict]):
         w.writeheader()
         for row in rows:
             w.writerow({k: row.get(k) for k in keys})
+
+
+def build_budget_report(
+    *,
+    run_label: str,
+    selected_cells_by_run_id: dict[str, int],
+    successful_cells_by_run_id: dict[str, int],
+    failed_cells_by_run_id: dict[str, int],
+    generation_attempts_by_run_id: dict[str, int],
+    analysis_attempts_by_run_id: dict[str, int],
+    selected_run_cells: int,
+    generation_attempts_total: int,
+    analysis_attempts_total: int,
+) -> dict:
+    rows = []
+    for run_id in sorted(selected_cells_by_run_id):
+        selected_cells = int(selected_cells_by_run_id.get(run_id, 0) or 0)
+        generation_attempts = int(generation_attempts_by_run_id.get(run_id, 0) or 0)
+        analysis_attempts = int(analysis_attempts_by_run_id.get(run_id, 0) or 0)
+        combined_attempts = generation_attempts + analysis_attempts
+        rows.append(
+            {
+                "id": run_id,
+                "selected_cells": selected_cells,
+                "selected_cell_share": pct(selected_cells, selected_run_cells),
+                "successful_cells": int(successful_cells_by_run_id.get(run_id, 0) or 0),
+                "failed_cells": int(failed_cells_by_run_id.get(run_id, 0) or 0),
+                "run_id_success_rate": pct(
+                    int(successful_cells_by_run_id.get(run_id, 0) or 0),
+                    selected_cells,
+                ),
+                "generation_attempts": generation_attempts,
+                "generation_attempt_share": pct(generation_attempts, generation_attempts_total),
+                "analysis_attempts": analysis_attempts,
+                "analysis_attempt_share": pct(analysis_attempts, analysis_attempts_total),
+                "combined_attempts": combined_attempts,
+                "combined_attempt_share": pct(
+                    combined_attempts,
+                    generation_attempts_total + analysis_attempts_total,
+                ),
+            }
+        )
+
+    max_selected = max(rows, key=lambda row: (row["selected_cell_share"], row["id"]), default=None)
+    max_attempt = max(rows, key=lambda row: (row["combined_attempt_share"], row["id"]), default=None)
+    max_failed = max(rows, key=lambda row: (row["failed_cells"], row["id"]), default=None)
+    return {
+        "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+        "run_label": run_label,
+        "summary": {
+            "selected_run_cells": selected_run_cells,
+            "generation_attempts_total": generation_attempts_total,
+            "analysis_attempts_total": analysis_attempts_total,
+            "combined_attempts_total": generation_attempts_total + analysis_attempts_total,
+            "max_selected_cell_share_run_id": (max_selected or {}).get("id", ""),
+            "max_selected_cell_share": (max_selected or {}).get("selected_cell_share", 0.0),
+            "max_combined_attempt_share_run_id": (max_attempt or {}).get("id", ""),
+            "max_combined_attempt_share": (max_attempt or {}).get("combined_attempt_share", 0.0),
+            "max_failed_cells_run_id": (max_failed or {}).get("id", ""),
+            "max_failed_cells": (max_failed or {}).get("failed_cells", 0),
+        },
+        "rows": rows,
+    }
+
+
+def write_budget_report_markdown(path: Path, payload: dict):
+    summary = payload.get("summary") or {}
+    lines = [
+        f"# Runner Budget Report: {payload.get('run_label', '')}",
+        "",
+        f"- generated_at_utc: `{payload.get('generated_at_utc', '')}`",
+        f"- selected_run_cells: `{summary.get('selected_run_cells', 0)}`",
+        f"- generation_attempts_total: `{summary.get('generation_attempts_total', 0)}`",
+        f"- analysis_attempts_total: `{summary.get('analysis_attempts_total', 0)}`",
+        f"- combined_attempts_total: `{summary.get('combined_attempts_total', 0)}`",
+        f"- max_selected_cell_share: `{summary.get('max_selected_cell_share', 0.0)}` (`{summary.get('max_selected_cell_share_run_id', '')}`)",
+        f"- max_combined_attempt_share: `{summary.get('max_combined_attempt_share', 0.0)}` (`{summary.get('max_combined_attempt_share_run_id', '')}`)",
+        f"- max_failed_cells: `{summary.get('max_failed_cells', 0)}` (`{summary.get('max_failed_cells_run_id', '')}`)",
+        "",
+        "| run_id | selected_cells | selected_share | success_rate | gen_attempts | gen_share | ana_attempts | ana_share | combined_share | failed_cells |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for row in payload.get("rows") or []:
+        lines.append(
+            f"| {row.get('id', '')} | {row.get('selected_cells', 0)} | {row.get('selected_cell_share', 0.0)} | "
+            f"{row.get('run_id_success_rate', 0.0)} | {row.get('generation_attempts', 0)} | "
+            f"{row.get('generation_attempt_share', 0.0)} | {row.get('analysis_attempts', 0)} | "
+            f"{row.get('analysis_attempt_share', 0.0)} | {row.get('combined_attempt_share', 0.0)} | "
+            f"{row.get('failed_cells', 0)} |"
+        )
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def write_manifest_markdown(path: Path, manifest: dict):
@@ -674,6 +771,18 @@ def main():
         help="ceiling on total attempts per run cell (generation+analysis, including retries); 0 disables",
     )
     ap.add_argument(
+        "--max-attempt-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if a single run id consumes more than this share of total attempts; 0 disables",
+    )
+    ap.add_argument(
+        "--max-selected-cell-share-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if a single run id occupies more than this share of selected run cells; 0 disables",
+    )
+    ap.add_argument(
         "--quarantine-json",
         default="",
         help="optional JSON path for failed run-cell quarantine candidates (defaults to <outdir>/quarantine_candidates.json)",
@@ -682,6 +791,16 @@ def main():
         "--quarantine-csv",
         default="",
         help="optional CSV path for failed run-cell quarantine candidates (defaults to <outdir>/quarantine_candidates.csv)",
+    )
+    ap.add_argument(
+        "--budget-report-json",
+        default="",
+        help="optional JSON path for per-run-id budget pressure summary (defaults to <outdir>/budget_report.json)",
+    )
+    ap.add_argument(
+        "--budget-report-md",
+        default="",
+        help="optional markdown path for per-run-id budget pressure summary (defaults to <outdir>/budget_report.md)",
     )
     args = ap.parse_args()
 
@@ -727,6 +846,12 @@ def main():
         quarantine_json_path.parent.mkdir(parents=True, exist_ok=True)
     if quarantine_csv_path.parent != outdir.parent:
         quarantine_csv_path.parent.mkdir(parents=True, exist_ok=True)
+    budget_report_json_path = ROOT / args.budget_report_json if args.budget_report_json else outdir / "budget_report.json"
+    budget_report_md_path = ROOT / args.budget_report_md if args.budget_report_md else outdir / "budget_report.md"
+    if budget_report_json_path.parent != outdir.parent:
+        budget_report_json_path.parent.mkdir(parents=True, exist_ok=True)
+    if budget_report_md_path.parent != outdir.parent:
+        budget_report_md_path.parent.mkdir(parents=True, exist_ok=True)
 
     manifest_path = outdir / "manifest.json"
     existing_manifest = {}
@@ -1479,6 +1604,19 @@ def main():
         run_id: round(successful_cells_by_run_id.get(run_id, 0) / max(1, selected_cells_by_run_id.get(run_id, 0)), 4)
         for run_id in sorted(selected_cells_by_run_id)
     }
+    selected_cell_shares = {
+        run_id: pct(selected_cells_by_run_id.get(run_id, 0), selected_run_cells)
+        for run_id in sorted(selected_cells_by_run_id)
+    }
+    combined_attempts_by_run_id = {
+        run_id: int(generation_attempts_by_run_id.get(run_id, 0) or 0) + int(analysis_attempts_by_run_id.get(run_id, 0) or 0)
+        for run_id in sorted(selected_cells_by_run_id)
+    }
+    combined_attempts_total = generation_attempts_total + analysis_attempts_total
+    combined_attempt_shares = {
+        run_id: pct(combined_attempts_by_run_id.get(run_id, 0), combined_attempts_total)
+        for run_id in sorted(combined_attempts_by_run_id)
+    }
 
     if args.require_min_run_cells and selected_run_cells < args.require_min_run_cells:
         raise RuntimeError(
@@ -1552,6 +1690,28 @@ def main():
                 "run(s) below require_min_planned_samples_per_run="
                 f"{args.require_min_planned_samples_per_run}: {', '.join(underfilled)}"
             )
+    if args.max_selected_cell_share_per_run_id:
+        overfilled = [
+            f"{run_id}:{share}"
+            for run_id, share in selected_cell_shares.items()
+            if share > args.max_selected_cell_share_per_run_id
+        ]
+        if overfilled:
+            raise RuntimeError(
+                "run-id selected cell share above ceiling "
+                f"{args.max_selected_cell_share_per_run_id}: {', '.join(overfilled)}"
+            )
+    if args.max_attempt_share_per_run_id:
+        overfilled = [
+            f"{run_id}:{share}"
+            for run_id, share in combined_attempt_shares.items()
+            if share > args.max_attempt_share_per_run_id
+        ]
+        if overfilled:
+            raise RuntimeError(
+                "run-id attempt share above ceiling "
+                f"{args.max_attempt_share_per_run_id}: {', '.join(overfilled)}"
+            )
 
     summary = aggregate_metrics(all_metric_paths)
     run_id_summary = aggregate_by_run_id(run_metric_paths)
@@ -1588,6 +1748,19 @@ def main():
         },
     )
     write_quarantine_csv(quarantine_csv_path, quarantine_candidates)
+    budget_report = build_budget_report(
+        run_label=label,
+        selected_cells_by_run_id=selected_cells_by_run_id,
+        successful_cells_by_run_id=successful_cells_by_run_id,
+        failed_cells_by_run_id=failed_cells_by_run_id,
+        generation_attempts_by_run_id=generation_attempts_by_run_id,
+        analysis_attempts_by_run_id=analysis_attempts_by_run_id,
+        selected_run_cells=selected_run_cells,
+        generation_attempts_total=generation_attempts_total,
+        analysis_attempts_total=analysis_attempts_total,
+    )
+    write_json(budget_report_json_path, budget_report)
+    write_budget_report_markdown(budget_report_md_path, budget_report)
     reproduce_script = outdir / "reproduce.sh"
     preflight_json_path = outdir / "preflight.json"
     preflight_csv_path = outdir / "preflight.csv"
@@ -1694,6 +1867,13 @@ def main():
         "quarantine_json": str(quarantine_json_path.relative_to(ROOT)),
         "quarantine_csv": str(quarantine_csv_path.relative_to(ROOT)),
         "quarantine_failed_cells": len(quarantine_candidates),
+        "budget_report_json": str(budget_report_json_path.relative_to(ROOT)),
+        "budget_report_md": str(budget_report_md_path.relative_to(ROOT)),
+        "budget_report_summary": budget_report.get("summary") or {},
+        "selected_cell_shares": selected_cell_shares,
+        "combined_attempt_shares": combined_attempt_shares,
+        "max_attempt_share_per_run_id": args.max_attempt_share_per_run_id,
+        "max_selected_cell_share_per_run_id": args.max_selected_cell_share_per_run_id,
         "require_freeze_artifacts": args.require_freeze_artifact,
         "freeze_artifacts": freeze_artifacts,
         "run_preflight": run_preflight_rows,
