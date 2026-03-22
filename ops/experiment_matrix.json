@@ -1931,6 +1931,33 @@
       "n": 28,
       "seed": 9301,
       "repeats": 2
+    },
+    {
+      "id": "screening_prompt_runner_query_group_timeout_v94",
+      "description": "v9.4 screening query-group entropy 복구 + prompt countervoice group ladder + runner timeout 분리/편중 tripwire smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_query_group_entropy_recovery_v94",
+        "prompt_bank_countervoice_query_group_ladder_v94",
+        "runner_timeout_stage_rebalance_drill_v94",
+        "screening_unknown_year_query_gap_tabletop_v93"
+      ],
+      "persona_ids": [
+        "query_group_entropy_triager_v94",
+        "countervoice_group_ladder_curator_v94",
+        "timeout_share_governor_v94",
+        "temperature_top3_uniformity_guard_v93"
+      ],
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "n": 28,
+      "seed": 9401,
+      "repeats": 2
     }
   ]
 }

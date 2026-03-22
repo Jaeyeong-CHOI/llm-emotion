@@ -2252,7 +2252,8 @@ def main():
                 )
                 stop_requested = True
             if code != 0:
-                row["status"] = "failed_generation"
+                generation_timeout = code == 124 or "timeout_after_seconds=" in str(err)
+                row["status"] = "failed_generation_timeout" if generation_timeout else "failed_generation"
                 row["error"] = str(err).strip()
                 runs.append(row)
                 failed_cells += 1
@@ -2568,7 +2569,8 @@ def main():
                 )
                 stop_requested = True
             if code != 0:
-                row["status"] = "failed_analysis"
+                analysis_timeout = code == 124 or "timeout_after_seconds=" in str(err2)
+                row["status"] = "failed_analysis_timeout" if analysis_timeout else "failed_analysis"
                 row["error"] = str(err2).strip()
                 row["dataset_sha256"] = maybe_file_sha256(dataset_path)
                 runs.append(row)
