@@ -468,6 +468,23 @@ def build_budget_report(
                 )
                 if selected_cells > 0 and analysis_attempts_total > 0 and selected_run_cells > 0
                 else 0.0,
+                "stage_attempt_pressure_ratio": round(
+                    max(
+                        (
+                            pct(generation_attempts, generation_attempts_total)
+                            / max(pct(selected_cells, selected_run_cells), 0.0001)
+                        )
+                        if selected_cells > 0 and generation_attempts_total > 0 and selected_run_cells > 0
+                        else 0.0,
+                        (
+                            pct(analysis_attempts, analysis_attempts_total)
+                            / max(pct(selected_cells, selected_run_cells), 0.0001)
+                        )
+                        if selected_cells > 0 and analysis_attempts_total > 0 and selected_run_cells > 0
+                        else 0.0,
+                    ),
+                    4,
+                ),
                 "stage_attempt_share_gap": round(
                     abs(pct(generation_attempts, generation_attempts_total) - pct(analysis_attempts, analysis_attempts_total)),
                     4,
@@ -501,6 +518,7 @@ def build_budget_report(
     max_retry_pressure = max(rows, key=lambda row: (row["retry_over_selection_ratio"], row["id"]), default=None)
     max_generation_attempt_pressure = max(rows, key=lambda row: (row["generation_attempt_over_selection_ratio"], row["id"]), default=None)
     max_analysis_attempt_pressure = max(rows, key=lambda row: (row["analysis_attempt_over_selection_ratio"], row["id"]), default=None)
+    max_stage_attempt_pressure = max(rows, key=lambda row: (row["stage_attempt_pressure_ratio"], row["id"]), default=None)
     max_failure_pressure = max(rows, key=lambda row: (row["failure_over_selection_ratio"], row["id"]), default=None)
     max_stage_attempt_share_gap = max(rows, key=lambda row: (row["stage_attempt_share_gap"], row["id"]), default=None)
     max_stage_attempt_imbalance_ratio = max(
@@ -553,6 +571,8 @@ def build_budget_report(
             "max_generation_attempt_over_selection_ratio": (max_generation_attempt_pressure or {}).get("generation_attempt_over_selection_ratio", 0.0),
             "max_analysis_attempt_over_selection_ratio_run_id": (max_analysis_attempt_pressure or {}).get("id", ""),
             "max_analysis_attempt_over_selection_ratio": (max_analysis_attempt_pressure or {}).get("analysis_attempt_over_selection_ratio", 0.0),
+            "max_stage_attempt_pressure_ratio_run_id": (max_stage_attempt_pressure or {}).get("id", ""),
+            "max_stage_attempt_pressure_ratio": (max_stage_attempt_pressure or {}).get("stage_attempt_pressure_ratio", 0.0),
             "max_failure_over_selection_ratio_run_id": (max_failure_pressure or {}).get("id", ""),
             "max_failure_over_selection_ratio": (max_failure_pressure or {}).get("failure_over_selection_ratio", 0.0),
             "max_stage_attempt_share_gap_run_id": (max_stage_attempt_share_gap or {}).get("id", ""),
@@ -586,6 +606,7 @@ def write_budget_report_markdown(path: Path, payload: dict):
         f"- max_retry_over_selection_ratio: `{summary.get('max_retry_over_selection_ratio', 0.0)}` (`{summary.get('max_retry_over_selection_ratio_run_id', '')}`)",
         f"- max_generation_attempt_over_selection_ratio: `{summary.get('max_generation_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_generation_attempt_over_selection_ratio_run_id', '')}`)",
         f"- max_analysis_attempt_over_selection_ratio: `{summary.get('max_analysis_attempt_over_selection_ratio', 0.0)}` (`{summary.get('max_analysis_attempt_over_selection_ratio_run_id', '')}`)",
+        f"- max_stage_attempt_pressure_ratio: `{summary.get('max_stage_attempt_pressure_ratio', 0.0)}` (`{summary.get('max_stage_attempt_pressure_ratio_run_id', '')}`)",
         f"- max_failure_over_selection_ratio: `{summary.get('max_failure_over_selection_ratio', 0.0)}` (`{summary.get('max_failure_over_selection_ratio_run_id', '')}`)",
         f"- max_stage_attempt_share_gap: `{summary.get('max_stage_attempt_share_gap', 0.0)}` (`{summary.get('max_stage_attempt_share_gap_run_id', '')}`)",
         f"- max_stage_attempt_imbalance_ratio: `{summary.get('max_stage_attempt_imbalance_ratio', 0.0)}` (`{summary.get('max_stage_attempt_imbalance_ratio_run_id', '')}`)",
@@ -594,15 +615,15 @@ def write_budget_report_markdown(path: Path, payload: dict):
         f"- max_failed_cells: `{summary.get('max_failed_cells', 0)}` (`{summary.get('max_failed_cells_run_id', '')}`)",
         f"- max_failed_cell_share: `{summary.get('max_failed_cell_share', 0.0)}` (`{summary.get('max_failed_cell_share_run_id', '')}`)",
         "",
-        "| run_id | selected_cells | selected_share | success_rate | gen_attempts | gen_share | gen_pressure | ana_attempts | ana_share | ana_pressure | retries | retry_share | retry_pressure | stage_share_gap | stage_imbalance_ratio | combined_share | attempt_pressure | failed_cells | failed_share | failure_pressure |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|", 
+        "| run_id | selected_cells | selected_share | success_rate | gen_attempts | gen_share | gen_pressure | ana_attempts | ana_share | ana_pressure | stage_pressure | retries | retry_share | retry_pressure | stage_share_gap | stage_imbalance_ratio | combined_share | attempt_pressure | failed_cells | failed_share | failure_pressure |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|", 
     ]
     for row in payload.get("rows") or []:
         lines.append(
             f"| {row.get('id', '')} | {row.get('selected_cells', 0)} | {row.get('selected_cell_share', 0.0)} | "
             f"{row.get('run_id_success_rate', 0.0)} | {row.get('generation_attempts', 0)} | "
             f"{row.get('generation_attempt_share', 0.0)} | {row.get('generation_attempt_over_selection_ratio', 0.0)} | "
-            f"{row.get('analysis_attempts', 0)} | {row.get('analysis_attempt_share', 0.0)} | {row.get('analysis_attempt_over_selection_ratio', 0.0)} | "
+            f"{row.get('analysis_attempts', 0)} | {row.get('analysis_attempt_share', 0.0)} | {row.get('analysis_attempt_over_selection_ratio', 0.0)} | {row.get('stage_attempt_pressure_ratio', 0.0)} | "
             f"{row.get('combined_retries', 0)} | {row.get('retry_share', 0.0)} | {row.get('retry_over_selection_ratio', 0.0)} | "
             f"{row.get('stage_attempt_share_gap', 0.0)} | {row.get('stage_attempt_imbalance_ratio', 0.0)} | {row.get('combined_attempt_share', 0.0)} | {row.get('attempt_over_selection_ratio', 0.0)} | "
             f"{row.get('failed_cells', 0)} | {row.get('failed_cell_share', 0.0)} | {row.get('failure_over_selection_ratio', 0.0)} |"
@@ -1126,6 +1147,12 @@ def main():
         type=float,
         default=0.0,
         help="fail if a run id consumes analysis attempts at more than this multiple of its selected-cell share; 0 disables",
+    )
+    ap.add_argument(
+        "--max-stage-attempt-pressure-ratio-per-run-id",
+        type=float,
+        default=0.0,
+        help="fail if max(generation_attempt_over_selection_ratio, analysis_attempt_over_selection_ratio) for any run id exceeds this value; 0 disables",
     )
     ap.add_argument(
         "--max-stage-attempt-share-gap-per-run-id",
@@ -2517,6 +2544,15 @@ def main():
         ]
         if overpressured_analysis:
             budget_violations.append({"rule": "max_analysis_attempt_over_selection_ratio", "threshold": args.max_analysis_attempt_over_selection_ratio, "violations": overpressured_analysis})
+    if args.max_stage_attempt_pressure_ratio_per_run_id:
+        overpressured_stage = [
+            f"{row.get('id')}:{row.get('stage_attempt_pressure_ratio')}"
+            for row in budget_report.get("rows") or []
+            if float(row.get("stage_attempt_pressure_ratio") or 0.0)
+            > args.max_stage_attempt_pressure_ratio_per_run_id
+        ]
+        if overpressured_stage:
+            budget_violations.append({"rule": "max_stage_attempt_pressure_ratio_per_run_id", "threshold": args.max_stage_attempt_pressure_ratio_per_run_id, "violations": overpressured_stage})
     if args.max_stage_attempt_share_gap_per_run_id:
         overpressured_stage_gap = [
             f"{row.get('id')}:{row.get('stage_attempt_share_gap')}"
@@ -2726,6 +2762,7 @@ def main():
         "max_retry_over_selection_ratio": args.max_retry_over_selection_ratio,
         "max_generation_attempt_over_selection_ratio": args.max_generation_attempt_over_selection_ratio,
         "max_analysis_attempt_over_selection_ratio": args.max_analysis_attempt_over_selection_ratio,
+        "max_stage_attempt_pressure_ratio_per_run_id": args.max_stage_attempt_pressure_ratio_per_run_id,
         "max_stage_attempt_share_gap_per_run_id": args.max_stage_attempt_share_gap_per_run_id,
         "max_stage_attempt_imbalance_ratio_per_run_id": args.max_stage_attempt_imbalance_ratio_per_run_id,
         "max_stage_total_attempt_gap_share": args.max_stage_total_attempt_gap_share,

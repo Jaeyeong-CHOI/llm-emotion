@@ -1,5 +1,5 @@
 {
-  "version": "v7.0",
+  "version": "v7.1",
   "language": "ko",
   "scenarios": [
     {
@@ -2445,6 +2445,44 @@
         "systems"
       ],
       "prompt": "실험 러너에서 특정 run-id의 재시도 점유율이 실시간으로 과열되어 circuit breaker를 발동했던 사건을 7~10문장으로 회고하라. 어떤 지표를 경보로 썼는지, 중단 직전 신호, 재분배 후 재개 조건을 포함하라."
+    },
+    {
+      "id": "screening_review_query_counterexample_mix",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "counterfactual",
+        "query_governance",
+        "calibration"
+      ],
+      "prompt": "review 후보를 빠르게 확장한 뒤 source_query는 다양했지만 반례(counterexample) 근거가 특정 쿼리에만 몰려 판단이 흔들린 경험을 7~10문장으로 회고하라. 어떤 쿼리 조합이 취약했는지, 반례 혼합비 기준을 어떻게 정했는지, 다음 라운드 재검토 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_query_tension",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "query_governance"
+      ],
+      "prompt": "프롬프트 뱅크에서 주장-반대관점(countervoice) 항목 수는 맞췄지만 query cluster별 표현 강도가 어긋나 비교가 왜곡된 경험을 7~9문장으로 작성하라. 어떤 cluster가 과약/과강했는지, tension 보정 기준과 버전 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_live_retry_share_reallocation",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "retry",
+        "budget_pressure",
+        "tripwire",
+        "repair"
+      ],
+      "prompt": "실험 러너에서 live retry share가 한 run-id로 급격히 집중되어 배치를 일시 중단하고 재분배했던 사건을 7~10문장으로 회고하라. 어떤 임계치를 넘었는지, 재분배 순서와 재개 전 검증 항목을 포함하라."
     }
   ],
   "personas": [
@@ -3832,6 +3870,26 @@
         "tripwire"
       ],
       "instruction": "당신은 run-id별 재시도 점유율 과열을 실시간으로 감시하는 성향이 있으며, 임계치 초과 시 즉시 중단·재분배·재개 조건을 수치로 기록한다."
+    },
+    {
+      "id": "query_counterexample_balancer",
+      "style_tags": [
+        "screening",
+        "query_governance",
+        "counterfactual",
+        "calibration"
+      ],
+      "instruction": "당신은 review 표본의 쿼리 다양성과 반례 근거 밀도를 동시에 점검하는 성향이 있으며, 어느 한쪽이 무너지면 즉시 재균형 규칙과 재검토 순서를 수치로 기록한다."
+    },
+    {
+      "id": "retry_share_reallocator",
+      "style_tags": [
+        "runner",
+        "retry",
+        "budget_pressure",
+        "systems"
+      ],
+      "instruction": "당신은 run-id별 live retry share 과열을 감시하는 운영자 성향이 있으며, 임계치 초과 시 즉시 재분배·격리·재개 조건을 수치로 명확히 남긴다."
     }
   ],
   "temperatures": [

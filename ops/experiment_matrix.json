@@ -1330,6 +1330,30 @@
         "runner_live_retry_pressure_circuit_breaker",
         "runner_stage_retry_mix_guard"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_retry_share_v71",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "query_counterexample_balancer",
+        "countervoice_matrix_curator",
+        "retry_share_reallocator",
+        "live_retry_pressure_sentinel"
+      ],
+      "n": 24,
+      "seed": 471,
+      "temperatures": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "repeats": 1,
+      "scenario_ids": [
+        "screening_review_query_counterexample_mix",
+        "prompt_bank_countervoice_query_tension",
+        "runner_live_retry_share_reallocation",
+        "runner_live_retry_pressure_circuit_breaker"
+      ]
     }
   ]
 }
