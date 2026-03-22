@@ -1,5 +1,5 @@
 {
-  "version": "v4.1",
+  "version": "v4.2",
   "language": "ko",
   "scenarios": [
     {
@@ -1452,6 +1452,42 @@
         "risk"
       ],
       "prompt": "실험 러너에서 단계별 timeout을 두지 않아 배치가 교착 상태에 빠졌고, 이후 failover 정책으로 복구했던 사건을 7~10문장으로 회고하라. 어느 단계가 막혔는지, timeout/재시도/중단 기준을 어떻게 분리했는지, 현재의 운영 규칙을 포함하라."
+    },
+    {
+      "id": "screening_temporal_holdout_blindspot",
+      "label": "decision",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "calibration",
+        "recall"
+      ],
+      "prompt": "최근 수집된 논문만으로 스크리닝 기준을 고정했다가 오래된 핵심 연구를 놓친 경험을 7~10문장으로 회고하라. 어떤 시간 편향이 생겼는지, 당시엔 왜 합리적으로 보였는지, 현재의 temporal holdout 점검 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_antithetic_pair_gap",
+      "label": "identity",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "counterfactual",
+        "repair"
+      ],
+      "prompt": "프롬프트 뱅크에서 유사한 주장만 늘리고 반대축(antithetic pair)을 충분히 넣지 못해 비교 해석이 흔들린 경험을 7~9문장으로 작성하라. 어떤 축이 비어 있었는지, 보강 기준, 버전 관리 규칙을 포함하라."
+    },
+    {
+      "id": "runner_stage_budget_starvation",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "reproducibility",
+        "batch",
+        "systems",
+        "risk"
+      ],
+      "prompt": "실험 러너에서 특정 단계에 재시도 예산이 과도하게 몰려 다른 단계가 굶주린(starvation) 경험을 7~10문장으로 회고하라. 어떤 단계가 병목이 되었는지, 예산 재배분 기준, 현재의 stage budget 가드를 포함하라."
     }
   ],
   "personas": [
@@ -2138,6 +2174,36 @@
         "reproducibility"
       ],
       "instruction": "당신은 실행 지연을 단계별로 분리해 다루는 운영자 성향이 있으며, timeout·재시도·중단·재개 조건을 명시적으로 기록해 배치 교착을 예방한다."
+    },
+    {
+      "id": "screening_recall_triager",
+      "style_tags": [
+        "audit",
+        "triage",
+        "recall",
+        "prioritization"
+      ],
+      "instruction": "당신은 스크리닝 미탐 위험을 우선 분류하는 성향이 있으며, 경계 사례를 근거 강도·재현율 손실·검토 비용으로 나눠 우선순위를 제시한다."
+    },
+    {
+      "id": "prompt_antithesis_designer",
+      "style_tags": [
+        "process",
+        "balance",
+        "counterfactual",
+        "documentation"
+      ],
+      "instruction": "당신은 주장 프롬프트와 반대축 프롬프트를 쌍으로 설계하는 성향이 있으며, 신규 항목 추가 시 비교 가능성과 중복 위험을 동시에 기록한다."
+    },
+    {
+      "id": "stage_budget_orchestrator",
+      "style_tags": [
+        "batch",
+        "systems",
+        "risk",
+        "planning"
+      ],
+      "instruction": "당신은 단계별 실행 예산을 조정하는 운영자 성향이 있으며, 단계별 실패비용과 복구시간을 기준으로 retry budget과 중단 임계치를 설계한다."
     }
   ],
   "temperatures": [

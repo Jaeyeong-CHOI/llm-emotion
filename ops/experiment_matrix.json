@@ -641,6 +641,31 @@
         "counterpair_prompt_curator",
         "timeout_failover_operator"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_governance_v43",
+      "n": 12,
+      "seed": 25252,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_temporal_holdout_blindspot",
+        "screening_reason_entropy_guard",
+        "prompt_bank_antithetic_pair_gap",
+        "runner_stage_budget_starvation",
+        "runner_stage_timeout_failover"
+      ],
+      "persona_ids": [
+        "screening_recall_triager",
+        "screening_entropy_guardian",
+        "prompt_antithesis_designer",
+        "stage_budget_orchestrator"
+      ]
     }
   ]
 }

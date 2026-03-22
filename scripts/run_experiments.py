@@ -307,6 +307,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- selected_run_ids: `{preflight_summary.get('selected_run_id_count', 0)}`",
         f"- successful_cells: `{manifest.get('successful_cells', 0)}`",
         f"- success_rate: `{manifest.get('success_rate', 0.0)}`",
+        f"- generation_success_rate: `{manifest.get('generation_success_rate', 0.0)}`",
+        f"- analysis_success_rate: `{manifest.get('analysis_success_rate', 0.0)}`",
         f"- prompt_bank_versions: `{', '.join(preflight_summary.get('prompt_bank_versions', []))}`",
         f"- min_scenario_count: `{preflight_summary.get('min_scenario_count', 0)}`",
         f"- min_persona_count: `{preflight_summary.get('min_persona_count', 0)}`",
@@ -457,6 +459,18 @@ def main():
         type=float,
         default=0.0,
         help="fail if any selected run-id success rate falls below this ratio (0 disables)",
+    )
+    ap.add_argument(
+        "--require-min-generation-success-rate",
+        type=float,
+        default=0.0,
+        help="fail if generation stage success rate falls below this ratio (0 disables)",
+    )
+    ap.add_argument(
+        "--require-min-analysis-success-rate",
+        type=float,
+        default=0.0,
+        help="fail if analysis stage success rate falls below this ratio (0 disables)",
     )
     ap.add_argument("--require-min-condition-cells", type=int, default=0, help="fail if any run selects fewer than this many scenario×persona×temperature condition cells")
     ap.add_argument("--require-min-total-samples", type=int, default=0, help="fail if total selected samples (sum of n×condition_cells×repeats) is below this threshold")
@@ -668,6 +682,10 @@ def main():
     executed = 0
     failed_cells = 0
     attempted_run_cells = 0
+    generation_attempted_cells = 0
+    generation_successful_cells = 0
+    analysis_attempted_cells = 0
+    analysis_successful_cells = 0
     failure_streak = 0
     selected_run_cells = 0
     selected_total_samples = 0
@@ -913,6 +931,7 @@ def main():
                 continue
 
             attempted_run_cells += 1
+            generation_attempted_cells += 1
             cell_started = time.perf_counter()
             code, _, err, gen_attempts = execute_with_retries(
                 gen_cmd,
@@ -956,6 +975,8 @@ def main():
                         break
                 continue
 
+            generation_successful_cells += 1
+            analysis_attempted_cells += 1
             code, _, err2, analyze_attempts = execute_with_retries(
                 analyze_cmd,
                 run_key=run_key,
@@ -999,6 +1020,7 @@ def main():
                         break
                 continue
 
+            analysis_successful_cells += 1
             row["duration_seconds"] = round(time.perf_counter() - cell_started, 3)
             row["dataset_sha256"] = maybe_file_sha256(dataset_path)
             row["metrics_sha256"] = maybe_file_sha256(metrics_path)
@@ -1013,6 +1035,16 @@ def main():
 
     successful_cells = sum(1 for row in runs if row.get("status") in {"ok", "skipped_resume"})
     success_rate = round(successful_cells / max(1, selected_run_cells), 4) if selected_run_cells else 0.0
+    generation_success_rate = (
+        round(generation_successful_cells / max(1, generation_attempted_cells), 4)
+        if generation_attempted_cells
+        else 0.0
+    )
+    analysis_success_rate = (
+        round(analysis_successful_cells / max(1, analysis_attempted_cells), 4)
+        if analysis_attempted_cells
+        else 0.0
+    )
     run_id_success_rates = {
         run_id: round(successful_cells_by_run_id.get(run_id, 0) / max(1, selected_cells_by_run_id.get(run_id, 0)), 4)
         for run_id in sorted(selected_cells_by_run_id)
@@ -1041,6 +1073,16 @@ def main():
                 "run-id success rate below floor "
                 f"{args.require_min_run_id_success_rate}: {', '.join(underfilled)}"
             )
+    if args.require_min_generation_success_rate and generation_success_rate < args.require_min_generation_success_rate:
+        raise RuntimeError(
+            "generation_success_rate="
+            f"{generation_success_rate} < require_min_generation_success_rate={args.require_min_generation_success_rate}"
+        )
+    if args.require_min_analysis_success_rate and analysis_success_rate < args.require_min_analysis_success_rate:
+        raise RuntimeError(
+            "analysis_success_rate="
+            f"{analysis_success_rate} < require_min_analysis_success_rate={args.require_min_analysis_success_rate}"
+        )
     if args.require_min_total_samples and selected_total_samples < args.require_min_total_samples:
         raise RuntimeError(
             f"selected_total_samples={selected_total_samples} < require_min_total_samples={args.require_min_total_samples}"
@@ -1160,6 +1202,12 @@ def main():
         "selected_run_cells": selected_run_cells,
         "successful_cells": successful_cells,
         "success_rate": success_rate,
+        "generation_attempted_cells": generation_attempted_cells,
+        "generation_successful_cells": generation_successful_cells,
+        "generation_success_rate": generation_success_rate,
+        "analysis_attempted_cells": analysis_attempted_cells,
+        "analysis_successful_cells": analysis_successful_cells,
+        "analysis_success_rate": analysis_success_rate,
         "run_id_success_rates": run_id_success_rates,
         "selected_total_samples": selected_total_samples,
         "planned_samples_by_run": planned_samples_by_run,
@@ -1167,6 +1215,8 @@ def main():
         "require_min_successful_cells": args.require_min_successful_cells,
         "require_min_success_rate": args.require_min_success_rate,
         "require_min_run_id_success_rate": args.require_min_run_id_success_rate,
+        "require_min_generation_success_rate": args.require_min_generation_success_rate,
+        "require_min_analysis_success_rate": args.require_min_analysis_success_rate,
         "require_min_temperature_count": args.require_min_temperature_count,
         "require_min_total_samples": args.require_min_total_samples,
         "require_min_run_ids": args.require_min_run_ids,

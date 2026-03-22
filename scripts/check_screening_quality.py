@@ -3,6 +3,7 @@ import argparse
 import csv
 import datetime as dt
 import json
+import math
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +29,19 @@ def pct(numerator: int, denominator: int) -> float:
 def top_items(mapping: dict, limit: int = 8) -> list[dict]:
     ranked = sorted(mapping.items(), key=lambda x: (-int(x[1]), x[0]))
     return [{"name": key, "count": value} for key, value in ranked[:limit]]
+
+
+def normalized_entropy(mapping: dict[str, int]) -> float:
+    counts = [int(v or 0) for v in mapping.values() if int(v or 0) > 0]
+    if not counts:
+        return 0.0
+    total = sum(counts)
+    if total <= 0:
+        return 0.0
+    probs = [c / total for c in counts]
+    entropy = -sum(p * math.log2(p) for p in probs if p > 0)
+    max_entropy = math.log2(len(counts)) if len(counts) > 1 else 1.0
+    return round(entropy / max_entropy, 4) if max_entropy > 0 else 0.0
 
 
 def write_json(path: Path, payload: dict):
@@ -75,6 +89,8 @@ def write_markdown(path: Path, payload: dict):
             f"- top_risk_reason_share: `{payload['summary']['top_risk_reason_share']}`",
             f"- screening_reason_diversity: `{payload['summary']['screening_reason_diversity']}`",
             f"- top_screening_reason_share: `{payload['summary']['top_screening_reason_share']}`",
+            f"- screening_reason_entropy: `{payload['summary']['screening_reason_entropy']}`",
+            f"- manual_qc_query_entropy: `{payload['summary']['manual_qc_query_entropy']}`",
             f"- review_to_include_ratio: `{payload['summary']['review_to_include_ratio']}`",
             f"- manual_qc_include_rows: `{payload['summary']['manual_qc_include_rows']}`",
             f"- manual_qc_label_counts: `{payload['summary']['manual_qc_label_counts']}`",
@@ -127,6 +143,8 @@ def main():
     ap.add_argument("--min-manual-qc-source-groups", type=int, default=3)
     ap.add_argument("--max-manual-qc-single-query-share", type=float, default=0.45)
     ap.add_argument("--max-empty-screening-reason-share", type=float, default=0.1)
+    ap.add_argument("--min-screening-reason-entropy", type=float, default=0.55)
+    ap.add_argument("--min-manual-qc-query-entropy", type=float, default=0.5)
     args = ap.parse_args()
 
     report_path = ROOT / args.report
@@ -214,6 +232,8 @@ def main():
         else 0.0
     )
     empty_screening_reason_share = pct(empty_screening_reason_rows, len(manual_qc_rows))
+    screening_reason_entropy = normalized_entropy(screening_reason_counts)
+    manual_qc_query_entropy = normalized_entropy(manual_qc_source_query_counts)
     review_to_include_ratio = round(review_count / max(1, include_count), 4)
     high_risk_qc_rows = sum(1 for row in manual_qc_rows if float(row.get("risk_score") or 0.0) >= 5.0)
     manual_qc_high_risk_share = pct(high_risk_qc_rows, len(manual_qc_rows))
@@ -346,6 +366,18 @@ def main():
             "threshold": f"<={args.max_top_screening_reason_share}",
         },
         {
+            "name": "screening_reason_entropy_floor",
+            "status": "pass" if screening_reason_entropy >= args.min_screening_reason_entropy else "fail",
+            "observed": screening_reason_entropy,
+            "threshold": f">={args.min_screening_reason_entropy}",
+        },
+        {
+            "name": "manual_qc_query_entropy_floor",
+            "status": "pass" if manual_qc_query_entropy >= args.min_manual_qc_query_entropy else "fail",
+            "observed": manual_qc_query_entropy,
+            "threshold": f">={args.min_manual_qc_query_entropy}",
+        },
+        {
             "name": "manual_qc_source_group_diversity_floor",
             "status": "pass" if manual_qc_source_group_diversity >= args.min_manual_qc_source_groups else "fail",
             "observed": manual_qc_source_group_diversity,
@@ -441,6 +473,8 @@ def main():
             "top_risk_reason_share": top_risk_reason_share,
             "screening_reason_diversity": screening_reason_diversity,
             "top_screening_reason_share": top_screening_reason_share,
+            "screening_reason_entropy": screening_reason_entropy,
+            "manual_qc_query_entropy": manual_qc_query_entropy,
             "review_to_include_ratio": review_to_include_ratio,
             "manual_qc_include_rows": manual_qc_include_rows,
             "manual_qc_label_counts": manual_qc_label_counts,

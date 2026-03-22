@@ -4,10 +4,10 @@
 Test whether LLM outputs in loss and counterfactual scenarios exhibit language patterns that resemble human regret narratives, while keeping scenario selection reproducible and auditable.
 
 ## Current design updates
-- Prompt bank is now `v4.1`, adding screening reason entropy / counterpair injection / stage timeout failover scenarios (`screening_reason_entropy_guard`, `prompt_bank_counterpair_injection`, `runner_stage_timeout_failover`) on top of prior recall/drift/recovery sets.
-- Persona bank now also includes `screening_entropy_guardian`, `counterpair_prompt_curator`, and `timeout_failover_operator` to probe screening 근거 분산, 반례쌍 설계, 단계별 timeout 운영 전략.
+- Prompt bank is now `v4.2`, adding temporal-holdout / antithetic-pair / stage-budget starvation scenarios (`screening_temporal_holdout_blindspot`, `prompt_bank_antithetic_pair_gap`, `runner_stage_budget_starvation`) on top of prior recall/drift/recovery sets.
+- Persona bank now also includes `screening_recall_triager`, `prompt_antithesis_designer`, and `stage_budget_orchestrator` to probe screening 재현율 우선순위, 반대축 prompt 설계, 단계별 예산 운영 전략.
 - Scenario rows carry `tags` and stable `id`s for reproducible focused subsets (`scenario_tags` and `scenario_ids`).
-- Experiment matrix now includes `screening_prompt_runner_timeout_v42`, while runner supports aggregate batch-coverage gates (`--require-min-selected-scenarios`, `--require-min-selected-personas`, `--require-min-selected-scenario-tags`, `--require-min-selected-persona-style-tags`) plus `--continue-on-error`, `--max-failed-cells`, `--max-failure-streak`, `--require-min-successful-cells`, `--require-min-success-rate`, `--require-min-run-id-success-rate`, stage-specific retry controls (`--max-generation-retries`, `--max-analysis-retries`), stage timeout controls (`--generation-timeout-seconds`, `--analysis-timeout-seconds`), JSONL command logs, and `--resume-verify-hashes`.
+- Experiment matrix now includes `screening_prompt_runner_governance_v43`, while runner supports aggregate batch-coverage gates (`--require-min-selected-scenarios`, `--require-min-selected-personas`, `--require-min-selected-scenario-tags`, `--require-min-selected-persona-style-tags`) plus `--continue-on-error`, `--max-failed-cells`, `--max-failure-streak`, `--require-min-successful-cells`, `--require-min-success-rate`, `--require-min-run-id-success-rate`, stage-specific retry controls (`--max-generation-retries`, `--max-analysis-retries`), stage timeout controls (`--generation-timeout-seconds`, `--analysis-timeout-seconds`), stage success floors (`--require-min-generation-success-rate`, `--require-min-analysis-success-rate`), JSONL command logs, and `--resume-verify-hashes`.
 
 ## Experimental factors
 - Prompt condition: control, deprivation/loss, counterfactual, social, identity, moral, regulation
@@ -137,3 +137,18 @@ Observed results (v42):
 - `screening_qc_v42`: `status=pass`, `quality_score=100.0`, 신규 QC 소스 다변성/집중도 게이트(`manual_qc_source_group_diversity_floor`, `manual_qc_single_query_share_ceiling`, `empty_screening_reason_share_ceiling`) 계산/보고 확인
 - `smoke_v42_timeout_plan`: 신규 run preflight 통과(`selected_run_cells=2`, `selected_total_samples=1440`), prompt bank `v4.1` 고정 및 selection report(JSON/CSV) 생성
 - `smoke_v42_timeout_exec`: subset 실행에서 `successful_cells=1`, `success_rate=0.5`, stage timeout 옵션(`--generation-timeout-seconds`, `--analysis-timeout-seconds`)과 run-id success floor 동작 검증
+
+
+## Smoke validation (v43 governance+entropy loop)
+Executed on `2026-03-22`:
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v43 --min-balanced-review-rows 6 --min-manual-qc-include-rows 2 --max-manual-qc-label-dominance 0.75 --min-screening-reason-diversity 6 --max-top-screening-reason-share 0.65 --min-screening-reason-entropy 0.55 --min-manual-qc-query-entropy 0.5 --min-manual-qc-source-groups 3 --max-manual-qc-single-query-share 0.45 --max-empty-screening-reason-share 0.10
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v43_plan --plan-only --include-run-id screening_prompt_runner_governance_v43 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v43.json --selection-csv results/selection_report_smoke_v43.csv --require-min-scenarios 5 --require-min-personas 4 --require-min-temperature-count 3 --require-min-temperature-span 0.49 --require-min-condition-cells 60 --require-min-run-cells 2 --require-min-run-ids 1 --require-min-total-samples 1400 --require-min-planned-samples-per-run 1400 --require-min-unique-scenario-tags 5 --require-min-unique-persona-style-tags 8 --require-prompt-bank-version v4.2 --require-freeze-artifact refs/openalex_results.jsonl --require-freeze-artifact results/lit_search_report.json --require-freeze-artifact results/screening_quality_report.json --manifest-markdown --manifest-note "governance/entropy/budget preflight v43"
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v43_exec --include-run-id screening_prompt_runner_governance_v43 --fail-on-missing-run-id --max-runs 1 --max-retries 1 --max-generation-retries 1 --max-analysis-retries 0 --retry-backoff-seconds 1 --generation-timeout-seconds 120 --analysis-timeout-seconds 90 --continue-on-error --max-failed-cells 1 --max-failure-rate 0.5 --max-failure-streak 1 --require-min-successful-cells 1 --require-min-success-rate 0.4 --require-min-run-id-success-rate 0.4 --require-min-generation-success-rate 0.8 --require-min-analysis-success-rate 0.8 --require-min-total-samples 700 --execution-log-jsonl results/experiments/smoke_v43_exec/command_log.jsonl --manifest-markdown
+```
+
+Observed results (v43):
+- `screening_qc_v43`: `status=pass`, `quality_score=100.0`, 신규 엔트로피 게이트(`screening_reason_entropy_floor`, `manual_qc_query_entropy_floor`) 계산/보고 확인
+- `smoke_v43_plan`: 신규 run preflight 통과(`selected_run_cells=2`, `selected_total_samples=1440`), prompt bank `v4.2` 고정 및 selection report(JSON/CSV) 생성
+- `smoke_v43_exec`: subset 실행에서 `successful_cells=1`, `success_rate=0.5`, stage success floor(`--require-min-generation-success-rate`, `--require-min-analysis-success-rate`) 동작 검증
