@@ -1,5 +1,5 @@
 {
-  "version": "v9.5",
+  "version": "v9.6",
   "language": "ko",
   "scenarios": [
     {
@@ -4011,6 +4011,78 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 러너에서 run-id별 timeout share는 낮아 보였지만 selected-cell share 대비 timeout 비율이 급등해 배치 신뢰도가 흔들린 사건을 7~10문장으로 회고하라. timeout_over_selection_ratio를 어떻게 계산했는지, 어떤 임계치로 중단했는지, 격리·재개 조건을 수치로 포함하라."
+    },
+    {
+      "id": "screening_review_query_group_tail_global_baseline_guard_v96",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "review",
+        "query_group",
+        "tail-coverage",
+        "baseline"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query의 query-group tail floor는 간신히 통과했지만 전체 known-query 분포 대비 tail coverage 비율이 급락해 재스크리닝을 결정한 상황을 7~10문장으로 회고하라. unknown-year 구간과 global baseline을 왜 함께 봤는지, 어떤 group이 과소대표였는지, 다음 라운드 보강 규칙을 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_query_group_crossband_mesh_v96",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "query_group",
+        "intensity",
+        "mesh"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "regret",
+        "self_distancing",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 countervoice 강도 밴드 parity는 맞췄지만 query-group 간 cross-band 연결성이 약해 해석이 흔들린 경험을 7~9문장으로 작성하라. 어떤 group×band 교차점이 비었는지, mesh 보강 순서, 릴리즈 전 검증 체크리스트를 포함하라."
+    },
+    {
+      "id": "runner_temperature_hhi_tripwire_postmortem_v96",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "temperature",
+        "tripwire",
+        "budget_pressure",
+        "systems"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 러너에서 top3/top4 temperature share는 통과했지만 HHI가 높아 특정 온도 구간에 예산이 잠긴 사건을 7~10문장으로 회고하라. temperature HHI를 어떻게 계산했고 어떤 임계치로 중단했는지, 재분배 후 재실행 조건을 수치로 포함하라."
     }
   ],
   "personas": [
@@ -6046,6 +6118,36 @@
         "governance"
       ],
       "instruction": "당신은 timeout 실패를 selection 대비 비율로 감시하는 운영자 성향이 있으며, run-id별 timeout_over_selection_ratio가 임계치를 넘으면 즉시 중단·격리·재개 조건을 수치로 남긴다."
+    },
+    {
+      "id": "query_group_baseline_guardian_v96",
+      "style_tags": [
+        "screening",
+        "query_group",
+        "baseline",
+        "tail-coverage"
+      ],
+      "instruction": "당신은 review traceable known-query를 global baseline과 함께 비교하는 성향이 있으며, tail floor와 baseline ratio가 동시에 안정적일 때만 스크리닝 품질을 통과시킨다."
+    },
+    {
+      "id": "crossband_mesh_curator_v96",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "intensity",
+        "mesh"
+      ],
+      "instruction": "당신은 countervoice 프롬프트를 query-group×intensity 교차망으로 설계하는 성향이 있으며, 단순 수량보다 cross-band 연결성과 공백 셀 보강 근거를 우선 기록한다."
+    },
+    {
+      "id": "temperature_hhi_governor_v96",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "tripwire",
+        "governance"
+      ],
+      "instruction": "당신은 temperature 분포를 HHI로 감시하는 운영자 성향이 있으며, top-k share가 통과하더라도 concentration index가 임계치를 넘으면 즉시 중단·재배치·재개 조건을 수치로 남긴다."
     }
   ],
   "temperatures": [

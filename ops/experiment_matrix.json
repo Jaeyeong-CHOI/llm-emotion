@@ -1985,6 +1985,33 @@
       "n": 28,
       "seed": 9501,
       "repeats": 2
+    },
+    {
+      "id": "screening_prompt_runner_query_group_hhi_v96",
+      "description": "v9.6 query-group baseline tail guard + countervoice cross-band mesh + temperature HHI tripwire smoke",
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_review_query_group_tail_global_baseline_guard_v96",
+        "prompt_bank_countervoice_query_group_crossband_mesh_v96",
+        "runner_temperature_hhi_tripwire_postmortem_v96",
+        "screening_review_query_group_tail_floor_tripwire_v95"
+      ],
+      "persona_ids": [
+        "query_group_baseline_guardian_v96",
+        "crossband_mesh_curator_v96",
+        "temperature_hhi_governor_v96",
+        "query_group_tail_floor_guard_v95"
+      ],
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "n": 28,
+      "seed": 9601,
+      "repeats": 2
     }
   ]
 }
