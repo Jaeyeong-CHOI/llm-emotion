@@ -45,6 +45,17 @@ DEFAULT_SCREENING_RULES = {
         "psychology",
         "emotion benchmark",
     ],
+    "method_cues_any": [
+        "human evaluation",
+        "human study",
+        "annotator",
+        "annotation",
+        "behavioral experiment",
+        "survey",
+        "inter-rater",
+        "manual coding",
+        "benchmark",
+    ],
     "term_aliases": {
         "large language model": ["large language model", "large language models", "llm", "llms", "language model"],
         "counterfactual": ["counterfactual", "counterfactuals", "counterfactual thinking"],
@@ -62,6 +73,8 @@ DEFAULT_SCREENING_RULES = {
         "concept_diversity": 0.15,
         "title_hit": 0.35,
         "review_priority": 0.5,
+        "method_cue": 0.6,
+        "recency_year": 0.08,
         "abstract_density": 0.25,
     },
     "penalties": {
@@ -77,6 +90,11 @@ DEFAULT_SCREENING_RULES = {
     "min_abstract_tokens": 40,
     "threshold_include": 3.0,
     "threshold_review": 1.5,
+    "max_recent_year_bonus_span": 6,
+    "include_requires_any": {
+        "min_include_hits": 2,
+        "method_or_review_signal": True,
+    },
 }
 
 
@@ -161,6 +179,7 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     high_priority_hits: List[str] = _hit_terms(text, rules["high_priority"], rules)
     exclude_hits: List[str] = _hit_terms(text, rules["exclude_if_any"], rules)
     review_hits: List[str] = _hit_terms(text, rules.get("review_priority_any", []), rules)
+    method_hits: List[str] = _hit_terms(text, rules.get("method_cues_any", []), rules)
     title_hits: List[str] = _hit_terms(title_l, rules["include_any"], rules)
 
     concept_groups = rules.get("required_concepts_any", [])
@@ -187,6 +206,13 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     concept_diversity_bonus = concept_diversity * float(weights.get("concept_diversity", 0.15))
     title_bonus = len(title_hits) * float(weights.get("title_hit", 0.35))
     review_priority_bonus = len(review_hits) * float(weights.get("review_priority", 0.5))
+    method_cue_bonus = len(method_hits) * float(weights.get("method_cue", 0.6))
+
+    current_year = time.gmtime().tm_year
+    span = max(1, int(rules.get("max_recent_year_bonus_span", 6) or 6))
+    recency_delta = max(0, min(span, current_year - (year or current_year)))
+    recency_bonus = float(weights.get("recency_year", 0.08)) * (span - recency_delta)
+
     abstract_tokens = _token_count(abstract)
     density_bonus = 0.0
     if abstract_tokens:
@@ -224,6 +250,8 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
         + concept_diversity_bonus
         + title_bonus
         + review_priority_bonus
+        + method_cue_bonus
+        + recency_bonus
         + density_bonus
         - penalty_exclude
         - penalty_missing_group
@@ -237,7 +265,17 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
     include_threshold = float(rules.get("threshold_include", 3.0))
     review_threshold = float(rules.get("threshold_review", include_threshold / 2))
 
-    if weighted_score >= include_threshold and not exclude_hits and missing_groups == 0:
+    include_constraints = rules.get("include_requires_any", {})
+    min_include_hits = int(include_constraints.get("min_include_hits", 0) or 0)
+    require_method_or_review = bool(include_constraints.get("method_or_review_signal", False))
+
+    include_gate_ok = True
+    if min_include_hits and len(include_hits) < min_include_hits:
+        include_gate_ok = False
+    if require_method_or_review and not (method_hits or review_hits or high_priority_hits):
+        include_gate_ok = False
+
+    if weighted_score >= include_threshold and not exclude_hits and missing_groups == 0 and include_gate_ok:
         label = "include"
     elif weighted_score >= review_threshold:
         label = "review"
@@ -255,6 +293,8 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
         reasons.append(f"title_hits={', '.join(title_hits[:4])}")
     if review_hits:
         reasons.append(f"review_priority={', '.join(review_hits[:4])}")
+    if method_hits:
+        reasons.append(f"method_cues={', '.join(method_hits[:4])}")
     if exclude_hits:
         reasons.append(f"exclude_hits={', '.join(exclude_hits[:6])}")
     if query_overlap_n:
@@ -269,6 +309,8 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
         reasons.append(f"before_min_year={year}")
     if short_abstract_penalty:
         reasons.append(f"short_abstract_tokens={abstract_tokens}")
+    if not include_gate_ok:
+        reasons.append("include_gate=failed")
 
     return {
         "screening_score": weighted_score,
@@ -280,6 +322,7 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
             "include_hits": len(include_hits),
             "high_priority_hits": len(high_priority_hits),
             "review_priority_hits": len(review_hits),
+            "method_hits": len(method_hits),
             "exclude_hits": len(exclude_hits),
             "missing_concept_groups": missing_groups,
             "cited_by_count": cited_by_count or 0,
@@ -290,6 +333,8 @@ def score_screening(title: str, abstract: str, query: str, language: str, pub_ty
             "language": language,
             "type": pub_type,
             "year": year,
+            "recency_bonus": round(recency_bonus, 4),
+            "include_gate_ok": include_gate_ok,
         },
     }
 
@@ -383,6 +428,17 @@ def summarize_priorities(rows: List[Dict]) -> Dict[str, int]:
     return out
 
 
+def summarize_method_signal(rows: List[Dict]) -> Dict[str, int]:
+    out = {"with_method_cues": 0, "without_method_cues": 0}
+    for r in rows:
+        mh = ((r.get("screening_features") or {}).get("method_hits") or 0)
+        if mh > 0:
+            out["with_method_cues"] += 1
+        else:
+            out["without_method_cues"] += 1
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
@@ -416,6 +472,7 @@ def main():
                 "fetched": len(normalized),
                 "labels": summarize_labels(normalized),
                 "priorities": summarize_priorities(normalized),
+                "method_signal": summarize_method_signal(normalized),
                 "top_score": max((r.get("screening_score", 0.0) for r in normalized), default=0.0),
             }
             time.sleep(0.5)
@@ -460,6 +517,7 @@ def main():
             "deduped_records": len(deduped),
             "labels": summarize_labels(ordered),
             "priorities": summarize_priorities(ordered),
+            "method_signal": summarize_method_signal(ordered),
             "per_query": query_stats,
             "top_priority_titles": [r.get("title") for r in ordered[:10] if r.get("screening_priority") == "high"],
         }

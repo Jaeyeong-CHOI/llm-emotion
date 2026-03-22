@@ -5,7 +5,11 @@
       "n": 8,
       "seed": 42,
       "repeats": 2,
-      "temperatures": [0.2, 0.7, 1.0],
+      "temperatures": [
+        0.2,
+        0.7,
+        1.0
+      ],
       "prompt_bank": "prompts/prompt_bank_ko.json"
     },
     {
@@ -13,20 +17,63 @@
       "n": 10,
       "seed": 202,
       "repeats": 2,
-      "temperatures": [0.2, 0.4, 0.7],
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
       "prompt_bank": "prompts/prompt_bank_ko.json",
-      "scenario_tags": ["counterfactual"],
-      "persona_ids": ["regretful", "ruminative", "self_compassionate", "analytical"]
+      "scenario_tags": [
+        "counterfactual"
+      ],
+      "persona_ids": [
+        "regretful",
+        "ruminative",
+        "self_compassionate",
+        "analytical"
+      ]
     },
     {
       "id": "social_loss_v14",
       "n": 10,
       "seed": 909,
       "repeats": 2,
-      "temperatures": [0.2, 0.7],
+      "temperatures": [
+        0.2,
+        0.7
+      ],
       "prompt_bank": "prompts/prompt_bank_ko.json",
-      "scenario_tags": ["social"],
-      "persona_ids": ["none", "socially_guarded", "meaning_making", "loss_averse"]
+      "scenario_tags": [
+        "social"
+      ],
+      "persona_ids": [
+        "none",
+        "socially_guarded",
+        "meaning_making",
+        "loss_averse"
+      ]
+    },
+    {
+      "id": "method_signal_v15",
+      "n": 12,
+      "seed": 1337,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_tags": [
+        "counterfactual",
+        "social"
+      ],
+      "persona_ids": [
+        "evidence_seeking",
+        "interpersonally_accountable",
+        "analytical",
+        "self_compassionate"
+      ]
     }
   ]
 }

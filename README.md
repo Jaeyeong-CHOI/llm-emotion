@@ -6,9 +6,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
-- Literature screening upgraded to alias-aware scoring with follow-up priority labels
-- Prompt bank expanded to `v1.4` with scenario tags and persona style tags
-- Experiment runner now supports filtered run definitions, `--plan-only`, and run snapshots for reproducibility
+- Literature screening upgraded with method-cue detection, recency weighting, and include-gate constraints to reduce false-positive includes
+- Prompt bank expanded to `v1.5` with new team/moral/health counterfactual scenarios and additional personas for evidence-seeking/accountability styles
+- Experiment runner now records git working-tree status in manifests and supports `--strict-clean` + `--manifest-note` for reproducible batch provenance
 
 ## Repository structure
 - `docs/`: review protocol, screening rubric, experiment plan, ops notes
@@ -24,8 +24,8 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl --report-out results/lit_search_report.json
 python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md
 
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v14 --plan-only
-python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v14 --include-run-id counterfactual_focus_v14
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v15 --plan-only --manifest-note "preflight"
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v15 --include-run-id method_signal_v15 --strict-clean
 ```
 
 ## Prompt-bank filtering

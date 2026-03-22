@@ -1,4 +1,4 @@
-# Literature Screening Rubric (v0.5)
+# Literature Screening Rubric (v0.6)
 
 This repository applies a weighted, auditable screening layer during OpenAlex ingestion.
 
@@ -24,6 +24,8 @@ This repository applies a weighted, auditable screening layer during OpenAlex in
    - concept diversity bonus
    - title-hit bonus
    - review-priority bonus for methodology cues such as `human evaluation`, `annotator`, and `behavioral experiment`
+   - method-cue bonus (explicit study design/annotation cues)
+   - recency bonus (bounded year-aware preference)
    - abstract-density bonus for concentrated relevance signals
 3. Penalties remain in place for:
    - exclusion hits
@@ -33,7 +35,7 @@ This repository applies a weighted, auditable screening layer during OpenAlex in
    - very short abstracts
 
 ## Labeling and triage policy
-- `include`: score >= include threshold, no exclude hit, no missing concept groups
+- `include`: score >= include threshold, no exclude hit, no missing concept groups, and include-gate constraints satisfied (`min_include_hits`, method/review/high-priority signal)
 - `review`: score >= review threshold
 - `exclude`: otherwise
 
@@ -54,7 +56,8 @@ python3 scripts/search_openalex.py \
 `results/lit_search_report.json` now includes:
 - overall label distribution
 - overall priority distribution
-- per-query label/priority counts
+- overall method-signal coverage (`with_method_cues` vs `without_method_cues`)
+- per-query label/priority/method counts
 - top high-priority titles for manual screening
 
 ## Why this helps

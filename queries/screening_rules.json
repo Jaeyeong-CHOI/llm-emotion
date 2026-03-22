@@ -42,20 +42,75 @@
     "object detection"
   ],
   "required_concepts_any": [
-    ["large language model", "llm", "language model"],
-    ["regret", "counterfactual", "emotion", "affect", "anthropomorphism", "mental state", "theory of mind"]
+    [
+      "large language model",
+      "llm",
+      "language model"
+    ],
+    [
+      "regret",
+      "counterfactual",
+      "emotion",
+      "affect",
+      "anthropomorphism",
+      "mental state",
+      "theory of mind"
+    ]
   ],
   "term_aliases": {
-    "large language model": ["large language model", "large language models", "llm", "llms", "language model", "language models"],
-    "counterfactual": ["counterfactual", "counterfactuals", "counterfactual thinking"],
-    "counterfactual thinking": ["counterfactual thinking", "counterfactual reasoning"],
-    "regret": ["regret", "regretful"],
-    "emotion": ["emotion", "emotions", "emotional", "affect", "affective"],
-    "affect": ["affect", "affective", "emotion", "emotional"],
-    "anthropomorphism": ["anthropomorphism", "anthropomorphic"],
-    "theory of mind": ["theory of mind", "mentalizing", "mental state reasoning"],
-    "mental state": ["mental state", "mental states", "mentalizing"],
-    "self-reflection": ["self-reflection", "self reflection", "reflective reasoning"]
+    "large language model": [
+      "large language model",
+      "large language models",
+      "llm",
+      "llms",
+      "language model",
+      "language models"
+    ],
+    "counterfactual": [
+      "counterfactual",
+      "counterfactuals",
+      "counterfactual thinking"
+    ],
+    "counterfactual thinking": [
+      "counterfactual thinking",
+      "counterfactual reasoning"
+    ],
+    "regret": [
+      "regret",
+      "regretful"
+    ],
+    "emotion": [
+      "emotion",
+      "emotions",
+      "emotional",
+      "affect",
+      "affective"
+    ],
+    "affect": [
+      "affect",
+      "affective",
+      "emotion",
+      "emotional"
+    ],
+    "anthropomorphism": [
+      "anthropomorphism",
+      "anthropomorphic"
+    ],
+    "theory of mind": [
+      "theory of mind",
+      "mentalizing",
+      "mental state reasoning"
+    ],
+    "mental state": [
+      "mental state",
+      "mental states",
+      "mentalizing"
+    ],
+    "self-reflection": [
+      "self-reflection",
+      "self reflection",
+      "reflective reasoning"
+    ]
   },
   "weights": {
     "include_any": 1.0,
@@ -65,7 +120,9 @@
     "concept_diversity": 0.15,
     "title_hit": 0.35,
     "review_priority": 0.5,
-    "abstract_density": 0.25
+    "abstract_density": 0.25,
+    "method_cue": 0.6,
+    "recency_year": 0.08
   },
   "penalties": {
     "exclude_hit": 2.0,
@@ -74,10 +131,34 @@
     "non_preferred_type": 1.0,
     "short_abstract": 0.4
   },
-  "preferred_languages": ["en", "ko"],
-  "preferred_types": ["article", "preprint", "conference", "book-chapter"],
+  "preferred_languages": [
+    "en",
+    "ko"
+  ],
+  "preferred_types": [
+    "article",
+    "preprint",
+    "conference",
+    "book-chapter"
+  ],
   "min_year": 2018,
   "min_abstract_tokens": 40,
   "threshold_include": 3.0,
-  "threshold_review": 1.5
+  "threshold_review": 1.5,
+  "method_cues_any": [
+    "human evaluation",
+    "human study",
+    "annotator",
+    "annotation",
+    "behavioral experiment",
+    "survey",
+    "inter-rater",
+    "manual coding",
+    "benchmark"
+  ],
+  "max_recent_year_bonus_span": 6,
+  "include_requires_any": {
+    "min_include_hits": 2,
+    "method_or_review_signal": true
+  }
 }

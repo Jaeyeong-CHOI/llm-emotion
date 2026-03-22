@@ -87,6 +87,14 @@ def get_git_commit() -> str:
     return out.strip() if code == 0 else "unknown"
 
 
+def get_git_status() -> dict:
+    code, out, _ = run("git status --porcelain")
+    if code != 0:
+        return {"available": False, "dirty": None, "changes": []}
+    changes = [line.rstrip() for line in out.splitlines() if line.strip()]
+    return {"available": True, "dirty": bool(changes), "changes": changes}
+
+
 def parse_csv_set(value) -> set[str]:
     if isinstance(value, list):
         return {str(v).strip() for v in value if str(v).strip()}
@@ -145,10 +153,16 @@ def main():
     ap.add_argument("--max-runs", type=int, default=0, help="optional cap on number of run cells executed")
     ap.add_argument("--plan-only", action="store_true", help="write manifest/plan without executing generation or analysis")
     ap.add_argument("--include-run-id", action="append", default=[], help="restrict execution to specific run id(s)")
+    ap.add_argument("--manifest-note", default="", help="free-text note stored in manifest for traceability")
+    ap.add_argument("--strict-clean", action="store_true", help="fail if git working tree is dirty")
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
     cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+
+    git_status = get_git_status()
+    if args.strict_clean and git_status.get("dirty"):
+        raise RuntimeError("git working tree is dirty; commit/stash changes or run without --strict-clean")
 
     label = args.run_label.strip() or utc_stamp()
     outdir = ROOT / args.outdir / label
@@ -286,10 +300,12 @@ def main():
         "config_fingerprint": config_fingerprint(cfg),
         "run_label": label,
         "resume_mode": args.resume,
+        "manifest_note": args.manifest_note,
         "environment": {
             "python": platform.python_version(),
             "platform": platform.platform(),
             "git_commit": get_git_commit(),
+            "git_status": git_status,
         },
         "summary": summary,
         "selected_run_ids": sorted(include_run_ids),
