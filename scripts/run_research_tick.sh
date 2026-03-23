@@ -202,34 +202,30 @@ normalize_queue_run_id() {
   printf '%s' "$canonical_run_id"
 }
 
-iter_queue_data_lines() {
+iter_queue_lines() {
   local queue_file="$1"
+  local mode="${2:-raw}"
   local raw_line=""
 
   [ -f "$queue_file" ] || return 0
 
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
-    local line
-    line="$(canonicalize_queue_line "$raw_line" || true)"
-    if [ -n "$line" ]; then
-      printf '%s\n' "$line"
+    local canonical
+    canonical="$(canonicalize_queue_line "$raw_line" || true)"
+    [ -n "$canonical" ] || continue
+
+    if [ "$mode" = "normalized" ]; then
+      local normalized
+      normalized="$(normalize_queue_run_id "$canonical" || true)"
+      if [ -n "$normalized" ]; then
+        printf '%s\n' "$normalized"
+      else
+        echo "[tick] invalid run-id skipped: $canonical" >&2
+      fi
+    else
+      printf '%s\n' "$canonical"
     fi
   done < "$queue_file"
-}
-
-iter_queue_normalized_lines() {
-  local queue_file="$1"
-  local raw_line=""
-  local normalized=""
-
-  while IFS= read -r raw_line || [ -n "$raw_line" ]; do
-    normalized="$(normalize_queue_run_id "$raw_line" || true)"
-    if [ -n "$normalized" ]; then
-      printf '%s\n' "$normalized"
-    else
-      echo "[tick] invalid run-id skipped: $raw_line" >&2
-    fi
-  done < <(iter_queue_data_lines "$queue_file")
 }
 
 dequeue_run_id() {
@@ -255,7 +251,7 @@ dequeue_run_id() {
     fi
 
     printf '%s\n' "$line"
-  done < <(iter_queue_normalized_lines "$queue_file") > "$tmp_file"
+  done < <(iter_queue_lines "$queue_file" normalized) > "$tmp_file"
 
   if [ "$changed" -eq 1 ]; then
     if ! mv "$tmp_file" "$queue_file"; then
@@ -286,7 +282,7 @@ queue_contains_canonical_run_id() {
     if [ "$queued_run_id" = "$canonical_run_id" ]; then
       return 0
     fi
-  done < <(iter_queue_normalized_lines "$queue_file")
+  done < <(iter_queue_lines "$queue_file" normalized)
 
   return 1
 }
