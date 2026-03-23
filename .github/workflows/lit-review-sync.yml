@@ -20,6 +20,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add refs/openalex_results.jsonl docs/evidence-table.md data/raw/mock_generations.jsonl results/mock_metrics.json ops/research_state.json ops/cron_runtime_status.json LIVE_STATUS.md
+          git add refs/openalex_results.jsonl docs/evidence-table.md data/raw/mock_generations.jsonl results/mock_metrics.json ops/research_state.json ops/cron_runtime_status.json LIVE_STATUS.md paper/logs/brief_log.md scripts/update_brief_log.py
           git diff --cached --quiet || git commit -m "chore: automated daily research cycle"
           git push
