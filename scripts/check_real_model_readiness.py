@@ -96,6 +96,40 @@ def check_env_block(names: list[str]):
     }
 
 
+def summarize_readiness_issues(
+    required_missing: list[str],
+    required_placeholder_vars: list[str],
+    required_unsafe_vars: list[str],
+    optional_missing: list[str],
+    optional_placeholder_vars: list[str],
+    optional_unsafe_vars: list[str],
+    endpoint_scheme_ok: bool,
+    suspicious: list[str],
+) -> list[str]:
+    """Collect human-readable Korean notes for readiness diagnostics."""
+
+    notes: list[str] = []
+    if required_missing:
+        notes.append("필수 환경변수 누락")
+    if required_placeholder_vars:
+        notes.append("필수 환경변수에 placeholder 값 존재")
+    if required_unsafe_vars:
+        notes.append(f"필수 환경변수에 개행/탭 등 제어문자 존재: {', '.join(required_unsafe_vars)}")
+    if optional_missing:
+        notes.append(f"선택 환경변수 미설정(권장): {', '.join(optional_missing)}")
+    if optional_placeholder_vars:
+        notes.append(f"선택 환경변수에 placeholder 값 존재: {', '.join(optional_placeholder_vars)}")
+    if optional_unsafe_vars:
+        notes.append(f"선택 환경변수에 개행/탭 등 제어문자 존재: {', '.join(optional_unsafe_vars)}")
+    if not endpoint_scheme_ok:
+        notes.append("OPENAI_BASE_URL 스킴 미일치")
+    if "OPENAI_API_KEY" in suspicious:
+        notes.append("OPENAI_API_KEY 형식 점검 필요")
+    if not notes:
+        notes.append("실모델 전환 준비 완료")
+    return notes
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(OUT))
@@ -151,25 +185,16 @@ def main():
         and not suspicious
     )
 
-    notes = []
-    if required_missing:
-        notes.append("필수 환경변수 누락")
-    if required_placeholder_vars:
-        notes.append("필수 환경변수에 placeholder 값 존재")
-    if required_unsafe_vars:
-        notes.append(f"필수 환경변수에 개행/탭 등 제어문자 존재: {', '.join(required_unsafe_vars)}")
-    if optional_missing:
-        notes.append(f"선택 환경변수 미설정(권장): {', '.join(optional_missing)}")
-    if optional_placeholder_vars:
-        notes.append(f"선택 환경변수에 placeholder 값 존재: {', '.join(optional_placeholder_vars)}")
-    if optional_unsafe_vars:
-        notes.append(f"선택 환경변수에 개행/탭 등 제어문자 존재: {', '.join(optional_unsafe_vars)}")
-    if not endpoint_scheme_ok:
-        notes.append("OPENAI_BASE_URL 스킴 미일치")
-    if suspicious and "OPENAI_API_KEY" in suspicious:
-        notes.append("OPENAI_API_KEY 형식 점검 필요")
-    if not notes:
-        notes.append("실모델 전환 준비 완료")
+    notes = summarize_readiness_issues(
+        required_missing=required_missing,
+        required_placeholder_vars=required_placeholder_vars,
+        required_unsafe_vars=required_unsafe_vars,
+        optional_missing=optional_missing,
+        optional_placeholder_vars=optional_placeholder_vars,
+        optional_unsafe_vars=optional_unsafe_vars,
+        endpoint_scheme_ok=endpoint_scheme_ok,
+        suspicious=suspicious,
+    )
 
     payload = {
         "ready": ready,
