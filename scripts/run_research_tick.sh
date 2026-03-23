@@ -117,6 +117,16 @@ normalize_candidate_to_tick_script() {
   [ -n "$normalized" ] && [ "$normalized" = "$RUN_TICK_SCRIPT" ]
 }
 
+strip_surrounding_quotes() {
+  local value="$1"
+
+  value="${value#\"}"
+  value="${value%\"}"
+  value="${value#\'}"
+  value="${value%\'}"
+  printf '%s' "$value"
+}
+
 candidate_resolves_to_tick_script() {
   local token="$1"
   local candidate=""
@@ -136,7 +146,7 @@ is_expected_tick_command() {
   [ -n "$command_line" ] || return 1
   IFS=' ' read -r -a tokens <<< "$command_line" || true
   for token in "${tokens[@]}"; do
-    candidate_resolves_to_tick_script "$token" && return 0
+    candidate_resolves_to_tick_script "$(strip_surrounding_quotes "$token")" && return 0
   done
 
   return 1
