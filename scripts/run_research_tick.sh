@@ -234,14 +234,13 @@ dedupe_queue_file() {
   local queue_file="$1"
   local tmp_file=""
   local line=""
-  declare -A seen=()
 
   [ -f "$queue_file" ] || return 0
   tmp_file="$(make_queue_temp_file "$queue_file" dedupe)"
+  : > "$tmp_file"
 
   while IFS= read -r line; do
-    if [[ -z "${seen["$line"]+x}" ]]; then
-      seen["$line"]=1
+    if ! grep -Fxq -- "$line" "$tmp_file"; then
       printf '%s\n' "$line" >> "$tmp_file"
     fi
   done < <(iter_queue_lines "$queue_file")
