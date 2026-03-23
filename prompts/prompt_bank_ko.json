@@ -1,5 +1,5 @@
 {
-  "version": "v140.0",
+  "version": "v141.0",
   "language": "ko",
   "scenarios": [
     {
@@ -6536,6 +6536,65 @@
       ],
       "domain": "research_ops",
       "prompt": "실험 러너 preflight에서 p99/p35, p99/p30은 통과했지만 p99/p25 비율이 급등한 배치를 회고하라. repro-lock artifact를 근거로 중단 기준, 재시도 상한, 다음 배치 temperature budget 재배분 규칙을 7~10문장으로 제시하라."
+    },
+    {
+      "id": "screening_query_bridge_method_audit_v141",
+      "label": "screening unknown-year query bridge audit",
+      "scenario": "manual QC에서 unknown-year review가 늘고 bridge 근거가 빈약한 상태에서 review 판단 신뢰도를 회복해야 하는 상황",
+      "emotion_axis": "vigilance",
+      "difficulty": "hard",
+      "tags": [
+        "screening",
+        "quality_gate",
+        "unknown_year",
+        "method_cues",
+        "traceability",
+        "bridge"
+      ],
+      "domains": [
+        "research_ops",
+        "systematic_review",
+        "screening"
+      ],
+      "prompt": "manual QC review에서 unknown-year 표기 또는 매칭 불명확한 행이 다수다. 특히 method_cues 부재로 bridge reasoning이 반복되고 있어 조치가 필요하다. 5개 이상 query별로 method cue를 분해해 제시하고, bridge/근거/재현성 점검으로 review 기준을 재정의하는 규칙을 수치로 제안하라."
+    },
+    {
+      "id": "prompt_bank_batch_diversification_v141",
+      "label": "prompt bank batch diversification",
+      "scenario": "새로운 실험 조건에서 prompt bank 카테고리 분포가 편중되어 반례 탐색이 단조로워진 상황",
+      "emotion_axis": "repair",
+      "difficulty": "hard",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "coverage",
+        "diversification",
+        "reproducibility"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank"
+      ],
+      "prompt": "현재 사용 중인 프롬프트 뱅크에서 동일 축/태그 반복이 높고 회복용 반례가 부족하다. domain/감정축/persona 난이도 조합을 균형 있게 커버할 10개 신규 시나리오 카테고리를 제안하고, 각 조합이 실험 다각화에 기여하는 이유를 한 문장씩 요약하라."
+    },
+    {
+      "id": "runner_real_model_transition_preflight_v141",
+      "label": "runner real-model transition preflight",
+      "scenario": "본실험 이전에 실모델 API 환경 점검, 키/리전/요금제 제약 등을 사전 점검해 중단을 방지해야 하는 상황",
+      "emotion_axis": "control",
+      "difficulty": "medium",
+      "tags": [
+        "runner",
+        "real_model",
+        "preflight",
+        "hardening",
+        "reproducibility"
+      ],
+      "domains": [
+        "research_ops",
+        "experiment_ops"
+      ],
+      "prompt": "실모델 전환 이전 체크리스트를 운영형으로 설계하라. 환경변수 가용성, 요청 제한, 추적 로그, 재시작 안정성, 실패 시 롤백 기준을 preflight 템플릿으로 작성하고, 누락 시 실행 차단 규칙까지 명시하라."
     }
   ],
   "personas": [
@@ -9776,6 +9835,27 @@
         "budget_control"
       ],
       "source": "synthetic"
+    },
+    {
+      "id": "screening_method_audit_caretaker_v141",
+      "prompt_style": "review 판단에서 method cue 부재를 경고하고 추적 가능한 evidence chain을 우선 복구하도록 유도한다.",
+      "style_tags": [
+        "screening",
+        "method_cues",
+        "audit",
+        "traceability",
+        "quality_gate"
+      ]
+    },
+    {
+      "id": "real_model_governor_v141",
+      "prompt_style": "실모델 전환 전 API 환경, 할당량, 실패 재시도/롤백 전략을 사전에 점검하는 운영 심성으로 글을 다듬는다.",
+      "style_tags": [
+        "runner",
+        "preflight",
+        "hardening",
+        "reproducibility"
+      ]
     }
   ],
   "temperatures": [

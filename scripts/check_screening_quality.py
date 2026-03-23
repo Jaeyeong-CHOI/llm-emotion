@@ -289,6 +289,8 @@ def write_markdown(path: Path, payload: dict):
             f"- review_counterexample_without_bridge_rows: `{payload['summary']['review_counterexample_without_bridge_rows']}`",
             f"- review_counterexample_without_bridge_share: `{payload['summary']['review_counterexample_without_bridge_share']}`",
             f"- review_evidence_link_decay_rows: `{payload['summary']['review_evidence_link_decay_rows']}`",
+            f"- review_method_cue_rows: `{payload['summary']['review_method_cue_rows']}`",
+            f"- review_method_cue_share: `{payload['summary']['review_method_cue_share']}`",
             f"- review_evidence_link_decay_share: `{payload['summary']['review_evidence_link_decay_share']}`",
             f"- manual_qc_bridge_signal_rows: `{payload['summary']['manual_qc_bridge_signal_rows']}`",
             f"- manual_qc_bridge_signal_share: `{payload['summary']['manual_qc_bridge_signal_share']}`",
@@ -484,6 +486,7 @@ def main():
     ap.add_argument("--min-review-reason-traceability-share", type=float, default=0.7)
     ap.add_argument("--min-include-bridge-signal-share", type=float, default=0.0)
     ap.add_argument("--min-review-bridge-signal-share", type=float, default=0.0)
+    ap.add_argument("--min-review-method-cue-share", type=float, default=0.0)
     ap.add_argument("--min-review-bridge-traceability-share", type=float, default=0.0)
     ap.add_argument("--min-review-bridge-traceability-given-bridge-share", type=float, default=0.0)
     ap.add_argument("--min-review-counterexample-share", type=float, default=0.0)
@@ -584,6 +587,7 @@ def main():
     include_bridge_signal_rows = 0
     review_bridge_signal_rows = 0
     review_bridge_traceable_rows = 0
+    review_method_cue_rows = 0
     review_bridge_traceable_known_query_rows = 0
     review_bridge_traceable_unknown_query_rows = 0
     review_counterexample_rows = 0
@@ -625,6 +629,8 @@ def main():
                     review_bridge_traceable_unknown_query_rows += 1
                 else:
                     review_bridge_traceable_known_query_rows += 1
+        if label == "review" and "method_cues=" in reason_field:
+            review_method_cue_rows += 1
         if label == "include" and row_is_traceable:
             include_traceable_reason_rows += 1
         if label == "review" and row_is_traceable:
@@ -746,6 +752,7 @@ def main():
     review_reason_traceability_share = pct(review_traceable_reason_rows, manual_qc_review_rows)
     include_bridge_signal_share = pct(include_bridge_signal_rows, manual_qc_include_rows)
     review_bridge_signal_share = pct(review_bridge_signal_rows, manual_qc_review_rows)
+    review_method_cue_share = pct(review_method_cue_rows, manual_qc_review_rows)
     review_bridge_traceability_share = pct(review_bridge_traceable_rows, manual_qc_review_rows)
     review_bridge_traceability_given_bridge_share = pct(review_bridge_traceable_rows, review_bridge_signal_rows)
     review_bridge_traceable_known_query_share = pct(
@@ -3136,6 +3143,12 @@ def main():
             "threshold": f">={args.min_review_bridge_signal_share}",
         },
         {
+            "name": "min-review-method-cue-share",
+            "status": "pass" if review_method_cue_share >= args.min_review_method_cue_share else "fail",
+            "observed": review_method_cue_share,
+            "threshold": f">={args.min_review_method_cue_share}",
+        },
+        {
             "name": "review_bridge_traceability_share_floor",
             "status": "pass"
             if review_bridge_traceability_share >= args.min_review_bridge_traceability_share
@@ -3697,6 +3710,8 @@ def main():
             "include_bridge_signal_share": include_bridge_signal_share,
             "review_bridge_signal_rows": review_bridge_signal_rows,
             "review_bridge_signal_share": review_bridge_signal_share,
+            "review_method_cue_rows": review_method_cue_rows,
+            "review_method_cue_share": review_method_cue_share,
             "review_bridge_traceable_rows": review_bridge_traceable_rows,
             "review_bridge_traceability_share": review_bridge_traceability_share,
             "review_bridge_traceability_given_bridge_share": review_bridge_traceability_given_bridge_share,

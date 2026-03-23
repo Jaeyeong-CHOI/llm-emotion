@@ -875,6 +875,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- max_analysis_attempts_per_run_id: `{manifest.get('max_analysis_attempts_per_run_id', 0)}`",
         f"- max_attempts_per_cell: `{manifest.get('max_attempts_per_cell', 0)}`",
         f"- require_prompt_bank_version: `{manifest.get('require_prompt_bank_version', '')}`",
+        f"- require_live_model: `{manifest.get('require_live_model', False)}`",
+        f"- required_live_model_env: `{', '.join(manifest.get('required_live_model_env', []))}`",
         f"- freeze_artifacts_checked: `{len(manifest.get('freeze_artifacts', []))}`",
         "",
         "## Aggregate metrics",
@@ -890,6 +892,8 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- success_rate: `{manifest.get('success_rate', 0.0)}`",
         f"- generation_success_rate: `{manifest.get('generation_success_rate', 0.0)}`",
         f"- analysis_success_rate: `{manifest.get('analysis_success_rate', 0.0)}`",
+        f"- require_live_model: `{preflight_summary.get('require_live_model', False)}`",
+        f"- required_live_model_env: `{', '.join(preflight_summary.get('required_live_model_env', []))}`",
         f"- prompt_bank_versions: `{', '.join(preflight_summary.get('prompt_bank_versions', []))}`",
         f"- min_scenario_count: `{preflight_summary.get('min_scenario_count', 0)}`",
         f"- min_persona_count: `{preflight_summary.get('min_persona_count', 0)}`",
@@ -2122,6 +2126,16 @@ def main():
         action="store_true",
         help="emit a human-readable preflight markdown summary",
     )
+    ap.add_argument(
+        "--require-live-model",
+        action="store_true",
+        help="require real-model readiness checks before execution",
+    )
+    ap.add_argument(
+        "--required-live-model-env",
+        default="",
+        help="comma/space separated env vars required when --require-live-model is enabled (e.g. OPENAI_API_KEY,ANOTHER_API_KEY)",
+    )
     args = ap.parse_args()
 
     cfg_path = ROOT / args.config
@@ -2294,6 +2308,21 @@ def main():
         raise RuntimeError(
             "missing required freeze artifact(s): " + ", ".join(missing_freeze_artifacts)
         )
+
+    live_model_env_requirements = []
+    if args.required_live_model_env:
+        live_model_env_requirements = [
+            var for var in parse_csv_set(args.required_live_model_env) if var
+        ]
+    if args.require_live_model:
+        live_model_env_missing = [
+            var for var in live_model_env_requirements if not os.environ.get(var)
+        ]
+        if live_model_env_missing:
+            raise RuntimeError(
+                "missing required live-model env vars for --require-live-model: "
+                + ", ".join(live_model_env_missing)
+            )
 
     matrix_snapshot = snapshots_dir / "experiment_matrix.json"
     write_json(matrix_snapshot, cfg)
@@ -2513,6 +2542,8 @@ def main():
             {
                 "id": run_id,
                 "prompt_bank_version": prompt_bank_version,
+                "require_live_model": bool(args.require_live_model),
+                "required_live_model_env": live_model_env_requirements,
                 "scenario_count": prompt_summary["scenario_count"],
                 "persona_count": prompt_summary["persona_count"],
                 "temperature_count": len(temperatures),
@@ -4460,6 +4491,8 @@ def main():
     summary = aggregate_metrics(all_metric_paths)
     run_id_summary = aggregate_by_run_id(run_metric_paths)
     preflight_summary = {
+        "require_live_model": bool(args.require_live_model),
+        "required_live_model_env": live_model_env_requirements,
         "selected_run_id_count": len(run_preflight_rows),
         "prompt_bank_versions": sorted(prompt_bank_versions),
         "min_scenario_count": min((row.get("scenario_count", 0) for row in run_preflight_rows), default=0),
@@ -4851,6 +4884,8 @@ def main():
             "selected_run_ids": sorted(selected_run_ids),
             "summary": preflight_summary,
             "require_prompt_bank_version": args.require_prompt_bank_version,
+            "require_live_model": bool(args.require_live_model),
+            "required_live_model_env": live_model_env_requirements,
             "freeze_artifacts": freeze_artifacts,
             "rows": run_preflight_rows,
         },
@@ -4875,6 +4910,8 @@ def main():
         "config_fingerprint": config_fingerprint(cfg),
         "run_label": label,
         "resume_mode": args.resume,
+        "require_live_model": bool(args.require_live_model),
+        "required_live_model_env": live_model_env_requirements,
         "manifest_note": manifest_note,
         "manifest_note_file": args.manifest_note_file,
         "cli_invocation": cli_invocation,
