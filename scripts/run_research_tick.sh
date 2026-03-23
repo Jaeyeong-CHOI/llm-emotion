@@ -182,14 +182,18 @@ is_queue_data_line() {
   [[ -n "$line" ]] && [[ ! "$line" =~ ^# ]]
 }
 
+canonicalize_queue_line() {
+  local line
+  line="$(canonical_line "$1")"
+
+  is_queue_data_line "$line" || return 1
+  printf '%s' "$line"
+}
+
 normalize_queue_run_id() {
   local run_id="$1"
   local canonical_run_id
-  canonical_run_id="$(canonical_line "$run_id")"
-
-  if ! is_queue_data_line "$canonical_run_id"; then
-    return 1
-  fi
+  canonical_run_id="$(canonicalize_queue_line "$run_id")" || return 1
 
   if [[ ! "$canonical_run_id" =~ ^[A-Za-z0-9._-]+$ ]]; then
     return 1
@@ -206,8 +210,8 @@ iter_queue_data_lines() {
 
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
-    line="$(canonical_line "$raw_line")"
-    if is_queue_data_line "$line"; then
+    line="$(canonicalize_queue_line "$raw_line" || true)"
+    if [ -n "$line" ]; then
       printf '%s\n' "$line"
     fi
   done < "$queue_file"
@@ -230,9 +234,9 @@ dequeue_run_id() {
 
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
-    line="$(canonical_line "$raw_line")"
+    line="$(canonicalize_queue_line "$raw_line" || true)"
 
-    if is_queue_data_line "$line"; then
+    if [ -n "$line" ]; then
       local normalized
       if ! normalized="$(normalize_queue_run_id "$line")"; then
         echo "[tick] invalid run-id skipped: $raw_line" >&2
