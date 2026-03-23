@@ -45,7 +45,7 @@ This motivates a testable question for LLM research:
 \end{quote}
 
 A key challenge is avoiding over-interpretation: apparent social behavior in LLMs can arise from prompt artifacts.
-Recent findings in theory-of-mind and anthropomorphism show that performance is sensitive to task framing, so evaluation should be behaviorally grounded. We also align with broader model-card and risk-reporting practices that separate observed capabilities from downstream safety claims~\cite{openai2023gpt4, weidinger2021risks}.
+Recent findings in theory-of-mind evaluation show that measured performance is highly sensitive to framing and prompting strategy, so evaluation should be behaviorally grounded~\cite{ullman2023,ma2024}. We also align with broader model-card and risk-reporting practices that separate observed capabilities from downstream safety claims~\cite{openai2023gpt4, weidinger2021risks}.
 
 This work builds a transparent experimental stack where generation, logging, screening quality, and reporting are unified.
 
@@ -56,7 +56,7 @@ We retrieved 279 candidate records from OpenAlex (not yet a finalized gold-revie
 Classical work on regret and counterfactual reasoning identifies measurable linguistic signatures of missed alternatives, such as upward counterfactual phrases, temporal re-evaluation, and responsibility attributions.
 Roese and Epstude's synthesis is foundational for marker-based operationalization in non-affective constructs~\cite{roese2017, roese2008}, and broader reviews emphasize that counterfactual structure can be analyzed independently from subjective feeling reports~\cite{roeseolson2014,byrne2016}.
 Norm-theory accounts further clarify why perceived deviations from typical outcomes systematically amplify counterfactual generation, providing an additional cognitive basis for marker-focused analysis~\cite{kahneman1986norm}.
-Decision-theoretic work further clarifies that regret can be formalized at the choice level without requiring direct access to subjective affect reports~\cite{bell1982, loomes1982}, while behavioral decision studies distinguish regret from disappointment in experimentally testable ways and show that expected feedback modulates regret-avoidant choice patterns~\cite{zeelenberg1998, zeelenberg2007, zeelenberg2000, zeelenberg2004, zeelenbergbeattie1996}. Related syntheses also separate anticipated and experienced regret in decision models, reinforcing the value of explicit operational definitions before marker analysis~\cite{connolly2002regret, mellers1999emotion}. Classic psychological evidence additionally shows a temporal shift from action-regret to inaction-regret, which matters for prompt-time framing windows in language elicitation tasks~\cite{gilovichmedvec1995}. Foundational models of loss-sensitive choice and later integrative reviews on emotion in decision-making further motivate separating observable choice-language regularities from unobserved affective states~\cite{kahnemantversky1979, lerner2015emotion}.
+Decision-theoretic work further clarifies that regret can be formalized at the choice level without requiring direct access to subjective affect reports~\cite{bell1982, loomes1982}, while behavioral decision studies distinguish regret from disappointment in experimentally testable ways and show that expected feedback modulates regret-avoidant choice patterns~\cite{zeelenberg1998, zeelenberg2007, zeelenberg2000, zeelenberg2004, zeelenbergbeattie1996}. Related syntheses also separate anticipated and experienced regret in decision models, reinforcing the value of explicit operational definitions before marker analysis~\cite{connolly2002regret, mellers1999emotion}. Classic psychological evidence additionally shows a temporal shift from action-regret to inaction-regret, which matters for prompt-time framing windows in language elicitation tasks~\cite{landman1987, gilovichmedvec1995}. Foundational models of loss-sensitive choice and later integrative reviews on emotion in decision-making further motivate separating observable choice-language regularities from unobserved affective states~\cite{kahnemantversky1979, lerner2015emotion}.
 These definitions support our focus on language-level observables rather than emotional-state inference. We also draw motivation from cognitive-neuroscience and cognitive-review accounts of counterfactual evaluation and regret computation~\cite{camille2004, coricelli2005, camerer2005, roese2015counterfactualthought}, where behavioral signals are often separated from latent affective states.
 
 \subsection{LLM social-cognitive behavior and theory-of-mind}
@@ -68,12 +68,12 @@ Work on robustness under minor alterations~\cite{ullman2023, shapira2023cleverha
 \subsection{Anthropomorphic attribution and emotional intelligence}
 A separate but adjacent literature shows that users often attribute personality, emotion, and agency to AI text systems, so interpretation risk must be treated as an empirical measurement issue rather than an intent claim.
 User studies on anthropomorphic chat interfaces~\cite{i_chatbot_2023, anthro2023, araujo2018}, measurement work on anthropomorphism and perceived intelligence~\cite{bartneck2009}, and service-level meta-analysis across chatbot/robot settings~\cite{wu2021anthro_meta} convergently suggest non-trivial interpretation bias, though effect sizes and mechanisms vary by task and deployment context.
-Recent service-chatbot studies further suggest that anthropomorphic style can shift compliance and trust judgments~\cite{adam2020, roy2020, liuthompkins2022}, which is methodologically relevant but not directly equivalent to controlled LLM regret elicitation. Classic CASA findings and later anthropomorphism theory further indicate that minimal social cues can trigger human-like attributions even when users explicitly know they interact with machines~\cite{nassmoon2000,epley2007}. Recent HCI evidence also shows that model uncertainty phrasing changes user reliance and trust calibration~\cite{zhang2024uncertaintytrust}, and socioaffective-alignment analyses warn that perceived relationship depth can systematically distort user interpretation of model outputs~\cite{kirk2025socioaffective}. Taken together with earlier measurement and meta-analytic findings~\cite{bartneck2009, wu2021anthro_meta}, these results reinforce the need for conservative claim language in behavioral studies.
+Recent service-chatbot studies further suggest that anthropomorphic style can shift compliance and trust judgments~\cite{adam2020, roy2020, liuthompkins2022}, and recent LLM-focused perspective work highlights that this anthropomorphic fluency can simultaneously create practical value and manipulation risk at scale~\cite{anthrobenefitdanger2025}, which is methodologically relevant but not directly equivalent to controlled LLM regret elicitation. Classic CASA findings and later anthropomorphism theory further indicate that minimal social cues can trigger human-like attributions even when users explicitly know they interact with machines~\cite{nassmoon2000,epley2007}. Recent HCI evidence also shows that model uncertainty phrasing changes user reliance and trust calibration~\cite{zhang2024uncertaintytrust}, and socioaffective-alignment analyses warn that perceived relationship depth can systematically distort user interpretation of model outputs~\cite{kirk2025socioaffective}. Taken together with earlier measurement and meta-analytic findings~\cite{bartneck2009, wu2021anthro_meta}, these results reinforce the need for conservative claim language in behavioral studies.
 This motivates explicitly separating linguistic behavior from affective ontology in our claims.
 
 \subsection{Emotion, benchmark methodology, and robust prompting}
 Related work across ToM, emotion, and social-signal evaluation consistently emphasizes: (i) benchmark family coverage, (ii) perturbation tests, and (iii) transparent statistical reporting.
-Beyond ToM-only settings, prior emotion-focused resources such as EmpatheticDialogues and GoEmotions show that label granularity, domain shift, and annotation design materially affect measured performance~\cite{rashkin2019, demszky2020}, while shared-task settings in affective NLP highlight reproducibility challenges tied to preprocessing and class imbalance~\cite{mohammad2018semeval}. Task-specific studies on LLM emotion detection and real-time emotion generation in HRI report promising domain performance, but their metrics and interaction settings are not directly aligned with controlled regret-marker elicitation~\cite{emotiondetect2023, hriemotion2023}.
+Beyond ToM-only settings, prior emotion-focused resources such as EmpatheticDialogues and GoEmotions show that label granularity, domain shift, and annotation design materially affect measured performance~\cite{rashkin2019, demszky2020}, while shared-task settings in affective NLP highlight reproducibility challenges tied to preprocessing and class imbalance~\cite{mohammad2018semeval}. Task-specific studies on LLM emotion detection and real-time emotion generation in HRI report promising domain performance, and dedicated emotional-intelligence benchmarking suggests non-trivial variance across model families and task formulations~\cite{emotiondetect2023, hriemotion2023, emobench2024, emobench2, fragileemotionreasoning2025}; however, these metrics and interaction settings are not directly aligned with controlled regret-marker elicitation.
 General-purpose LLM evaluation frameworks also stress multi-metric reporting, scenario stratification, and explicit documentation of evaluation limitations~\cite{liang2023helm,chang2024survey,bommasani2021foundation,lin2022truthfulqa,srivastava2022beyond}.
 We additionally follow reproducible-science guidance on transparent analysis plans, preregistered confirmatory workflows, and robustness against researcher degrees of freedom~\cite{munafo2017manifesto, simmons2011falsepositive, gelman2014garden, nosk2018prereg}.
 Our pipeline is aligned with this design tradition through automated retrieval, multi-gate screening, scenario coverage diagnostics, and failure-aware orchestration.
@@ -87,18 +87,20 @@ Our contribution is narrower but operationally important: building a continuous,
 \label{tab:litmap}
 \scriptsize
 \centering
-\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.23\linewidth}X}
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\linewidth}{@{}>{\RaggedRight\arraybackslash}p{0.22\linewidth}X@{}}
 \toprule
 Stream & Evidence and relevance\\
 \midrule
 Counterfactual and regret psychology & Counterfactual phrasing predicts measurable markers and defines explicit target features.\\
 LLM social cognition & ToM is framing-sensitive, requiring strict controls over scenario, persona, and temperature.\\
-Anthropomorphism & Fluency can inflate perceived affect/intent, motivating conservative interpretation.\\
+Anthropomorphism & Fluency can inflate perceived intent, motivating conservative interpretation.\\
 Emotion/benchmarking & Coverage plus perturbation testing improves reliability and reproducibility.\\
 Pipeline reproducibility & Long-run status monitoring and traceability support continuous operation.\\
 \bottomrule
 \end{tabularx}
 \end{table}
+\setlength{\tabcolsep}{6pt}
 
 \section{Research Design}
 \subsection{Research questions}
@@ -145,7 +147,7 @@ Candidate retrieval and screening run in background jobs.
 Quality gates track balance, entropy, confidence, source diversity, risk diversity, query coverage, and traceability.
 The reporting structure is also aligned with PRISMA 2020 principles for transparent flow accounting (identification, screening, eligibility, and inclusion states), adapted here for an automated high-recall scoping pipeline~\cite{page2021prisma}.
 Our retrieval stack is currently centered on OpenAlex and therefore inherits source-level metadata and indexing biases that can affect topic coverage and recency~\cite{priem2022openalex}.
-Latest run collected 279 candidate studies and generated an auto-updated evidence table. The current state (0 include / 77 review / 202 exclude) indicates that quality-gated candidate screening is active, but gold-set inclusion decisions are still pending; therefore, we treat this corpus as a high-recall scoping pool rather than confirmatory evidence.
+Latest run collected 279 candidate studies and generated an auto-updated evidence table. The current state (0 include / 77 review / 202 exclude) is an automated triage snapshot (not a finalized human inclusion decision) and indicates that quality-gated candidate screening is active while gold-set curation is still pending; therefore, we treat this corpus as a high-recall scoping pool rather than confirmatory evidence. Because the current include count remains zero, this version does not present claim-level evidence synthesis from screened studies; citations are used as methodological scaffolding only until manual inclusion decisions are completed.
 
 \begin{table}[t]
 \caption{Literature and screening status (latest run)}
@@ -214,7 +216,7 @@ Metric & Value & Interpretation \\
 \midrule
 Synthetic samples (aggregate) & 7,103,250 & Cumulative mock stress-test corpus size (automation log)\\
 Counterfactual mean & 0.2498 & Per sample (SD 0.1093)\\
-Regret-word mean & 0.2498 & Per sample (SD 0.1093)\\
+Regret-word mean & 0.2498 & Currently identical to counterfactual mean due to synthetic generator coupling; not evidence of construct-level equivalence\\
 Pipeline availability & running & Cron-based automation active\\
 Model realism & pending & Real-model experiments not yet started\\
 \bottomrule
@@ -256,7 +258,7 @@ The primary contribution is not final behavioral claims, but an auditable system
 The current outputs are synthetic.
 The literature-screening quality score is also still in review status (0.0), indicating unresolved coverage and traceability constraints before any claim of evidence completeness.
 More broadly, our inference policy follows prior caution that fluent generation can exceed grounded understanding and amplify anthropomorphic over-reading~\cite{bender2021stochastic, weizenbaum1966eliza, reeves1996media}. We therefore treat marker shifts as behavioral signals under prompts, not latent-emotion measurements.
-Hence interpretations are provisional and should not be used as final psychological conclusions. In addition, our marker set is lexicon-dominant and can partially conflate regret-specific language with broader negative affect; future iterations should add semantic disambiguation, dimensional affect mapping, and human annotation calibration~\cite{wilson2005, russell1980, barrett2006, mohammadturney2013, warriner2013vad}.
+Hence interpretations are provisional and should not be used as final psychological conclusions. We also treat near-degenerate marker summaries (e.g., highly similar condition means across nominally different marker families in synthetic runs) as a diagnostic warning, not as evidence of construct equivalence; future runs therefore require explicit discriminant-validity checks before confirmatory inference. In addition, our marker set is lexicon-dominant and can partially conflate regret-specific language with broader negative affect; future iterations should add semantic disambiguation, dimensional affect mapping, and human annotation calibration~\cite{wilson2005, russell1980, barrett2006, mohammadturney2013, warriner2013vad}.
 
 \section{Code and reproducibility}
 Replication scripts are in the repository. Key modules are listed in Table~\ref{tab:code}.
