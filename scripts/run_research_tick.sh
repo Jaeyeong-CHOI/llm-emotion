@@ -314,8 +314,10 @@ is_path_safe_from_symlink() {
       return 1
     fi
 
+    # Move to the parent component; paths without separators ("a") still get a
+    # final check on the basename before exiting.
     if [ "${current%/*}" = "$current" ]; then
-      return 0
+      break
     fi
 
     current="${current%/*}"
@@ -323,7 +325,6 @@ is_path_safe_from_symlink() {
 
   return 0
 }
-
 is_valid_run_id() {
   local value="$1"
   [[ "$value" =~ ^[A-Za-z0-9._-]+$ ]]
