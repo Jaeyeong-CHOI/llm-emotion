@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import datetime
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from research_ops_common import ROOT, STATE_PATH, get_stats_snapshot, read_json
 
@@ -25,7 +26,7 @@ def main() -> None:
     cron = _as_dict(read_json(CRON_STATE_PATH))
 
     snapshot = get_stats_snapshot(state)
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = datetime.datetime.now(ZoneInfo("Asia/Seoul")).strftime("%Y-%m-%d %H:%M:%S")
 
     lines = [
         "# 📡 실시간 연구 진행 현황 (llm-emotion)",
