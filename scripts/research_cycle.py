@@ -144,14 +144,15 @@ def main():
 
     state["last_success"] = now
     state["last_error"] = None
-    state.setdefault("stats", {})["papers_collected"] = count_lines(ROOT / "refs" / "openalex_results.jsonl")
-    state["stats"]["evidence_rows"] = max(0, count_lines(ROOT / "docs" / "evidence-table.md") - 4)
-    state["stats"]["mock_samples_generated"] = count_lines(ROOT / "data" / "raw" / "mock_generations.jsonl")
+    stats = state.setdefault("stats", {})
+    stats["papers_collected"] = count_lines(ROOT / "refs" / "openalex_results.jsonl")
+    stats["evidence_rows"] = max(0, count_lines(ROOT / "docs" / "evidence-table.md") - 4)
+    stats["mock_samples_generated"] = count_lines(ROOT / "data" / "raw" / "mock_generations.jsonl")
 
     refs_path = ROOT / "refs" / "openalex_results.jsonl"
     include_n, review_n, malformed_rows = collect_screening_label_stats(refs_path)
-    state["stats"]["screen_include"] = include_n
-    state["stats"]["screen_review"] = review_n
+    stats["screen_include"] = include_n
+    stats["screen_review"] = review_n
     if malformed_rows:
         append_note(state, f"WARN screening parse skipped malformed_rows={malformed_rows}")
 
