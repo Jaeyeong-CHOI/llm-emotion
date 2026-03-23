@@ -40,12 +40,12 @@ def is_placeholder(value: str) -> bool:
     return any(re.match(p, v) for p in PLACEHOLDER_PATTERNS)
 
 
-def parse_required_vars(raw: str):
+def parse_env_var_list(raw: str, default: list[str]):
     if not raw:
-        return DEFAULT_REQUIRED
+        return default
     tokens = re.split(r"[\s,]+", raw.strip())
     vars_ = [t for t in tokens if t]
-    return vars_ or DEFAULT_REQUIRED
+    return vars_ or default
 
 
 def check_var(value: str):
@@ -91,8 +91,8 @@ def main():
     )
     args = ap.parse_args()
 
-    required = parse_required_vars(args.required_vars)
-    optional = parse_required_vars(args.optional_vars)
+    required = parse_env_var_list(args.required_vars, DEFAULT_REQUIRED)
+    optional = parse_env_var_list(args.optional_vars, OPTIONAL_PROJECT_VARS)
 
     required_status, required_missing, required_placeholder_vars = check_vars(required)
     optional_status, optional_missing, optional_placeholder_vars = check_vars(optional)
