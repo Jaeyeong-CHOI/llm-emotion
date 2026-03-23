@@ -199,6 +199,7 @@ dequeue_run_id() {
 
   local picked=""
   local raw_line=""
+  local changed=0
 
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
@@ -207,18 +208,24 @@ dequeue_run_id() {
       local normalized
       if normalized="$(normalize_queue_run_id "$line")"; then
         picked="$normalized"
+        changed=1
         continue
       fi
 
       echo "[tick] invalid run-id skipped: $raw_line" >&2
+      changed=1
       continue
     fi
     printf '%s\n' "$raw_line"
   done < "$queue_file" > "$tmp_file"
 
-  if ! mv "$tmp_file" "$queue_file"; then
+  if [ "$changed" -eq 1 ]; then
+    if ! mv "$tmp_file" "$queue_file"; then
+      rm -f "$tmp_file"
+      return 1
+    fi
+  else
     rm -f "$tmp_file"
-    return 1
   fi
 
   printf '%s' "$picked"
