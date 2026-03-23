@@ -21,6 +21,12 @@ printf '%s\n' multilingual_screening_calibration_v33 batch_recovery_runner_v33 >
 python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label weekly_screening_runner_$(date -u +%Y%m%d) --run-id-file /tmp/llm_emotion_run_ids.txt --max-retries 1 --retry-backoff-seconds 1 --strict-clean
 ```
 
+## 한국어 운영 메모
+- 스크리닝 품질 점검은 `unknown-year query-group top19` 잔여 과점을 보기 위해 `--max-manual-qc-review-traceable-known-query-unknown-year-group-top19-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top19-over-global-group-top19-ratio`를 함께 사용한다.
+- 프롬프트 뱅크 `v128.0`은 `screening_unknown_year_group_top19_ratio_guard_v128`, `prompt_bank_top19_countervoice_mesh_patch_v128`, `runner_temperature_p99_p75_tripwire_v128` 시나리오와 대응 페르소나를 포함한다.
+- 실험 러너 preflight는 `--max-planned-sample-temperature-p99-over-p75-share-ratio`로 p99/p80 이후에도 남는 상단 tail 가속을 fail-fast 한다.
+- 스크리닝 규칙은 affective forecasting bias, impact bias, emotion regulation choice, regulatory flexibility alias와 pre-registered study, within-subject design, measurement invariance method cue를 추가로 본다.
+
 Each batch now emits `run_id_summary.csv` (aggregated across repeats/cells per run id), per-cell and batch `duration_seconds`, snapshot hashes in `manifest.json`, a generated `reproduce.sh` script, default `preflight.json` / `preflight.csv` artifacts, and `command_log.jsonl` for per-attempt execution traces. Selection reports/CSV include `planned_samples`, while `--require-min-total-samples`, `--require-min-run-ids`, `--require-min-temperature-count`, `--require-min-selected-scenarios`, `--require-min-selected-personas`, and `--require-min-planned-samples-per-run` can hard-fail undersized or too-narrow plans before execution. Manifests also persist `cli_invocation`, merged `manifest_note` text, `manifest_note_file`, `prompt_bank_version`, `run_id_file`, retry settings, and `preflight_summary` context for replayability.
 
 Literature screening reports now include `triage_risk`, `label_gate_conflicts`, `screening_stability` (dedup 라벨 충돌/점수 분산), `confidence_by_label`, `alias_coverage`, `required_group_coverage`, `alias_gap_candidates`, a ranked `manual_qc_queue`, and a confidence-aware `manual_qc_queue_balanced` (plus existing `manual_qc_queue_by_label`) to reduce triage bias toward one confidence bucket. `--manual-qc-min-per-label` prevents the balanced queue from dropping `include` papers entirely, and `scripts/check_screening_quality.py` now makes that omission a hard gate via `balanced_include_rows`.

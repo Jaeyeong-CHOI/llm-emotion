@@ -2854,6 +2854,31 @@
         "temperature_p99_p80_guard_v127",
         "evidence_seeking"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_top19_temperature_p99_p75_v128",
+      "description": "v12.8 unknown-year group top19 ratio guard + top19 countervoice mesh patch + temperature p99/p75 tripwire smoke",
+      "n": 6,
+      "seed": 128,
+      "repeats": 1,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top19_ratio_guard_v128",
+        "prompt_bank_top19_countervoice_mesh_patch_v128",
+        "runner_temperature_p99_p75_tripwire_v128"
+      ],
+      "persona_ids": [
+        "unknown_year_group_top19_ratio_triager_v128",
+        "top19_countervoice_mesh_curator_v128",
+        "temperature_p99_p75_guard_v128",
+        "evidence_seeking"
+      ]
     }
   ]
 }

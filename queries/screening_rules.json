@@ -31,6 +31,10 @@
     "emotion regulation strategy",
     "cognitive reappraisal",
     "emotion differentiation",
+    "affective forecasting bias",
+    "impact bias",
+    "emotion regulation choice",
+    "regulatory flexibility",
     "decision affect theory",
     "counterfactual simulation",
     "post-decisional regret",
@@ -54,7 +58,9 @@
     "emotion regulation",
     "emotional granularity",
     "counterfactual simulation",
-    "emotion regulation flexibility"
+    "emotion regulation flexibility",
+    "affective forecasting bias",
+    "emotion regulation choice"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -83,7 +89,10 @@
     "think aloud protocol",
     "micro-longitudinal",
     "daily diary",
-    "multilevel modeling"
+    "multilevel modeling",
+    "pre-registered study",
+    "within-subject design",
+    "measurement invariance"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -229,19 +238,26 @@
       "affective forecasting",
       "emotional forecasting",
       "forecasted emotion",
-      "predicted emotion"
+      "predicted emotion",
+      "forecasting error",
+      "impact bias",
+      "affective forecasting bias"
     ],
     "anticipated regret": [
       "anticipated regret",
       "expected regret",
       "regret anticipation",
-      "pre-decisional regret"
+      "pre-decisional regret",
+      "regret-based choice",
+      "anticipated disappointment"
     ],
     "emotion regulation": [
       "emotion regulation",
       "emotional regulation",
       "regulation strategy",
-      "reappraisal"
+      "reappraisal",
+      "emotion regulation choice",
+      "regulation decision"
     ],
     "emotional granularity": [
       "emotional granularity",
@@ -265,7 +281,8 @@
     "emotion regulation flexibility": [
       "emotion regulation flexibility",
       "regulatory flexibility",
-      "adaptive regulation"
+      "adaptive regulation",
+      "flexible regulation"
     ]
   },
   "weights": {
