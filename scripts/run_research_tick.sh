@@ -68,6 +68,18 @@ claim_lock_dir() {
   printf '%s\n' "$$" > "$LOCK_PID_FILE"
 }
 
+clear_lock_dir() {
+  rm -f "$LOCK_PID_FILE"
+  rmdir "$LOCK_DIR" 2>/dev/null || true
+}
+
+recover_stale_lock() {
+  local lock_pid="$1"
+  echo "[tick] stale lock detected (pid=$lock_pid); recovering"
+  clear_lock_dir
+  claim_lock_dir
+}
+
 acquire_lock() {
   if claim_lock_dir; then
     return 0
@@ -80,11 +92,7 @@ acquire_lock() {
 
   if [ -n "$lock_pid" ]; then
     if ! is_numeric_pid "$lock_pid" || ! kill -0 "$lock_pid" 2>/dev/null || ! lock_pid_matches_tick_script "$lock_pid"; then
-      echo "[tick] stale lock detected (pid=$lock_pid); recovering"
-      rm -f "$LOCK_PID_FILE"
-      rmdir "$LOCK_DIR" 2>/dev/null || true
-
-      if claim_lock_dir; then
+      if recover_stale_lock "$lock_pid"; then
         return 0
       fi
     fi
@@ -100,8 +108,7 @@ if ! acquire_lock; then
 fi
 
 cleanup_lock() {
-  rm -f "$LOCK_PID_FILE"
-  rmdir "$LOCK_DIR" 2>/dev/null || true
+  clear_lock_dir
 }
 trap cleanup_lock EXIT
 
