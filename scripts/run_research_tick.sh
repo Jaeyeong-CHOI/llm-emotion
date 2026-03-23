@@ -116,13 +116,16 @@ fi
 queue_contains_run_id() {
   local queue_file="$1"
   local run_id="$2"
+  local canonical_run_id
+  canonical_run_id="$(canonical_line "$run_id")"
 
   [ -f "$queue_file" ] || return 1
+  is_queue_data_line "$canonical_run_id" || return 1
 
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
     line="$(canonical_line "$raw_line")"
-    if [ "$line" = "$run_id" ]; then
+    if is_queue_data_line "$line" && [ "$line" = "$canonical_run_id" ]; then
       return 0
     fi
   done < "$queue_file"
@@ -133,13 +136,17 @@ queue_contains_run_id() {
 enqueue_run_id_unique() {
   local queue_file="$1"
   local run_id="$2"
+  local canonical_run_id
+  canonical_run_id="$(canonical_line "$run_id")"
+
+  is_queue_data_line "$canonical_run_id" || return 0
 
   touch "$queue_file"
-  if queue_contains_run_id "$queue_file" "$run_id"; then
+  if queue_contains_run_id "$queue_file" "$canonical_run_id"; then
     return 0
   fi
 
-  printf '%s\n' "$run_id" >> "$queue_file"
+  printf '%s\n' "$canonical_run_id" >> "$queue_file"
 }
 
 echo "[tick] execute run_id=$RUN_ID"
