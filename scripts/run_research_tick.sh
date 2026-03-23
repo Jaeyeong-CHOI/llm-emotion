@@ -53,6 +53,7 @@ echo "[tick] $(date -u +'%Y-%m-%dT%H:%M:%SZ') start"
 LOCK_DIR="/tmp/llm_emotion_research_tick.lock"
 LOCK_PID_FILE="$LOCK_DIR/pid"
 LOCK_ACQUIRED=0
+RUN_TICK_SCRIPT="${ROOT}/scripts/run_research_tick.sh"
 
 is_numeric_pid() {
   local pid="$1"
@@ -60,10 +61,18 @@ is_numeric_pid() {
 }
 
 is_expected_tick_command() {
-  local command="$1"
+  local command_line="$1"
+  local token=""
+  local normalized=""
 
-  [[ "$command" == *"$ROOT/scripts/run_research_tick.sh"* ]] \
-    || [[ "$command" == *"scripts/run_research_tick.sh"* ]]
+  for token in $command_line; do
+    normalized="$(realpath "$token" 2>/dev/null || printf '%s' "$token")"
+    if [ "$normalized" = "$RUN_TICK_SCRIPT" ]; then
+      return 0
+    fi
+  done
+
+  return 1
 }
 
 trim_whitespace() {
