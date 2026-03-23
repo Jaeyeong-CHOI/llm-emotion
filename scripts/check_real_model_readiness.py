@@ -40,12 +40,18 @@ def is_placeholder(value: str) -> bool:
     return any(re.match(p, v) for p in PLACEHOLDER_PATTERNS)
 
 
-def parse_env_var_list(raw: str, default: list[str]):
+def parse_env_var_list(raw: str, default: list[str]) -> list[str]:
+    """Parse comma/space-separated env-var names with stable de-duplication."""
     if not raw:
-        return default
+        return list(dict.fromkeys(default))
+
     tokens = re.split(r"[\s,]+", raw.strip())
     vars_ = [t for t in tokens if t]
-    return vars_ or default
+    if not vars_:
+        return list(dict.fromkeys(default))
+
+    # Keep first occurrence order so CLI intent stays predictable.
+    return list(dict.fromkeys(vars_))
 
 
 def check_var(value: str):
