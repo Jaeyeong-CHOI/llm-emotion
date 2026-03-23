@@ -14,7 +14,8 @@ STATE_PATH = ROOT / "ops" / "research_state.json"
 
 
 def now_isoseconds() -> str:
-    return dt.datetime.now().isoformat(timespec="seconds")
+    """Return an unambiguous UTC ISO-8601 timestamp for research logs/state."""
+    return dt.datetime.now(dt.UTC).isoformat(timespec="seconds")
 
 
 def read_json(path: Path, default: Any | None = None) -> Any:
