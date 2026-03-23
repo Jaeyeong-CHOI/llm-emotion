@@ -80,6 +80,15 @@ if [ -z "$RUN_ID" ]; then
   skip_with_status "no valid run-id found in queue"
 fi
 
+is_safe_run_id() {
+  local run_id="$1"
+  [[ "$run_id" =~ ^[A-Za-z0-9._-]+$ ]]
+}
+
+if ! is_safe_run_id "$RUN_ID"; then
+  skip_with_status "invalid run-id format (${RUN_ID})"
+fi
+
 enqueue_run_id_unique() {
   local queue_file="$1"
   local run_id="$2"
