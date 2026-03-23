@@ -1,0 +1,117 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{tikz}
+
+\title{Exploring Regret- and Deprivation-Like Signals in LLMs: Automated Pipeline and Preliminary Evidence}
+\author{Kleo Research Group}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This draft focuses on whether large language models (LLMs) show language patterns similar to human regret and deprivation, rather than claiming emotional experience.
+We integrate prior work on counterfactual thinking, theory of mind, and anthropomorphism into an automatically maintained experimental pipeline.
+Current status is preparatory: literature and experiment-ops infrastructure is well established, while full human-inference claims are waiting on production-scale model outputs.
+\end{abstract}
+
+\section{Background}
+Humans often report counterfactual language after irreversible decisions (``if only I had...''), along with self-blame and repeated focus on past events.
+Existing studies report that apparent socio-emotional abilities in LLMs are sensitive to prompt format and do not directly imply internal emotion.
+We therefore define a behavioral target:
+\begin{itemize}
+  \item counterfactual phrasing frequency,
+  \item self-attribution strength, and
+  \item post-failure perseveration in repeated interactions.
+\end{itemize}
+
+\section{Method}
+The pipeline has four stages:
+\begin{enumerate}
+  \item \textbf{Literature collection and screening}: automatic query+scrape against OpenAlex with repeatable filtering.
+  \item \textbf{Prompt bank expansion}: scenario variants covering loss, reversal, and reflective prompts.
+  \item \textbf{Experiment runner}: configurable scenario/temperature/persona combinations with reproducible logs.
+  \item \textbf{State tracking}: continuous status files, scheduled jobs, and summary dashboards.
+\end{enumerate}
+
+At present, we have implemented smoke-test generation and monitoring; live model calls are prepared but not yet the main study phase.
+
+\section{Current outcomes}
+Table~\ref{tab:status} and Figure~\ref{fig:progress} summarize current progress.
+
+\begin{table}[t]
+\centering
+\caption{Progress snapshot}
+\label{tab:status}
+\begin{tabular}{lccc}
+\toprule
+Item & Value & Interpretation & Status\\
+\midrule
+Collected literature candidates & 279 papers & Core review set candidate pool & Screening-in-progress\\
+Evidence table rows & 279 & Auto-synced & Stable\\
+Validation samples & 109,500 & Mock-data stress test & Running\\
+Cron interval & 1 min & Continuous operation & Auto-retrying\\
+Core milestone & Screening/runner/dashboard set up & Pre-experiment stage & ~52\%\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[x=2.2cm,y=1.6cm]
+  \draw[->] (0,0) -- (6.2,0) node[right]{Module};
+  \draw[->] (0,0) -- (0,3.6) node[above]{Progress (\%)};
+  \fill[blue!35] (0.6,0) rectangle +(0.6,3.07);
+  \node[below] at (0.9,-0.08) {Infra};
+  \node[above] at (0.9,3.07) {92};
+
+  \fill[blue!35] (1.6,0) rectangle +(0.6,2.34);
+  \node[below] at (1.9,-0.08) {Literature};
+  \node[above] at (1.9,2.34) {78};
+
+  \fill[blue!35] (2.6,0) rectangle +(0.6,1.92);
+  \node[below] at (2.9,-0.08) {Experiment};
+  \node[above] at (2.9,1.92) {64};
+
+  \fill[blue!35] (3.6,0) rectangle +(0.6,0.72);
+  \node[below] at (3.9,-0.08) {Analysis};
+  \node[above] at (3.9,0.72) {24};
+
+  \fill[blue!35] (4.6,0) rectangle +(0.6,0.48);
+  \node[below] at (4.9,-0.08) {Paper};
+  \node[above] at (4.9,0.48) {16};
+\end{tikzpicture}
+\caption{Module-wise progress from the live dashboard}
+\label{fig:progress}
+\end{figure}
+
+\section{Preliminary discussion}
+The infrastructure side is strong and reproducible.
+The critical next move is to switch from synthetic/mock text generation to real model APIs with fixed seeds and then run mixed-effects analyses.
+
+\section{Limitations}
+This is still an intermediate stage: core evidence relies on pipeline checks.
+Also, literature screening is candidate-level and not fully curated into a strict gold set yet.
+
+\section{Next steps}
+\begin{enumerate}
+  \item Run model API batches (minimum 30 samples per condition).
+  \item Add mixed-effects analysis for prompt/persona/temperature interactions.
+  \item Add blinded human annotation for interpretation validity.
+  \item Finalize manuscript with explicit claims and robustness checks.
+\end{enumerate}
+
+\section*{References (preliminary)}
+(1) Kosinski, 2024.\
+(2) Roese \& Epstude, 2008.\
+(3) Roese \& Epstude, 2017.\
+(4) Ullman, 2023.\
+(5) Strachan et al., 2024.\
+(6) Kim \& Lee, 2023.
+
+\end{document}
