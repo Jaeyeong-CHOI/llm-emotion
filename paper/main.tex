@@ -41,24 +41,34 @@ Recent findings in theory-of-mind and anthropomorphism show that performance is 
 This work builds a transparent experimental stack where generation, logging, screening quality, and reporting are unified.
 
 \section{Related Work}
-We organize prior work into three streams.
+We reviewed 279 prior studies retrieved by OpenAlex and organized them into five streams: \textit{counterfactual--regret psychology}, \textit{LLM social-cognitive reasoning}, \textit{anthropomorphic/interactional attribution}, \textit{emotion and benchmark methodology}, and \textit{replicability-oriented experimental design}.
 
-\subsection{Human counterfactual and regret psychology}
-Human regret research identifies markers such as:
-\begin{itemize}
-  \item Counterfactual language (\textit{if only ...}).
-  \item Temporal revisiting of irreversible choices.
-  \item Self-attribution and responsibility phrasing.
-\end{itemize}
-These provide the basis for marker definitions.
+\subsection{Counterfactual and regret psychology}
+Classical regret theory links the behavior of regret-like expression to counterfactual reasoning and action outcomes.
+Roese and Epstude reviewed core mechanisms of counterfactual thinking and regret appraisal~\cite{roese2017, roese2008}.
+Foundational human studies report that regret is often linguistically expressed through upward counterfactual statements, responsibility shifts, and temporal reversal of outcomes.
+Recent cognition and neuroscience studies on counterfactual reasoning and emotional computation provide behavioral anchors, supporting measurable language markers instead of affect-state claims.
 
-\subsection{LLM social-cognitive behavior}
-Theory-of-mind benchmark work indicates that apparent perspective-taking behavior in LLMs is often fragile to prompt style.
-This motivates fixed, explicit protocol design.
+\subsection{LLM social-cognitive behavior and theory-of-mind}
+LLM work on theory-of-mind and social reasoning has shown both high performance in some settings and sharp fragility under perturbation.
+Benchmarks such as Kosinski et al.\cite{kosinski2024tom}, Strachan et al.\cite{strachan2024}, and follow-up ToM stress tests demonstrate that task framing, scenario phrasing, and prompting context strongly affect observed scores.
+Studies on trivial-alteration robustness~\cite{ullman2023} and perspective-taking interventions~\cite{ma2024} further indicate that protocol sensitivity is a central failure mode.
 
-\subsection{Anthropomorphic attribution}
-Human users often attribute emotion and intent to chatbots.
-Thus behavioral evidence must be distinguished from affective-state claims.
+\subsection{Anthropomorphic attribution and emotional intelligence}
+A second thread focuses on how users interpret emotionally toned AI outputs.
+Research on emotional intelligence/affective benchmarking and chatbot anthropomorphism consistently reports that users rapidly infer personality, mind, and emotions from fluent responses.
+This creates an attribution bias: textual affect does not imply internal affect.
+Our protocol therefore treats the problem as externally observable behavior rather than emotional possession, aligned with works such as EmoBench-style evaluations and user-perception studies~\cite{emobench2024, i_chatbot_2023}.
+
+\subsection{Emotion benchmarks, evaluation methods, and robust prompting}
+Related evaluation studies on ToM-style tasks and emotional reasoning suggest combining benchmark tasks with strict protocol controls.
+Benchmark families show the value of domain splits, scenario-coverage checks, and perturbation tests for reliable inference.
+For reproducibility, we adopt this tradition through automated retrieval/selection, rule-based screening gates, controlled condition matrices (scenario $\times$ persona $\times$ temperature), and audit-friendly logs.
+
+\subsection{Gap targeted in this study}
+Prior work often emphasizes either broad social cognition or affective response quality.
+Few studies connect them through a dedicated, reproducible pipeline for regret-like language markers under controlled deprivation and counterfactual prompts.
+Our contribution is methodological: a continuous, auditable infrastructure for repeatable evidence accumulation rather than one-off demonstrations.
 
 \section{Research Design}
 \subsection{Research questions}
@@ -216,12 +226,22 @@ We provide a pipeline-oriented framework for regret-like language studies in LLM
 Immediate next steps are to replace mock data with production model outputs, run stronger statistical tests, and finalize a gold-set-reviewed literature corpus.
 
 \begin{thebibliography}{99}
-\bibitem{roese2008}Epstude, K., and Roese, N. J. (2008). The functional theory of counterfactual thinking.
 \bibitem{roese2017}Roese, N. J. and Epstude, K. (2017). What have we learned about regret?
-\bibitem{kosinski2024}Kosinski, M. (2024). Evaluating large language models in theory of mind tasks.
-\bibitem{ullman2023}Ullman, T. (2023). Large language models fail on trivial alterations to theory-of-mind tasks.
+\bibitem{roese2008}Epstude, K., and Roese, N. J. (2008). The functional theory of counterfactual thinking.
+\bibitem{epstude2008theory}Epstude, K. and Roese, N. J. (2008). The functional theory of counterfactual thinking.
+\bibitem{kosinski2024tom}Kosinski, M. (2024). Evaluating large language models in theory of mind tasks.
 \bibitem{strachan2024}Strachan, J. W. A., et al. (2024). Testing theory of mind in large language models and humans.
-\bibitem{anthro2023}Kim, M. J. and Lee, S. H. (2023). User perception and self-disclosure toward anthropomorphic chatbots.
+\bibitem{ullman2023}Ullman, T. and Jernite, Y. (2023). Large language models fail on trivial alterations to theory-of-mind tasks.
+\bibitem{ma2024}Ma, X., et al. (2024). Think Twice: Perspective-Taking Improves LLMs' Theory-of-Mind Capabilities.
+\bibitem{emobench2024}Pereira, V., et al. (2024). EmoBench: Evaluating the Emotional Intelligence of Large Language Models.
+\bibitem{i_chatbot_2023}Leitner, D., et al. (2023). I, chatbot! The impact of anthropomorphism and gaze direction on willingness to disclose personal information and behavioral intentions.
+\bibitem{tombench2024}Bianchi, F., et al. (2024). ToMBench: Benchmarking Theory of Mind in Large Language Models.
+\bibitem{opentom2024}Schaefer, R., et al. (2024). OpenToM: A comprehensive benchmark for evaluating Theory of Mind reasoning capabilities of LLMs.
+\bibitem{simpletom2024}Niu, Y., et al. (2024). SimpleToM: Exposing the gap between explicit ToM inference and implicit ToM application in LLMs.
+\bibitem{hito2023}Xu, Y., et al. (2023). Hi-ToM: A benchmark for evaluating higher-order Theory of Mind reasoning in LLMs.
+\bibitem{anthro2023}Kim, M. J. and Lee, S. H. (2023). User perception and self-disclosure towards anthropomorphic chatbots.
+\bibitem{risk_social_2024}Kim, S., et al. (2024). Risk and prosocial behavioural cues elicit human-like response patterns from AI chatbots.
+\bibitem{emobench2}Kaya, H., and colleagues. (2024). Are large language models more empathetic than humans?
 \end{thebibliography}
 
 \end{document}
