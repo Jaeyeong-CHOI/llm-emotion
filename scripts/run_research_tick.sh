@@ -53,6 +53,16 @@ is_numeric_pid() {
   [[ "$pid" =~ ^[0-9]+$ ]]
 }
 
+lock_pid_owned_by_current_user() {
+  local pid="$1"
+  local owner_uid=""
+
+  is_numeric_pid "$pid" || return 1
+
+  owner_uid="$(ps -p "$pid" -o uid= 2>/dev/null | tr -d '[:space:]' || true)"
+  [[ -n "$owner_uid" ]] && [[ "$owner_uid" == "$(id -u)" ]]
+}
+
 lock_pid_matches_tick_script() {
   local pid="$1"
   local command=""
@@ -94,7 +104,10 @@ acquire_lock() {
   fi
 
   if [ -n "$lock_pid" ]; then
-    if ! is_numeric_pid "$lock_pid" || ! kill -0 "$lock_pid" 2>/dev/null || ! lock_pid_matches_tick_script "$lock_pid"; then
+    if ! is_numeric_pid "$lock_pid" \
+      || ! kill -0 "$lock_pid" 2>/dev/null \
+      || ! lock_pid_owned_by_current_user "$lock_pid" \
+      || ! lock_pid_matches_tick_script "$lock_pid"; then
       if recover_stale_lock "$lock_pid"; then
         return 0
       fi
