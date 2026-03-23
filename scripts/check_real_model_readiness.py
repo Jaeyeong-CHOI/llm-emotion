@@ -82,16 +82,19 @@ class EnvBlock:
     unsafe: list[str]
 
 
-def check_vars(names: list[str]):
-    status = {}
-    missing = []
-    placeholder_vars = []
-    unsafe_vars = []
+def check_env_block(names: list[str]) -> EnvBlock:
+    """Evaluate a named environment-variable block and return diagnostics."""
+
+    status: dict[str, bool] = {}
+    missing: list[str] = []
+    placeholder_vars: list[str] = []
+    unsafe_vars: list[str] = []
 
     for name in names:
         value = os.getenv(name)
         exists, placeholder, unsafe = check_var(value)
         status[name] = exists
+
         if not exists:
             missing.append(name)
             continue
@@ -99,11 +102,7 @@ def check_vars(names: list[str]):
             placeholder_vars.append(name)
         if unsafe:
             unsafe_vars.append(name)
-    return status, missing, placeholder_vars, unsafe_vars
 
-
-def check_env_block(names: list[str]) -> EnvBlock:
-    status, missing, placeholder_vars, unsafe_vars = check_vars(names)
     return EnvBlock(
         names=names,
         available=status,
