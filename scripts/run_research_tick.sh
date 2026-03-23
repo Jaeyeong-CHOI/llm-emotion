@@ -234,23 +234,23 @@ dedupe_queue_file() {
   local queue_file="$1"
   local tmp_file=""
   local line=""
+  local -A seen=()
 
   [ -f "$queue_file" ] || return 0
   tmp_file="$(make_queue_temp_file "$queue_file" dedupe)"
   : > "$tmp_file"
 
   while IFS= read -r line; do
-    if ! grep -Fxq -- "$line" "$tmp_file"; then
+    if [ -z "${seen[$line]-}" ]; then
+      seen[$line]=1
       printf '%s\n' "$line" >> "$tmp_file"
     fi
   done < <(iter_queue_lines "$queue_file")
 
-  if [ -f "$tmp_file" ]; then
-    if ! cmp -s "$queue_file" "$tmp_file" 2>/dev/null; then
-      mv "$tmp_file" "$queue_file"
-    else
-      rm -f "$tmp_file"
-    fi
+  if ! cmp -s "$queue_file" "$tmp_file" 2>/dev/null; then
+    mv "$tmp_file" "$queue_file"
+  else
+    rm -f "$tmp_file"
   fi
 }
 dequeue_run_id() {
