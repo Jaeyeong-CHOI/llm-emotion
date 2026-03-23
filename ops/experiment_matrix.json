@@ -3004,6 +3004,31 @@
         "temperature_p99_p50_guard_v133",
         "evidence_seeking"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_top24_backstop_temperature_p99_p45_v134",
+      "description": "v13.4 unknown-year group top24 backstop + top24 methodology countervoice patch + temperature p99/p45 tripwire smoke",
+      "n": 6,
+      "seed": 134,
+      "repeats": 1,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top24_backstop_v134",
+        "prompt_bank_top24_methodology_countervoice_patch_v134",
+        "runner_temperature_p99_p45_tripwire_v134"
+      ],
+      "persona_ids": [
+        "unknown_year_group_top24_backstop_triager_v134",
+        "top24_methodology_countervoice_curator_v134",
+        "temperature_p99_p45_guard_v134",
+        "evidence_seeking"
+      ]
     }
   ]
 }

@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year query-group top24 absolute/global ratio backstop**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top24-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top24-over-global-group-top24-ratio`)를 추가해, top23 통과 이후에도 남는 query-group 누적 과점을 fail-fast로 차단합니다.
+- Prompt bank expanded to `v134.0` with **unknown-year group top24 backstop / top24 methodology countervoice patch / temperature p99-p45 tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top24_backstop_triager_v134`, `top24_methodology_countervoice_curator_v134`, `temperature_p99_p45_guard_v134`)를 추가했습니다.
+- Experiment runner preflight에 **temperature p99/p45 share ratio guardrail** (`--max-planned-sample-temperature-p99-over-p45-share-ratio`)을 추가해, p99/p50이 통과해도 최상단 tail 가속이 남는 배치를 사전에 차단합니다.
 - Literature screening 규칙(`queries/screening_rules.json`)에 **emotional granularity calibration / regret repair strategy / counterfactual confidence interval / emotion-policy alignment** alias와 **multiverse analysis / specification curve / open materials** method cue를 보강해 스크리닝 재현율과 방법론 추적성을 개선했습니다.
 - Prompt bank expanded to `v133.0` with **unknown-year group top24 ratio guard / top24 countervoice mesh patch / temperature p99-p50 tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top24_ratio_triager_v133`, `top24_countervoice_mesh_curator_v133`, `temperature_p99_p50_guard_v133`)를 추가했습니다.
 - Experiment runner preflight에 **temperature p99/p50 share ratio guardrail** (`--max-planned-sample-temperature-p99-over-p50-share-ratio`)을 추가해, p99/p55가 통과해도 최상단 tail 가속이 남는 배치를 사전에 차단합니다.
@@ -181,6 +184,7 @@ python3 scripts/generate_dataset.py \
 
 ## Experiment reproducibility
 - Run definitions live in `ops/experiment_matrix.json`
+- Latest increment: [`docs/reproducibility_v134.md`](./docs/reproducibility_v134.md)
 
 ### v9.6 스모크 프리플라이트 (2026-03-23)
 
