@@ -4,9 +4,9 @@
 Test whether LLM outputs in loss and counterfactual scenarios exhibit language patterns that resemble human regret narratives, while keeping scenario selection reproducible and auditable.
 
 ## Current design updates
-- Prompt bank is now `v123.0`, adding research-ops scenarios (`screening_unknown_year_group_top15_ratio_guard_v123`, `prompt_bank_top15_countervoice_patch_v123`, `runner_temperature_p99_median_tripwire_v123`) and personas (`unknown_year_group_top15_ratio_triager_v123`, `top15_countervoice_architect_v123`, `temperature_p99_median_guard_v123`).
-- Screening gate now tracks `unknown-year known-query query-group top15` share/global-ratio residue to catch cumulative over-concentration that still survives top14 checks.
-- Experiment runner preflight now supports `--max-planned-sample-temperature-p99-over-median-share-ratio`, extending tail-risk monitoring beyond the existing p95/median guard.
+- Prompt bank is now `v126.0`, adding research-ops scenarios (`screening_unknown_year_group_top17_ratio_guard_v126`, `prompt_bank_top17_countervoice_mesh_patch_v126`, `runner_temperature_p99_p85_tripwire_v126`) and personas (`unknown_year_group_top17_ratio_triager_v126`, `top17_countervoice_mesh_curator_v126`, `temperature_p99_p85_guard_v126`).
+- Screening gate now tracks `unknown-year known-query query-group top17` share/global-ratio residue to catch cumulative over-concentration that still survives top16 checks.
+- Experiment runner preflight now supports `--max-planned-sample-temperature-p99-over-p85-share-ratio`, extending tail-risk monitoring beyond the existing p99/p90 guard.
 - Prompt bank is now `v7.6`, adding metadata-aware research-ops scenarios (`screening_duplicate_provenance_triage`, `prompt_bank_domain_axis_balance`, `runner_metadata_resume_guard`) and personas (`duplicate_provenance_auditor`, `domain_axis_balance_curator`, `metadata_resume_guardian`).
 - Screening gate now tracks duplicate-title residue (`--max-manual-qc-duplicate-title-share`) and weak-evidence review residue (`--max-review-weak-evidence-share`) in addition to existing bridge/query provenance coupling.
 - Scenario rows carry `tags` and stable `id`s for reproducible focused subsets (`scenario_tags` and `scenario_ids`).

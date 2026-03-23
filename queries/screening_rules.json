@@ -25,7 +25,12 @@
     "affective forecasting",
     "anticipated regret",
     "emotion regulation",
-    "emotional granularity"
+    "emotional granularity",
+    "affective forecasting error",
+    "regret forecasting",
+    "emotion regulation strategy",
+    "cognitive reappraisal",
+    "emotion differentiation"
   ],
   "high_priority": [
     "regret",
@@ -39,7 +44,11 @@
     "emotion appraisal",
     "self-reflection",
     "empathy",
-    "social-emotional reasoning"
+    "social-emotional reasoning",
+    "affective forecasting",
+    "anticipated regret",
+    "emotion regulation",
+    "emotional granularity"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -61,7 +70,11 @@
     "experience sampling",
     "longitudinal study",
     "diary study",
-    "mixed methods"
+    "mixed methods",
+    "experience sampling method",
+    "ecological momentary assessment",
+    "process tracing",
+    "think aloud protocol"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -225,6 +238,11 @@
       "emotional granularity",
       "emotion differentiation",
       "affect granularity"
+    ],
+    "counterfactual simulation": [
+      "counterfactual simulation",
+      "counterfactual simulations",
+      "mental simulation"
     ]
   },
   "weights": {
@@ -282,7 +300,11 @@
     "experience sampling",
     "longitudinal study",
     "diary study",
-    "mixed-methods"
+    "mixed-methods",
+    "experience sampling method",
+    "ecological momentary assessment",
+    "process tracing",
+    "think aloud protocol"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {
