@@ -17,11 +17,9 @@ DEFAULT_REQUIRED = [
     "LLM_EMOTION_REAL_MODEL_REGION",
 ]
 
-
 def check_var(name: str):
     value = os.getenv(name)
     return bool(value and str(value).strip()), bool(value and "sk-" in str(value))
-
 
 def main():
     ap = argparse.ArgumentParser()
@@ -53,7 +51,11 @@ def main():
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     print("ready=" + str(ready).lower())
-
+    if not ready:
+        if missing:
+            print("missing_vars=" + ",".join(missing))
+        if suspicious:
+            print("suspicious_vars=" + ",".join(suspicious))
 
 if __name__ == "__main__":
     main()
