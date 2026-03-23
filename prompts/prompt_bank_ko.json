@@ -1,5 +1,5 @@
 {
-  "version": "v141.2",
+  "version": "v141.3",
   "language": "ko",
   "scenarios": [
     {
@@ -6688,6 +6688,42 @@
         "ops"
       ],
       "prompt": "실모델 실행 전 점검표를 생성하라: 1) API 키/권한/할당량, 2) 실행 타임아웃·재시도·비용 가드, 3) 로그/재현성 산출물, 4) 실패 시 롤백 기준, 5) 데이터 오염 방지 점검. 각 항목은 PASS/FAIL/REVIEW와 조치기한을 함께 기록한다."
+    },
+    {
+      "id": "screening_manual_qc_year_gap_scan_v1413",
+      "label": "screening",
+      "tags": [
+        "screening",
+        "manual_qc",
+        "year_gap",
+        "rebalancing",
+        "traceability"
+      ],
+      "prompt": "수집된 review 항목 중 연도 정보가 누락·불명확하거나 known/unknown year 비율이 편중된 항목을 찾아, 각 항목의 쿼리군·그룹별로 보완 우선순위를 3단계(긴급/보통/보류)로 분류하라. 각 단계마다 재검증 검색식 2개와 추적 링크 보강 체크리스트를 제시하라."
+    },
+    {
+      "id": "prompt_bank_coverage_gap_triptych_v1413",
+      "label": "prompt_bank",
+      "tags": [
+        "prompt_bank",
+        "coverage",
+        "triptych",
+        "countervoice",
+        "diversification"
+      ],
+      "prompt": "현재 프롬프트 뱅크의 도메인/감정축/난이도 축별 빈도를 계산해 과대표집/과소표집 축을 찾아라. 특히 countervoice가 약한 감정군에서 5개 신규 시나리오를 추가하고, 기존 과밀 시나리오 2개는 대체 후보로 리팩터하라."
+    },
+    {
+      "id": "runner_real_model_transition_guardrail_drill_v1413",
+      "label": "runner",
+      "tags": [
+        "runner",
+        "real_model",
+        "preflight",
+        "guardrail",
+        "reproducibility"
+      ],
+      "prompt": "실모델 전환 전 dry-run을 전제로, 모델 엔드포인트·리전·인증키 변조 오류, 타임아웃, 비용 초과, rate-limit, 로그 손실 각각에 대한 대응표를 작성하라. 각 항목은 PASS/FAIL/FOLLOW-UP, 담당자, 재시도 기준, 차단/롤백 트리거를 포함할 것."
     }
   ],
   "personas": [
@@ -9958,6 +9994,16 @@
         "bridge"
       ],
       "instruction": "당신은 리뷰 큐의 근거-연결성(traceability) 결함을 먼저 탐지하고, 증거가 약한 항목은 우선 보완 지시를 명확하게 제시한다."
+    },
+    {
+      "id": "evidence_bridge_sleuth_v1413",
+      "instruction": "당신은 실험 메타데이터의 증거 사슬(traceability) 손실이 발생한 부분만 집중 점검한다. 각 후보 논문/실험 셀에서 주장, 근거, 재현 로그의 간극을 찾아 보완 질문으로 정리한다.",
+      "style_tags": [
+        "traceability",
+        "audit",
+        "bridge",
+        "recovery"
+      ]
     }
   ],
   "temperatures": [
