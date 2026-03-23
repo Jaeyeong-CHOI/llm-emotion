@@ -251,49 +251,41 @@ strip_queue_comment() {
   printf '%s' "${line%%#*}"
 }
 
-is_queue_data_line() {
-  local line="$1"
-  [[ -n "$line" ]] && [[ ! "$line" =~ ^# ]]
-}
+sanitize_queue_run_id() {
+  local line=""
+  local canonical=""
 
-canonicalize_queue_line() {
-  local line
   line="$(strip_queue_comment "$1")"
-  line="$(canonical_line "$line")"
+  canonical="$(canonical_line "$line")"
 
-  is_queue_data_line "$line" || return 1
-  printf '%s' "$line"
-}
+  [[ -n "$canonical" ]] || return 1
 
-normalize_queue_run_id() {
-  local run_id="$1"
-  local canonical_run_id
-  canonical_run_id="$(canonicalize_queue_line "$run_id")" || return 1
-
-  if [[ ! "$canonical_run_id" =~ ^[A-Za-z0-9._-]+$ ]]; then
-    return 1
+  if [[ "$canonical" =~ ^[A-Za-z0-9._-]+$ ]]; then
+    printf '%s' "$canonical"
+    return 0
   fi
 
-  printf '%s' "$canonical_run_id"
+  return 1
 }
 
 iter_queue_lines() {
   local queue_file="$1"
   local raw_line=""
+  local sanitized=""
 
   [ -f "$queue_file" ] || return 0
 
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
-    local canonical
-    canonical="$(canonicalize_queue_line "$raw_line" || true)"
-    is_queue_data_line "$canonical" || continue
+    if sanitized="$(sanitize_queue_run_id "$raw_line" 2>/dev/null)"; then
+      printf '%s\n' "$sanitized"
+      continue
+    fi
 
-    local normalized
-    normalized="$(normalize_queue_run_id "$canonical" || true)"
-    if [ -n "$normalized" ]; then
-      printf '%s\n' "$normalized"
-    else
-      echo "[tick] invalid run-id skipped: $canonical" >&2
+    local stripped
+    stripped="$(strip_queue_comment "$raw_line")"
+    stripped="$(canonical_line "$stripped")"
+    if [[ -n "$stripped" ]]; then
+      echo "[tick] invalid run-id skipped: $stripped" >&2
     fi
   done < "$queue_file"
 }
@@ -377,7 +369,7 @@ if [ -z "$RUN_ID" ]; then
   skip_with_status "no queued run-id"
 fi
 
-queue_contains_canonical_run_id() {
+queue_contains_sanitized_run_id() {
   local queue_file="$1"
   local canonical_run_id="$2"
   local queued_run_id=""
@@ -394,12 +386,12 @@ queue_contains_canonical_run_id() {
 enqueue_run_id_unique() {
   local queue_file="$1"
   local run_id="$2"
-  local canonical_run_id
+  local canonical_run_id=""
 
-  canonical_run_id="$(normalize_queue_run_id "$run_id")" || return 0
+  canonical_run_id="$(sanitize_queue_run_id "$run_id")" || return 0
 
   touch "$queue_file"
-  if queue_contains_canonical_run_id "$queue_file" "$canonical_run_id"; then
+  if queue_contains_sanitized_run_id "$queue_file" "$canonical_run_id"; then
     return 0
   fi
 
