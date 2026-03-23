@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import re
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -38,6 +39,7 @@ PLACEHOLDER_PATTERNS = (
 # 자주 쓰는 정규식은 미리 컴파일
 CONTROL_CHAR_PATTERN = re.compile(r"[\r\n\t]|[\x00-\x08\x0b-\x1f\x7f]")
 ENDPOINT_SCHEME_PATTERN = re.compile(r"^https?://")
+ENV_NAME_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
 def is_placeholder(value: str) -> bool:
@@ -63,11 +65,41 @@ def dedupe_preserve_order(values: list[str]) -> list[str]:
     return list(dict.fromkeys(values))
 
 
+def normalize_env_name(token: str) -> str:
+    """Trim and reject obviously invalid environment-variable tokens."""
+    candidate = token.strip()
+    if not candidate:
+        return ""
+    if not ENV_NAME_PATTERN.match(candidate):
+        return ""
+    return candidate
+
+
 def parse_env_var_list(raw: str, default: list[str]) -> list[str]:
     """Parse comma/space-separated env-var names with stable de-duplication."""
-    tokens = [t for t in re.split(r"[\s,]+", (raw or "").strip()) if t]
+    tokens = [
+        normalize_env_name(token)
+        for token in re.split(r"[\s,]+", (raw or "").strip())
+    ]
+    tokens = [token for token in tokens if token]
+
+    # 입력이 비면 기본값 사용(기존 동작 유지)
     if not tokens:
-        return dedupe_preserve_order(default)
+        tokens = dedupe_preserve_order(default)
+
+    # 위험한 이름은 제외하고 경고만 출력해 실패를 유발하지 않는다.
+    invalid: list[str] = []
+    for raw_token in re.split(r"[\s,]+", (raw or "").strip()):
+        cleaned = raw_token.strip()
+        if cleaned and not normalize_env_name(cleaned):
+            invalid.append(cleaned)
+
+    if invalid:
+        print(
+            f"[check_real_model_readiness] ignore invalid env var names: {', '.join(invalid)}",
+            file=sys.stderr,
+        )
+
     # Keep first occurrence order so CLI intent stays predictable.
     return dedupe_preserve_order(tokens)
 
