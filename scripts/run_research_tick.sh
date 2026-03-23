@@ -233,14 +233,16 @@ make_queue_temp_file() {
 dedupe_queue_file() {
   local queue_file="$1"
   local tmp_file=""
-  local normalized=""
+  local line=""
+  declare -A seen=()
 
   [ -f "$queue_file" ] || return 0
   tmp_file="$(make_queue_temp_file "$queue_file" dedupe)"
 
-  while IFS= read -r normalized; do
-    if ! grep -Fxq "$normalized" "$tmp_file" 2>/dev/null; then
-      printf '%s\n' "$normalized" >> "$tmp_file"
+  while IFS= read -r line; do
+    if [[ -z "${seen["$line"]+x}" ]]; then
+      seen["$line"]=1
+      printf '%s\n' "$line" >> "$tmp_file"
     fi
   done < <(iter_queue_lines "$queue_file")
 
