@@ -21,29 +21,42 @@ run_step() {
   "${command[@]}"
 }
 
-# label|command for each step
-STEP_DEFS=(
-  "real model readiness check|python3 scripts/check_real_model_readiness.py"
-  "cron snapshot refresh|python3 scripts/snapshot_cron_status.py"
-  "live status refresh|python3 scripts/update_live_status.py"
-  "research status|python3 scripts/research_status.py"
+STEP_LABELS=(
+  "real model readiness check"
+  "cron snapshot refresh"
+  "live status refresh"
+  "research status"
 )
+TOTAL_STEPS=${#STEP_LABELS[@]}
 
-TOTAL_STEPS=${#STEP_DEFS[@]}
+run_guard_step() {
+  local index="$1"
+  local -a cmd=()
 
-INDEX=1
-for step in "${STEP_DEFS[@]}"; do
-  label=""
-  command_line=""
-  IFS='|' read -r label command_line <<< "$step"
-  if [ -z "$label" ] || [ -z "$command_line" ]; then
-    echo "[warn] malformed step definition: $step" >&2
-    continue
-  fi
+  case "$index" in
+    0)
+      cmd=(python3 scripts/check_real_model_readiness.py)
+      ;;
+    1)
+      cmd=(python3 scripts/snapshot_cron_status.py)
+      ;;
+    2)
+      cmd=(python3 scripts/update_live_status.py)
+      ;;
+    3)
+      cmd=(python3 scripts/research_status.py)
+      ;;
+    *)
+      echo "[warn] unknown guard step index: ${index}" >&2
+      return 1
+      ;;
+  esac
 
-  read -ra command_parts <<< "$command_line"
-  run_step "$INDEX" "$label" "$TOTAL_STEPS" "${command_parts[@]}"
-  INDEX=$((INDEX + 1))
+  run_step "$((index + 1))" "${STEP_LABELS[index]}" "$TOTAL_STEPS" "${cmd[@]}"
+}
+
+for ((i = 0; i < TOTAL_STEPS; i++)); do
+  run_guard_step "$i"
 done
 
 printf "\nDone.\n"
