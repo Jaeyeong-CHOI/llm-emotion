@@ -181,6 +181,31 @@ For each sample we compute:
 \end{itemize}
 Lexicon construction and interpretation are anchored to established affective resources and psycholinguistic feature dictionaries (NRC Emotion Lexicon, VAD norms, and LIWC-style category analyses) to reduce ad-hoc marker drift and improve comparability across runs~\cite{mohammadturney2013, warriner2013vad, pennebaker2015liwc}.
 
+\subsection{Operational experiment settings (for replication)}
+To make replication auditable, we explicitly document the current execution contract used in continuous runs.
+\begin{table}[t]
+\caption{Current continuous-run execution contract}
+\label{tab:exec_contract}
+\footnotesize
+\centering
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.30\linewidth}X}
+\toprule
+Setting & Value (current) \\
+\midrule
+Cron cadence & 1-minute isolated-session loop (\texttt{llm-emotion-continuous-research}).\\
+Readiness gate & \texttt{check\_real\_model\_readiness.py} must return \texttt{ready=true} before live-gated runs.\\
+Required live env & \texttt{OPENAI\_API\_KEY}, \texttt{LLM\_EMOTION\_REAL\_MODEL}, \texttt{LLM\_EMOTION\_REAL\_MODEL\_REGION}.\\
+Model endpoint profile & model \texttt{gpt-4o}, region \texttt{us-east-1}.\\
+Queue policy & One run-id is popped per tick from \texttt{ops/continuous\_run\_ids.txt}.\\
+Per-tick envelope & Single-cell budget with live-model guard and strict failure ceilings.\\
+Primary tracked artifacts & \texttt{manifest.json}, \texttt{command\_log.jsonl}, budget reports, and \texttt{LIVE\_STATUS.md}.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+\setlength{\tabcolsep}{6pt}
+In this configuration, automation is intentionally conservative: throughput is lower, but each run step remains attributable to a concrete queue item and readiness state.
+
 \section{Results}
 
 \subsection{Pipeline status}
