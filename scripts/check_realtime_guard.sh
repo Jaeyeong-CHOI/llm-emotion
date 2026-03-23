@@ -21,24 +21,29 @@ run_step() {
   "${command[@]}"
 }
 
-STEP_DEFS=$(cat <<'EOF'
-real model readiness check|python3 scripts/check_real_model_readiness.py
-cron snapshot refresh|python3 scripts/snapshot_cron_status.py
-live status refresh|python3 scripts/update_live_status.py
-research status|python3 scripts/research_status.py
-EOF
+# label|command for each step
+STEP_DEFS=(
+  "real model readiness check|python3 scripts/check_real_model_readiness.py"
+  "cron snapshot refresh|python3 scripts/snapshot_cron_status.py"
+  "live status refresh|python3 scripts/update_live_status.py"
+  "research status|python3 scripts/research_status.py"
 )
 
-TOTAL_STEPS=0
-while IFS='|' read -r _; do
-  TOTAL_STEPS=$((TOTAL_STEPS + 1))
- done <<< "$STEP_DEFS"
+TOTAL_STEPS=${#STEP_DEFS[@]}
 
-INDEX=0
-while IFS='|' read -r label command_line; do
-  INDEX=$((INDEX + 1))
-  read -r -a command_parts <<< "$command_line"
+INDEX=1
+for step in "${STEP_DEFS[@]}"; do
+  label=""
+  command_line=""
+  IFS='|' read -r label command_line <<< "$step"
+  if [ -z "$label" ] || [ -z "$command_line" ]; then
+    echo "[warn] malformed step definition: $step" >&2
+    continue
+  fi
+
+  read -ra command_parts <<< "$command_line"
   run_step "$INDEX" "$label" "$TOTAL_STEPS" "${command_parts[@]}"
-done <<< "$STEP_DEFS"
+  INDEX=$((INDEX + 1))
+done
 
 printf "\nDone.\n"
