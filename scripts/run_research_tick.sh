@@ -69,6 +69,16 @@ is_numeric_pid() {
   [[ "$pid" =~ ^[0-9]+$ ]]
 }
 
+is_safe_lock_file() {
+  local file_path="$1"
+
+  [ -f "$file_path" ] || return 1
+  [ ! -L "$file_path" ] || return 1
+  [ "$(stat -f '%u' "$file_path" 2>/dev/null)" -eq "$(id -u)" ] || return 1
+
+  return 0
+}
+
 normalize_candidate_to_tick_script() {
   local candidate="$1"
   local normalized=""
@@ -125,7 +135,7 @@ read_trimmed_first_line() {
 read_lock_pid_file() {
   local pid_file="$1"
 
-  [ -f "$pid_file" ] || return 1
+  is_safe_lock_file "$pid_file" || return 1
   read_trimmed_first_line "$pid_file" || return 1
 }
 
