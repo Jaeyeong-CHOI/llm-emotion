@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import subprocess
+from collections.abc import Sequence
 
 from research_ops_common import (
     ROOT,
@@ -12,9 +13,27 @@ from research_ops_common import (
 )
 
 
-def run(cmd):
-    p = subprocess.run(cmd, cwd=ROOT, shell=True, text=True, capture_output=True)
+def run(cmd: Sequence[str]):
+    p = subprocess.run(cmd, cwd=ROOT, text=True, capture_output=True)
     return p.returncode, p.stdout, p.stderr
+
+
+def run_screening_triage_plan_step() -> tuple[int, str, str]:
+    report_path = ROOT / "results" / "screening_quality_report.json"
+    if not report_path.exists():
+        return 0, "[skip] screening_quality_report.json not found\n", ""
+    return run(
+        [
+            "python3",
+            "scripts/build_screening_triage_plan.py",
+            "--in",
+            "results/screening_quality_report.json",
+            "--out",
+            "results/screening_triage_plan.json",
+            "--out-md",
+            "results/screening_triage_plan.md",
+        ]
+    )
 
 
 def main():
@@ -25,21 +44,43 @@ def main():
     steps = [
         (
             "literature_search",
-            "python3 scripts/search_openalex.py --config queries/search_queries.json --screening-rules queries/screening_rules.json --out refs/openalex_results.jsonl",
+            [
+                "python3",
+                "scripts/search_openalex.py",
+                "--config",
+                "queries/search_queries.json",
+                "--screening-rules",
+                "queries/screening_rules.json",
+                "--out",
+                "refs/openalex_results.jsonl",
+            ],
         ),
-        ("evidence_table", "python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md"),
         (
-            "screening_triage_plan",
-            "if [ -f results/screening_quality_report.json ]; then python3 scripts/build_screening_triage_plan.py --in results/screening_quality_report.json --out results/screening_triage_plan.json --out-md results/screening_triage_plan.md; else echo '[skip] screening_quality_report.json not found'; fi",
+            "evidence_table",
+            [
+                "python3",
+                "scripts/build_evidence_table.py",
+                "--in",
+                "refs/openalex_results.jsonl",
+                "--out",
+                "docs/evidence-table.md",
+            ],
         ),
+        ("mock_generate", ["python3", "scripts/generate_dataset.py", "--out", "data/raw/mock_generations.jsonl", "--n", "10", "--seed", "42", "--prompt-bank", "prompts/prompt_bank_ko.json"]),
         (
-            "mock_generate",
-            "python3 scripts/generate_dataset.py --out data/raw/mock_generations.jsonl --n 10 --seed 42 --prompt-bank prompts/prompt_bank_ko.json",
+            "mock_analyze",
+            [
+                "python3",
+                "scripts/analyze_regret_markers.py",
+                "--in",
+                "data/raw/mock_generations.jsonl",
+                "--out",
+                "results/mock_metrics.json",
+            ],
         ),
-        ("mock_analyze", "python3 scripts/analyze_regret_markers.py --in data/raw/mock_generations.jsonl --out results/mock_metrics.json"),
-        ("snapshot_cron_status", "python3 scripts/snapshot_cron_status.py"),
-        ("update_live_status", "python3 scripts/update_live_status.py"),
-        ("append_brief_log", "python3 scripts/update_brief_log.py"),
+        ("snapshot_cron_status", ["python3", "scripts/snapshot_cron_status.py"]),
+        ("update_live_status", ["python3", "scripts/update_live_status.py"]),
+        ("append_brief_log", ["python3", "scripts/update_brief_log.py"]),
     ]
 
     for name, cmd in steps:
@@ -51,6 +92,19 @@ def main():
             print(f"[FAIL] {name}\n{err}")
             return 1
         append_note(state, f"OK {name}")
+
+    triage_code, triage_out, triage_err = run_screening_triage_plan_step()
+    if triage_code != 0:
+        state["last_error"] = {
+            "step": "screening_triage_plan",
+            "code": triage_code,
+            "stderr": triage_err[-1500:],
+        }
+        append_note(state, f"FAILED screening_triage_plan: code={triage_code}")
+        save_research_state(state)
+        print(f"[FAIL] screening_triage_plan\n{triage_err}")
+        return 1
+    append_note(state, "OK screening_triage_plan" if triage_out.strip() == "" else triage_out.strip())
 
     state["last_success"] = now
     state["last_error"] = None
