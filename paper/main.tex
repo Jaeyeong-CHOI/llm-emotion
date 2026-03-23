@@ -6,6 +6,11 @@
 \usepackage{tikz}
 \usepackage{microtype}
 \usepackage{array}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\usepackage{setspace}
+\setlength{\emergencystretch}{1.5em}
+\sloppy
 \usepackage{cite}
 
 \title{A Reproducible Pipeline for Studying Regret-Like Language in LLMs: Literature Integration, Automated Screening, and Preliminary Behavioral Evidence}
@@ -72,18 +77,19 @@ Our contribution is narrower but operationally important: building a continuous,
 \label{tab:litmap}
 \footnotesize
 \centering
-\begin{tabular}{p{0.22\linewidth}p{0.56\linewidth}p{0.16\linewidth}}
+\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.23\linewidth}X>{\RaggedRight\arraybackslash}p{0.22\linewidth}}
 \toprule
 Stream & Representative findings & Relevance to this study\\
 \midrule
-Counterfactual/Regret\ psychology & Markers: counterfactual phrasing, self-blame, temporal repair loops. & Defines observable target features before modeling.\\
-LLM social cognition & ToM ability is prompt-sensitive and perturbs under format changes. & Justifies strict scenario/persona/temperature control.\\
-Anthropomorphism & Fluent responses are interpreted as affect/intent by users. & Prevents over-claiming affective states.\\
-Emotion/benchmarking & Standardized coverage and perturbation are required. & Informs QC gates and reproducibility checklist.\\
-Pipeline reproducibility & Automated status and traceability improve continuity. & Supports 1-minute continuous operation design.\\
+Counterfactual and regret psychology & Counterfactual phrasing, self-blame, and temporal repair loops indicate measurable linguistic signals of regret-like behavior. & Defines observable target markers before modeling assumptions.\\
+LLM social cognition & ToM ability is prompt-sensitive and perturbs under minor format changes. & Justifies strict scenario, persona, and temperature controls.\\
+Anthropomorphism & Users infer affect/intent from fluent responses. & Prevents over-claiming internal emotion from text output.\\
+Emotion/benchmarking & Standardized coverage and perturbation tests are required for reliability. & Informs QC gates and reproducibility checklist design.\\
+Pipeline reproducibility & Automated status and traceability improve continuity in long runs. & Supports our 1-minute continuous operation design.\\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
+
 \section{Research Design}
 \subsection{Research questions}
 \begin{enumerate}
@@ -109,9 +115,9 @@ The study is implemented as an automated loop. Table~\ref{tab:pipeline} summariz
 \label{tab:pipeline}
 \footnotesize
 \centering
-\begin{tabular}{p{0.18\linewidth}p{0.78\linewidth}}
+\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.17\linewidth}X}
 \toprule
-\textbf{Module} & \textbf{Function} \\\\
+\textbf{Module} & \textbf{Function} \\
 \midrule
 Literature retrieval & OpenAlex query execution with rule-based normalization and deduplication (\texttt{scripts/search\_openalex.py}).\\
 Screening quality gate & Quantitative screening gates and pass/fail summaries (\texttt{scripts/check\_screening\_quality.py}).\\
@@ -121,7 +127,7 @@ Marker analysis & Counterfactual/affect lexicon extraction (\texttt{scripts/anal
 Experiment driver & Multi-condition orchestration and aggregate metrics (\texttt{scripts/research\_cycle.py}, \texttt{scripts/run\_experiments.py}).\\
 State tracking & Cron logs, dashboard updates, and compact summaries (\texttt{ops/*}, \texttt{LIVE\_STATUS.md}, \texttt{paper/logs/brief\_log.md}).\\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \subsection{Automated literature workflow}
@@ -134,9 +140,9 @@ Latest run collected 279 candidate studies and generated an auto-updated evidenc
 \label{tab:litstatus}
 \footnotesize
 \centering
-\begin{tabular}{p{0.33\linewidth}p{0.12\linewidth}p{0.50\linewidth}}
+\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.26\linewidth}X>{\RaggedRight\arraybackslash}p{0.22\linewidth}}
 \toprule
-Item & Value & Note \\\ \\
+Item & Value & Note \\
 \midrule
 Candidate studies (OpenAlex) & 279 & Full candidate pool from query set.\\
 Evidence-table rows & 279 & Auto-sync evidence table ready for review.\\
@@ -144,7 +150,7 @@ Screening report score & 0.0 & Status: review (coverage/traceability constraints
 Manual QC rows & 34 & Minimum criteria passed; traceability diversity needs expansion.\\
 Include / Review count & 0 / 77 & Gold-set confirmation not finalized yet.\\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \subsection{Prompt and condition design}
@@ -189,9 +195,9 @@ The automated system is running continuously, and key status values update throu
 \label{tab:results}
 \footnotesize
 \centering
-\begin{tabular}{lcc}
+\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.34\linewidth}l>{\RaggedRight\arraybackslash}X}
 \toprule
-Metric & Value & Interpretation \\\ \\
+Metric & Value & Interpretation \\
 \midrule
 Mock samples (aggregate) & 71,530 & Stress-test corpus size\\
 Counterfactual mean & 0.2498 & Per sample (SD 0.1093)\\
@@ -199,8 +205,23 @@ Regret-word mean & 0.2498 & Per sample (SD 0.1093)\\
 Pipeline availability & running & Cron-based automation active\\
 Model realism & pending & Real-model experiments not yet started\\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
+
+\subsection{Inferential analysis plan with real-model outputs}
+For real-model outputs, we pre-register a three-factor design with factors: condition (deprivation framing), persona, and temperature.
+We model marker rate $y$ as a mixed-effects regression with crossed prompt-item effects:
+
+\begin{equation}
+    y_{ijkl} = \beta_0 + \beta_1 C_i + \beta_2 P_j + \beta_3 T_k + \beta_4(C_i\times P_j) + \beta_5(C_i\times T_k) + u_l + \epsilon_{ijkl}
+\end{equation}
+where $C$, $P$, and $T$ represent condition, persona, and temperature, $u_l$ is a random intercept for scenario prompt $l$, and $\epsilon$ is residual error.
+Primary confirmatory tests are Welch $t$-tests (for paired contrast pairs) and fixed-effects ANOVA equivalents with robust standard errors.
+Effect-size reporting follows Cohen's $d$ for pairwise contrasts and partial $\eta^2$ for factors.
+
+\subsection{Current evidence status}
+As of this version, the full pipeline is implemented end-to-end, but the above inferential analyses are based on mock-data stress tests.
+Thus statistical inferences are staged as pre-registered analysis code and will be finalized once real-model samples are collected.
 
 \section{Discussion}
 This study currently demonstrates a reproducible research stack.
@@ -218,9 +239,9 @@ Replication scripts are in the repository. Key modules are listed in Table~\ref{
 \label{tab:code}
 \footnotesize
 \centering
-\begin{tabular}{p{0.40\linewidth}p{0.56\linewidth}}
+\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.34\linewidth}X}
 \toprule
-Script & Role \\\ \\
+Script & Role \\
 \midrule
 \texttt{scripts/search\_openalex.py} & Retrieve literature and deduplicate candidates.\\
 \texttt{scripts/build\_evidence\_table.py} & Build evidence-table summary for review.\\
@@ -232,7 +253,7 @@ Script & Role \\\ \\
 \texttt{scripts/update\_live\_status.py} & Update visible status files.\\
 \texttt{scripts/run\_experiments.py} & Execute batch experiments with structured output.\\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \section{Conclusion and next step}
