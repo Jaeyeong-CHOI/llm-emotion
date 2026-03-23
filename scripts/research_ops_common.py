@@ -40,6 +40,21 @@ def now_isoseconds() -> str:
     return now_iso_seconds()
 
 
+def _is_symlink_path(path: Path) -> bool:
+    """Return True when `path` or any parent is a symlink.
+
+    This prevents state-file path traversal via symlink replacement while still
+    preserving strict local-path safety checks for reads and writes.
+    """
+    current = path
+    while True:
+        if current.is_symlink():
+            return True
+        if current == current.parent:
+            return False
+        current = current.parent
+
+
 def read_json(path: Path, default: Any | None = None) -> Any:
     """Read JSON with a defensive fallback on missing/invalid files.
 
@@ -48,8 +63,8 @@ def read_json(path: Path, default: Any | None = None) -> Any:
     """
     fallback = {} if default is None else default
 
-    # Ignore symlink payloads for local state files to avoid path-hijack reads.
-    if not path.exists() or path.is_symlink():
+    # Ignore unsafe symlink-backed paths for local state files.
+    if not path.exists() or _is_symlink_path(path):
         return copy.deepcopy(fallback)
 
     try:
@@ -73,10 +88,8 @@ def read_json_dict(path: Path) -> dict[str, Any]:
 
 def write_json(path: Path, payload: Any) -> None:
     # Harden against symlink-based path hijacking for local state files.
-    if path.exists() and path.is_symlink():
-        raise RuntimeError(f"refusing to overwrite symlink state file: {path}")
-    if path.parent.exists() and path.parent.is_symlink():
-        raise RuntimeError(f"refusing to write into symlink directory: {path.parent}")
+    if _is_symlink_path(path):
+        raise RuntimeError(f"refusing to write via symlink path: {path}")
 
     path.parent.mkdir(parents=True, exist_ok=True)
     data = json.dumps(payload, ensure_ascii=False, indent=2)
