@@ -18,23 +18,29 @@ def display_value(value: Any, default: str = "-") -> str:
 
 
 
+def _normalize_token_set(values: Any) -> set[str]:
+    """Normalize an arbitrary token-like container into a unique string set."""
+    if not values:
+        return set()
+
+    if isinstance(values, str):
+        tokens = values.split(",")
+    elif isinstance(values, (list, tuple, set)):
+        tokens = values
+    else:
+        return set()
+
+    return {str(item).strip() for item in tokens if str(item).strip()}
+
+
 def parse_csv_set(value: Any) -> set[str]:
     """Parse a comma-separated value list into a normalized set."""
-    if not value:
-        return set()
-
-    if isinstance(value, (set, list, tuple)):
-        return {str(item).strip() for item in value if str(item).strip()}
-
-    if not isinstance(value, str):
-        return set()
-
-    return {token.strip() for token in value.split(",") if token.strip()}
+    return _normalize_token_set(value)
 
 
 def row_list_values(row: dict[str, Any], field: str) -> set[str]:
     """Extract a normalized token set from an iterable row field."""
-    return {str(item).strip() for item in row.get(field, []) if str(item).strip()}
+    return _normalize_token_set(row.get(field, []))
 
 
 ROOT = Path(__file__).resolve().parents[1]
