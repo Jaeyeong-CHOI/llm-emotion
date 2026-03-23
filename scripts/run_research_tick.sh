@@ -105,6 +105,15 @@ trim_whitespace() {
   sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
+read_lock_pid_file() {
+  local pid_file="$1"
+  local pid=""
+
+  [ -f "$pid_file" ] || return 1
+  pid="$(cat "$pid_file" 2>/dev/null || true)"
+  printf '%s' "$(printf '%s' "$pid" | tr -d '\r' | trim_whitespace)"
+}
+
 read_proc_field() {
   local pid="$1"
   local field="$2"
@@ -205,7 +214,7 @@ acquire_lock() {
 
   local lock_pid=""
   if [ -f "$LOCK_PID_FILE" ]; then
-    lock_pid="$(cat "$LOCK_PID_FILE" 2>/dev/null || true)"
+    lock_pid="$(read_lock_pid_file "$LOCK_PID_FILE" || true)"
   fi
 
   if [ -n "$lock_pid" ]; then
