@@ -133,9 +133,9 @@ is_expected_tick_command() {
   local token=""
   local -a tokens=()
 
-  IFS=' ' read -r -a tokens <<< "$command_line"
+  [ -n "$command_line" ] || return 1
+  IFS=' ' read -r -a tokens <<< "$command_line" || true
   for token in "${tokens[@]}"; do
-    [[ "$token" == *run_research_tick.sh* ]] || continue
     candidate_resolves_to_tick_script "$token" && return 0
   done
 
