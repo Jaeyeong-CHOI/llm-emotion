@@ -44,23 +44,26 @@ def load_prompt_bank(path: pathlib.Path) -> Dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _validate_unique_ids(rows: list[Dict], bucket_name: str) -> None:
+    if not rows:
+        raise ValueError(f"prompt bank has no {bucket_name}s")
+
+    seen = set()
+    for row in rows:
+        row_id = (row.get("id") or "").strip()
+        if not row_id:
+            raise ValueError(f"{bucket_name} entry missing id")
+        if row_id in seen:
+            raise ValueError(f"duplicate {bucket_name} id: {row_id}")
+        seen.add(row_id)
+
+
 def validate_prompt_bank(bank: Dict) -> None:
     scenarios = bank.get("scenarios", [])
     personas = bank.get("personas", [])
-    if not scenarios:
-        raise ValueError("prompt bank has no scenarios")
-    if not personas:
-        raise ValueError("prompt bank has no personas")
 
-    for bucket_name, rows in (("scenario", scenarios), ("persona", personas)):
-        seen = set()
-        for row in rows:
-            row_id = (row.get("id") or "").strip()
-            if not row_id:
-                raise ValueError(f"{bucket_name} entry missing id")
-            if row_id in seen:
-                raise ValueError(f"duplicate {bucket_name} id: {row_id}")
-            seen.add(row_id)
+    _validate_unique_ids(scenarios, "scenario")
+    _validate_unique_ids(personas, "persona")
 
 
 def parse_temperatures(value: str) -> List[float]:
