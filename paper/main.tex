@@ -50,7 +50,7 @@ Recent findings in theory-of-mind evaluation show that measured performance is h
 This work builds a transparent experimental stack where generation, logging, screening quality, and reporting are unified.
 
 \section{Related Work}
-We retrieved 279 candidate records from OpenAlex (not yet a finalized gold-reviewed corpus) and organized them into five evidence-driven streams: counterfactual--regret psychology, LLM social-cognitive reasoning, anthropomorphism studies, emotion/benchmark methodology, and reproducibility-oriented design. Because retrieval is title/abstract driven, we treat this pool as a high-recall candidate set rather than a complete evidence census, and we avoid using raw retrieval counts as confirmatory evidence for substantive claims.
+We retrieved 279 candidate records from OpenAlex (not yet a finalized gold-reviewed corpus) and organized them into five theory-informed streams: counterfactual--regret psychology, LLM social-cognitive reasoning, anthropomorphism studies, emotion/benchmark methodology, and reproducibility-oriented design. Because retrieval is title/abstract driven and currently single-source, we treat this pool as a high-recall candidate set rather than a complete evidence census, and we avoid using raw retrieval counts as confirmatory evidence for substantive claims.
 
 \subsection{Counterfactual and regret psychology}
 Classical work on regret and counterfactual reasoning identifies measurable linguistic signatures of missed alternatives, such as upward counterfactual phrases, temporal re-evaluation, and responsibility attributions.
@@ -68,7 +68,7 @@ Work on robustness under minor alterations~\cite{ullman2023, shapira2023cleverha
 \subsection{Anthropomorphic attribution and emotional intelligence}
 A separate but adjacent literature shows that users often attribute personality, emotion, and agency to AI text systems, so interpretation risk must be treated as an empirical measurement issue rather than an intent claim.
 User studies on anthropomorphic chat interfaces~\cite{i_chatbot_2023, anthro2023, araujo2018}, measurement work on anthropomorphism and perceived intelligence~\cite{bartneck2009}, and service-level meta-analysis across chatbot/robot settings~\cite{wu2021anthro_meta} convergently suggest non-trivial interpretation bias, though effect sizes and mechanisms vary by task and deployment context.
-Recent service-chatbot studies further suggest that anthropomorphic style can shift compliance and trust judgments~\cite{adam2020, roy2020, liuthompkins2022}, and recent LLM-focused perspective work highlights that this anthropomorphic fluency can simultaneously create practical value and manipulation risk at scale~\cite{anthrobenefitdanger2025}, which is methodologically relevant but not directly equivalent to controlled LLM regret elicitation. Classic CASA findings and later anthropomorphism theory further indicate that minimal social cues can trigger human-like attributions even when users explicitly know they interact with machines~\cite{nassmoon2000,epley2007}. Recent HCI evidence also shows that model uncertainty phrasing changes user reliance and trust calibration~\cite{zhang2024uncertaintytrust}, and socioaffective-alignment analyses warn that perceived relationship depth can systematically distort user interpretation of model outputs~\cite{kirk2025socioaffective}. Taken together with earlier measurement and meta-analytic findings~\cite{bartneck2009, wu2021anthro_meta}, these results reinforce the need for conservative claim language in behavioral studies.
+Recent service-chatbot studies further suggest that anthropomorphic style can shift compliance and trust judgments~\cite{adam2020, roy2020, liuthompkins2022}, and recent LLM-focused perspective work highlights that this anthropomorphic fluency can simultaneously create practical value and manipulation risk at scale~\cite{anthrobenefitdanger2025}, which is methodologically relevant but not directly equivalent to controlled LLM regret elicitation. Classic CASA findings and later anthropomorphism theory further indicate that minimal social cues can trigger human-like attributions even when users explicitly know they interact with machines~\cite{nassmoon2000,epley2007}. More generally, mind-perception research shows that agency/experience attributions are structured and measurable dimensions rather than ad-hoc impressions, providing a clearer interpretation framework for anthropomorphism-sensitive evaluations~\cite{gray2007mind,waytz2010mind}. Recent HCI evidence also shows that model uncertainty phrasing changes user reliance and trust calibration~\cite{zhang2024uncertaintytrust}, and socioaffective-alignment analyses warn that perceived relationship depth can systematically distort user interpretation of model outputs~\cite{kirk2025socioaffective}. Taken together with earlier measurement and meta-analytic findings~\cite{bartneck2009, wu2021anthro_meta}, these results reinforce the need for conservative claim language in behavioral studies.
 This motivates explicitly separating linguistic behavior from affective ontology in our claims.
 
 \subsection{Emotion, benchmark methodology, and robust prompting}
@@ -161,7 +161,7 @@ Item & Value & Note \\
 Candidate studies (OpenAlex) & 279 & Full candidate pool from query set.\\
 Evidence-table rows & 279 & Auto-sync evidence table ready for review.\\
 Screening report score & 0.0 & Status: review (coverage/traceability constraints highlighted).\\
-Manual QC rows & 34 & Minimum criteria passed; traceability diversity needs expansion.\\
+Manual QC rows & 34 & Preliminary spot-check completed; this is not equivalent to final inclusion pass.\\
 Include / Review count & 0 / 77 & Gold-set confirmation not finalized yet.\\
 \bottomrule
 \end{tabularx}
@@ -170,6 +170,21 @@ Include / Review count & 0 / 77 & Gold-set confirmation not finalized yet.\\
 \subsection{Prompt and condition design}
 Current bank: 454 scenarios, 316 personas, 5 temperatures (0.1, 0.2, 0.4, 0.7, 1.0).
 Generation conditions are defined on the Cartesian product of scenario group, persona group, and temperature; however, the current stress-test corpus is produced by stratified partial-factorial sampling rather than exhaustive full-grid enumeration.
+
+\subsection{API prompt contract and request structure}
+We use a two-part prompt contract: (i) persona instruction and (ii) scenario prompt.
+At generation time, the runtime prompt is composed deterministically as:
+\noindent\texttt{full\_prompt = persona\_instruction || "\\n" || scenario\_prompt}.\\
+Both fields are sourced from the versioned prompt bank (v141.6) and logged with scenario/persona identifiers.
+For live-model runs, each request is executed with fixed metadata: run-id, repeat index, seed, temperature, prompt-bank version, and queue origin.
+The operational API contract enforces an explicit environment gate before dispatch (\texttt{OPENAI\_API\_KEY}, \texttt{LLM\_EMOTION\_REAL\_MODEL}, \texttt{LLM\_EMOTION\_REAL\_MODEL\_REGION}), and records per-attempt traces in \texttt{command\_log.jsonl} together with \texttt{manifest.json}.
+
+\subsection{Result validation and acceptance checks}
+We validate outputs in three layers.
+\textbf{Layer 1 (execution validity):} generation/analysis command exit status, timeout detection, retry counts, and failure-rate ceilings are tracked by the experiment driver.
+\textbf{Layer 2 (data integrity):} each run cell must emit dataset and metrics artifacts with reproducible run metadata (scenario/persona/temperature/seed/prompt version), and per-cell status is written into the manifest.
+\textbf{Layer 3 (measurement consistency):} marker extraction applies fixed regex/token lexicons to compute counterfactual and regret-word rates; summaries are aggregated by condition cell for downstream mixed-effects analysis.
+In addition, literature-side quality gates (coverage, entropy, traceability, and risk-balance checks) are monitored separately to avoid conflating retrieval completeness with model-behavior evidence.
 
 \subsection{Markers and analysis}
 For each sample we compute:
