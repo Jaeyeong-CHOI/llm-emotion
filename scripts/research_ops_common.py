@@ -125,6 +125,10 @@ def append_note(state: dict[str, Any], text: str, limit: int = 40) -> None:
     if not isinstance(notes, list):
         notes = []
 
-    safe_limit = max(1, int(limit))
+    try:
+        safe_limit = max(1, int(limit))
+    except (TypeError, ValueError):
+        safe_limit = 40
+
     notes.append(f"[{now_isoseconds()}] {text}")
     state["notes"] = notes[-safe_limit:]
