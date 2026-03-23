@@ -88,9 +88,15 @@ claim_lock_dir() {
   printf '%s\n' "$$" > "$LOCK_PID_FILE"
 }
 
+lock_dir_is_safe() {
+  [ -d "$LOCK_DIR" ] && [ ! -L "$LOCK_DIR" ]
+}
+
 clear_lock_dir() {
-  rm -f "$LOCK_PID_FILE"
-  rmdir "$LOCK_DIR" 2>/dev/null || true
+  if lock_dir_is_safe; then
+    rm -f "$LOCK_PID_FILE"
+    rmdir "$LOCK_DIR" 2>/dev/null || true
+  fi
 }
 
 recover_stale_lock() {
@@ -114,6 +120,11 @@ lock_pid_is_active_tick_owner() {
 acquire_lock() {
   if claim_lock_dir; then
     return 0
+  fi
+
+  if [ -e "$LOCK_DIR" ] && ! lock_dir_is_safe; then
+    echo "[tick] lock path is unsafe (not a directory or symlink): $LOCK_DIR" >&2
+    return 1
   fi
 
   local lock_pid=""
