@@ -1,5 +1,5 @@
 {
-  "version": "v11.7",
+  "version": "v11.8",
   "language": "ko",
   "scenarios": [
     {
@@ -5290,6 +5290,45 @@
         "uniformity",
         "tripwire"
       ]
+    },
+    {
+      "id": "screening_unknown_year_group_top9_ratio_guard_v118",
+      "label": "research_ops",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "top9",
+        "ratio_guard",
+        "v118"
+      ],
+      "prompt": "manual_qc review traceable known-query에서 unknown-year query-group top9 cumulative share와 global top9 대비 ratio를 동시에 점검하라. top8 통과 케이스에서도 남는 과점을 찾아 fail-fast 조건과 재수집 액션을 6~8문장으로 설계하라."
+    },
+    {
+      "id": "prompt_bank_unknown_year_group_top9_counterbalance_patch_v118",
+      "label": "research_ops",
+      "tags": [
+        "prompt_bank",
+        "counterbalance",
+        "unknown_year",
+        "query_group",
+        "top9",
+        "v118"
+      ],
+      "prompt": "unknown-year query-group top9 과점을 완화하기 위해 tail group 증폭용 시나리오/persona 매핑을 제안하라. top2·top4·top8 가드와 충돌하지 않도록 우선순위를 정의하고, 패치 전후 검증 포인트를 6~8문장으로 요약하라."
+    },
+    {
+      "id": "runner_temperature_top17_uniformity_tripwire_v118",
+      "label": "research_ops",
+      "tags": [
+        "runner",
+        "temperature",
+        "uniformity",
+        "top17",
+        "preflight",
+        "v118"
+      ],
+      "prompt": "실험 러너 preflight에서 planned-sample temperature top17 share와 top17-over-uniform ratio를 검사하는 트립와이어를 설계하라. top16 통과 시나리오에서 남는 편중 리스크, 임계치 추천, 실패 시 운영 대응을 6~8문장으로 작성하라."
     }
   ],
   "personas": [
@@ -7760,6 +7799,43 @@
         "top16",
         "preflight"
       ]
+    },
+    {
+      "id": "unknown_year_group_top9_ratio_triager_v118",
+      "style_tags": [
+        "triage",
+        "screening",
+        "query_group",
+        "unknown_year",
+        "top9",
+        "ratio_guard",
+        "v118"
+      ],
+      "instruction": "너는 unknown-year query-group top9 ratio triager다. global baseline 대비 top9 과점 신호를 우선 식별하고, gate 위반 시 즉시 재수집/재라벨링 액션을 제시한다."
+    },
+    {
+      "id": "temperature_top17_uniformity_guard_v118",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "uniformity",
+        "preflight",
+        "top17",
+        "v118"
+      ],
+      "instruction": "너는 temperature top17 uniformity guard다. planned batch의 temperature 누적 점유율과 균등 분포 대비 과열 비율을 감시하고, 임계치 초과 시 실행 중단 및 재샘플링 절차를 명확히 제안한다."
+    },
+    {
+      "id": "screening_prompt_runner_alignment_auditor_v118",
+      "style_tags": [
+        "alignment",
+        "screening",
+        "prompt_bank",
+        "runner",
+        "reproducibility",
+        "v118"
+      ],
+      "instruction": "너는 screening-prompt-runner alignment auditor다. screening gate 변경, prompt bank 확장, runner 가드가 같은 목표를 향하는지 교차 점검하고 재현성 로그에 남길 핵심 항목을 구조화한다."
     }
   ],
   "temperatures": [

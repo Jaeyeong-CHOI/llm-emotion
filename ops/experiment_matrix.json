@@ -2565,6 +2565,28 @@
         "unknown_year_group_top8_ratio_triager_v117",
         "temperature_top16_uniformity_guard_v117"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_top9_temperature_top17_v118",
+      "n": 12,
+      "seed": 11800,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top9_ratio_guard_v118",
+        "prompt_bank_unknown_year_group_top9_counterbalance_patch_v118",
+        "runner_temperature_top17_uniformity_tripwire_v118"
+      ],
+      "persona_ids": [
+        "unknown_year_group_top9_ratio_triager_v118",
+        "temperature_top17_uniformity_guard_v118",
+        "screening_prompt_runner_alignment_auditor_v118"
+      ]
     }
   ]
 }
