@@ -38,22 +38,12 @@ def parse_file_lines(path: Path) -> list[str]:
     return path.read_text(encoding="utf-8").splitlines()
 
 
-def to_env_dict(lines: list[str]) -> dict[str, str]:
+def extract_env_map(lines: list[str]) -> dict[str, str]:
     env: dict[str, str] = {}
     for raw in lines:
         if not raw or "=" not in raw or raw.lstrip().startswith("#"):
             continue
         key, value = raw.split("=", 1)
-        env[key.strip()] = value
-    return env
-
-
-def env_lines_dict(lines: list[str]) -> dict[str, str]:
-    env: dict[str, str] = {}
-    for item in lines:
-        if "=" not in item or item.lstrip().startswith("#"):
-            continue
-        key, value = item.split("=", 1)
         env[key.strip()] = value
     return env
 
@@ -67,7 +57,7 @@ for required_key in ("OPENAI_API_KEY", "GEMINI_API_KEY"):
         raise SystemExit(f"ERROR: {required_key} missing in source env")
 
 existing_lines = parse_file_lines(dst_path)
-existing_map = to_env_dict(existing_lines)
+existing_map = extract_env_map(existing_lines)
 
 pairs = [
     ("OPENAI_API_KEY", source.get("OPENAI_API_KEY", ""), True),
@@ -109,7 +99,7 @@ for key, value, required in pairs:
     out_lines.append(f"{key}={value}")
     seen.add(key)
 
-final_map = env_lines_dict(out_lines)
+final_map = extract_env_map(out_lines)
 for required_key in ("OPENAI_API_KEY", "GEMINI_API_KEY"):
     if not final_map.get(required_key):
         raise SystemExit(f"ERROR: sync failed to set {required_key}")
