@@ -16,6 +16,27 @@ def display_value(value: Any, default: str = "-") -> str:
     """Return a user-facing string with stable placeholder for missing values."""
     return default if value is None else str(value)
 
+
+
+def parse_csv_set(value: Any) -> set[str]:
+    """Parse a comma-separated value list into a normalized set."""
+    if not value:
+        return set()
+
+    if isinstance(value, (set, list, tuple)):
+        return {str(item).strip() for item in value if str(item).strip()}
+
+    if not isinstance(value, str):
+        return set()
+
+    return {token.strip() for token in value.split(",") if token.strip()}
+
+
+def row_list_values(row: dict[str, Any], field: str) -> set[str]:
+    """Extract a normalized token set from an iterable row field."""
+    return {str(item).strip() for item in row.get(field, []) if str(item).strip()}
+
+
 ROOT = Path(__file__).resolve().parents[1]
 STATE_PATH = ROOT / "ops" / "research_state.json"
 

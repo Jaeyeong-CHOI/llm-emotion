@@ -14,7 +14,7 @@ import sys
 import time
 from pathlib import Path
 
-from research_ops_common import write_json
+from research_ops_common import parse_csv_set, row_list_values, write_json
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -66,9 +66,6 @@ def load_prompt_bank(path: Path) -> dict:
         raise FileNotFoundError(f"prompt bank not found: {path}")
     return json.loads(path.read_text(encoding="utf-8"))
 
-
-def row_list_values(row: dict, field: str) -> set[str]:
-    return {str(v).strip() for v in row.get(field, []) if str(v).strip()}
 
 
 def summarize_prompt_bank(
@@ -222,13 +219,6 @@ def get_git_status() -> dict:
     changes = [line.rstrip() for line in out.splitlines() if line.strip()]
     return {"available": True, "dirty": bool(changes), "changes": changes}
 
-
-def parse_csv_set(value) -> set[str]:
-    if isinstance(value, list):
-        return {str(v).strip() for v in value if str(v).strip()}
-    if isinstance(value, str):
-        return {v.strip() for v in value.split(",") if v.strip()}
-    return set()
 
 
 def shell_join(parts: list[str]) -> str:

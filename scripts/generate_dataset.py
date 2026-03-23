@@ -3,7 +3,9 @@ import argparse
 import json
 import pathlib
 import random
-from typing import Dict, Iterable, List
+from typing import Dict, List
+
+from research_ops_common import parse_csv_set, row_list_values
 
 
 LEGACY_SCENARIOS = {
@@ -75,13 +77,6 @@ def parse_temperatures(value: str) -> List[float]:
         raise ValueError("no temperatures parsed from --temperatures")
     return temps
 
-
-def parse_csv_set(value: str) -> set[str]:
-    return {v.strip() for v in value.split(",") if v.strip()}
-
-
-def row_list_values(row: Dict, field: str) -> set[str]:
-    return {str(v).strip() for v in row.get(field, []) if str(v).strip()}
 
 
 def scenario_matches(
