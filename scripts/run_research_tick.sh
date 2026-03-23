@@ -18,6 +18,22 @@ ensure_dir() {
   mkdir -p "$dir"
 }
 
+utc_now() {
+  date -u "+$1"
+}
+
+utc_now_ts() {
+  utc_now '%Y%m%d%H%M%S'
+}
+
+utc_now_iso() {
+  utc_now '%Y-%m-%dT%H:%M:%SZ'
+}
+
+utc_now_compact() {
+  utc_now '%Y%m%dT%H%M%SZ'
+}
+
 run_experiments_tick() {
   local run_id="$1"
   local artifact_dir="$2"
@@ -29,7 +45,7 @@ run_experiments_tick() {
     ops/runner_tick_profile.json
     --
     --run-label
-    "smoke_auto_tick_$(date -u +%Y%m%d%H%M%S)"
+    "smoke_auto_tick_$(utc_now_ts)"
     --include-run-id
     "$run_id"
     --fail-on-missing-run-id
@@ -74,7 +90,7 @@ refresh_status() {
   local ts
   local status_script
 
-  ts="$(date -u +%Y%m%dT%H%M%SZ)_$$"
+  ts="$(utc_now_compact)_$$"
 
   for status_script in update_live_status.py research_status.py; do
     run_status_script "$ts" "$status_script"
@@ -88,7 +104,7 @@ skip_with_status() {
   exit 0
 }
 
-echo "[tick] $(date -u +'%Y-%m-%dT%H:%M:%SZ') start"
+echo "[tick] $(utc_now_iso) start"
 
 LOCK_DIR="/tmp/llm_emotion_research_tick.lock"
 LOCK_PID_FILE="$LOCK_DIR/pid"
