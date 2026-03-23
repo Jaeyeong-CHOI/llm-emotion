@@ -105,6 +105,11 @@ trim_whitespace() {
   sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
+normalize_text() {
+  local value="$1"
+  printf '%s' "$value" | tr -d '\r' | trim_whitespace
+}
+
 read_file_first_line() {
   local file="$1"
 
@@ -266,17 +271,12 @@ cleanup_on_exit() {
 }
 trap cleanup_on_exit EXIT
 
-READY_LINE="$(python3 scripts/check_real_model_readiness.py | tr -d '\r' | head -n 1)"
+READY_LINE="$(normalize_text "$(python3 scripts/check_real_model_readiness.py | head -n 1)")"
 if [[ "$READY_LINE" != "ready=true" ]]; then
   skip_with_status "readiness=${READY_LINE}"
 fi
 
 QUEUE_FILE="ops/continuous_run_ids.txt"
-
-normalize_text() {
-  local value="$1"
-  printf '%s' "$value" | tr -d '\r' | trim_whitespace
-}
 
 strip_queue_comment() {
   local line="$1"
