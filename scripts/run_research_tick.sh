@@ -171,14 +171,7 @@ queue_contains_run_id() {
 
   is_queue_data_line "$canonical_run_id" || return 1
 
-  local queue_line=""
-  while IFS= read -r queue_line; do
-    if [ "$queue_line" = "$canonical_run_id" ]; then
-      return 0
-    fi
-  done < <(iter_queue_data_lines "$queue_file")
-
-  return 1
+  iter_queue_data_lines "$queue_file" | grep -Fqx -- "$canonical_run_id"
 }
 
 enqueue_run_id_unique() {
