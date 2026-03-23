@@ -235,6 +235,12 @@ def shell_join(parts: list[str]) -> str:
     return " ".join(shlex.quote(part) for part in parts)
 
 
+def csv_list(values):
+    if isinstance(values, (list, tuple)):
+        return ",".join(str(v) for v in values)
+    return values
+
+
 def append_jsonl(path: Path, payload: dict):
     with path.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(payload, ensure_ascii=False) + "\n")
@@ -281,9 +287,7 @@ def write_runs_csv(path: Path, runs: list[dict]):
         w.writeheader()
         for row in runs:
             out = {k: row.get(k) for k in keys}
-            temps = out.get("temperatures")
-            if isinstance(temps, list):
-                out["temperatures"] = ",".join(str(t) for t in temps)
+            out["temperatures"] = csv_list(out.get("temperatures"))
             for field in (
                 "scenario_ids",
                 "scenario_labels",
@@ -294,9 +298,7 @@ def write_runs_csv(path: Path, runs: list[dict]):
                 "persona_ids",
                 "persona_style_tags",
             ):
-                value = out.get(field)
-                if isinstance(value, list):
-                    out[field] = ",".join(str(v) for v in value)
+                out[field] = csv_list(out.get(field))
             w.writerow(out)
 
 
@@ -424,9 +426,7 @@ def write_selection_csv(path: Path, rows: list[dict]):
                 "persona_ids",
                 "persona_style_tags",
             ):
-                value = out.get(field)
-                if isinstance(value, list):
-                    out[field] = ",".join(str(v) for v in value)
+                out[field] = csv_list(out.get(field))
             label_counts = out.get("scenario_label_counts")
             if isinstance(label_counts, dict):
                 out["scenario_label_counts"] = json.dumps(label_counts, ensure_ascii=False, sort_keys=True)
@@ -474,9 +474,7 @@ def write_preflight_csv(path: Path, rows: list[dict]):
                 "scenario_difficulties",
                 "persona_style_tags",
             ):
-                value = out.get(field)
-                if isinstance(value, list):
-                    out[field] = ",".join(str(v) for v in value)
+                out[field] = csv_list(out.get(field))
             w.writerow(out)
 
 
