@@ -15,9 +15,14 @@ ROOT = Path(__file__).resolve().parents[1]
 STATE_PATH = ROOT / "ops" / "research_state.json"
 
 
-def now_isoseconds() -> str:
+def now_iso8601_utc() -> str:
     """Return an unambiguous UTC ISO-8601 timestamp for research logs/state."""
-    return dt.datetime.now(dt.UTC).isoformat(timespec="seconds")
+    return dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def now_isoseconds() -> str:
+    """Backward-compatible alias kept for existing callers."""
+    return now_iso8601_utc()
 
 
 def read_json(path: Path, default: Any | None = None) -> Any:
