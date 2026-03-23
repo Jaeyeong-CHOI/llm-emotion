@@ -47,7 +47,11 @@ def run_cron_list() -> str:
 def find_by_id_or_name(jobs, env_id_key, fallback_id, name_key):
     explicit_id = os.getenv(env_id_key)
     if explicit_id:
-        return jobs.get(explicit_id), explicit_id, "env"
+        matched = jobs.get(explicit_id)
+        if matched:
+            return matched, explicit_id, "env"
+        # If env var is stale, fall back to name matching for better resilience.
+        # This keeps the system running when IDs are rotated or manually edited.
 
     # primary by name
     for j in jobs.values():
@@ -56,7 +60,8 @@ def find_by_id_or_name(jobs, env_id_key, fallback_id, name_key):
 
     # substring fallback by contains
     contains_matches = [
-        j for j in jobs.values()
+        j
+        for j in jobs.values()
         if name_key and name_key in (j.get("name") or "")
     ]
     if len(contains_matches) == 1:
@@ -64,7 +69,11 @@ def find_by_id_or_name(jobs, env_id_key, fallback_id, name_key):
         return j, j.get("id"), f"fuzzy:{name_key}"
 
     # final fallback: kept for compatibility if names changed
-    return jobs.get(fallback_id), fallback_id, "fallback-id"
+    fallback = jobs.get(fallback_id)
+    if fallback:
+        return fallback, fallback_id, "fallback-id"
+    return None, None, "fallback-id"
+
 
 
 def pack(job, resolved_id):
