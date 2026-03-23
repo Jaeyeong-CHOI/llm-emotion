@@ -115,9 +115,7 @@ def main():
     if api_key and not re.match(r"^sk-", api_key):
         suspicious.append("OPENAI_API_KEY")
 
-    available_vars = {**required_status}
-    for key, value in optional_status.items():
-        available_vars.setdefault(key, value)
+    available_vars = {**required_status, **optional_status}
 
     # 실모델 실행 게이트는 강제 required 기준 + API 키 유효성 + 엔드포인트 스킴 점검
     ready = not required_missing and not required_placeholder_vars and not suspicious
@@ -128,9 +126,9 @@ def main():
     if required_placeholder_vars:
         notes.append("필수 환경변수에 placeholder 값 존재")
     if optional_missing:
-        notes.append("선택 환경변수 미설정(권장): OPENAI_ORG_ID, OPENAI_PROJECT")
+        notes.append(f"선택 환경변수 미설정(권장): {', '.join(optional)}")
     if optional_placeholder_vars:
-        notes.append("선택 환경변수에 placeholder 값 존재")
+        notes.append(f"선택 환경변수에 placeholder 값 존재: {', '.join(optional_placeholder_vars)}")
     if not endpoint_scheme_ok:
         notes.append("OPENAI_BASE_URL 스킴 미일치")
     if suspicious and "OPENAI_API_KEY" in suspicious:
