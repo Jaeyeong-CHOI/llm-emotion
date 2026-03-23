@@ -21,19 +21,26 @@ def display_value(value: Any, default: str = "-") -> str:
 
 def _normalize_token_set(values: Any) -> set[str]:
     """Normalize an arbitrary token-like container into a unique string set."""
+
     if values is None:
         return set()
 
     if isinstance(values, str):
         tokens = values.split(",")
     elif isinstance(values, dict):
-        return set()
+        # Preserve previous behavior (ignoring malformed dict values) while still
+        # handling key/value maps that may be serialized collections.
+        tokens = values.keys()
     elif isinstance(values, Iterable):
         tokens = list(values)
     else:
         return set()
 
-    return {str(item).strip() for item in tokens if str(item).strip()}
+    return {
+        normalized
+        for raw in tokens
+        if (normalized := str(raw).strip())
+    }
 
 
 def parse_csv_set(value: Any) -> set[str]:
