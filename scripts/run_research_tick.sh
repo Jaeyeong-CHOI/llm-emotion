@@ -52,6 +52,7 @@ echo "[tick] $(date -u +'%Y-%m-%dT%H:%M:%SZ') start"
 
 LOCK_DIR="/tmp/llm_emotion_research_tick.lock"
 LOCK_PID_FILE="$LOCK_DIR/pid"
+LOCK_STALE_SECONDS="${LLM_EMOTION_TICK_LOCK_STALE_SECONDS:-900}"
 LOCK_ACQUIRED=0
 RUN_TICK_SCRIPT="${ROOT}/scripts/run_research_tick.sh"
 
@@ -111,9 +112,30 @@ clear_lock_dir() {
   fi
 }
 
+is_stale_lock_dir() {
+  local mtime=""
+  local now=""
+  local age=""
+
+  if ! lock_dir_is_safe; then
+    return 1
+  fi
+
+  mtime="$(stat -f "%m" "$LOCK_DIR" 2>/dev/null || echo 0)"
+  [ "$mtime" -gt 0 ] || return 1
+
+  now="$(date +%s)"
+  age=$(( now - mtime ))
+  [ "$age" -gt "$LOCK_STALE_SECONDS" ]
+}
+
 recover_stale_lock() {
   local lock_pid="$1"
-  echo "[tick] stale lock detected (pid=$lock_pid); recovering"
+  if [ -n "$lock_pid" ]; then
+    echo "[tick] stale lock detected (pid=$lock_pid); recovering"
+  else
+    echo "[tick] stale lock directory without pid file detected; recovering"
+  fi
   clear_lock_dir
   if ! claim_lock_dir; then
     echo "[tick] failed to re-claim lock after stale lock recovery" >&2
@@ -145,8 +167,15 @@ acquire_lock() {
     lock_pid="$(cat "$LOCK_PID_FILE" 2>/dev/null || true)"
   fi
 
-  if [ -n "$lock_pid" ] && ! lock_pid_is_active_tick_owner "$lock_pid"; then
-    if recover_stale_lock "$lock_pid"; then
+  if [ -n "$lock_pid" ]; then
+    if ! lock_pid_is_active_tick_owner "$lock_pid"; then
+      if recover_stale_lock "$lock_pid"; then
+        LOCK_ACQUIRED=1
+        return 0
+      fi
+    fi
+  elif is_stale_lock_dir; then
+    if recover_stale_lock ""; then
       LOCK_ACQUIRED=1
       return 0
     fi
