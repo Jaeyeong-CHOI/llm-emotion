@@ -13,8 +13,13 @@ if ! load_research_env; then
   exit 0
 fi
 
+ensure_dir() {
+  local dir="$1"
+  mkdir -p "$dir"
+}
+
 STATUS_LOG_DIR="${TMPDIR:-/tmp}/llm_emotion_research_tick"
-mkdir -p "$STATUS_LOG_DIR"
+ensure_dir "$STATUS_LOG_DIR"
 
 run_status_command() {
   local log_path="$1"
@@ -517,6 +522,7 @@ echo "[tick] execute run_id=$RUN_ID"
 run_failed=0
 RUN_IN_FLIGHT=1
 RUN_ARTIFACT_DIR="results/experiments/${RUN_ID}_auto_tick"
+ensure_dir "$RUN_ARTIFACT_DIR"
 
 if ! python3 scripts/run_experiments_with_profile.py \
   --profile ops/runner_tick_profile.json \
