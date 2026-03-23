@@ -15,6 +15,21 @@ LIVE_REPORT_NAME_DEFAULT = "llm-emotion-important-live-report"
 CONTINUOUS_ID_FALLBACK = "33f59b94-c1e7-44f7-ac2b-f2490043bcc6"
 LIVE_REPORT_ID_FALLBACK = "36361127-9526-4c77-a742-e83d6b4d701e"
 
+CRON_TARGETS = [
+    (
+        "continuous",
+        "LLM_EMOTION_CONTINUOUS_CRON_ID",
+        CONTINUOUS_ID_FALLBACK,
+        CONTINUOUS_NAME_DEFAULT,
+    ),
+    (
+        "live_report",
+        "LLM_EMOTION_LIVE_CRON_ID",
+        LIVE_REPORT_ID_FALLBACK,
+        LIVE_REPORT_NAME_DEFAULT,
+    ),
+]
+
 
 def run_cron_list() -> str:
     p = subprocess.run(
@@ -68,6 +83,16 @@ def pack(job, resolved_id):
     }
 
 
+def resolve_target(jobs_by_id, target_name, env_var, fallback_id, name):
+    job, resolved_id, method = find_by_id_or_name(
+        jobs_by_id,
+        env_var,
+        fallback_id,
+        name,
+    )
+    return target_name, pack(job, resolved_id), resolved_id, method
+
+
 def main():
     try:
         raw = run_cron_list()
@@ -85,35 +110,29 @@ def main():
 
     jobs_by_id = {j.get("id"): j for j in data.get("jobs", [])}
 
-    cjob, cresolved, cmethod = find_by_id_or_name(
-        jobs_by_id,
-        "LLM_EMOTION_CONTINUOUS_CRON_ID",
-        CONTINUOUS_ID_FALLBACK,
-        CONTINUOUS_NAME_DEFAULT,
-    )
-    ljob, lresolved, lmethod = find_by_id_or_name(
-        jobs_by_id,
-        "LLM_EMOTION_LIVE_CRON_ID",
-        LIVE_REPORT_ID_FALLBACK,
-        LIVE_REPORT_NAME_DEFAULT,
-    )
+    out = {}
+    resolved = {}
 
-    out = {
-        "continuous": pack(cjob, cresolved),
-        "live_report": pack(ljob, lresolved),
-        "_meta": {
-            "resolved": {
-                "continuous": cmethod,
-                "live_report": lmethod,
-            }
-        }
+    for target_name, env_var, fallback_id, name in CRON_TARGETS:
+        key, snapshot, resolved_id, method = resolve_target(
+            jobs_by_id,
+            target_name,
+            env_var,
+            fallback_id,
+            name,
+        )
+        out[key] = snapshot
+        resolved[key] = method
+
+    out["_meta"] = {
+        "resolved": resolved,
     }
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Wrote {OUT}")
-    print(f"continuous match: {cmethod} ({cresolved})")
-    print(f"live_report match: {lmethod} ({lresolved})")
+    for name, method in resolved.items():
+        print(f"{name} match: {method} ({out[name].get('resolved_id')})")
 
 
 if __name__ == "__main__":
