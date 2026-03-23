@@ -40,18 +40,23 @@ def is_placeholder(value: str) -> bool:
     return any(re.match(p, v) for p in PLACEHOLDER_PATTERNS)
 
 
+def dedupe_preserve_order(values: list[str]) -> list[str]:
+    """Preserve insertion order while removing duplicates."""
+    return list(dict.fromkeys(values))
+
+
 def parse_env_var_list(raw: str, default: list[str]) -> list[str]:
     """Parse comma/space-separated env-var names with stable de-duplication."""
     if not raw:
-        return list(dict.fromkeys(default))
+        return dedupe_preserve_order(default)
 
     tokens = re.split(r"[\s,]+", raw.strip())
     vars_ = [t for t in tokens if t]
     if not vars_:
-        return list(dict.fromkeys(default))
+        return dedupe_preserve_order(default)
 
     # Keep first occurrence order so CLI intent stays predictable.
-    return list(dict.fromkeys(vars_))
+    return dedupe_preserve_order(vars_)
 
 
 def check_var(value: str):
