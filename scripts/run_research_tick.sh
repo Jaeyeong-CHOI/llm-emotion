@@ -4,13 +4,20 @@ set -euo pipefail
 ROOT="/Users/jaeyeong_openclaw/.openclaw/workspace/llm-emotion"
 cd "$ROOT"
 
-if [ -f .env.real_model ]; then
+load_env_file() {
+  local env_file="$1"
+  [ -f "$env_file" ] || return 1
+
   set -a
   # shellcheck disable=SC1090
-  source .env.real_model
+  source "$env_file"
   set +a
-else
-  echo "[tick] .env.real_model not found; skip" >&2
+  return 0
+}
+
+ENV_FILE="${LLM_EMOTION_ENV_FILE:-$ROOT/.env.real_model}"
+if ! load_env_file "$ENV_FILE"; then
+  echo "[tick] env file not found (${ENV_FILE}); skip" >&2
   exit 0
 fi
 
