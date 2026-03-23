@@ -13,21 +13,41 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _append_profile_arg(
+    cli: list[str],
+    flag: str,
+    value: object,
+    raw_key: str,
+) -> None:
+    """Append a typed profile arg to a CLI token list."""
+
+    if isinstance(value, bool):
+        if value:
+            cli.append(flag)
+        return
+
+    if value is None:
+        return
+
+    if isinstance(value, list):
+        for item in value:
+            _append_profile_arg(cli, flag, item, raw_key)
+        return
+
+    if isinstance(value, (str, int, float, Path)):
+        cli.extend([flag, str(value)])
+        return
+
+    raise TypeError(
+        f"Unsupported profile arg type for --{raw_key}: {type(value).__name__}"
+    )
+
+
 def to_cli(args: dict[str, object]) -> list[str]:
     cli: list[str] = []
     for key, value in args.items():
         flag = f"--{key.replace('_', '-')}"
-        if isinstance(value, bool):
-            if value:
-                cli.append(flag)
-            continue
-        if value is None:
-            continue
-        if isinstance(value, list):
-            for item in value:
-                cli.extend([flag, str(item)])
-            continue
-        cli.extend([flag, str(value)])
+        _append_profile_arg(cli, flag, value, key)
     return cli
 
 
