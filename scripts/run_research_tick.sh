@@ -21,6 +21,9 @@ if ! load_env_file "$ENV_FILE"; then
   exit 0
 fi
 
+STATUS_LOG_DIR="${TMPDIR:-/tmp}/llm_emotion_research_tick"
+mkdir -p "$STATUS_LOG_DIR"
+
 run_status_command() {
   local log_path="$1"
   shift
@@ -28,9 +31,12 @@ run_status_command() {
 }
 
 refresh_status() {
-  run_status_command "/tmp/research_tick_status.log" \
+  local ts
+  ts="$(date -u +%Y%m%dT%H%M%SZ)_$$"
+
+  run_status_command "$STATUS_LOG_DIR/research_tick_status_${ts}.log" \
     python3 scripts/update_live_status.py
-  run_status_command "/tmp/research_tick_research_status.log" \
+  run_status_command "$STATUS_LOG_DIR/research_tick_research_status_${ts}.log" \
     python3 scripts/research_status.py
 }
 
