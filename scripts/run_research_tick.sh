@@ -162,13 +162,6 @@ normalize_text() {
   trim_whitespace <<< "$value"
 }
 
-read_proc_field_raw() {
-  local pid="$1"
-  local field="$2"
-
-  ps -p "$pid" -o "${field}=" 2>/dev/null | tr -d '\r' | head -n 1 || true
-}
-
 read_first_line_normalized() {
   local file="$1"
   local raw_line=""
@@ -193,32 +186,35 @@ ensure_queue_file_safe() {
   is_path_safe_from_symlink "$queue_file" || return "$when_fail"
 }
 
-read_proc_field() {
+read_proc_uid_and_command() {
   local pid="$1"
-  local field="$2"
-  local strip_ws="${3:-0}"
+  local raw_line=""
+  local owner_uid=""
+  local command=""
 
-  local value=""
-  value="$(read_proc_field_raw "$pid" "$field")"
-  [ -n "$value" ] || return 1
+  raw_line="$(ps -p "$pid" -o uid= -o command= 2>/dev/null | tr -d '\r' | head -n 1 || true)"
+  [ -n "$raw_line" ] || return 1
 
-  if [ "$strip_ws" = "1" ]; then
-    normalize_text "$value"
-    return 0
-  fi
+  owner_uid="$(awk '{print $1}' <<< "$raw_line")"
+  command="$(sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+//' <<< "$raw_line")"
 
-  printf '%s' "$value"
+  [ -n "$owner_uid" ] || return 1
+  [ -n "$command" ] || return 1
+
+  printf '%s\n%s\n' "$owner_uid" "$command"
 }
 
 lock_pid_uid_and_command() {
   local pid="$1"
   local owner_uid=""
   local command=""
+  local proc_info=""
 
   is_numeric_pid "$pid" || return 1
 
-  owner_uid="$(read_proc_field "$pid" uid 1 || true)"
-  command="$(read_proc_field "$pid" command 0 || true)"
+  proc_info="$(read_proc_uid_and_command "$pid")" || return 1
+  owner_uid="$(printf '%s\n' "$proc_info" | sed -n '1p')"
+  command="$(printf '%s\n' "$proc_info" | sed -n '2p')"
 
   [[ -n "$owner_uid" ]] || return 1
   [[ -n "$command" ]] || return 1
