@@ -192,11 +192,7 @@ dequeue_run_id() {
   fi
 
   tmp_file="$(mktemp "${queue_file}.tmp.XXXXXX")"
-
-  cleanup_tmp_file() {
-    [ -n "$tmp_file" ] && rm -f "$tmp_file"
-  }
-  trap cleanup_tmp_file RETURN
+  trap '[ -n "${tmp_file:-}" ] && rm -f "$tmp_file"' RETURN
 
   local picked=""
   local raw_line=""
