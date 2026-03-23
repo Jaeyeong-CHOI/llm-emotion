@@ -223,11 +223,6 @@ iter_queue_lines() {
   done < "$queue_file"
 }
 
-iter_queue_lines_normalized() {
-  iter_queue_lines "$1"
-}
-
-
 make_queue_temp_file() {
   local queue_file="$1"
   local suffix="${2:-tmp}"
@@ -247,7 +242,7 @@ dedupe_queue_file() {
     if ! grep -Fxq "$normalized" "$tmp_file" 2>/dev/null; then
       printf '%s\n' "$normalized" >> "$tmp_file"
     fi
-  done < <(iter_queue_lines_normalized "$queue_file")
+  done < <(iter_queue_lines "$queue_file")
 
   if [ -f "$tmp_file" ]; then
     if ! cmp -s "$queue_file" "$tmp_file" 2>/dev/null; then
@@ -280,7 +275,7 @@ dequeue_run_id() {
     fi
 
     printf '%s\n' "$line"
-  done < <(iter_queue_lines_normalized "$queue_file") > "$tmp_file"
+  done < <(iter_queue_lines "$queue_file") > "$tmp_file"
 
   if [ "$changed" -eq 1 ]; then
     if ! mv "$tmp_file" "$queue_file"; then
@@ -313,7 +308,7 @@ queue_contains_canonical_run_id() {
     if [ "$queued_run_id" = "$canonical_run_id" ]; then
       return 0
     fi
-  done < <(iter_queue_lines_normalized "$queue_file")
+  done < <(iter_queue_lines "$queue_file")
 
   return 1
 }
