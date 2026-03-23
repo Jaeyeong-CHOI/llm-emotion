@@ -13,13 +13,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _append_profile_arg(
-    cli: list[str],
-    flag: str,
-    value: object,
-    raw_key: str,
-) -> None:
-    """Append a typed profile arg to a CLI token list."""
+def _append_profile_arg(cli: list[str], flag: str, value: object, raw_key: str) -> None:
+    """Append profile-derived args to a CLI token list.
+
+    Supported shapes:
+    - bool: emit flag when True
+    - list/tuple: flatten preserving order
+    - scalar str/int/float/Path: emit as "--key value"
+    """
 
     if isinstance(value, bool):
         if value:
@@ -29,7 +30,7 @@ def _append_profile_arg(
     if value is None:
         return
 
-    if isinstance(value, list):
+    if isinstance(value, (list, tuple)):
         for item in value:
             _append_profile_arg(cli, flag, item, raw_key)
         return
@@ -38,9 +39,33 @@ def _append_profile_arg(
         cli.extend([flag, str(value)])
         return
 
-    raise TypeError(
-        f"Unsupported profile arg type for --{raw_key}: {type(value).__name__}"
-    )
+    raise TypeError(f"Unsupported profile arg type for --{raw_key}: {type(value).__name__}")
+
+
+def _resolve_profile_path(raw_path: str) -> Path:
+    profile_path = (ROOT / raw_path).resolve()
+
+    if not str(profile_path).endswith(".json"):
+        raise ValueError(f"Profile must be a .json file: {raw_path}")
+
+    ops_root = (ROOT / "ops").resolve()
+    if not profile_path.is_relative_to(ops_root):
+        raise ValueError(
+            f"Profile path must stay under repository ops directory: {raw_path}"
+        )
+
+    current = profile_path
+    while True:
+        if current.is_symlink():
+            raise ValueError(f"Profile path is symlink unsafe: {current}")
+        if current == current.parent:
+            break
+        current = current.parent
+
+    if not profile_path.exists():
+        raise FileNotFoundError(f"profile not found: {profile_path}")
+
+    return profile_path
 
 
 def to_cli(args: dict[str, object]) -> list[str]:
@@ -58,11 +83,11 @@ def main() -> int:
     ap.add_argument("passthrough", nargs=argparse.REMAINDER)
     args = ap.parse_args()
 
-    profile_path = ROOT / args.profile
-    if not profile_path.exists():
-        raise FileNotFoundError(f"profile not found: {profile_path}")
     try:
+        profile_path = _resolve_profile_path(args.profile)
         profile = json.loads(profile_path.read_text(encoding="utf-8"))
+    except (ValueError, FileNotFoundError) as exc:
+        raise RuntimeError(str(exc)) from exc
     except json.JSONDecodeError as exc:
         raise RuntimeError(f"invalid profile JSON: {profile_path}") from exc
     if not isinstance(profile, dict):
