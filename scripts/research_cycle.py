@@ -36,6 +36,32 @@ def run_screening_triage_plan_step() -> tuple[int, str, str]:
     )
 
 
+def collect_screening_label_stats(refs_path):
+    include_n = 0
+    review_n = 0
+    malformed_rows = 0
+
+    if not refs_path.exists():
+        return include_n, review_n, malformed_rows
+
+    with refs_path.open("r", encoding="utf-8") as f:
+        for raw_line in f:
+            line = raw_line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError:
+                malformed_rows += 1
+                continue
+            if row.get("screening_label") == "include":
+                include_n += 1
+            elif row.get("screening_label") == "review":
+                review_n += 1
+
+    return include_n, review_n, malformed_rows
+
+
 def main():
     state = load_research_state()
     now = now_isoseconds()
@@ -112,25 +138,8 @@ def main():
     state["stats"]["evidence_rows"] = max(0, count_lines(ROOT / "docs" / "evidence-table.md") - 4)
     state["stats"]["mock_samples_generated"] = count_lines(ROOT / "data" / "raw" / "mock_generations.jsonl")
 
-    include_n = 0
-    review_n = 0
     refs_path = ROOT / "refs" / "openalex_results.jsonl"
-    malformed_rows = 0
-    if refs_path.exists():
-        with refs_path.open("r", encoding="utf-8") as f:
-            for raw_line in f:
-                line = raw_line.strip()
-                if not line:
-                    continue
-                try:
-                    row = json.loads(line)
-                except json.JSONDecodeError:
-                    malformed_rows += 1
-                    continue
-                if row.get("screening_label") == "include":
-                    include_n += 1
-                elif row.get("screening_label") == "review":
-                    review_n += 1
+    include_n, review_n, malformed_rows = collect_screening_label_stats(refs_path)
     state["stats"]["screen_include"] = include_n
     state["stats"]["screen_review"] = review_n
     if malformed_rows:
