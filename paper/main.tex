@@ -16,7 +16,7 @@
 \sloppy
 \usepackage{cite}
 
-\title{A Reproducible Pipeline for Studying Regret-Like Language in LLMs: Literature Integration, Automated Screening, and Preliminary Behavioral Evidence}
+\title{A Reproducible Pipeline for Studying Regret-Like Language in LLMs: Literature Integration, Automated Screening, and Preliminary Infrastructure Evidence}
 \author{Jaeyeong CHOI\\
 DGIST EECS\\
 \texttt{jaeyeong2022@dgist.ac.kr}}
@@ -30,7 +30,7 @@ We do not claim that LLMs possess emotion; instead, we evaluate observable behav
 
 Unlike isolated prompt-completion experiments, our contribution is an integrated pipeline that combines literature discovery and quality triage, prompt-bank construction, standardized marker analysis, and continuous reporting for long-running experiments.
 
-Current results remain preliminary: we report implementation outcomes from a synthetic stress-tested benchmark and prepare the system for real-model inference.
+Current results remain preliminary and non-diagnostic: we report implementation outcomes from a synthetic stress-test benchmark and position the system for preregistered real-model inference.
 \end{abstract}
 
 \section*{Keywords}
@@ -45,30 +45,37 @@ This motivates a testable question for LLM research:
 \end{quote}
 
 A key challenge is avoiding over-interpretation: apparent social behavior in LLMs can arise from prompt artifacts.
-Recent findings in theory-of-mind and anthropomorphism show that performance is sensitive to task framing, so evaluation should be behaviorally grounded.
+Recent findings in theory-of-mind and anthropomorphism show that performance is sensitive to task framing, so evaluation should be behaviorally grounded. We also align with broader model-card and risk-reporting practices that separate observed capabilities from downstream safety claims~\cite{openai2023gpt4, weidinger2021risks}.
 
 This work builds a transparent experimental stack where generation, logging, screening quality, and reporting are unified.
 
 \section{Related Work}
-We reviewed 279 papers recovered from OpenAlex and organized them into five evidence-driven streams: counterfactual--regret psychology, LLM social-cognitive reasoning, anthropomorphism studies, emotion/benchmark methodology, and reproducibility-oriented design.
+We retrieved 279 candidate records from OpenAlex (not yet a finalized gold-reviewed corpus) and organized them into five evidence-driven streams: counterfactual--regret psychology, LLM social-cognitive reasoning, anthropomorphism studies, emotion/benchmark methodology, and reproducibility-oriented design. Because retrieval is title/abstract driven, we treat this pool as a high-recall candidate set rather than a complete evidence census, and we avoid using raw retrieval counts as confirmatory evidence for substantive claims.
 
 \subsection{Counterfactual and regret psychology}
 Classical work on regret and counterfactual reasoning identifies measurable linguistic signatures of missed alternatives, such as upward counterfactual phrases, temporal re-evaluation, and responsibility attributions.
-Roese and Epstude's synthesis is foundational for marker-based operationalization in non-affective constructs~\cite{roese2017, roese2008}.
-These definitions support our focus on language-level observables rather than emotional-state inference. We also draw motivation from cognitive and neuroscience accounts of counterfactual evaluation and emotion computation, where behavioral signals are often separated from subjective reports.
+Roese and Epstude's synthesis is foundational for marker-based operationalization in non-affective constructs~\cite{roese2017, roese2008}, and broader reviews emphasize that counterfactual structure can be analyzed independently from subjective feeling reports~\cite{roeseolson2014,byrne2016}.
+Norm-theory accounts further clarify why perceived deviations from typical outcomes systematically amplify counterfactual generation, providing an additional cognitive basis for marker-focused analysis~\cite{kahneman1986norm}.
+Decision-theoretic work further clarifies that regret can be formalized at the choice level without requiring direct access to subjective affect reports~\cite{bell1982, loomes1982}, while behavioral decision studies distinguish regret from disappointment in experimentally testable ways and show that expected feedback modulates regret-avoidant choice patterns~\cite{zeelenberg1998, zeelenberg2007, zeelenberg2000, zeelenberg2004, zeelenbergbeattie1996}. Related syntheses also separate anticipated and experienced regret in decision models, reinforcing the value of explicit operational definitions before marker analysis~\cite{connolly2002regret, mellers1999emotion}. Classic psychological evidence additionally shows a temporal shift from action-regret to inaction-regret, which matters for prompt-time framing windows in language elicitation tasks~\cite{gilovichmedvec1995}. Foundational models of loss-sensitive choice and later integrative reviews on emotion in decision-making further motivate separating observable choice-language regularities from unobserved affective states~\cite{kahnemantversky1979, lerner2015emotion}.
+These definitions support our focus on language-level observables rather than emotional-state inference. We also draw motivation from cognitive-neuroscience and cognitive-review accounts of counterfactual evaluation and regret computation~\cite{camille2004, coricelli2005, camerer2005, roese2015counterfactualthought}, where behavioral signals are often separated from latent affective states.
 
 \subsection{LLM social-cognitive behavior and theory-of-mind}
 Theory-of-mind studies on LLMs show a mixed landscape: strong scores in some benchmark conditions but high sensitivity to prompts, instruction style, and surface perturbations.
-Large-scale evaluations and stress tests~\cite{kosinski2024tom, strachan2024, tombench2024, opentom2024, simpletom2024, hito2023, mindgames2023} indicate that reproducibility requires strict protocol control and explicit coverage constraints.
-Work on robustness under minor alterations\cite{ullman2023} and perspective-taking guidance\cite{ma2024} suggests that protocol variance can materially alter observed social reasoning.
+Large-scale evaluations and stress tests~\cite{kosinski2024tom, strachan2024, tombench2024, opentom2024, simpletom2024, hito2023, mindgames2023, epitome2024, reevaltom2025} indicate that reproducibility requires strict protocol control and explicit coverage constraints.
+Complementary cognitive-psychology analyses also argue that strong task performance should be interpreted as pattern-level behavioral competence, not direct evidence of human-like mental-state understanding~\cite{binz2023}; this caution is consistent with broader debates on what counts as ``understanding'' in LLM behavior reports, role-playing effects in instruction-following models, and capability demonstrations that can otherwise invite overgeneralization~\cite{mitchell2023debate, shanahan2023roleplay, bubeck2023sparks}.
+Work on robustness under minor alterations~\cite{ullman2023, shapira2023cleverhans} and prompting strategies for perspective-taking and ToM elicitation~\cite{ma2024, moghaddam2023boostingtom} suggests that protocol variance can materially alter observed social reasoning. Additional evidence comparing LLM ToM performance with children on advanced tasks highlights non-uniform capability profiles across benchmark families~\cite{vanduijn2023conll}, and multi-agent collaboration studies indicate that social-reasoning behavior can change under interactive coordination settings rather than single-turn probes~\cite{li2023multiagenttom}.
 
 \subsection{Anthropomorphic attribution and emotional intelligence}
-A separate but adjacent literature shows that users attribute personality, emotion, and agency to AI text systems more readily than intended from engineering perspective.
-User studies on anthropomorphic chat interfaces~\cite{i_chatbot_2023, anthro2023} and affective-response benchmarks~\cite{emobench2024, emobench2} show persistent interpretation bias.
+A separate but adjacent literature shows that users often attribute personality, emotion, and agency to AI text systems, so interpretation risk must be treated as an empirical measurement issue rather than an intent claim.
+User studies on anthropomorphic chat interfaces~\cite{i_chatbot_2023, anthro2023, araujo2018}, measurement work on anthropomorphism and perceived intelligence~\cite{bartneck2009}, and service-level meta-analysis across chatbot/robot settings~\cite{wu2021anthro_meta} convergently suggest non-trivial interpretation bias, though effect sizes and mechanisms vary by task and deployment context.
+Recent service-chatbot studies further suggest that anthropomorphic style can shift compliance and trust judgments~\cite{adam2020, roy2020, liuthompkins2022}, which is methodologically relevant but not directly equivalent to controlled LLM regret elicitation. Classic CASA findings and later anthropomorphism theory further indicate that minimal social cues can trigger human-like attributions even when users explicitly know they interact with machines~\cite{nassmoon2000,epley2007}. Recent HCI evidence also shows that model uncertainty phrasing changes user reliance and trust calibration~\cite{zhang2024uncertaintytrust}, and socioaffective-alignment analyses warn that perceived relationship depth can systematically distort user interpretation of model outputs~\cite{kirk2025socioaffective}. Taken together with earlier measurement and meta-analytic findings~\cite{bartneck2009, wu2021anthro_meta}, these results reinforce the need for conservative claim language in behavioral studies.
 This motivates explicitly separating linguistic behavior from affective ontology in our claims.
 
 \subsection{Emotion, benchmark methodology, and robust prompting}
 Related work across ToM, emotion, and social-signal evaluation consistently emphasizes: (i) benchmark family coverage, (ii) perturbation tests, and (iii) transparent statistical reporting.
+Beyond ToM-only settings, prior emotion-focused resources such as EmpatheticDialogues and GoEmotions show that label granularity, domain shift, and annotation design materially affect measured performance~\cite{rashkin2019, demszky2020}, while shared-task settings in affective NLP highlight reproducibility challenges tied to preprocessing and class imbalance~\cite{mohammad2018semeval}. Task-specific studies on LLM emotion detection and real-time emotion generation in HRI report promising domain performance, but their metrics and interaction settings are not directly aligned with controlled regret-marker elicitation~\cite{emotiondetect2023, hriemotion2023}.
+General-purpose LLM evaluation frameworks also stress multi-metric reporting, scenario stratification, and explicit documentation of evaluation limitations~\cite{liang2023helm,chang2024survey,bommasani2021foundation,lin2022truthfulqa,srivastava2022beyond}.
+We additionally follow reproducible-science guidance on transparent analysis plans, preregistered confirmatory workflows, and robustness against researcher degrees of freedom~\cite{munafo2017manifesto, simmons2011falsepositive, gelman2014garden, nosk2018prereg}.
 Our pipeline is aligned with this design tradition through automated retrieval, multi-gate screening, scenario coverage diagnostics, and failure-aware orchestration.
 
 \subsection{Research gap addressed by this study}
@@ -84,11 +91,11 @@ Our contribution is narrower but operationally important: building a continuous,
 \toprule
 Stream & Evidence and relevance\\
 \midrule
-Counterfactual and regret psychology & Counterfactual phrasing and temporal repair predict measurable linguistic markers; defines explicit target features for this study.\\
-LLM social cognition & ToM is framing-sensitive; strict controls over scenario/persona/temperature are required.\\
-Anthropomorphism & Fluency drives perceived affect/intent; motivates conservative interpretation of textual outputs.\\
-Emotion/benchmarking & Coverage + perturbation improve reliability; supports QC and reproducibility design.\\
-Pipeline reproducibility & Long-run monitoring with status/traceability supports continuous operation.\\
+Counterfactual and regret psychology & Counterfactual phrasing predicts measurable markers and defines explicit target features.\\
+LLM social cognition & ToM is framing-sensitive, requiring strict controls over scenario, persona, and temperature.\\
+Anthropomorphism & Fluency can inflate perceived affect/intent, motivating conservative interpretation.\\
+Emotion/benchmarking & Coverage plus perturbation testing improves reliability and reproducibility.\\
+Pipeline reproducibility & Long-run status monitoring and traceability support continuous operation.\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -124,7 +131,7 @@ The study is implemented as an automated loop. Table~\ref{tab:pipeline} summariz
 \midrule
 Literature retrieval & Rule-based OpenAlex normalization and deduplication.\\
 Screening quality gate & Quantitative gates with pass/fail summaries.\\
-Scenario/persona grid & 436 scenarios, 311 personas, 5 temp levels.\\
+Scenario/persona grid & 454 scenarios, 316 personas, 5 temp levels.\\
 Generator & Deterministic, config-driven sample generation.\\
 Marker analysis & Lexicon extraction and marker-level aggregation.\\
 Experiment driver & Orchestration + aggregate metric collection.\\
@@ -136,7 +143,9 @@ State tracking & Cron logs, dashboards, and compact summaries.\\
 \subsection{Automated literature workflow}
 Candidate retrieval and screening run in background jobs.
 Quality gates track balance, entropy, confidence, source diversity, risk diversity, query coverage, and traceability.
-Latest run collected 279 candidate studies and generated an auto-updated evidence table.
+The reporting structure is also aligned with PRISMA 2020 principles for transparent flow accounting (identification, screening, eligibility, and inclusion states), adapted here for an automated high-recall scoping pipeline~\cite{page2021prisma}.
+Our retrieval stack is currently centered on OpenAlex and therefore inherits source-level metadata and indexing biases that can affect topic coverage and recency~\cite{priem2022openalex}.
+Latest run collected 279 candidate studies and generated an auto-updated evidence table. The current state (0 include / 77 review / 202 exclude) indicates that quality-gated candidate screening is active, but gold-set inclusion decisions are still pending; therefore, we treat this corpus as a high-recall scoping pool rather than confirmatory evidence.
 
 \begin{table}[t]
 \caption{Literature and screening status (latest run)}
@@ -157,8 +166,8 @@ Include / Review count & 0 / 77 & Gold-set confirmation not finalized yet.\\
 \end{table}
 
 \subsection{Prompt and condition design}
-Current bank: 436 scenarios, 311 personas, 5 temperatures (0.1, 0.2, 0.4, 0.7, 1.0).
-Generation conditions are the Cartesian product of scenario group, persona group, and temperature.
+Current bank: 454 scenarios, 316 personas, 5 temperatures (0.1, 0.2, 0.4, 0.7, 1.0).
+Generation conditions are defined on the Cartesian product of scenario group, persona group, and temperature; however, the current stress-test corpus is produced by stratified partial-factorial sampling rather than exhaustive full-grid enumeration.
 
 \subsection{Markers and analysis}
 For each sample we compute:
@@ -168,11 +177,12 @@ For each sample we compute:
   \item Condition-aggregated means/standard deviations.
   \item Basic entropy/coverage checks.
 \end{itemize}
+Lexicon construction and interpretation are anchored to established affective resources and psycholinguistic feature dictionaries (NRC Emotion Lexicon, VAD norms, and LIWC-style category analyses) to reduce ad-hoc marker drift and improve comparability across runs~\cite{mohammadturney2013, warriner2013vad, pennebaker2015liwc}.
 
 \section{Results}
 
 \subsection{Pipeline status}
-The automated system is running continuously, and key status values update through cron jobs (Figure~\ref{fig:progress}).
+At the time of this snapshot, the automated system was running and key status values were updated through cron jobs (Figure~\ref{fig:progress}); continuity should be interpreted as a sampled operational indicator, not as guaranteed uninterrupted uptime.
 
 \begin{figure}[t]
 \centering
@@ -202,7 +212,7 @@ The automated system is running continuously, and key status values update throu
 \toprule
 Metric & Value & Interpretation \\
 \midrule
-Mock samples (aggregate) & 71,530 & Stress-test corpus size\\
+Synthetic samples (aggregate) & 7,103,250 & Cumulative mock stress-test corpus size (automation log)\\
 Counterfactual mean & 0.2498 & Per sample (SD 0.1093)\\
 Regret-word mean & 0.2498 & Per sample (SD 0.1093)\\
 Pipeline availability & running & Cron-based automation active\\
@@ -212,22 +222,31 @@ Model realism & pending & Real-model experiments not yet started\\
 \end{table}
 
 \subsection{Inferential analysis plan with real-model outputs}
-For real-model outputs, we pre-register a three-factor design with factors: condition (deprivation framing), persona, and temperature.
-We model marker rate $y$ as a mixed-effects regression with crossed prompt-item effects:
+For real-model outputs, we specify a three-factor confirmatory design with factors: condition (deprivation framing), persona, and temperature.
+We model marker outcomes with generalized mixed-effects regression and crossed prompt-item effects: bounded marker rates are analyzed with binomial/logit models, while overdispersed count outcomes use negative-binomial/log models chosen via dispersion diagnostics.
 
 \begin{equation}
 \begin{split}
-    y_{ijkl} &= \beta_0 + \beta_1 C_i + \beta_2 P_j + \beta_3 T_k + \beta_4(C_i\times P_j) \\
-    &\quad + \beta_5(C_i\times T_k) + u_l + \epsilon_{ijkl}
+    g\!\left(E[y_{ijkl}]\right) &= \beta_0 + \beta_1 C_i + \beta_2 P_j + \beta_3 T_k + \beta_4(C_i\times P_j) \\
+    &\quad + \beta_5(C_i\times T_k) + u_l + v_j
 \end{split}
 \end{equation}
-where $C$, $P$, and $T$ represent condition, persona, and temperature, $u_l$ is a random intercept for scenario prompt $l$, and $\epsilon_{ijkl}$ is residual error.
-Primary confirmatory tests are Welch $t$-tests for paired contrasts and fixed-effects ANOVA equivalents with robust standard errors.
-Effect-size reporting follows Cohen's $d$ for pairwise contrasts and partial $\eta^2$ for factors.
+where $C$, $P$, and $T$ represent condition, persona, and temperature, $g(\cdot)$ is the link function, $u_l$ is a random intercept for scenario prompt $l$, and $v_j$ is a random intercept for persona template $j$.
+Primary inference therefore relies on generalized mixed-effects models with crossed random effects for scenario and persona; Welch $t$-tests are retained only as sensitivity checks on aggregated summaries. We explicitly avoid fixed-effects-only ANOVA where repeated-measures dependence is present.
+Effect-size reporting follows Cohen's $d$ (sensitivity summaries), odds/rate ratios for generalized models, and partial $\eta^2$ only for narrowly justified factor-wise summaries. To control multiplicity across markers and contrasts, we apply Benjamini--Hochberg false-discovery-rate correction. This conservative policy follows broader recommendations for robust and transparent LLM evaluation~\cite{liang2023helm, ganguli2022red, perez2022discover, barr2013, benjamini1995, raji2020audit}.
 
 \subsection{Current evidence status}
 As of this version, the full pipeline is implemented end-to-end, but the above inferential analyses are based on mock-data stress tests.
+Notably, the currently identical counterfactual and regret-word means reflect synthetic generator structure rather than an empirical equivalence claim.
 Thus statistical inferences are staged as pre-registered analysis code and will be finalized once real-model samples are collected.
+
+\subsection{Progress snapshot and manuscript implications (2026-03-23)}
+To keep the manuscript aligned with operational reality, we summarize concrete project state and how it constrains interpretation.
+First, continuous automation is active at one-minute cadence with explicit readiness gating and per-run manifests, which supports auditable execution history but does not by itself establish scientific validity.
+Second, the prompt bank has expanded to 454 scenarios and 316 personas, improving coverage breadth; however, broader coverage can also increase condition heterogeneity and must be paired with stricter analysis controls.
+Third, cumulative mock samples now exceed 7.1M records, which is useful for stress-testing orchestration and quality gates, but these outputs remain synthetic and cannot substitute for confirmatory real-model evidence.
+Fourth, literature retrieval currently provides a high-recall candidate pool (279 records) rather than a finalized inclusion corpus, so all claim-level citations in this draft are interpreted as scaffolding support, not definitive evidence closure.
+Accordingly, all major claims in this manuscript are framed as pipeline-validity claims, while behavioral claims are explicitly deferred to the real-model phase.
 
 \section{Discussion}
 This study currently demonstrates a reproducible research stack.
@@ -235,7 +254,9 @@ The primary contribution is not final behavioral claims, but an auditable system
 
 \subsection{Limitations}
 The current outputs are synthetic.
-Hence interpretations are provisional and should not be used as final psychological conclusions.
+The literature-screening quality score is also still in review status (0.0), indicating unresolved coverage and traceability constraints before any claim of evidence completeness.
+More broadly, our inference policy follows prior caution that fluent generation can exceed grounded understanding and amplify anthropomorphic over-reading~\cite{bender2021stochastic, weizenbaum1966eliza, reeves1996media}. We therefore treat marker shifts as behavioral signals under prompts, not latent-emotion measurements.
+Hence interpretations are provisional and should not be used as final psychological conclusions. In addition, our marker set is lexicon-dominant and can partially conflate regret-specific language with broader negative affect; future iterations should add semantic disambiguation, dimensional affect mapping, and human annotation calibration~\cite{wilson2005, russell1980, barrett2006, mohammadturney2013, warriner2013vad}.
 
 \section{Code and reproducibility}
 Replication scripts are in the repository. Key modules are listed in Table~\ref{tab:code}.
@@ -262,7 +283,7 @@ Script & Role \\
 \end{tabularx}
 \end{table}
 
-\section{Conclusion and next step}
+\section{Conclusion and next steps}
 We provide a pipeline-oriented framework for regret-like language studies in LLMs.
 Immediate next steps are to replace mock data with production model outputs, run stronger statistical tests, and finalize a gold-set-reviewed literature corpus.
 
