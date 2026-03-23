@@ -30,7 +30,11 @@
     "regret forecasting",
     "emotion regulation strategy",
     "cognitive reappraisal",
-    "emotion differentiation"
+    "emotion differentiation",
+    "decision affect theory",
+    "counterfactual simulation",
+    "post-decisional regret",
+    "emotion regulation flexibility"
   ],
   "high_priority": [
     "regret",
@@ -48,7 +52,9 @@
     "affective forecasting",
     "anticipated regret",
     "emotion regulation",
-    "emotional granularity"
+    "emotional granularity",
+    "counterfactual simulation",
+    "emotion regulation flexibility"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -74,7 +80,10 @@
     "experience sampling method",
     "ecological momentary assessment",
     "process tracing",
-    "think aloud protocol"
+    "think aloud protocol",
+    "micro-longitudinal",
+    "daily diary",
+    "multilevel modeling"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -243,6 +252,20 @@
       "counterfactual simulation",
       "counterfactual simulations",
       "mental simulation"
+    ],
+    "decision affect theory": [
+      "decision affect theory",
+      "decision-affect theory"
+    ],
+    "post-decisional regret": [
+      "post-decisional regret",
+      "postdecisional regret",
+      "decision regret"
+    ],
+    "emotion regulation flexibility": [
+      "emotion regulation flexibility",
+      "regulatory flexibility",
+      "adaptive regulation"
     ]
   },
   "weights": {
@@ -304,7 +327,10 @@
     "experience sampling method",
     "ecological momentary assessment",
     "process tracing",
-    "think aloud protocol"
+    "think aloud protocol",
+    "micro-longitudinal",
+    "daily diary",
+    "multilevel modeling"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {
