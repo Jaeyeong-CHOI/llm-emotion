@@ -77,7 +77,10 @@ recover_stale_lock() {
   local lock_pid="$1"
   echo "[tick] stale lock detected (pid=$lock_pid); recovering"
   clear_lock_dir
-  claim_lock_dir
+  if ! claim_lock_dir; then
+    echo "[tick] failed to re-claim lock after stale lock recovery" >&2
+    return 1
+  fi
 }
 
 acquire_lock() {
@@ -102,9 +105,7 @@ acquire_lock() {
 }
 
 if ! acquire_lock; then
-  echo "[tick] lock busy; another tick is running, skip"
-  refresh_status
-  exit 0
+  skip_with_status "lock busy; another tick is running"
 fi
 
 cleanup_lock() {
@@ -190,14 +191,24 @@ if ! is_safe_run_id "$RUN_ID"; then
   skip_with_status "invalid run-id format (${RUN_ID})"
 fi
 
+normalize_queue_run_id() {
+  local run_id="$1"
+  local canonical_run_id
+  canonical_run_id="$(canonical_line "$run_id")"
+
+  if ! is_queue_data_line "$canonical_run_id"; then
+    return 1
+  fi
+
+  printf '%s' "$canonical_run_id"
+}
+
 queue_contains_run_id() {
   local queue_file="$1"
   local run_id="$2"
   local canonical_run_id
-  canonical_run_id="$(canonical_line "$run_id")"
 
-  is_queue_data_line "$canonical_run_id" || return 1
-
+  canonical_run_id="$(normalize_queue_run_id "$run_id")" || return 1
   iter_queue_data_lines "$queue_file" | grep -Fqx -- "$canonical_run_id"
 }
 
@@ -205,9 +216,8 @@ enqueue_run_id_unique() {
   local queue_file="$1"
   local run_id="$2"
   local canonical_run_id
-  canonical_run_id="$(canonical_line "$run_id")"
 
-  is_queue_data_line "$canonical_run_id" || return 0
+  canonical_run_id="$(normalize_queue_run_id "$run_id")" || return 0
 
   touch "$queue_file"
   if queue_contains_run_id "$queue_file" "$canonical_run_id"; then
