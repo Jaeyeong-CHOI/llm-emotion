@@ -14,21 +14,24 @@ else
   exit 0
 fi
 
+refresh_status() {
+  python3 scripts/update_live_status.py >/tmp/research_tick_status.log 2>&1 || true
+  python3 scripts/research_status.py >/tmp/research_tick_research_status.log 2>&1 || true
+}
+
 echo "[tick] $(date -u +'%Y-%m-%dT%H:%M:%SZ') start"
 
 READY_LINE="$(python3 scripts/check_real_model_readiness.py | tr -d '\r' | head -n 1)"
 if [[ "$READY_LINE" != "ready=true" ]]; then
   echo "[tick] readiness=${READY_LINE}; skip execution"
-  python3 scripts/update_live_status.py >/tmp/research_tick_status.log 2>&1 || true
-  python3 scripts/research_status.py >/tmp/research_tick_research_status.log 2>&1 || true
+  refresh_status
   exit 0
 fi
 
 QUEUE_FILE="ops/continuous_run_ids.txt"
 if [ ! -f "$QUEUE_FILE" ] || [ ! -s "$QUEUE_FILE" ]; then
   echo "[tick] no queued run-id; skip"
-  python3 scripts/update_live_status.py >/tmp/research_tick_status.log 2>&1 || true
-  python3 scripts/research_status.py >/tmp/research_tick_research_status.log 2>&1 || true
+  refresh_status
   exit 0
 fi
 
@@ -54,7 +57,6 @@ python3 scripts/run_experiments.py \
   --budget-report-json "results/experiments/${RUN_ID}_auto_tick/budget_report.json" \
   --budget-report-md "results/experiments/${RUN_ID}_auto_tick/budget_report.md" || true
 
-python3 scripts/update_live_status.py
-python3 scripts/research_status.py
+refresh_status
 
 echo "[tick] done"
