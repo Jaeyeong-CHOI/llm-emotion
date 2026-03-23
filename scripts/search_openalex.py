@@ -1185,6 +1185,29 @@ def summarize_quality_queue(queue: List[Dict], key: str) -> Dict[str, int]:
     return dict(sorted(summary.items(), key=lambda x: (-x[1], x[0])))
 
 
+def build_manual_qc_payload(
+    ordered: List[Dict],
+    include_th: float,
+    review_th: float,
+    ranked_manual_qc_queue: List[Dict],
+    balanced_manual_qc_queue: List[Dict],
+    per_label_limit: int,
+    min_per_label: int,
+) -> Dict[str, object]:
+    return {
+        "manual_qc_queue": ranked_manual_qc_queue,
+        "manual_qc_queue_balanced": balanced_manual_qc_queue,
+        "manual_qc_queue_balanced_summary": summarize_manual_qc_queue(balanced_manual_qc_queue),
+        "manual_qc_queue_balanced_min_per_label": summarize_manual_qc_min_per_label(
+            balanced_manual_qc_queue, min_per_label
+        ),
+        "manual_qc_queue_risk_reason_summary": summarize_quality_queue(balanced_manual_qc_queue, "risk_reasons"),
+        "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
+            ordered, include_th, review_th, per_label_limit=per_label_limit
+        ),
+    }
+
+
 def summarize_missing_concept_groups(rows: List[Dict], rules: Dict) -> Dict[str, object]:
     groups = rules.get("required_concepts_any", [])
     group_summary = []
@@ -1425,15 +1448,14 @@ def main():
             "top_priority_titles": [r.get("title") for r in ordered[:10] if r.get("screening_priority") == "high"],
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
             "alias_gap_candidates": collect_alias_gap_candidates(ordered, include_th, review_th),
-            "manual_qc_queue": ranked_manual_qc_queue,
-            "manual_qc_queue_balanced": balanced_manual_qc_queue,
-            "manual_qc_queue_balanced_summary": summarize_manual_qc_queue(balanced_manual_qc_queue),
-            "manual_qc_queue_balanced_min_per_label": summarize_manual_qc_min_per_label(
-                balanced_manual_qc_queue, args.manual_qc_min_per_label
-            ),
-            "manual_qc_queue_risk_reason_summary": summarize_quality_queue(balanced_manual_qc_queue, "risk_reasons"),
-            "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
-                ordered, include_th, review_th, per_label_limit=args.manual_qc_per_label
+            **build_manual_qc_payload(
+                ordered,
+                include_th,
+                review_th,
+                ranked_manual_qc_queue,
+                balanced_manual_qc_queue,
+                per_label_limit=args.manual_qc_per_label,
+                min_per_label=args.manual_qc_min_per_label,
             ),
         }
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -1469,15 +1491,14 @@ def main():
             "borderline": collect_borderline(ordered, include_th, review_th),
             "quality_alerts": collect_quality_alerts(ordered, include_th, review_th),
             "alias_gap_candidates": collect_alias_gap_candidates(ordered, include_th, review_th),
-            "manual_qc_queue": ranked_manual_qc_queue,
-            "manual_qc_queue_balanced": balanced_manual_qc_queue,
-            "manual_qc_queue_balanced_summary": summarize_manual_qc_queue(balanced_manual_qc_queue),
-            "manual_qc_queue_balanced_min_per_label": summarize_manual_qc_min_per_label(
-                balanced_manual_qc_queue, args.manual_qc_min_per_label
-            ),
-            "manual_qc_queue_risk_reason_summary": summarize_quality_queue(balanced_manual_qc_queue, "risk_reasons"),
-            "manual_qc_queue_by_label": collect_manual_qc_queue_by_label(
-                ordered, include_th, review_th, per_label_limit=args.manual_qc_per_label
+            **build_manual_qc_payload(
+                ordered,
+                include_th,
+                review_th,
+                ranked_manual_qc_queue,
+                balanced_manual_qc_queue,
+                per_label_limit=args.manual_qc_per_label,
+                min_per_label=args.manual_qc_min_per_label,
             ),
             "exclude_high_score_without_llm": [
                 {
