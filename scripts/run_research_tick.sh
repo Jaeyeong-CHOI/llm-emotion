@@ -228,6 +228,37 @@ iter_queue_lines() {
   done < "$queue_file"
 }
 
+
+dedupe_queue_file() {
+  local queue_file="$1"
+  local tmp_file=""
+  local raw_line=""
+  local canonical=""
+  local normalized=""
+
+  [ -f "$queue_file" ] || return 0
+  tmp_file="$(mktemp "${queue_file}.dedupe.XXXXXX")"
+
+  while IFS= read -r raw_line || [ -n "$raw_line" ]; do
+    canonical="$(canonicalize_queue_line "$raw_line" || true)"
+    [ -n "$canonical" ] || continue
+
+    normalized="$(normalize_queue_run_id "$canonical" || true)"
+    [ -n "$normalized" ] || continue
+
+    if ! grep -Fxq "$normalized" "$tmp_file" 2>/dev/null; then
+      printf '%s\n' "$normalized" >> "$tmp_file"
+    fi
+  done < "$queue_file"
+
+  if [ -f "$tmp_file" ]; then
+    if ! cmp -s "$queue_file" "$tmp_file" 2>/dev/null; then
+      mv "$tmp_file" "$queue_file"
+    else
+      rm -f "$tmp_file"
+    fi
+  fi
+}
 dequeue_run_id() {
   local queue_file="$1"
   local tmp_file=""
@@ -264,6 +295,8 @@ dequeue_run_id() {
 
   printf '%s' "$picked"
 }
+
+dedupe_queue_file "$QUEUE_FILE"
 
 if ! RUN_ID="$(dequeue_run_id "$QUEUE_FILE")"; then
   skip_with_status "failed to dequeue run-id"
