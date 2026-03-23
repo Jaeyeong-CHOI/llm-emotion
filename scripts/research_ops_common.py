@@ -8,6 +8,7 @@ import datetime as dt
 import json
 import os
 import tempfile
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
@@ -20,13 +21,15 @@ def display_value(value: Any, default: str = "-") -> str:
 
 def _normalize_token_set(values: Any) -> set[str]:
     """Normalize an arbitrary token-like container into a unique string set."""
-    if not values:
+    if values is None:
         return set()
 
     if isinstance(values, str):
         tokens = values.split(",")
-    elif isinstance(values, (list, tuple, set)):
-        tokens = values
+    elif isinstance(values, dict):
+        return set()
+    elif isinstance(values, Iterable):
+        tokens = list(values)
     else:
         return set()
 
