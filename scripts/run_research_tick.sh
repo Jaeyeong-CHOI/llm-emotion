@@ -232,13 +232,10 @@ if ! RUN_ID="$(normalize_queue_run_id "$RUN_ID")"; then
   skip_with_status "invalid run-id format (${RUN_ID})"
 fi
 
-queue_contains_run_id() {
+queue_contains_canonical_run_id() {
   local queue_file="$1"
-  local run_id="$2"
-  local canonical_run_id
+  local canonical_run_id="$2"
   local queued_run_id=""
-
-  canonical_run_id="$(normalize_queue_run_id "$run_id")" || return 1
 
   while IFS= read -r queued_run_id; do
     if [ "$queued_run_id" = "$canonical_run_id" ]; then
@@ -257,7 +254,7 @@ enqueue_run_id_unique() {
   canonical_run_id="$(normalize_queue_run_id "$run_id")" || return 0
 
   touch "$queue_file"
-  if queue_contains_run_id "$queue_file" "$canonical_run_id"; then
+  if queue_contains_canonical_run_id "$queue_file" "$canonical_run_id"; then
     return 0
   fi
 
