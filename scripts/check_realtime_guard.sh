@@ -13,15 +13,27 @@ load_research_env
 run_step() {
   local index="$1"
   local label="$2"
-  shift 2
+  local command="$3"
+  local idx_total="$4"
 
-  printf "[%s/4] %s\n" "$index" "$label"
-  "$@"
+  printf "[%s/%s] %s\n" "$index" "$idx_total" "$label"
+  bash -lc "$command"
 }
 
-run_step 1 "real model readiness check" python3 scripts/check_real_model_readiness.py
-run_step 2 "cron snapshot refresh" python3 scripts/snapshot_cron_status.py
-run_step 3 "live status refresh" python3 scripts/update_live_status.py
-run_step 4 "research status" python3 scripts/research_status.py
+STEPS=(
+  "real model readiness check|python3 scripts/check_real_model_readiness.py"
+  "cron snapshot refresh|python3 scripts/snapshot_cron_status.py"
+  "live status refresh|python3 scripts/update_live_status.py"
+  "research status|python3 scripts/research_status.py"
+)
 
-echo "\nDone."
+TOTAL_STEPS="${#STEPS[@]}"
+
+for i in "${!STEPS[@]}"; do
+  step="${STEPS[$i]}"
+  label="${step%%|*}"
+  cmd="${step#*|}"
+  run_step "$((i + 1))" "$label" "$cmd" "$TOTAL_STEPS"
+done
+
+printf "\nDone.\n"
