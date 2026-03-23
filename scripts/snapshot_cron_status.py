@@ -38,11 +38,11 @@ CRON_TARGETS = [
 
 def run_cron_list() -> str:
     p = subprocess.run(
-        "openclaw cron list --json",
+        ["openclaw", "cron", "list", "--json"],
         cwd=ROOT,
-        shell=True,
         text=True,
         capture_output=True,
+        check=False,
     )
     if p.returncode != 0:
         raise RuntimeError(p.stderr.strip() or "openclaw cron list failed")
