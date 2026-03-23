@@ -1,5 +1,10 @@
 # Research Ops Playbook
 
+## Latest update (v135)
+- `scripts/build_screening_triage_plan.py`가 게이트 실패를 단순 나열하지 않고 `severity_score`(관측치-임계치 상대 이탈)와 `hotspot_hint`를 함께 계산해, 수동 triage 순서를 더 안정적으로 제시한다.
+- `scripts/run_experiments_with_profile.py` + `ops/runner_guardrail_profile.json`를 추가해, 반복 입력 없이 동일 guardrail 세트로 `run_experiments.py`를 실행/재현할 수 있다.
+- `prompts/prompt_bank_ko.json`을 `v135.0`으로 올리고 screening unknown-year/duplicate-title 대응 시나리오 2개, 운영 페르소나 2개를 확장했다.
+
 ## Continuous loop
 1. Run literature sync with report output.
 2. Update evidence table.

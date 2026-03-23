@@ -19,7 +19,13 @@ class Gate:
     threshold: str
 
 
-def load_gates(path: Path) -> list[Gate]:
+@dataclass
+class Hotspot:
+    key: str
+    value: object
+
+
+def load_report(path: Path) -> tuple[list[Gate], list[Hotspot]]:
     data = json.loads(path.read_text(encoding="utf-8"))
     gates = []
     for row in data.get("gates", []):
@@ -31,7 +37,17 @@ def load_gates(path: Path) -> list[Gate]:
                 threshold=str(row.get("threshold", "")),
             )
         )
-    return gates
+    raw_hotspots = data.get("hotspots") or {}
+    hotspots: list[Hotspot] = []
+    if isinstance(raw_hotspots, dict):
+        hotspots = [Hotspot(key=str(k), value=v) for k, v in raw_hotspots.items()]
+    elif isinstance(raw_hotspots, list):
+        for idx, row in enumerate(raw_hotspots):
+            if isinstance(row, dict) and "key" in row:
+                hotspots.append(Hotspot(key=str(row.get("key")), value=row.get("value")))
+            else:
+                hotspots.append(Hotspot(key=f"hotspot_{idx}", value=row))
+    return gates, hotspots
 
 
 def priority_for(gate_name: str) -> tuple[int, str]:
@@ -45,10 +61,69 @@ def priority_for(gate_name: str) -> tuple[int, str]:
     return (4, "기타 품질 게이트")
 
 
-def build_actions(failed_gates: Iterable[Gate]) -> list[dict]:
+def _to_float(value: object) -> float | None:
+    try:
+        if value is None:
+            return None
+        return float(str(value).strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_threshold(threshold: str) -> tuple[str, float | None]:
+    text = (threshold or "").strip()
+    if not text:
+        return "", None
+    for op in (">=", "<=", ">", "<", "="):
+        if text.startswith(op):
+            return op, _to_float(text[len(op) :].strip())
+    return "", _to_float(text)
+
+
+def severity_score(observed: object, threshold: str) -> float:
+    op, target = _parse_threshold(threshold)
+    obs = _to_float(observed)
+    if target is None or obs is None:
+        return 0.5
+    if op in {">=", ">"}:
+        gap = max(0.0, target - obs)
+        return round(gap / max(abs(target), 1e-6), 4)
+    if op in {"<=", "<"}:
+        gap = max(0.0, obs - target)
+        return round(gap / max(abs(target), 1e-6), 4)
+    return 0.5
+
+
+def top_hotspot_hint(hotspots: list[Hotspot], gate_name: str) -> str:
+    n = gate_name
+    if "unknown_year" in n:
+        key = "review_unknown_year_queries"
+    elif "duplicate_title" in n:
+        key = "duplicate_title_examples"
+    elif "screening_reason" in n:
+        key = "top_screening_reasons"
+    elif "risk_reason" in n:
+        key = "top_qc_risk_reasons"
+    else:
+        key = ""
+
+    if key:
+        for hotspot in hotspots:
+            if hotspot.key == key:
+                value = hotspot.value
+                if isinstance(value, list) and value:
+                    return f"{key} 상위: {value[0]}"
+                if isinstance(value, dict) and value:
+                    first_key = next(iter(value))
+                    return f"{key} 상위: {first_key}={value[first_key]}"
+    return "핫스팟 근거를 확인해 수동 점검"
+
+
+def build_actions(failed_gates: Iterable[Gate], hotspots: list[Hotspot]) -> list[dict]:
     out = []
     for gate in failed_gates:
         p_rank, p_label = priority_for(gate.name)
+        sev = severity_score(gate.observed, gate.threshold)
         if p_rank == 1:
             action = "manual_qc_queue.csv 재샘플링 + unknown-year provenance backfill"
         elif p_rank == 2:
@@ -61,13 +136,15 @@ def build_actions(failed_gates: Iterable[Gate]) -> list[dict]:
             {
                 "priority_rank": p_rank,
                 "priority": p_label,
+                "severity_score": sev,
                 "gate": gate.name,
                 "observed": gate.observed,
                 "threshold": gate.threshold,
+                "hotspot_hint": top_hotspot_hint(hotspots, gate.name),
                 "recommended_action": action,
             }
         )
-    out.sort(key=lambda x: (x["priority_rank"], x["gate"]))
+    out.sort(key=lambda x: (x["priority_rank"], -x["severity_score"], x["gate"]))
     return out
 
 
@@ -84,11 +161,11 @@ def render_markdown(actions: list[dict]) -> str:
         lines.append("모든 gate가 통과해 triage 액션이 필요하지 않습니다.")
         return "\n".join(lines) + "\n"
 
-    lines.append("| priority | gate | observed | threshold | action |")
-    lines.append("|---|---|---:|---|---|")
+    lines.append("| priority | severity | gate | observed | threshold | hotspot | action |")
+    lines.append("|---|---:|---|---:|---|---|---|")
     for row in actions:
         lines.append(
-            f"| {row['priority']} | `{row['gate']}` | `{row['observed']}` | `{row['threshold']}` | {row['recommended_action']} |"
+            f"| {row['priority']} | {row['severity_score']} | `{row['gate']}` | `{row['observed']}` | `{row['threshold']}` | {row['hotspot_hint']} | {row['recommended_action']} |"
         )
     return "\n".join(lines) + "\n"
 
@@ -101,9 +178,9 @@ def main() -> int:
     args = ap.parse_args()
 
     input_path = Path(args.input_path)
-    gates = load_gates(input_path)
+    gates, hotspots = load_report(input_path)
     failed = [g for g in gates if g.status.lower() not in {"pass", "ok"}]
-    actions = build_actions(failed)
+    actions = build_actions(failed, hotspots)
 
     payload = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),

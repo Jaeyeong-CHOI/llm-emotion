@@ -1,5 +1,5 @@
 {
-  "version": "v134.0",
+  "version": "v135.0",
   "language": "ko",
   "scenarios": [
     {
@@ -6210,6 +6210,46 @@
         "v134"
       ],
       "prompt": "실험 러너 preflight에서 p99/p50는 통과하지만 p99/p45 비율이 과도하게 벌어지는 배치를 탐지하라. 상단 tail 가속을 재분배 전 단계에서 차단하는 임계치와 재개 승인 규칙을 운영 메모로 정리하라."
+    },
+    {
+      "id": "screening_unknown_year_bridge_repair_v135",
+      "label": "systematic_review",
+      "text": "체계적 문헌검토 1차 스크리닝에서 year=unknown 논문이 review 큐에 과도하게 몰렸다. query overlap만으로는 포함 결정을 내리기 어렵고, bridge 문장(traceability)을 보강해야 한다. 우선순위와 근거를 설명하라.",
+      "tags": [
+        "screening_quality",
+        "unknown_year",
+        "traceability",
+        "triage"
+      ],
+      "domains": [
+        "research_ops",
+        "systematic_review"
+      ],
+      "emotion_axes": [
+        "anxiety",
+        "confidence"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "screening_duplicate_title_conflict_v135",
+      "label": "systematic_review",
+      "text": "동일 제목/유사 제목 논문이 수동 QC 큐에 반복되어 dedup label conflict가 늘었다. 어떤 증거를 먼저 확인해 중복/상이 연구를 구분할지 단계별로 제시하라.",
+      "tags": [
+        "screening_quality",
+        "dedup",
+        "duplicate_title",
+        "evidence_chain"
+      ],
+      "domains": [
+        "research_ops",
+        "data_quality"
+      ],
+      "emotion_axes": [
+        "frustration",
+        "control"
+      ],
+      "difficulty": "medium"
     }
   ],
   "personas": [
@@ -9253,6 +9293,28 @@
         "governance"
       ],
       "temperature_bias": "low"
+    },
+    {
+      "id": "unknown_year_auditor_v135",
+      "name": "Unknown-year 감사자",
+      "description": "연도 불명 문헌의 provenance와 traceability를 집요하게 확인하는 감사자",
+      "style_tags": [
+        "audit",
+        "evidence_first",
+        "skeptical",
+        "calm"
+      ]
+    },
+    {
+      "id": "runner_budget_guard_v135",
+      "name": "러너 예산 감시자",
+      "description": "run-id별 시도/재시도 점유율과 실패 스트릭을 추적해 실험 쏠림을 막는 운영자",
+      "style_tags": [
+        "operations",
+        "risk_control",
+        "quantitative",
+        "direct"
+      ]
     }
   ],
   "temperatures": [

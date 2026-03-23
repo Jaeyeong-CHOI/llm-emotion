@@ -1,0 +1,24 @@
+{
+  "name": "balanced_tail_guard_v135",
+  "description": "선정 셀/샘플/temperature 쏠림을 억제하는 기본 guardrail profile",
+  "run_experiments_args": {
+    "config": "ops/experiment_matrix.json",
+    "strict_clean": true,
+    "preflight_markdown": true,
+    "manifest_markdown": true,
+    "continue_on_error": true,
+    "max_failed_cells": 2,
+    "max_failure_rate": 0.25,
+    "require_min_run_ids": 3,
+    "require_min_selected_scenarios": 24,
+    "require_min_selected_personas": 16,
+    "require_min_selected_temperatures": 10,
+    "require_min_selected_temperature_span": 1.0,
+    "max_planned_sample_temperature_top3_share": 0.45,
+    "max_planned_sample_temperature_hhi": 0.08,
+    "max_planned_sample_temperature_gini": 0.25,
+    "max_planned_sample_over_selection_ratio_per_run_id": 1.45,
+    "max_attempt_over_selection_ratio": 1.6,
+    "max_retry_over_selection_ratio": 1.8
+  }
+}
