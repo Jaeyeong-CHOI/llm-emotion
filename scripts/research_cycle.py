@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import os
 import subprocess
 from collections.abc import Sequence
 
@@ -13,10 +14,17 @@ from research_ops_common import (
 )
 
 PYTHON_CMD = "python3"
+DEFAULT_STEP_TIMEOUT_SECONDS = int(os.environ.get("LLM_EMOTION_STEP_TIMEOUT_SECONDS", "900"))
 
 
-def run(cmd: Sequence[str]):
-    p = subprocess.run(cmd, cwd=ROOT, text=True, capture_output=True)
+def run(cmd: Sequence[str], timeout_seconds: int = DEFAULT_STEP_TIMEOUT_SECONDS):
+    p = subprocess.run(
+        cmd,
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+        timeout=timeout_seconds,
+    )
     return p.returncode, p.stdout, p.stderr
 
 
@@ -27,7 +35,19 @@ def _py(step_name: str, *args: str) -> list[str]:
 
 
 def run_step(state: dict, name: str, cmd: Sequence[str]):
-    code, out, err = run(cmd)
+    try:
+        code, out, err = run(cmd)
+    except subprocess.TimeoutExpired as exc:
+        state["last_error"] = {
+            "step": name,
+            "code": 124,
+            "stderr": f"timeout after {exc.timeout}s",
+        }
+        append_note(state, f"FAILED {name}: timeout after {exc.timeout}s")
+        save_research_state(state)
+        print(f"[FAIL] {name} timeout after {exc.timeout}s")
+        return 124, "", f"timeout after {exc.timeout}s"
+
     if code != 0:
         state["last_error"] = {
             "step": name,
