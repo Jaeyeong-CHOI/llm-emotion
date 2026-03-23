@@ -271,18 +271,20 @@ cleanup_on_exit() {
 }
 trap cleanup_on_exit EXIT
 
+capture_script_output() {
+  local script_path="$1"
+  local output=""
+
+  output="$(python3 "$script_path" 2>&1)" || return 1
+  printf '%s' "$output"
+}
+
 read_readiness_line() {
   local raw_line=""
-  local tmp_file=""
+  local readiness_output=""
 
-  tmp_file="$(mktemp)"
-  if ! python3 scripts/check_real_model_readiness.py > "$tmp_file" 2>&1; then
-    rm -f "$tmp_file"
-    return 1
-  fi
-
-  raw_line="$(awk '/^ready=/{print $0; exit}' "$tmp_file")"
-  rm -f "$tmp_file"
+  readiness_output="$(capture_script_output scripts/check_real_model_readiness.py)" || return 1
+  raw_line="$(awk '/^ready=/{print $0; exit}' <<< "$readiness_output")"
 
   [ -n "$raw_line" ] || return 1
   printf '%s' "$(normalize_text "$raw_line")"
