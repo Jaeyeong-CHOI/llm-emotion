@@ -490,31 +490,40 @@ materialize_sanitized_queue() {
   iter_queue_lines "$queue_file" > "$out_file"
 }
 
-dedupe_queue_file() {
+replace_queue_if_needed() {
   local queue_file="$1"
-  local dedup_file=""
+  local tmp_file="$2"
 
-  ensure_queue_file_safe "$queue_file" 1 || return 1
-  dedup_file="$(with_materialized_queue_tmp "$queue_file" dedupe)" || return 1
-
-  if ! awk '{ if (!seen[$0]++) print $0 }' "$dedup_file" > "${dedup_file}.deduped"; then
-    cleanup_tmp_files "$dedup_file" "${dedup_file}.deduped"
-    return 1
-  fi
-
-  if ! replace_if_changed "$queue_file" "${dedup_file}.deduped"; then
-    cleanup_tmp_files "$dedup_file" "${dedup_file}.deduped"
+  if ! replace_if_changed "$queue_file" "$tmp_file"; then
+    rm -f "$tmp_file"
     return 0
   fi
 
-  cleanup_tmp_files "$dedup_file" "${dedup_file}.deduped"
+  return 0
+}
+
+dedupe_queue_file() {
+  local queue_file="$1"
+  local dedup_file=""
+  local deduped_file=""
+
+  ensure_queue_file_safe "$queue_file" 1 || return 1
+  dedup_file="$(with_materialized_queue_tmp "$queue_file" dedupe)" || return 1
+  deduped_file="${dedup_file}.deduped"
+
+  if ! awk '{ if (!seen[$0]++) print $0 }' "$dedup_file" > "$deduped_file"; then
+    cleanup_tmp_files "$dedup_file" "$deduped_file"
+    return 1
+  fi
+
+  replace_queue_if_needed "$queue_file" "$deduped_file" || return 1
+  cleanup_tmp_files "$dedup_file"
 }
 dequeue_run_id() {
   local queue_file="$1"
   local tmp_file=""
   local next_file=""
   local picked=""
-  local rc=0
 
   ensure_queue_file_safe "$queue_file" 1 || return 1
 
@@ -529,17 +538,16 @@ dequeue_run_id() {
   picked="$(sed -n '1p' "$tmp_file")"
   if [ -n "$picked" ]; then
     if ! sed -n '2,$p' "$tmp_file" > "$next_file"; then
-      rc=1
-    elif ! replace_if_changed "$queue_file" "$next_file"; then
-      rc=1
+      cleanup_tmp_files "$tmp_file" "$next_file"
+      return 1
+    fi
+    if ! replace_queue_if_needed "$queue_file" "$next_file"; then
+      cleanup_tmp_files "$tmp_file" "$next_file"
+      return 1
     fi
   fi
 
   cleanup_tmp_files "$tmp_file" "$next_file"
-  if [ "$rc" -ne 0 ]; then
-    return 1
-  fi
-
   printf '%s' "$picked"
 }
 
