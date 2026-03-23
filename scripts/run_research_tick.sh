@@ -176,7 +176,9 @@ dequeue_run_id() {
   printf '%s' "$picked"
 }
 
-RUN_ID="$(dequeue_run_id "$QUEUE_FILE")"
+if ! RUN_ID="$(dequeue_run_id "$QUEUE_FILE")"; then
+  skip_with_status "failed to dequeue run-id"
+fi
 
 if [ -z "$RUN_ID" ]; then
   skip_with_status "no queued run-id"
