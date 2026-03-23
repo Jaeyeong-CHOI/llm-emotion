@@ -3,6 +3,10 @@
 ## Purpose
 `scripts/check_screening_quality.py` reads the latest literature screening report, audit bundle, and manual QC CSV, then emits a compact gate-check report for reproducible reviewer handoff.
 
+## Latest update (v123)
+- `unknown-year known-query query-group top15` 절대 share/글로벌 대비 ratio 게이트를 추가해, top14까지 통과한 review 큐에서도 남는 누적 과점을 조기 차단한다.
+- 재현 스모크 기준 입력은 `results/lit_search_report.json`, `results/lit_screening_audit.json`, `results/manual_qc_queue.csv`이며 출력은 `results/screening_quality_report_v123.json`, `results/screening_quality_report_v123.md`로 분리 저장한다.
+
 ## Inputs
 - `results/lit_search_report.json`
 - `results/lit_screening_audit.json`
@@ -64,6 +68,8 @@ python3 scripts/check_screening_quality.py \
 - `manual_qc_review_traceable_known_query_year_top2_share <= 0.90` (연도 분포 상위 2개 연도 과점 여부를 별도로 점검)
 - `manual_qc_review_traceable_known_query_year_top3_share <= 0.95` (상위 3개 연도까지 과점되는 패턴을 추가로 차단)
 - `manual_qc_review_traceable_known_query_year_tail_share >= 0.10` (older year tail 근거가 최소 비율 이상 유지되는지 점검)
+- `manual_qc_review_traceable_known_query_unknown_year_group_top15_share <= 1.00` (unknown-year known-query query-group 상위 15개 누적 과점 여부를 점검)
+- `manual_qc_review_traceable_known_query_unknown_year_group_top15_over_global_group_top15_ratio <= 1.00` (global known-query group 분포 대비 상위 15개가 더 과열되는지 점검)
 - `manual_qc_review_traceable_known_query_unknown_year_top1_query_share <= 0.65` (year=unknown 구간이 단일 query에 과점되는지 점검)
 - `manual_qc_review_traceable_known_query_unknown_year_query_coverage >= 2` (year=unknown 구간에서도 최소 query 다양성 유지)
 - `manual_qc_review_traceable_known_query_unknown_year_query_entropy >= 0.35` (year=unknown query 분포 entropy 하한)
