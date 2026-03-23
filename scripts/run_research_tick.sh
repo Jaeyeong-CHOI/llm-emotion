@@ -405,6 +405,20 @@ make_queue_temp_file() {
   mktemp "${queue_file}.${suffix}.XXXXXX"
 }
 
+with_materialized_queue_tmp() {
+  local queue_file="$1"
+  local suffix="$2"
+  local sanitized_tmp=""
+
+  sanitized_tmp="$(make_queue_temp_file "$queue_file" "$suffix")"
+  if ! materialize_sanitized_queue "$queue_file" "$sanitized_tmp"; then
+    cleanup_tmp_files "$sanitized_tmp"
+    return 1
+  fi
+
+  printf '%s' "$sanitized_tmp"
+}
+
 replace_if_changed() {
   local queue_file="$1"
   local tmp_file="$2"
@@ -443,12 +457,7 @@ dedupe_queue_file() {
   local dedup_file=""
 
   ensure_queue_file_safe "$queue_file" 1 || return 1
-  dedup_file="$(make_queue_temp_file "$queue_file" dedupe)"
-
-  if ! materialize_sanitized_queue "$queue_file" "$dedup_file"; then
-    cleanup_tmp_files "$dedup_file"
-    return 1
-  fi
+  dedup_file="$(with_materialized_queue_tmp "$queue_file" dedupe)" || return 1
 
   if ! awk '{ if (!seen[$0]++) print $0 }' "$dedup_file" > "${dedup_file}.deduped"; then
     cleanup_tmp_files "$dedup_file" "${dedup_file}.deduped"
@@ -476,19 +485,15 @@ dequeue_run_id() {
     return 0
   fi
 
-  tmp_file="$(make_queue_temp_file "$queue_file" dequeue)"
+  tmp_file="$(with_materialized_queue_tmp "$queue_file" dequeue)" || return 1
   next_file="${tmp_file}.next"
 
-  if ! materialize_sanitized_queue "$queue_file" "$tmp_file"; then
-    rc=1
-  else
-    picked="$(sed -n '1p' "$tmp_file")"
-    if [ -n "$picked" ]; then
-      if ! sed -n '2,$p' "$tmp_file" > "$next_file"; then
-        rc=1
-      elif ! replace_if_changed "$queue_file" "$next_file"; then
-        rc=1
-      fi
+  picked="$(sed -n '1p' "$tmp_file")"
+  if [ -n "$picked" ]; then
+    if ! sed -n '2,$p' "$tmp_file" > "$next_file"; then
+      rc=1
+    elif ! replace_if_changed "$queue_file" "$next_file"; then
+      rc=1
     fi
   fi
 
