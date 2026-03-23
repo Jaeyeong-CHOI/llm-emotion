@@ -105,12 +105,23 @@ trim_whitespace() {
   sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
+read_file_first_line() {
+  local file="$1"
+
+  head -n 1 "$file" 2>/dev/null || return 1
+}
+
 read_lock_pid_file() {
   local pid_file="$1"
+  local raw_pid=""
   local pid=""
 
   [ -f "$pid_file" ] || return 1
-  pid="$(head -n 1 "$pid_file" 2>/dev/null | normalize_text || true)"
+  raw_pid="$(read_file_first_line "$pid_file" || true)"
+  [ -n "$raw_pid" ] || return 1
+
+  pid="$(printf '%s' "$raw_pid" | normalize_text || true)"
+  [ -n "$pid" ] || return 1
   printf '%s' "$pid"
 }
 
@@ -214,15 +225,16 @@ acquire_lock() {
 
   local lock_pid=""
   if [ -f "$LOCK_PID_FILE" ]; then
-    lock_pid="$(read_lock_pid_file "$LOCK_PID_FILE" || true)"
-  fi
-
-  if [ -n "$lock_pid" ]; then
-    if ! lock_pid_is_active_tick_owner "$lock_pid"; then
-      if recover_stale_lock "$lock_pid"; then
-        LOCK_ACQUIRED=1
-        return 0
+    if lock_pid="$(read_lock_pid_file "$LOCK_PID_FILE" || true)"; then
+      if ! lock_pid_is_active_tick_owner "$lock_pid"; then
+        if recover_stale_lock "$lock_pid"; then
+          LOCK_ACQUIRED=1
+          return 0
+        fi
       fi
+    elif recover_stale_lock ""; then
+      LOCK_ACQUIRED=1
+      return 0
     fi
   elif is_stale_lock_dir; then
     if recover_stale_lock ""; then
