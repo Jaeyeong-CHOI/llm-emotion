@@ -3080,6 +3080,32 @@
         "p99_p40_tripwire_operator_v137",
         "evidence_seeking"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_top25_p99_p35_v138",
+      "description": "v13.8 unknown-year group top25+entropy backstop + protocol-bias countervoice mesh + runner p99/p35 repro-lock tripwire smoke",
+      "n": 6,
+      "seed": 138,
+      "repeats": 1,
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top25_entropy_backstop_v138",
+        "prompt_bank_countervoice_protocol_bias_mesh_v138",
+        "runner_temperature_p99_p35_reprolock_tripwire_v138"
+      ],
+      "persona_ids": [
+        "unknown_year_group_top25_entropy_steward_v138",
+        "protocol_bias_countervoice_curator_v138",
+        "p99_p35_reprolock_operator_v138",
+        "evidence_seeking"
+      ]
     }
   ]
 }

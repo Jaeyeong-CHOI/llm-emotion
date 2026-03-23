@@ -58,7 +58,15 @@
     "emotion schema",
     "risk of bias",
     "prisma",
-    "evidence synthesis"
+    "evidence synthesis",
+    "emotion causality",
+    "counterfactual explanation",
+    "regret sensitivity",
+    "emotion robustness",
+    "evidence triangulation",
+    "protocol deviation",
+    "reporting bias",
+    "open science"
   ],
   "high_priority": [
     "regret",
@@ -93,7 +101,12 @@
     "emotion schema",
     "risk of bias",
     "prisma",
-    "evidence synthesis"
+    "evidence synthesis",
+    "emotion causality",
+    "counterfactual explanation",
+    "regret sensitivity",
+    "emotion robustness",
+    "evidence triangulation"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -141,7 +154,13 @@
     "construct validity",
     "risk of bias",
     "prisma",
-    "evidence synthesis"
+    "evidence synthesis",
+    "registered protocol",
+    "protocol deviation",
+    "reporting bias",
+    "triangulation",
+    "open science",
+    "replication package"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -465,6 +484,46 @@
       "evidence synthesis",
       "systematic evidence synthesis",
       "meta-synthesis"
+    ],
+    "emotion causality": [
+      "emotion causality",
+      "causal emotion modeling",
+      "emotion causal inference"
+    ],
+    "counterfactual explanation": [
+      "counterfactual explanation",
+      "counterfactual explanations",
+      "contrastive explanation"
+    ],
+    "regret sensitivity": [
+      "regret sensitivity",
+      "sensitivity to regret",
+      "regret calibration"
+    ],
+    "emotion robustness": [
+      "emotion robustness",
+      "affective robustness",
+      "emotion stability"
+    ],
+    "evidence triangulation": [
+      "evidence triangulation",
+      "method triangulation",
+      "triangulated evidence"
+    ],
+    "reporting bias": [
+      "reporting bias",
+      "selective reporting",
+      "outcome reporting bias"
+    ],
+    "protocol deviation": [
+      "protocol deviation",
+      "deviation from protocol",
+      "analysis protocol deviation"
+    ],
+    "open science": [
+      "open science",
+      "open-science",
+      "transparent research"
     ]
   },
   "weights": {
@@ -549,7 +608,13 @@
     "many-analyst",
     "risk of bias assessment",
     "prisma flow diagram",
-    "systematic evidence synthesis"
+    "systematic evidence synthesis",
+    "registered protocol",
+    "protocol deviation",
+    "reporting bias",
+    "triangulation",
+    "open science checklist",
+    "replication package"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {

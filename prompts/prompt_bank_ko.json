@@ -1,5 +1,5 @@
 {
-  "version": "v137.0",
+  "version": "v138.0",
   "language": "ko",
   "scenarios": [
     {
@@ -6388,6 +6388,55 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 러너 preflight에서 top-k guard는 통과했지만 p99/p40 temperature share ratio가 급등해 배치 다양성이 붕괴될 뻔한 사건을 7~10문장으로 회고하라. 어떤 run-id가 과열을 만들었는지, p99/p40 임계치와 fail-fast 기준, repro-lock 확인 후 재개 조건을 수치 중심으로 정리하라."
+    },
+    {
+      "id": "screening_unknown_year_group_top25_entropy_backstop_v138",
+      "label": "screening unknown-year group top25 entropy backstop",
+      "category": "screening",
+      "difficulty": "hard",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "top25",
+        "entropy",
+        "backstop",
+        "traceability"
+      ],
+      "prompt": "manual QC review traceable known-query에서 unknown-year query-group top25 누적 비율은 통과했지만 entropy/effective-count가 다시 흔들리는 상황을 진단하라. top24 대비 top25 증가분이 어떤 그룹에 몰렸는지 설명하고, 다음 라운드에서 우선 보강할 query-group 재배치 규칙을 수치와 함께 제시하라.",
+      "source": "synthetic"
+    },
+    {
+      "id": "prompt_bank_countervoice_protocol_bias_mesh_v138",
+      "label": "prompt bank countervoice protocol-bias mesh",
+      "category": "prompt_bank",
+      "difficulty": "hard",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "protocol",
+        "reporting_bias",
+        "triangulation",
+        "open_science"
+      ],
+      "prompt": "프롬프트 뱅크에서 countervoice를 구성할 때 protocol deviation·reporting bias·evidence triangulation 점검 문장을 함께 엮어라. 동일한 근거 반복은 줄이고, 반례 탐색-방법론 점검-재현성 체크가 균형을 이루는 mesh patch를 설계하라.",
+      "source": "synthetic"
+    },
+    {
+      "id": "runner_temperature_p99_p35_reprolock_tripwire_v138",
+      "label": "runner temperature p99/p35 repro-lock tripwire",
+      "category": "runner",
+      "difficulty": "hard",
+      "tags": [
+        "runner",
+        "temperature",
+        "p99_p35",
+        "repro_lock",
+        "tripwire",
+        "budget"
+      ],
+      "prompt": "실험 러너 preflight에서 p99/p40은 통과했지만 p99/p35 비율이 급등해 tail 가속이 남는 배치를 회고하라. repro-lock artifact를 근거로 중단 기준, 재시도 정책, 다음 실행의 temperature budget 재할당안을 7~10문장으로 제시하라.",
+      "source": "synthetic"
     }
   ],
   "personas": [
@@ -9516,6 +9565,45 @@
         "tripwire",
         "fail_fast"
       ]
+    },
+    {
+      "id": "unknown_year_group_top25_entropy_steward_v138",
+      "label": "unknown-year group top25 entropy steward",
+      "prompt_style": "unknown-year review 큐에서 query-group top25 누적 비율과 entropy/effective-count를 함께 감시해 과점 복귀를 조기에 차단한다.",
+      "traits": [
+        "screening",
+        "entropy",
+        "unknown_year",
+        "group_balance",
+        "traceability"
+      ],
+      "source": "synthetic"
+    },
+    {
+      "id": "protocol_bias_countervoice_curator_v138",
+      "label": "protocol-bias countervoice curator",
+      "prompt_style": "countervoice에 protocol deviation·reporting bias·triangulation 질문을 우선 배치해 방법론적 편향을 드러내고 재현성 근거를 강화한다.",
+      "traits": [
+        "prompt_bank",
+        "countervoice",
+        "methodology",
+        "bias_control",
+        "open_science"
+      ],
+      "source": "synthetic"
+    },
+    {
+      "id": "p99_p35_reprolock_operator_v138",
+      "label": "p99/p35 repro-lock operator",
+      "prompt_style": "p99/p35 tail 압력을 repro-lock artifact와 함께 추적하고, 실패 전 중단 기준과 temperature budget 재배분 규칙을 실행 전에 고정한다.",
+      "traits": [
+        "runner",
+        "temperature",
+        "tripwire",
+        "reproducibility",
+        "budget_control"
+      ],
+      "source": "synthetic"
     }
   ],
   "temperatures": [
