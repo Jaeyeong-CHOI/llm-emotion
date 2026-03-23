@@ -40,6 +40,7 @@ PLACEHOLDER_PATTERNS = (
 CONTROL_CHAR_PATTERN = re.compile(r"[\r\n\t]|[\x00-\x08\x0b-\x1f\x7f]")
 ENDPOINT_SCHEME_PATTERN = re.compile(r"^https?://")
 ENV_NAME_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+ENV_LIST_SPLIT_PATTERN = re.compile(r"[\s,;]+")
 
 
 def is_placeholder(value: str) -> bool:
@@ -76,8 +77,8 @@ def normalize_env_name(token: str) -> str:
 
 
 def parse_env_var_list(raw: str, default: list[str]) -> list[str]:
-    """Parse comma/space-separated env-var names with stable de-duplication."""
-    raw_tokens = re.split(r"[\s,]+", (raw or "").strip())
+    """Parse comma/space/semicolon-separated env-var names with stable de-duplication."""
+    raw_tokens = ENV_LIST_SPLIT_PATTERN.split((raw or "").strip()) if (raw or "").strip() else []
 
     tokens: list[str] = []
     invalid: list[str] = []

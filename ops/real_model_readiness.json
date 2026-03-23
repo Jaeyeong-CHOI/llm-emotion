@@ -23,6 +23,8 @@
   ],
   "placeholder_vars": [],
   "optional_placeholder_vars": [],
+  "unsafe_vars": [],
+  "optional_unsafe_vars": [],
   "suspicious_vars": [],
   "endpoint": {
     "OPENAI_BASE_URL_present": false,
