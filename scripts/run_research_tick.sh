@@ -197,15 +197,6 @@ if [ -z "$RUN_ID" ]; then
   skip_with_status "no queued run-id"
 fi
 
-is_safe_run_id() {
-  local run_id="$1"
-  [[ "$run_id" =~ ^[A-Za-z0-9._-]+$ ]]
-}
-
-if ! is_safe_run_id "$RUN_ID"; then
-  skip_with_status "invalid run-id format (${RUN_ID})"
-fi
-
 normalize_queue_run_id() {
   local run_id="$1"
   local canonical_run_id
@@ -215,8 +206,16 @@ normalize_queue_run_id() {
     return 1
   fi
 
+  if [[ ! "$canonical_run_id" =~ ^[A-Za-z0-9._-]+$ ]]; then
+    return 1
+  fi
+
   printf '%s' "$canonical_run_id"
 }
+
+if ! RUN_ID="$(normalize_queue_run_id "$RUN_ID")"; then
+  skip_with_status "invalid run-id format (${RUN_ID})"
+fi
 
 queue_contains_run_id() {
   local queue_file="$1"
