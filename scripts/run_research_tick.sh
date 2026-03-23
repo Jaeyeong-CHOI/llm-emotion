@@ -239,9 +239,27 @@ make_queue_temp_file() {
   mktemp "${queue_file}.${suffix}.XXXXXX"
 }
 
+commit_queue_tmp_file() {
+  local queue_file="$1"
+  local tmp_file="$2"
+  local changed="$3"
+
+  if [ "$changed" -eq 1 ]; then
+    if ! mv "$tmp_file" "$queue_file"; then
+      rm -f "$tmp_file"
+      return 1
+    fi
+    return 0
+  fi
+
+  rm -f "$tmp_file"
+  return 0
+}
+
 dedupe_queue_file() {
   local queue_file="$1"
   local tmp_file=""
+  local changed=0
   local line=""
   local -A seen=()
 
@@ -256,10 +274,14 @@ dedupe_queue_file() {
     fi
   done < <(iter_queue_lines "$queue_file")
 
-  if ! cmp -s "$queue_file" "$tmp_file" 2>/dev/null; then
-    mv "$tmp_file" "$queue_file"
+  if cmp -s "$queue_file" "$tmp_file" 2>/dev/null; then
+    changed=0
   else
-    rm -f "$tmp_file"
+    changed=1
+  fi
+
+  if ! commit_queue_tmp_file "$queue_file" "$tmp_file" "$changed"; then
+    return 1
   fi
 }
 dequeue_run_id() {
@@ -287,13 +309,8 @@ dequeue_run_id() {
     printf '%s\n' "$line"
   done < <(iter_queue_lines "$queue_file") > "$tmp_file"
 
-  if [ "$changed" -eq 1 ]; then
-    if ! mv "$tmp_file" "$queue_file"; then
-      rm -f "$tmp_file"
-      return 1
-    fi
-  else
-    rm -f "$tmp_file"
+  if ! commit_queue_tmp_file "$queue_file" "$tmp_file" "$changed"; then
+    return 1
   fi
 
   printf '%s' "$picked"
