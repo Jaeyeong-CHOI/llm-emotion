@@ -20,8 +20,13 @@
     "LLM_EMOTION_REAL_MODEL",
     "LLM_EMOTION_REAL_MODEL_REGION"
   ],
+  "placeholder_vars": [],
   "suspicious_vars": [],
+  "endpoint": {
+    "OPENAI_BASE_URL_present": false,
+    "scheme_ok": true
+  },
   "notes": [
-    "환경변수 미설정 또는 포맷 점검 필요"
+    "필수 환경변수 누락"
   ]
 }

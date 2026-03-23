@@ -1,5 +1,5 @@
 {
-  "version": "v141.3",
+  "version": "v141.4",
   "language": "ko",
   "scenarios": [
     {
@@ -6724,6 +6724,42 @@
         "reproducibility"
       ],
       "prompt": "실모델 전환 전 dry-run을 전제로, 모델 엔드포인트·리전·인증키 변조 오류, 타임아웃, 비용 초과, rate-limit, 로그 손실 각각에 대한 대응표를 작성하라. 각 항목은 PASS/FAIL/FOLLOW-UP, 담당자, 재시도 기준, 차단/롤백 트리거를 포함할 것."
+    },
+    {
+      "id": "screening_core_set_recency_method_balance_v1414",
+      "label": "screening",
+      "tags": [
+        "screening",
+        "core_set",
+        "recency",
+        "method_cues",
+        "balance"
+      ],
+      "prompt": "코어셋 후보를 점검할 때 최신성(최근 3년), 방법론 단서(method cue), 감정축 커버리지의 균형을 동시에 만족하는지 평가하라. 기준 미달 항목은 '보강 검색 질의 1개 + 교차검증 포인트 1개'를 붙여 제시하라."
+    },
+    {
+      "id": "prompt_bank_bridge_countervoice_precision_v1414",
+      "label": "prompt_bank",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "bridge",
+        "precision",
+        "audit"
+      ],
+      "prompt": "프롬프트 뱅크 확장안에서 중복·과잉 일반화 문장을 찾고, 각 문장을 '근거-반례-재진술' 3단 구조로 압축하라. 반례가 약한 경우에는 불확실성 표기를 강제하라."
+    },
+    {
+      "id": "runner_live_model_env_contract_drill_v1414",
+      "label": "runner",
+      "tags": [
+        "runner",
+        "live_model",
+        "env_contract",
+        "preflight",
+        "reliability"
+      ],
+      "prompt": "실모델 전환 전 ENV 계약(필수 변수, placeholder 금지, endpoint 스킴)을 검사하는 체크리스트를 작성하라. 각 항목별 실패 시 즉시 중단 여부와 대체 경로(mock fallback)도 포함하라."
     }
   ],
   "personas": [
@@ -10003,6 +10039,17 @@
         "audit",
         "bridge",
         "recovery"
+      ]
+    },
+    {
+      "id": "transition_contract_reviewer_v1414",
+      "instruction": "당신은 실모델 전환 계약 검토자다. 설정값 존재 여부뿐 아니라 placeholder/샘플값 오염, endpoint 스킴, 프로젝트 식별자 누락을 집요하게 점검한다.",
+      "style_tags": [
+        "transition",
+        "contract",
+        "env",
+        "safety",
+        "audit"
       ]
     }
   ],

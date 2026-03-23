@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- 코어셋 정제를 `v141.4`로 갱신해 **recency(연도대 쿼터) + method-cue 보너스** 기반으로 `ops/core_set.json`을 32편으로 재선정했습니다(선행연구 스크리닝 코어셋 안정화).
+- Prompt bank를 `v141.4`로 확장해 **core-set recency/method balance, countervoice precision, live-model env contract drill** 시나리오 3개와 페르소나(`transition_contract_reviewer_v1414`)를 추가했습니다.
+- 실모델 전환 점검 스크립트(`scripts/check_real_model_readiness.py`)에 **required-vars 커스터마이즈 + placeholder 탐지 + endpoint scheme 검증**을 추가해, 환경변수 존재 여부를 넘는 전환 계약(preflight contract) 검증이 가능해졌습니다.
 - Literature screening 규칙(`queries/screening_rules.json`)에 **emotion trajectory / counterfactual consistency / regret calibration / evidence provenance / protocol compliance** alias를 보강하고, review/method cue에 **protocol amendment / deviation log / reproducibility checklist / audit trail**을 추가해 선행연구 스크리닝 추적성을 강화했습니다.
 - Prompt bank expanded to `v140.0` with **unknown-year group top27 entropy stability / protocol-trace countervoice mesh / runner p99-p25 repro-lock tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top27_entropy_steward_v140`, `protocol_trace_countervoice_curator_v140`, `p99_p25_reprolock_operator_v140`)를 추가했습니다.
 - Experiment runner preflight에 **temperature p99/p25 share ratio guardrail** (`--max-planned-sample-temperature-p99-over-p25-share-ratio`)을 추가해, p99/p40/p35/p30이 통과해도 남는 중상위-상단 tail 가속을 더 깊게 fail-fast로 차단합니다.

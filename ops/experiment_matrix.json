@@ -3158,6 +3158,22 @@
         "p99_p25_reprolock_operator_v140",
         "evidence_seeking"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_core_set_recency_env_contract_v1414",
+      "n": 14,
+      "seed": 1414,
+      "repeats": 2,
+      "temperatures": [
+        0.25,
+        0.7,
+        0.99
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "persona_ids": [
+        "transition_contract_reviewer_v1414",
+        "evidence_bridge_sleuth_v1413"
+      ]
     }
   ]
 }
