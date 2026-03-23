@@ -278,19 +278,18 @@ is_path_safe_from_symlink() {
   local path="$1"
   local current="${path}"
 
-  while [ -n "$current" ]; do
+  [ -n "$path" ] || return 1
+
+  while [ -n "$current" ] && [ "$current" != "." ] && [ "$current" != "/" ]; do
     if [ -L "$current" ]; then
       echo "[tick] rejected unsafe path (symlink): ${current}" >&2
       return 1
     fi
 
-    if [ "$current" = "." ] || [ "$current" = "/" ]; then
+    if [ "${current%/*}" = "$current" ]; then
       return 0
     fi
 
-    if [ "${current%/*}" = "$current" ]; then
-      break
-    fi
     current="${current%/*}"
   done
 
