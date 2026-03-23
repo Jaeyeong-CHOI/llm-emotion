@@ -21,7 +21,6 @@ run_status_command() {
 }
 
 refresh_status() {
-  local task
   while IFS='|' read -r log_path command; do
     run_status_command "$log_path" bash -lc "$command"
   done <<'EOF'
@@ -79,6 +78,7 @@ acquire_lock() {
 
 if ! acquire_lock; then
   echo "[tick] lock busy; another tick is running, skip"
+  refresh_status
   exit 0
 fi
 
