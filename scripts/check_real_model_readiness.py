@@ -101,6 +101,15 @@ def check_env_block(names: list[str]):
     }
 
 
+def _append_optional_note(
+    notes: list[str],
+    variables: list[str],
+    message: str,
+) -> None:
+    if variables:
+        notes.append(f"{message}: {', '.join(variables)}")
+
+
 def summarize_readiness_issues(
     required_missing: list[str],
     required_placeholder_vars: list[str],
@@ -116,16 +125,23 @@ def summarize_readiness_issues(
     notes: list[str] = []
     if required_missing:
         notes.append("필수 환경변수 누락")
-    if required_placeholder_vars:
-        notes.append("필수 환경변수에 placeholder 값 존재")
-    if required_unsafe_vars:
-        notes.append(f"필수 환경변수에 개행/탭 등 제어문자 존재: {', '.join(required_unsafe_vars)}")
-    if optional_missing:
-        notes.append(f"선택 환경변수 미설정(권장): {', '.join(optional_missing)}")
-    if optional_placeholder_vars:
-        notes.append(f"선택 환경변수에 placeholder 값 존재: {', '.join(optional_placeholder_vars)}")
-    if optional_unsafe_vars:
-        notes.append(f"선택 환경변수에 개행/탭 등 제어문자 존재: {', '.join(optional_unsafe_vars)}")
+    _append_optional_note(notes, required_placeholder_vars, "필수 환경변수에 placeholder 값 존재")
+    _append_optional_note(
+        notes,
+        required_unsafe_vars,
+        "필수 환경변수에 개행/탭 등 제어문자 존재",
+    )
+    _append_optional_note(notes, optional_missing, "선택 환경변수 미설정(권장)")
+    _append_optional_note(
+        notes,
+        optional_placeholder_vars,
+        "선택 환경변수에 placeholder 값 존재",
+    )
+    _append_optional_note(
+        notes,
+        optional_unsafe_vars,
+        "선택 환경변수에 개행/탭 등 제어문자 존재",
+    )
     if not endpoint_scheme_ok:
         notes.append("OPENAI_BASE_URL 스킴 미일치")
     if "OPENAI_API_KEY" in suspicious:
