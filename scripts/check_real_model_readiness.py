@@ -40,6 +40,10 @@ def is_placeholder(value: str) -> bool:
     return any(re.match(p, v) for p in PLACEHOLDER_PATTERNS)
 
 
+def has_unsafe_chars(value: str) -> bool:
+    return bool(re.search(r"[\r\n\t]", (value or "")))
+
+
 def dedupe_preserve_order(values: list[str]) -> list[str]:
     """Preserve insertion order while removing duplicates."""
     return list(dict.fromkeys(values))
@@ -57,33 +61,38 @@ def parse_env_var_list(raw: str, default: list[str]) -> list[str]:
 def check_var(value: str):
     exists = bool(value and str(value).strip())
     placeholder = is_placeholder(str(value or ""))
-    return exists, placeholder
+    unsafe = has_unsafe_chars(value)
+    return exists, placeholder, unsafe
 
 
 def check_vars(names: list[str]):
     status = {}
     missing = []
     placeholder_vars = []
+    unsafe_vars = []
 
     for name in names:
         value = os.getenv(name)
-        exists, placeholder = check_var(value)
+        exists, placeholder, unsafe = check_var(value)
         status[name] = exists
         if not exists:
             missing.append(name)
             continue
         if placeholder:
             placeholder_vars.append(name)
-    return status, missing, placeholder_vars
+        if unsafe:
+            unsafe_vars.append(name)
+    return status, missing, placeholder_vars, unsafe_vars
 
 
 def check_env_block(names: list[str]):
-    status, missing, placeholder_vars = check_vars(names)
+    status, missing, placeholder_vars, unsafe_vars = check_vars(names)
     return {
         "names": names,
         "available": status,
         "missing": missing,
         "placeholder": placeholder_vars,
+        "unsafe": unsafe_vars,
     }
 
 
@@ -127,23 +136,34 @@ def main():
 
     required_missing = required["missing"]
     required_placeholder_vars = required["placeholder"]
+    required_unsafe_vars = required["unsafe"]
     optional_missing = optional["missing"]
     optional_placeholder_vars = optional["placeholder"]
+    optional_unsafe_vars = optional["unsafe"]
 
     available_vars = {**required["available"], **optional["available"]}
 
     # 실모델 실행 게이트는 강제 required 기준 + API 키 유효성 + 엔드포인트 스킴 점검
-    ready = not required_missing and not required_placeholder_vars and not suspicious
+    ready = (
+        not required_missing
+        and not required_placeholder_vars
+        and not required_unsafe_vars
+        and not suspicious
+    )
 
     notes = []
     if required_missing:
         notes.append("필수 환경변수 누락")
     if required_placeholder_vars:
         notes.append("필수 환경변수에 placeholder 값 존재")
+    if required_unsafe_vars:
+        notes.append(f"필수 환경변수에 개행/탭 등 제어문자 존재: {', '.join(required_unsafe_vars)}")
     if optional_missing:
         notes.append(f"선택 환경변수 미설정(권장): {', '.join(optional_missing)}")
     if optional_placeholder_vars:
         notes.append(f"선택 환경변수에 placeholder 값 존재: {', '.join(optional_placeholder_vars)}")
+    if optional_unsafe_vars:
+        notes.append(f"선택 환경변수에 개행/탭 등 제어문자 존재: {', '.join(optional_unsafe_vars)}")
     if not endpoint_scheme_ok:
         notes.append("OPENAI_BASE_URL 스킴 미일치")
     if suspicious and "OPENAI_API_KEY" in suspicious:
@@ -160,6 +180,8 @@ def main():
         "optional_missing_vars": optional_missing,
         "placeholder_vars": required_placeholder_vars,
         "optional_placeholder_vars": optional_placeholder_vars,
+        "unsafe_vars": required_unsafe_vars,
+        "optional_unsafe_vars": optional_unsafe_vars,
         "suspicious_vars": sorted(set(suspicious)),
         "endpoint": {
             "OPENAI_BASE_URL_present": bool(endpoint),
