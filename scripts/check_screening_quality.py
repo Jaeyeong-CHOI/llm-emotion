@@ -51,8 +51,20 @@ def top_items(mapping: dict, limit: int = 8) -> list[dict]:
     return [{"name": key, "count": value} for key, value in ranked[:limit]]
 
 
+def _positive_values(mapping: dict[str, int]) -> list[int]:
+    """Return integer-mapped values that are strictly positive."""
+
+    return [int(v or 0) for v in mapping.values() if int(v or 0) > 0]
+
+
+def _positive_keys(mapping: dict[str, int]) -> set[str]:
+    """Return keys whose mapped value is strictly positive."""
+
+    return {k for k, v in mapping.items() if int(v or 0) > 0}
+
+
 def normalized_entropy(mapping: dict[str, int]) -> float:
-    counts = [int(v or 0) for v in mapping.values() if int(v or 0) > 0]
+    counts = _positive_values(mapping)
     if not counts:
         return 0.0
     total = sum(counts)
@@ -65,7 +77,7 @@ def normalized_entropy(mapping: dict[str, int]) -> float:
 
 
 def normalized_hhi(mapping: dict[str, int]) -> float:
-    counts = [int(v or 0) for v in mapping.values() if int(v or 0) > 0]
+    counts = _positive_values(mapping)
     if not counts:
         return 0.0
     total = sum(counts)
@@ -76,7 +88,7 @@ def normalized_hhi(mapping: dict[str, int]) -> float:
 
 
 def effective_query_count(mapping: dict[str, int]) -> float:
-    counts = [int(v or 0) for v in mapping.values() if int(v or 0) > 0]
+    counts = _positive_values(mapping)
     if not counts:
         return 0.0
     total = sum(counts)
@@ -88,7 +100,7 @@ def effective_query_count(mapping: dict[str, int]) -> float:
 
 
 def js_divergence(lhs: dict[str, int], rhs: dict[str, int]) -> float:
-    keys = {k for k, v in lhs.items() if int(v or 0) > 0} | {k for k, v in rhs.items() if int(v or 0) > 0}
+    keys = _positive_keys(lhs) | _positive_keys(rhs)
     if not keys:
         return 0.0
     lhs_total = sum(int(lhs.get(k, 0) or 0) for k in keys)
