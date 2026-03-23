@@ -64,11 +64,18 @@ is_numeric_pid() {
   [[ "$pid" =~ ^[0-9]+$ ]]
 }
 
+normalize_candidate_to_tick_script() {
+  local candidate="$1"
+  local normalized=""
+
+  [ -e "$candidate" ] || return 1
+  normalized="$(realpath "$candidate" 2>/dev/null || true)"
+  [ -n "$normalized" ] && [ "$normalized" = "$RUN_TICK_SCRIPT" ]
+}
+
 is_expected_tick_command() {
   local command_line="$1"
   local token=""
-  local normalized=""
-  local candidate=""
   local -a tokens=()
 
   IFS=' ' read -r -a tokens <<< "$command_line"
@@ -77,18 +84,9 @@ is_expected_tick_command() {
       continue
     fi
 
-    for candidate in \
-      "$token" \
-      "${SCRIPT_DIR}/${token}" \
-      "${ROOT}/${token}"; do
-      if [ ! -e "$candidate" ]; then
-        continue
-      fi
-      normalized="$(realpath "$candidate" 2>/dev/null || true)"
-      if [ -n "$normalized" ] && [ "$normalized" = "$RUN_TICK_SCRIPT" ]; then
-        return 0
-      fi
-    done
+    normalize_candidate_to_tick_script "$token" && return 0
+    normalize_candidate_to_tick_script "${SCRIPT_DIR}/${token}" && return 0
+    normalize_candidate_to_tick_script "${ROOT}/${token}" && return 0
   done
 
   return 1
