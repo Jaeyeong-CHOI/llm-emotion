@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 import json
 import subprocess
-import datetime
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-STATE = ROOT / "ops" / "research_state.json"
+from research_ops_common import (
+    ROOT,
+    append_note,
+    count_lines,
+    load_research_state,
+    now_isoseconds,
+    save_research_state,
+)
 
 
 def run(cmd):
@@ -13,22 +17,9 @@ def run(cmd):
     return p.returncode, p.stdout, p.stderr
 
 
-def count_lines(path: Path) -> int:
-    if not path.exists():
-        return 0
-    with path.open("r", encoding="utf-8") as f:
-        return sum(1 for _ in f)
-
-
-def append_note(state, text):
-    ts = datetime.datetime.now().isoformat(timespec="seconds")
-    state.setdefault("notes", []).append(f"[{ts}] {text}")
-    state["notes"] = state["notes"][-40:]
-
-
 def main():
-    state = json.loads(STATE.read_text(encoding="utf-8")) if STATE.exists() else {}
-    now = datetime.datetime.now().isoformat(timespec="seconds")
+    state = load_research_state()
+    now = now_isoseconds()
     state["last_run"] = now
 
     steps = [
@@ -56,7 +47,7 @@ def main():
         if code != 0:
             state["last_error"] = {"step": name, "code": code, "stderr": err[-1500:]}
             append_note(state, f"FAILED {name}: code={code}")
-            STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+            save_research_state(state)
             print(f"[FAIL] {name}\n{err}")
             return 1
         append_note(state, f"OK {name}")
@@ -70,18 +61,28 @@ def main():
     include_n = 0
     review_n = 0
     refs_path = ROOT / "refs" / "openalex_results.jsonl"
+    malformed_rows = 0
     if refs_path.exists():
         with refs_path.open("r", encoding="utf-8") as f:
-            for line in f:
-                row = json.loads(line)
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    malformed_rows += 1
+                    continue
                 if row.get("screening_label") == "include":
                     include_n += 1
                 elif row.get("screening_label") == "review":
                     review_n += 1
     state["stats"]["screen_include"] = include_n
     state["stats"]["screen_review"] = review_n
+    if malformed_rows:
+        append_note(state, f"WARN screening parse skipped malformed_rows={malformed_rows}")
 
-    STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
+    save_research_state(state)
     print("[OK] research cycle complete")
     return 0
 
