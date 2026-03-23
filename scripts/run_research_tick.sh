@@ -39,6 +39,14 @@ echo "[tick] $(date -u +'%Y-%m-%dT%H:%M:%SZ') start"
 LOCK_DIR="/tmp/llm_emotion_research_tick.lock"
 LOCK_PID_FILE="$LOCK_DIR/pid"
 
+lock_pid_matches_tick_script() {
+  local pid="$1"
+  local command=""
+
+  command="$(ps -p "$pid" -o command= 2>/dev/null | head -n 1 | tr -d '\r' || true)"
+  [[ "$command" == *"run_research_tick.sh"* ]]
+}
+
 acquire_lock() {
   if mkdir "$LOCK_DIR" 2>/dev/null; then
     printf '%s\n' "$$" > "$LOCK_PID_FILE"
@@ -50,14 +58,16 @@ acquire_lock() {
     lock_pid="$(cat "$LOCK_PID_FILE" 2>/dev/null || true)"
   fi
 
-  if [ -n "$lock_pid" ] && ! kill -0 "$lock_pid" 2>/dev/null; then
-    echo "[tick] stale lock detected (pid=$lock_pid); recovering"
-    rm -f "$LOCK_PID_FILE"
-    rmdir "$LOCK_DIR" 2>/dev/null || true
+  if [ -n "$lock_pid" ]; then
+    if ! kill -0 "$lock_pid" 2>/dev/null || ! lock_pid_matches_tick_script "$lock_pid"; then
+      echo "[tick] stale lock detected (pid=$lock_pid); recovering"
+      rm -f "$LOCK_PID_FILE"
+      rmdir "$LOCK_DIR" 2>/dev/null || true
 
-    if mkdir "$LOCK_DIR" 2>/dev/null; then
-      printf '%s\n' "$$" > "$LOCK_PID_FILE"
-      return 0
+      if mkdir "$LOCK_DIR" 2>/dev/null; then
+        printf '%s\n' "$$" > "$LOCK_PID_FILE"
+        return 0
+      fi
     fi
   fi
 
