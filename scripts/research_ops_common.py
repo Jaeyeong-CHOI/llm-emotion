@@ -21,13 +21,13 @@ def _utc_timestamp() -> str:
 
 
 def now_iso8601_utc() -> str:
-    """Public alias kept for compatibility with existing callers."""
+    """Public helper kept for compatibility with existing callers."""
     return _utc_timestamp()
 
 
 def now_iso_seconds() -> str:
-    """Return a stable UTC timestamp string (semantic alias)."""
-    return _utc_timestamp()
+    """Stable UTC timestamp alias used by historical callers."""
+    return now_iso8601_utc()
 
 
 def now_isoseconds() -> str:
