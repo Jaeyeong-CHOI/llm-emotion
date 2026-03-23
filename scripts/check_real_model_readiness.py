@@ -10,12 +10,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "ops" / "real_model_readiness.json"
 
+# 기본 요구값: 실험 실행을 막지 않기 위해 실무 최소값만 강제
 DEFAULT_REQUIRED = [
     "OPENAI_API_KEY",
-    "OPENAI_ORG_ID",
-    "OPENAI_PROJECT",
     "LLM_EMOTION_REAL_MODEL",
     "LLM_EMOTION_REAL_MODEL_REGION",
+]
+
+# 추적/과금/조직 관리에는 유용하지만 당장은 실행 차단에서 제외하는 보조 변수
+OPTIONAL_PROJECT_VARS = [
+    "OPENAI_ORG_ID",
+    "OPENAI_PROJECT",
 ]
 
 PLACEHOLDER_PATTERNS = (
@@ -49,6 +54,23 @@ def check_var(name: str, value: str):
     return exists, placeholder
 
 
+def check_vars(names):
+    status = {}
+    missing = []
+    placeholder_vars = []
+
+    for name in names:
+        value = os.getenv(name)
+        exists, placeholder = check_var(name, value)
+        status[name] = exists
+        if not exists:
+            missing.append(name)
+            continue
+        if placeholder:
+            placeholder_vars.append(name)
+    return status, missing, placeholder_vars
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(OUT))
@@ -58,6 +80,11 @@ def main():
         help="comma/space separated env var names to enforce",
     )
     ap.add_argument(
+        "--optional-vars",
+        default=",".join(OPTIONAL_PROJECT_VARS),
+        help="comma/space separated env vars to check but not block readiness",
+    )
+    ap.add_argument(
         "--require-endpoint-scheme",
         action="store_true",
         help="when OPENAI_BASE_URL is present, require http:// or https:// scheme",
@@ -65,47 +92,83 @@ def main():
     args = ap.parse_args()
 
     required = parse_required_vars(args.required_vars)
-    status = {}
-    missing = []
-    suspicious = []
-    placeholder_vars = []
+    optional = parse_required_vars(args.optional_vars)
 
+    required_status = {}
+    optional_status = {}
+
+    required_missing = []
+    required_placeholder_vars = []
+    optional_missing = []
+    optional_placeholder_vars = []
+
+    required_status_tmp = {}
+    optional_status_tmp = {}
     for name in required:
         value = os.getenv(name)
         exists, placeholder = check_var(name, value)
-        status[name] = exists
+        required_status_tmp[name] = exists
         if not exists:
-            missing.append(name)
+            required_missing.append(name)
             continue
         if placeholder:
-            placeholder_vars.append(name)
-        if name == "OPENAI_API_KEY" and "sk-" not in str(value):
-            suspicious.append(name)
+            required_placeholder_vars.append(name)
+
+    for name in optional:
+        value = os.getenv(name)
+        exists, placeholder = check_var(name, value)
+        optional_status_tmp[name] = exists
+        if not exists:
+            optional_missing.append(name)
+            continue
+        if placeholder:
+            optional_placeholder_vars.append(name)
 
     endpoint = os.getenv("OPENAI_BASE_URL", "").strip()
     endpoint_scheme_ok = True
+    suspicious = []
     if args.require_endpoint_scheme and endpoint:
         endpoint_scheme_ok = bool(re.match(r"^https?://", endpoint))
         if not endpoint_scheme_ok:
             suspicious.append("OPENAI_BASE_URL")
 
-    ready = not missing and not suspicious and not placeholder_vars
+    if not re.match(r"^sk-", (os.getenv("OPENAI_API_KEY") or "")):
+        suspicious.append("OPENAI_API_KEY")
+
+    available_vars = {}
+    available_vars.update(required_status_tmp)
+    for k, v in optional_status_tmp.items():
+        if k not in available_vars:
+            available_vars[k] = v
+
+    # 실모델 실행 게이트는 강제 required 기준 + API 키 유효성 + 엔드포인트 스킴 점검
+    ready = not required_missing and not required_placeholder_vars and not suspicious
+
     notes = []
-    if missing:
+    if required_missing:
         notes.append("필수 환경변수 누락")
-    if placeholder_vars:
-        notes.append("placeholder/샘플값으로 보이는 환경변수 존재")
-    if suspicious:
-        notes.append("형식 점검 필요 환경변수 존재")
+    if required_placeholder_vars:
+        notes.append("필수 환경변수에 placeholder 값 존재")
+    if optional_missing:
+        notes.append("선택 환경변수 미설정(권장): OPENAI_ORG_ID, OPENAI_PROJECT")
+    if optional_placeholder_vars:
+        notes.append("선택 환경변수에 placeholder 값 존재")
+    if not endpoint_scheme_ok:
+        notes.append("OPENAI_BASE_URL 스킴 미일치")
+    if suspicious and "OPENAI_API_KEY" in suspicious:
+        notes.append("OPENAI_API_KEY 형식 점검 필요")
     if not notes:
         notes.append("실모델 전환 준비 완료")
 
     payload = {
         "ready": ready,
         "required_vars": required,
-        "available_vars": status,
-        "missing_vars": missing,
-        "placeholder_vars": placeholder_vars,
+        "optional_vars": optional,
+        "available_vars": available_vars,
+        "missing_vars": required_missing,
+        "optional_missing_vars": optional_missing,
+        "placeholder_vars": required_placeholder_vars,
+        "optional_placeholder_vars": optional_placeholder_vars,
         "suspicious_vars": sorted(set(suspicious)),
         "endpoint": {
             "OPENAI_BASE_URL_present": bool(endpoint),

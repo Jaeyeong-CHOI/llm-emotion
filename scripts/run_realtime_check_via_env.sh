@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-: "${OPENAI_ORG_ID:?Set OPENAI_ORG_ID}"
-: "${OPENAI_PROJECT:?Set OPENAI_PROJECT}"
-: "${LLM_EMOTION_REAL_MODEL:?Set LLM_EMOTION_REAL_MODEL}"
-: "${LLM_EMOTION_REAL_MODEL_REGION:?Set LLM_EMOTION_REAL_MODEL_REGION}"
-
 export LLM_EMOTION_ROOT="${LLM_EMOTION_ROOT:-/Users/jaeyeong_openclaw/.openclaw/workspace/llm-emotion}"
+export LLM_EMOTION_REAL_MODEL="${LLM_EMOTION_REAL_MODEL:?missing}"
+export LLM_EMOTION_REAL_MODEL_REGION="${LLM_EMOTION_REAL_MODEL_REGION:?missing}"
+
 cd "$LLM_EMOTION_ROOT"
 
 python3 scripts/check_real_model_readiness.py

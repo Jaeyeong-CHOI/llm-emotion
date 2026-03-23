@@ -1,24 +1,26 @@
 # 실모델 전환 및 크론 상태 점검 가이드
 
 ## 0) 지금 왜 막혀 있나 (요약)
-- 실모델 전환은 환경변수 4개 미설정 때문에 block됨.
-- 크론 상태가 missing 인 이유는 cron id/name 매칭이 점검 스크립트와 일치하지 않거나 cron 실행 환경에서 job 조회가 실패했을 때.
+- 실모델 전환은 현재 **필수 변수 3개**가 준비되지 않으면 block됨.
+- `OPENAI_ORG_ID`, `OPENAI_PROJECT`는 지금은 보조 변수로 분류 (없어도 실행 전환은 허용).
+- 크론 상태가 missing인 이유는 cron id/name 매칭이 점검 스크립트와 일치하지 않거나 cron 실행 환경에서 job 조회가 실패했을 때.
 
-필요 체크 항목:
-- `OPENAI_ORG_ID`
-- `OPENAI_PROJECT`
+필수 체크 항목:
+- `OPENAI_API_KEY`
 - `LLM_EMOTION_REAL_MODEL`
 - `LLM_EMOTION_REAL_MODEL_REGION`
 
-`OPENAI_API_KEY`는 이미 세팅되어 있는 것으로 확인됨.
+권장(안전/추적):
+- `OPENAI_ORG_ID`
+- `OPENAI_PROJECT`
+
+`OPENAI_API_KEY`는 실존 여부만 확인(형식은 최소 `sk-` 접두사 체크).
 
 ---
 
 ## 1) 30초 One-liner (Local 실행 + 상태 갱신)
 ```bash
 cd /Users/jaeyeong_openclaw/.openclaw/workspace/llm-emotion && \
-export OPENAI_ORG_ID='org-XXXXXXXX' \
-export OPENAI_PROJECT='proj_XXXXXXXX' \
 export LLM_EMOTION_REAL_MODEL='gpt-4o' \
 export LLM_EMOTION_REAL_MODEL_REGION='us-east-1' \
 python3 scripts/check_real_model_readiness.py && \
@@ -34,10 +36,11 @@ python3 scripts/research_status.py
 ## 2) 실모델 env를 한 번에 적용하는 영구 설정
 ```bash
 cat <<'ENV_EOF' >> ~/.zshrc
-export OPENAI_ORG_ID='org-XXXXXXXX'
-export OPENAI_PROJECT='proj_XXXXXXXX'
 export LLM_EMOTION_REAL_MODEL='gpt-4o'
 export LLM_EMOTION_REAL_MODEL_REGION='us-east-1'
+# 권장: 추적/오류추적 용도
+# export OPENAI_ORG_ID='org-XXXXXXXX'
+# export OPENAI_PROJECT='proj_XXXXXXXX'
 ENV_EOF
 source ~/.zshrc
 ```
@@ -54,9 +57,7 @@ cat >/Users/jaeyeong_openclaw/.openclaw/workspace/llm-emotion/scripts/run_realti
 #!/usr/bin/env bash
 set -euo pipefail
 
-export LLM_EMOTION_ROOT="/Users/jaeyeong_openclaw/.openclaw/workspace/llm-emotion"
-export OPENAI_ORG_ID="${OPENAI_ORG_ID:?missing}"
-export OPENAI_PROJECT="${OPENAI_PROJECT:?missing}"
+export LLM_EMOTION_ROOT="${LLM_EMOTION_ROOT:-/Users/jaeyeong_openclaw/.openclaw/workspace/llm-emotion}"
 export LLM_EMOTION_REAL_MODEL="${LLM_EMOTION_REAL_MODEL:?missing}"
 export LLM_EMOTION_REAL_MODEL_REGION="${LLM_EMOTION_REAL_MODEL_REGION:?missing}"
 
@@ -115,7 +116,10 @@ python3 scripts/research_status.py
 
 ```bash
 cd /Users/jaeyeong_openclaw/.openclaw/workspace/llm-emotion
-AVRTG_ENV_FILE=/Users/jaeyeong_openclaw/.openclaw/workspace/AVRTG_QUERY_GEN/.env   LLM_EMOTION_REAL_MODEL='gpt-4o'   LLM_EMOTION_REAL_MODEL_REGION='us-east-1'   bash scripts/sync_keys_from_avrtg.sh
+AVRTG_ENV_FILE=/Users/jaeyeong_openclaw/.openclaw/workspace/AVRTG_QUERY_GEN/.env \
+  LLM_EMOTION_REAL_MODEL='gpt-4o' \
+  LLM_EMOTION_REAL_MODEL_REGION='us-east-1' \
+  bash scripts/sync_keys_from_avrtg.sh
 ```
 
 필요 시 org/project는 기존 `.env.real_model`의 값이 남아 있으면 유지되고, 없으면 빈 상태로 남습니다.
