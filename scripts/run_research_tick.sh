@@ -52,6 +52,7 @@ echo "[tick] $(date -u +'%Y-%m-%dT%H:%M:%SZ') start"
 
 LOCK_DIR="/tmp/llm_emotion_research_tick.lock"
 LOCK_PID_FILE="$LOCK_DIR/pid"
+LOCK_ACQUIRED=0
 
 is_numeric_pid() {
   local pid="$1"
@@ -121,6 +122,7 @@ lock_pid_is_active_tick_owner() {
 
 acquire_lock() {
   if claim_lock_dir; then
+    LOCK_ACQUIRED=1
     return 0
   fi
 
@@ -136,6 +138,7 @@ acquire_lock() {
 
   if [ -n "$lock_pid" ] && ! lock_pid_is_active_tick_owner "$lock_pid"; then
     if recover_stale_lock "$lock_pid"; then
+      LOCK_ACQUIRED=1
       return 0
     fi
   fi
@@ -152,7 +155,9 @@ RUN_FINALIZED=0
 RUN_ID=""
 
 cleanup_on_exit() {
-  clear_lock_dir
+  if [ "$LOCK_ACQUIRED" -eq 1 ]; then
+    clear_lock_dir
+  fi
 
   if [ "$RUN_IN_FLIGHT" -eq 1 ] && [ "$RUN_FINALIZED" -eq 0 ] && [ -n "$RUN_ID" ] && [ -n "${QUEUE_FILE:-}" ]; then
     echo "[tick] interrupted before finalizing run_id=$RUN_ID; re-queue for retry"
