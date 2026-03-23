@@ -1,5 +1,5 @@
 {
-  "version": "v12.0",
+  "version": "v12.1",
   "language": "ko",
   "scenarios": [
     {
@@ -5420,6 +5420,73 @@
       ],
       "domain": "experiment_ops",
       "emotion_axis": "stability",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "screening_unknown_year_group_top12_ratio_guard_v121",
+      "label": "screening",
+      "text": "manual QC review traceable known-query에서 unknown-year query-group 분포를 점검할 때 top11까지는 통과했지만 top12 누적 점유율이 global baseline 대비 과열되는 상황을 가정하라. top12 share와 top12-over-global-group-top12 ratio를 함께 평가하고, 실패 시 query-group tail 복구 순서와 재샘플링 중단/재개 기준을 수치로 제시하라.",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "top12_ratio",
+        "quality_gate"
+      ],
+      "domains": [
+        "literature_screening",
+        "quality_control"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "prompt_bank_unknown_year_group_top12_countervoice_patch_v121",
+      "label": "prompt_bank",
+      "text": "프롬프트 뱅크에서 unknown-year query-group top12 과점을 완화하기 위한 countervoice 패치를 설계하라. 상위 group 과열을 낮추기 위해 tail group 근거를 요구하는 countervoice 4개를 제안하고, 각 항목의 실패 신호·회귀 점검 지표·재샘플링 우선순위를 정의하라.",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "unknown_year",
+        "query_group",
+        "top12",
+        "counterbalance"
+      ],
+      "domains": [
+        "prompt_design",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "repair",
+        "agency",
+        "vigilance"
+      ],
+      "difficulty": "advanced"
+    },
+    {
+      "id": "runner_temperature_top20_uniformity_tripwire_v121",
+      "label": "runner",
+      "text": "실험 러너 preflight에서 top19 guardrail은 통과했지만 상위 20개 temperature 누적 점유율이 uniform baseline 대비 과열되는 상황을 가정하라. top20 share와 top20-over-uniform ratio tripwire를 정의하고, 위반 시 run-id 재분배·중단·재개 절차를 운영 메모 형식으로 제시하라.",
+      "tags": [
+        "runner",
+        "temperature",
+        "top20",
+        "uniformity",
+        "tripwire"
+      ],
+      "domains": [
+        "experiment_ops",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "control",
+        "repair"
+      ],
       "difficulty": "advanced"
     }
   ],
