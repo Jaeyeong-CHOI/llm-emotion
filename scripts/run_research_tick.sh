@@ -388,6 +388,15 @@ replace_if_changed() {
   mv "$tmp_file" "$queue_file"
 }
 
+cleanup_tmp_files() {
+  local file=""
+
+  for file in "$@"; do
+    [ -n "$file" ] || continue
+    rm -f "$file"
+  done
+}
+
 materialize_sanitized_queue() {
   local queue_file="$1"
   local out_file="$2"
@@ -413,21 +422,21 @@ dedupe_queue_file() {
   dedup_file="${tmp_file}.dedupe"
 
   if ! materialize_sanitized_queue "$queue_file" "$tmp_file"; then
-    rm -f "$tmp_file" "$dedup_file"
+    cleanup_tmp_files "$tmp_file" "$dedup_file"
     return 1
   fi
 
   if ! materialize_unique_lines "$tmp_file" "$dedup_file"; then
-    rm -f "$tmp_file" "$dedup_file"
+    cleanup_tmp_files "$tmp_file" "$dedup_file"
     return 1
   fi
 
   if ! replace_if_changed "$queue_file" "$dedup_file"; then
-    rm -f "$tmp_file" "$dedup_file"
+    cleanup_tmp_files "$tmp_file" "$dedup_file"
     return 0
   fi
 
-  rm -f "$tmp_file" "$dedup_file"
+  cleanup_tmp_files "$tmp_file" "$dedup_file"
 }
 dequeue_run_id() {
   local queue_file="$1"
@@ -446,26 +455,26 @@ dequeue_run_id() {
   next_file="${tmp_file}.next"
 
   if ! materialize_sanitized_queue "$queue_file" "$tmp_file"; then
-    rm -f "$tmp_file" "$next_file"
+    cleanup_tmp_files "$tmp_file" "$next_file"
     return 1
   fi
 
   picked="$(sed -n '1p' "$tmp_file")"
   if [ -n "$picked" ]; then
     if ! sed -n '2,$p' "$tmp_file" > "$next_file"; then
-      rm -f "$tmp_file" "$next_file"
+      cleanup_tmp_files "$tmp_file" "$next_file"
       return 1
     fi
 
     if ! replace_if_changed "$queue_file" "$next_file"; then
-      rm -f "$tmp_file" "$next_file"
+      cleanup_tmp_files "$tmp_file" "$next_file"
       return 1
     fi
   else
-    rm -f "$tmp_file" "$next_file"
+    cleanup_tmp_files "$tmp_file" "$next_file"
   fi
 
-  rm -f "$tmp_file"
+  cleanup_tmp_files "$tmp_file"
   printf '%s' "$picked"
 }
 
