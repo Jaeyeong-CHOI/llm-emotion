@@ -1,5 +1,5 @@
 {
-  "version": "v124.0",
+  "version": "v125.0",
   "language": "ko",
   "scenarios": [
     {
@@ -5786,6 +5786,51 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 러너 preflight에서 temperature 분포의 p99/p95 share ratio 트립와이어를 설계하라. p99/median과 p95/median이 각각 허용 범위라도 상단 tail이 급격히 튀는 실패 모드를 설명하고, fail-fast 이후 재샘플링 규칙을 6~8문장으로 제시하라."
+    },
+    {
+      "id": "screening_unknown_year_group_top16_ratio_backstop_v125",
+      "label": "screening",
+      "text": "manual QC review traceable known-query에서 unknown-year query-group top15까지는 통과했지만 top16 누적 점유율이 global baseline 대비 다시 과열된 상황을 점검하라. absolute top16 share와 top16-over-global-top16 ratio를 함께 보고, tail group 복구를 위한 재검색·재샘플링 우선순위를 제시하라.",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "top16_ratio",
+        "quality_gate"
+      ],
+      "domain": "literature_screening",
+      "emotion_axis": "quality_control",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "prompt_bank_top16_tail_countervoice_patch_v125",
+      "label": "prompt_bank",
+      "text": "프롬프트 뱅크에서 unknown-year query-group top16 과점을 완화하도록 tail countervoice 패치를 설계하라. 상위 16개 그룹 바깥의 근거를 복구하기 위해 domain·difficulty·emotion axis를 교차한 countervoice 4개를 제안하고, 실패 신호와 회귀 점검 지표를 포함하라.",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "unknown_year",
+        "top16",
+        "tail_balance"
+      ],
+      "domain": "prompt_design",
+      "emotion_axis": "diversity",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "runner_temperature_p99_p90_tripwire_v125",
+      "label": "runner",
+      "text": "실험 러너 preflight에서 p99/p95 비율은 통과했지만 p99/p90 비율이 과열되어 상단 온도 tail이 가속된 배치를 점검하라. p99-over-p90 ratio tripwire를 정의하고, 위반 시 run 분리·재분배·재개 절차를 운영 메모 형식으로 제시하라.",
+      "tags": [
+        "runner",
+        "temperature",
+        "p99_p90",
+        "tripwire",
+        "uniformity"
+      ],
+      "domain": "experiment_ops",
+      "emotion_axis": "stability",
+      "difficulty": "advanced"
     }
   ],
   "personas": [
@@ -8493,6 +8538,42 @@
         "temperature",
         "p99_p95",
         "tripwire"
+      ]
+    },
+    {
+      "id": "unknown_year_group_top16_backstop_triager_v125",
+      "label": "unknown-year group top16 backstop triager",
+      "prompt_style": "unknown-year query-group top16 absolute/global ratio를 동시에 감시하고 tail group 복구 순서를 근거 중심으로 제시한다.",
+      "style_tags": [
+        "screening",
+        "query_group",
+        "ratio_guard",
+        "tail_recovery",
+        "v125"
+      ]
+    },
+    {
+      "id": "top16_tail_countervoice_curator_v125",
+      "label": "top16 tail countervoice curator",
+      "prompt_style": "top16 과점 완화를 목표로 domain×difficulty×emotion axis 교차 기준의 countervoice 백필 계획을 설계한다.",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "tail_balance",
+        "coverage",
+        "v125"
+      ]
+    },
+    {
+      "id": "temperature_p99_p90_guard_v125",
+      "label": "temperature p99/p90 guard",
+      "prompt_style": "temperature 상단 tail 가속을 p99/p90 비율로 진단하고 fail-fast·재분배·재개 조건을 수치로 제시한다.",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "tripwire",
+        "risk_control",
+        "v125"
       ]
     }
   ],
