@@ -111,9 +111,6 @@ if [[ "$READY_LINE" != "ready=true" ]]; then
 fi
 
 QUEUE_FILE="ops/continuous_run_ids.txt"
-if [ ! -f "$QUEUE_FILE" ] || [ ! -s "$QUEUE_FILE" ]; then
-  skip_with_status "no queued run-id"
-fi
 
 canonical_line() {
   printf '%s' "$1" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
@@ -139,9 +136,14 @@ iter_queue_data_lines() {
   done < "$queue_file"
 }
 
+queue_has_data_lines() {
+  local queue_file="$1"
+  iter_queue_data_lines "$queue_file" | head -n 1 | grep -q .
+}
+
 dequeue_run_id() {
   local queue_file="$1"
-  local tmp_file
+  local tmp_file=""
 
   if [ ! -f "$queue_file" ]; then
     printf ''
@@ -149,13 +151,6 @@ dequeue_run_id() {
   fi
 
   tmp_file="$(mktemp "${queue_file}.tmp.XXXXXX")"
-
-  cleanup_tmp_queue_file() {
-    if [ -n "${tmp_file:-}" ] && [ -f "$tmp_file" ]; then
-      rm -f "$tmp_file"
-    fi
-  }
-  trap cleanup_tmp_queue_file RETURN
 
   local picked=""
   local raw_line=""
@@ -171,12 +166,16 @@ dequeue_run_id() {
   done < "$queue_file" > "$tmp_file"
 
   if ! mv "$tmp_file" "$queue_file"; then
+    rm -f "$tmp_file"
     return 1
   fi
 
-  tmp_file=""
   printf '%s' "$picked"
 }
+
+if ! queue_has_data_lines "$QUEUE_FILE"; then
+  skip_with_status "no queued run-id"
+fi
 
 RUN_ID="$(dequeue_run_id "$QUEUE_FILE")"
 
