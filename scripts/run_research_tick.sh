@@ -278,27 +278,25 @@ normalize_text() {
   printf '%s' "$value" | tr -d '\r' | trim_whitespace
 }
 
-canonical_line() {
-  normalize_text "$1"
-}
-
 strip_queue_comment() {
   local line="$1"
   printf '%s' "${line%%#*}"
 }
 
+is_valid_run_id() {
+  local value="$1"
+  [[ "$value" =~ ^[A-Za-z0-9._-]+$ ]]
+}
+
 parse_queue_line() {
   local raw_line="$1"
   local log_invalid="$2"
-  local stripped=""
   local canonical=""
 
-  stripped="$(strip_queue_comment "$raw_line")"
-  canonical="$(canonical_line "$stripped")"
-
+  canonical="$(normalize_text "$(strip_queue_comment "$raw_line")")"
   [[ -n "$canonical" ]] || return 1
 
-  if [[ "$canonical" =~ ^[A-Za-z0-9._-]+$ ]]; then
+  if is_valid_run_id "$canonical"; then
     printf '%s' "$canonical"
     return 0
   fi
@@ -311,7 +309,7 @@ parse_queue_line() {
 }
 
 sanitize_queue_run_id() {
-  parse_queue_line "$1"
+  parse_queue_line "$1" 0
 }
 
 iter_queue_lines() {
