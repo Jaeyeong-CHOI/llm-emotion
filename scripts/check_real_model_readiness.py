@@ -77,23 +77,26 @@ def normalize_env_name(token: str) -> str:
 
 def parse_env_var_list(raw: str, default: list[str]) -> list[str]:
     """Parse comma/space-separated env-var names with stable de-duplication."""
-    tokens = [
-        normalize_env_name(token)
-        for token in re.split(r"[\s,]+", (raw or "").strip())
-    ]
-    tokens = [token for token in tokens if token]
+    raw_tokens = re.split(r"[\s,]+", (raw or "").strip())
+
+    tokens: list[str] = []
+    invalid: list[str] = []
+
+    for raw_token in raw_tokens:
+        cleaned = raw_token.strip()
+        if not cleaned:
+            continue
+        normalized = normalize_env_name(cleaned)
+        if normalized:
+            tokens.append(normalized)
+        else:
+            invalid.append(cleaned)
 
     # 입력이 비면 기본값 사용(기존 동작 유지)
     if not tokens:
         tokens = dedupe_preserve_order(default)
 
     # 위험한 이름은 제외하고 경고만 출력해 실패를 유발하지 않는다.
-    invalid: list[str] = []
-    for raw_token in re.split(r"[\s,]+", (raw or "").strip()):
-        cleaned = raw_token.strip()
-        if cleaned and not normalize_env_name(cleaned):
-            invalid.append(cleaned)
-
     if invalid:
         print(
             f"[check_real_model_readiness] ignore invalid env var names: {', '.join(invalid)}",
