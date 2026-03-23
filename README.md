@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening 규칙(`queries/screening_rules.json`)에 **affective forecasting / anticipated regret / emotion regulation / emotional granularity** 축을 포함한 alias·method cue를 보강해, 선행연구 스크리닝에서 정서 예측·조절 계열 근거의 재현율을 높였습니다.
+- Prompt bank expanded to `v124.0` with **unknown-year group top16 ratio guard / top16 countervoice patch / temperature p99-p95 tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top16_ratio_triager_v124`, `top16_countervoice_architect_v124`, `temperature_p99_p95_guard_v124`)를 추가했습니다.
+- Experiment runner preflight에 **temperature p99/p95 share ratio guardrail** (`--max-planned-sample-temperature-p99-over-p95-share-ratio`)을 추가해, p99/median·p95/median이 통과해도 상단 tail 가속이 남는 배치를 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year query-group top15 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top15-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top15-over-global-group-top15-ratio`)를 추가해, top14 통과 이후에도 남는 query-group 누적 과점을 fail-fast로 차단합니다.
 - Prompt bank expanded to `v123.0` with **unknown-year group top15 ratio guard / top15 countervoice patch / temperature p99-median tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top15_ratio_triager_v123`, `top15_countervoice_architect_v123`, `temperature_p99_median_guard_v123`)를 추가했습니다.
 - Experiment runner preflight에 **temperature p99/median share ratio guardrail** (`--max-planned-sample-temperature-p99-over-median-share-ratio`)을 추가해, p95/median이 통과해도 최상단 tail 편중이 큰 배치를 사전에 차단합니다.

@@ -522,6 +522,7 @@ def write_preflight_markdown(path: Path, payload: dict):
         f"- planned_sample_temperature_p90_over_median_share_ratio: `{summary.get('planned_sample_temperature_p90_over_median_share_ratio', 0.0)}`",
         f"- planned_sample_temperature_p95_over_median_share_ratio: `{summary.get('planned_sample_temperature_p95_over_median_share_ratio', 0.0)}`",
         f"- planned_sample_temperature_p99_over_median_share_ratio: `{summary.get('planned_sample_temperature_p99_over_median_share_ratio', 0.0)}`",
+        f"- planned_sample_temperature_p99_over_p95_share_ratio: `{summary.get('planned_sample_temperature_p99_over_p95_share_ratio', 0.0)}`",
         f"- max_planned_sample_temperature_over_uniform_ratio: `{summary.get('max_planned_sample_temperature_over_uniform_ratio', 0.0)}`",
         f"- unique_selected_scenario_labels: `{summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{summary.get('unique_selected_scenario_tags', 0)}`",
@@ -931,6 +932,7 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- planned_sample_temperature_p90_over_median_share_ratio: `{preflight_summary.get('planned_sample_temperature_p90_over_median_share_ratio', 0.0)}`",
         f"- planned_sample_temperature_p95_over_median_share_ratio: `{preflight_summary.get('planned_sample_temperature_p95_over_median_share_ratio', 0.0)}`",
         f"- planned_sample_temperature_p99_over_median_share_ratio: `{preflight_summary.get('planned_sample_temperature_p99_over_median_share_ratio', 0.0)}`",
+        f"- planned_sample_temperature_p99_over_p95_share_ratio: `{preflight_summary.get('planned_sample_temperature_p99_over_p95_share_ratio', 0.0)}`",
         f"- planned_sample_temperature_entropy: `{preflight_summary.get('planned_sample_temperature_entropy', 0.0)}`",
         f"- unique_selected_scenario_labels: `{preflight_summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{preflight_summary.get('unique_selected_scenario_tags', 0)}`",
@@ -1521,6 +1523,12 @@ def main():
         type=float,
         default=0.0,
         help="fail if p99 temperature share / median temperature share exceeds this value (0 disables)",
+    )
+    ap.add_argument(
+        "--max-planned-sample-temperature-p99-over-p95-share-ratio",
+        type=float,
+        default=0.0,
+        help="fail if p99 temperature share / p95 temperature share exceeds this value (0 disables)",
     )
     ap.add_argument(
         "--max-planned-sample-temperature-over-uniform-ratio",
@@ -3304,6 +3312,7 @@ def main():
     planned_sample_temperature_p90_over_median_share_ratio = 0.0
     planned_sample_temperature_p95_over_median_share_ratio = 0.0
     planned_sample_temperature_p99_over_median_share_ratio = 0.0
+    planned_sample_temperature_p99_over_p95_share_ratio = 0.0
     if sorted_temperature_shares:
         median_share = sorted_temperature_shares[len(sorted_temperature_shares) // 2]
         p90_idx = max(0, math.ceil(0.9 * len(sorted_temperature_shares)) - 1)
@@ -3315,6 +3324,7 @@ def main():
         p99_idx = max(0, math.ceil(0.99 * len(sorted_temperature_shares)) - 1)
         p99_share = sorted_temperature_shares[p99_idx]
         planned_sample_temperature_p99_over_median_share_ratio = round(p99_share / max(1e-9, median_share), 4)
+        planned_sample_temperature_p99_over_p95_share_ratio = round(p99_share / max(1e-9, p95_share), 4)
     uniform_temperature_share = round(1.0 / max(1, len(planned_sample_temperature_shares)), 4)
     uniform_temperature_top2_share = round(min(2, len(planned_sample_temperature_shares)) * uniform_temperature_share, 4)
     uniform_temperature_top3_share = round(min(3, len(planned_sample_temperature_shares)) * uniform_temperature_share, 4)
@@ -3936,6 +3946,15 @@ def main():
             "planned_sample_temperature_p99_over_median_share_ratio="
             f"{planned_sample_temperature_p99_over_median_share_ratio} > max_planned_sample_temperature_p99_over_median_share_ratio={args.max_planned_sample_temperature_p99_over_median_share_ratio}"
         )
+
+    if (
+        args.max_planned_sample_temperature_p99_over_p95_share_ratio
+        and planned_sample_temperature_p99_over_p95_share_ratio > args.max_planned_sample_temperature_p99_over_p95_share_ratio
+    ):
+        raise RuntimeError(
+            "planned_sample_temperature_p99_over_p95_share_ratio="
+            f"{planned_sample_temperature_p99_over_p95_share_ratio} > max_planned_sample_temperature_p99_over_p95_share_ratio={args.max_planned_sample_temperature_p99_over_p95_share_ratio}"
+        )
     if (
         args.max_planned_sample_temperature_over_uniform_ratio
         and max_planned_sample_temperature_over_uniform_ratio > args.max_planned_sample_temperature_over_uniform_ratio
@@ -4146,6 +4165,7 @@ def main():
         "planned_sample_temperature_p90_over_median_share_ratio": planned_sample_temperature_p90_over_median_share_ratio,
         "planned_sample_temperature_p95_over_median_share_ratio": planned_sample_temperature_p95_over_median_share_ratio,
         "planned_sample_temperature_p99_over_median_share_ratio": planned_sample_temperature_p99_over_median_share_ratio,
+        "planned_sample_temperature_p99_over_p95_share_ratio": planned_sample_temperature_p99_over_p95_share_ratio,
         "uniform_temperature_share": uniform_temperature_share,
         "planned_sample_temperature_top2_over_uniform_ratio": planned_sample_temperature_top2_over_uniform_ratio,
         "planned_sample_temperature_top3_over_uniform_ratio": planned_sample_temperature_top3_over_uniform_ratio,
@@ -4647,6 +4667,7 @@ def main():
         "max_planned_sample_temperature_p90_over_median_share_ratio": args.max_planned_sample_temperature_p90_over_median_share_ratio,
         "max_planned_sample_temperature_p95_over_median_share_ratio": args.max_planned_sample_temperature_p95_over_median_share_ratio,
         "max_planned_sample_temperature_p99_over_median_share_ratio": args.max_planned_sample_temperature_p99_over_median_share_ratio,
+        "max_planned_sample_temperature_p99_over_p95_share_ratio": args.max_planned_sample_temperature_p99_over_p95_share_ratio,
         "max_planned_sample_temperature_over_uniform_ratio": args.max_planned_sample_temperature_over_uniform_ratio,
         "require_prompt_bank_version": args.require_prompt_bank_version,
         "resume_verify_hashes": args.resume_verify_hashes,

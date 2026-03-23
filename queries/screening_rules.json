@@ -21,7 +21,11 @@
     "counterfactual emotion",
     "emotional attribution",
     "empathy",
-    "emotion understanding"
+    "emotion understanding",
+    "affective forecasting",
+    "anticipated regret",
+    "emotion regulation",
+    "emotional granularity"
   ],
   "high_priority": [
     "regret",
@@ -53,7 +57,11 @@
     "expert rating",
     "intervention study",
     "ablation study",
-    "inter-rater reliability"
+    "inter-rater reliability",
+    "experience sampling",
+    "longitudinal study",
+    "diary study",
+    "mixed methods"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -77,6 +85,10 @@
       "anthropomorphism",
       "mental state",
       "theory of mind"
+    ],
+    [
+      "affective forecasting",
+      "anticipated regret"
     ]
   ],
   "term_aliases": {
@@ -190,6 +202,29 @@
       "social-emotional reasoning",
       "social emotional reasoning",
       "socioemotional reasoning"
+    ],
+    "affective forecasting": [
+      "affective forecasting",
+      "emotional forecasting",
+      "forecasted emotion",
+      "predicted emotion"
+    ],
+    "anticipated regret": [
+      "anticipated regret",
+      "expected regret",
+      "regret anticipation",
+      "pre-decisional regret"
+    ],
+    "emotion regulation": [
+      "emotion regulation",
+      "emotional regulation",
+      "regulation strategy",
+      "reappraisal"
+    ],
+    "emotional granularity": [
+      "emotional granularity",
+      "emotion differentiation",
+      "affect granularity"
     ]
   },
   "weights": {
@@ -243,7 +278,11 @@
     "rubric",
     "intervention study",
     "ablation study",
-    "inter-rater reliability"
+    "inter-rater reliability",
+    "experience sampling",
+    "longitudinal study",
+    "diary study",
+    "mixed-methods"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {

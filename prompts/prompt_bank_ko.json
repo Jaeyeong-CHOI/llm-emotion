@@ -1,5 +1,5 @@
 {
-  "version": "v123.0",
+  "version": "v124.0",
   "language": "ko",
   "scenarios": [
     {
@@ -5724,6 +5724,68 @@
       ],
       "difficulty": "hard",
       "prompt": "실험 러너 preflight에서 temperature 분포의 p99/median 격차를 감시하는 트립와이어를 설계하라. p95까지는 정상처럼 보여도 최상단 tail 셀이 과열되는 실패 모드를 설명하고, 임계치 선정 근거와 fail-fast 이후 재배분 절차를 6~8문장으로 작성하라."
+    },
+    {
+      "id": "screening_unknown_year_group_top16_ratio_guard_v124",
+      "label": "research_ops",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "top16",
+        "ratio_guard"
+      ],
+      "domains": [
+        "research_ops",
+        "literature_screening"
+      ],
+      "emotion_axes": [
+        "regret",
+        "anxiety"
+      ],
+      "difficulty": "hard",
+      "prompt": "문헌 스크리닝 review 큐에서 unknown-year known-query query-group 상위 16개 누적 비중이 높아지는지 점검하라. top16 절대 share와 global 대비 ratio를 함께 계산하고, 편중이 감지되면 tail group 복구를 위한 질의 재가중치·수동 검토 슬롯 재배치·증거 링크 보강 순서를 7~9문장으로 제안하라."
+    },
+    {
+      "id": "prompt_bank_top16_countervoice_patch_v124",
+      "label": "research_ops",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "top16",
+        "patch"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_engineering"
+      ],
+      "emotion_axes": [
+        "regret",
+        "control"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 unknown-year query-group top16 편중을 완화하기 위한 countervoice 패치를 설계하라. 기존 top15 패치 대비 무엇을 추가로 분산시키는지 설명하고, query-group tail 근거를 회복하는 문장 패턴 3가지를 포함해 6~8문장으로 작성하라."
+    },
+    {
+      "id": "runner_temperature_p99_p95_tripwire_v124",
+      "label": "research_ops",
+      "tags": [
+        "runner",
+        "temperature",
+        "p99",
+        "p95",
+        "tripwire"
+      ],
+      "domains": [
+        "experiment_ops",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "caution",
+        "control"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 러너 preflight에서 temperature 분포의 p99/p95 share ratio 트립와이어를 설계하라. p99/median과 p95/median이 각각 허용 범위라도 상단 tail이 급격히 튀는 실패 모드를 설명하고, fail-fast 이후 재샘플링 규칙을 6~8문장으로 제시하라."
     }
   ],
   "personas": [
@@ -8396,6 +8458,40 @@
         "runner_ops",
         "temperature",
         "p99_median",
+        "tripwire"
+      ]
+    },
+    {
+      "id": "unknown_year_group_top16_ratio_triager_v124",
+      "style": "unknown-year group top16 비율 트리아저",
+      "instruction": "unknown-year known-query query-group top16 share와 global 대비 ratio를 동시에 점검하고, 기준 초과 시 tail group 복구를 위한 수동 QC 재배치 계획을 우선순위와 함께 제시한다.",
+      "style_tags": [
+        "screening",
+        "query_group",
+        "unknown_year",
+        "top16",
+        "ratio_guard"
+      ]
+    },
+    {
+      "id": "top16_countervoice_architect_v124",
+      "style": "top16 countervoice 설계자",
+      "instruction": "query-group 상위 16개 편중이 생길 때 반대근거(countervoice) 문장을 영역별로 분산 배치해 tail group의 evidence density를 회복한다.",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "query_group",
+        "top16"
+      ]
+    },
+    {
+      "id": "temperature_p99_p95_guard_v124",
+      "style": "p99/p95 tail 급등 감시자",
+      "instruction": "temperature 분포에서 p99/p95 share ratio가 과열되면 상단 tail 셀 급등으로 판단하고, 실행 중단 조건과 재분배 계획을 run-id/temperature/seed 기준으로 기록한다.",
+      "style_tags": [
+        "runner_ops",
+        "temperature",
+        "p99_p95",
         "tripwire"
       ]
     }

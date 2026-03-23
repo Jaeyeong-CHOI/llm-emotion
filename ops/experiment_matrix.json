@@ -2754,6 +2754,31 @@
         "temperature_p99_median_guard_v123",
         "evidence_seeking"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_top16_temperature_p99_p95_v124",
+      "description": "v12.4 unknown-year group top16/global top16 ratio guard + top16 countervoice patch + temperature p99/p95 tripwire smoke",
+      "n": 6,
+      "seed": 124,
+      "repeats": 1,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top16_ratio_guard_v124",
+        "prompt_bank_top16_countervoice_patch_v124",
+        "runner_temperature_p99_p95_tripwire_v124"
+      ],
+      "persona_ids": [
+        "unknown_year_group_top16_ratio_triager_v124",
+        "top16_countervoice_architect_v124",
+        "temperature_p99_p95_guard_v124",
+        "evidence_seeking"
+      ]
     }
   ]
 }
