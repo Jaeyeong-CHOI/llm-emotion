@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Real-model transition readiness check with env contract validation."""
+"""Real-model transition readiness 체크와 환경 변수 계약 검증 유틸리티."""
 
 import argparse
 import json
@@ -111,7 +111,8 @@ def main():
         if not endpoint_scheme_ok:
             suspicious.append("OPENAI_BASE_URL")
 
-    if not re.match(r"^sk-", (os.getenv("OPENAI_API_KEY") or "")):
+    api_key = (os.getenv("OPENAI_API_KEY") or "").strip()
+    if api_key and not re.match(r"^sk-", api_key):
         suspicious.append("OPENAI_API_KEY")
 
     available_vars = {**required_status}
