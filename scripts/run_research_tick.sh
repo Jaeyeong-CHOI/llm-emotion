@@ -54,6 +54,10 @@ if [ ! -f "$QUEUE_FILE" ] || [ ! -s "$QUEUE_FILE" ]; then
   skip_with_status "no queued run-id"
 fi
 
+normalize_line() {
+  printf '%s' "$1" | tr -d '\r'
+}
+
 is_queue_data_line() {
   local line="$1"
   [[ ! "$line" =~ ^[[:space:]]*$ ]] && [[ ! "$line" =~ ^[[:space:]]*# ]]
@@ -67,7 +71,7 @@ dequeue_run_id() {
   local picked=""
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
-    line="$(printf '%s' "$raw_line" | tr -d '\r')"
+    line="$(normalize_line "$raw_line")"
     if [ -z "$picked" ] && is_queue_data_line "$line"; then
       picked="$line"
       continue
@@ -101,7 +105,7 @@ enqueue_run_id_unique() {
   touch "$queue_file"
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
-    line="$(printf '%s' "$raw_line" | tr -d '\r')"
+    line="$(normalize_line "$raw_line")"
     if [ "$line" = "$run_id" ]; then
       return 0
     fi
