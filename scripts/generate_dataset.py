@@ -62,7 +62,18 @@ def validate_prompt_bank(bank: Dict) -> None:
 
 
 def parse_temperatures(value: str) -> List[float]:
-    return [float(v.strip()) for v in value.split(",") if v.strip()]
+    temps: List[float] = []
+    for raw in value.split(","):
+        token = raw.strip()
+        if not token:
+            continue
+        temp = float(token)
+        if temp < 0.0 or temp > 2.0:
+            raise ValueError(f"temperature out of supported range [0,2]: {temp}")
+        temps.append(temp)
+    if not temps:
+        raise ValueError("no temperatures parsed from --temperatures")
+    return temps
 
 
 def parse_csv_set(value: str) -> set[str]:
