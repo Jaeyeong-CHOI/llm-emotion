@@ -3054,6 +3054,32 @@
         "freeze_lock_operator_v136",
         "evidence_seeking"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_hhi_p99_p40_reprolock_v137",
+      "description": "v13.7 unknown-year group HHI+entropy ratio guard + evidence-synthesis countervoice mesh + runner p99/p40 repro-lock tripwire",
+      "n": 6,
+      "seed": 137,
+      "repeats": 1,
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_hhi_entropy_ratio_v137",
+        "prompt_bank_countervoice_evidence_synthesis_mesh_v137",
+        "runner_temperature_p99_p40_reprolock_tripwire_v137"
+      ],
+      "persona_ids": [
+        "unknown_year_group_entropy_analyst_v137",
+        "evidence_synthesis_countervoice_curator_v137",
+        "p99_p40_tripwire_operator_v137",
+        "evidence_seeking"
+      ]
     }
   ]
 }

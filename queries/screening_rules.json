@@ -55,7 +55,10 @@
     "construct validity",
     "many-analyst",
     "open data",
-    "emotion schema"
+    "emotion schema",
+    "risk of bias",
+    "prisma",
+    "evidence synthesis"
   ],
   "high_priority": [
     "regret",
@@ -87,7 +90,10 @@
     "emotional granularity calibration",
     "regret repair strategy",
     "construct validity",
-    "emotion schema"
+    "emotion schema",
+    "risk of bias",
+    "prisma",
+    "evidence synthesis"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -129,11 +135,13 @@
     "causal mediation",
     "multiverse analysis",
     "specification curve",
-    "open materials"
-    ,
+    "open materials",
     "open data",
     "many-analyst",
-    "construct validity"
+    "construct validity",
+    "risk of bias",
+    "prisma",
+    "evidence synthesis"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -442,6 +450,21 @@
       "emotion schema",
       "emotion schemas",
       "affective schema"
+    ],
+    "risk of bias": [
+      "risk of bias",
+      "bias assessment",
+      "risk-of-bias"
+    ],
+    "prisma": [
+      "prisma",
+      "prisma statement",
+      "prisma flow diagram"
+    ],
+    "evidence synthesis": [
+      "evidence synthesis",
+      "systematic evidence synthesis",
+      "meta-synthesis"
     ]
   },
   "weights": {
@@ -523,7 +546,10 @@
     "causal mediation",
     "construct validity",
     "open data",
-    "many-analyst"
+    "many-analyst",
+    "risk of bias assessment",
+    "prisma flow diagram",
+    "systematic evidence synthesis"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {

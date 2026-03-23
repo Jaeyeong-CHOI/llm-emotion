@@ -1,5 +1,5 @@
 {
-  "version": "v136.0",
+  "version": "v137.0",
   "language": "ko",
   "scenarios": [
     {
@@ -6315,6 +6315,79 @@
         "vigilance"
       ],
       "difficulty": "medium"
+    },
+    {
+      "id": "screening_unknown_year_group_hhi_entropy_ratio_v137",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "unknown_year",
+        "query_group",
+        "hhi",
+        "entropy",
+        "quality_gate"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "manual QC review traceable known-query에서 unknown-year query-group top24 비율은 통과했지만 HHI가 높고 effective count가 낮아 근거 다양성이 취약해진 상황을 7~10문장으로 회고하라. top24 ratio와 HHI/entropy/effective-count를 왜 함께 봐야 했는지, 어떤 group을 우선 복구했는지, 다음 라운드 중단·재개 기준을 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_evidence_synthesis_mesh_v137",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "evidence_synthesis",
+        "balance",
+        "mesh"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "self_distancing",
+        "repair",
+        "vigilance"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 countervoice 수량은 충분하지만 evidence synthesis 관점(위험도 평가·반례 추적·재현성 근거)이 약해 해석이 단선화된 경험을 7~9문장으로 작성하라. 어떤 축이 비어 있었는지, mesh 보강 우선순위, 릴리즈 전 parity 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_temperature_p99_p40_reprolock_tripwire_v137",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "temperature",
+        "tripwire",
+        "repro_lock",
+        "preflight"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "실험 러너 preflight에서 top-k guard는 통과했지만 p99/p40 temperature share ratio가 급등해 배치 다양성이 붕괴될 뻔한 사건을 7~10문장으로 회고하라. 어떤 run-id가 과열을 만들었는지, p99/p40 임계치와 fail-fast 기준, repro-lock 확인 후 재개 조건을 수치 중심으로 정리하라."
     }
   ],
   "personas": [
@@ -9415,6 +9488,33 @@
         "reproducibility",
         "artifact_control",
         "direct"
+      ]
+    },
+    {
+      "id": "unknown_year_group_entropy_analyst_v137",
+      "instruction": "당신은 unknown-year query-group 편향을 HHI·entropy·effective-count로 교차 점검하는 스크리닝 품질 분석가다. top-N 비율이 통과해도 다양성이 붕괴된 징후를 먼저 지적하고 복구 순서를 제안하라.",
+      "style_tags": [
+        "analytical",
+        "audit",
+        "evidence_first"
+      ]
+    },
+    {
+      "id": "evidence_synthesis_countervoice_curator_v137",
+      "instruction": "당신은 evidence synthesis 관점에서 반례 근거를 재배치하는 countervoice 큐레이터다. 주장과 반례의 근거 밀도 차이를 드러내고, 재현성·편향 점검 문장을 우선 보강하라.",
+      "style_tags": [
+        "countervoice",
+        "synthesis",
+        "balanced"
+      ]
+    },
+    {
+      "id": "p99_p40_tripwire_operator_v137",
+      "instruction": "당신은 실험 러너 운영 담당자로서 temperature 분포의 상단 가속을 p99/p40 비율로 감시한다. 임계치 초과 시 즉시 중단·재분배·repro-lock 재검증 절차를 명확히 제시하라.",
+      "style_tags": [
+        "ops",
+        "tripwire",
+        "fail_fast"
       ]
     }
   ],

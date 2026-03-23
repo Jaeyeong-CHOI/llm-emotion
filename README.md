@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening 규칙(`queries/screening_rules.json`)에 **risk of bias / PRISMA / evidence synthesis** alias·method cue를 추가해, 선행연구 스크리닝에서 방법론적 근거 추적 신호를 강화했습니다.
+- Prompt bank expanded to `v137.0` with **unknown-year group HHI+entropy 복구 / evidence-synthesis countervoice mesh / runner p99-p40 repro-lock tripwire** 시나리오와 신규 페르소나(`unknown_year_group_entropy_analyst_v137`, `evidence_synthesis_countervoice_curator_v137`, `p99_p40_tripwire_operator_v137`)를 추가했습니다.
+- Experiment runner preflight에 **temperature p99/p40 share ratio guardrail** (`--max-planned-sample-temperature-p99-over-p40-share-ratio`)을 추가해, p99/p45가 통과해도 상단 tail 가속이 남는 배치를 fail-fast로 차단합니다.
 - Literature screening quality gate에 **unknown-year query-group HHI / effective count 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-hhi`, `--min-manual-qc-review-traceable-known-query-unknown-year-group-effective-count`)를 추가해, top-N 누적 비율이 통과해도 남는 query-group 집중 붕괴를 직접 fail-fast로 차단합니다.
 - Prompt bank expanded to `v136.0` with **unknown-year group HHI guard / reproducibility countervoice mesh / runner repro-lock artifact** 시나리오와 신규 페르소나(`unknown_year_group_hhi_auditor_v136`, `repro_countervoice_curator_v136`, `freeze_lock_operator_v136`)를 추가했습니다.
 - Experiment runner에 **repro lock artifact**(`--repro-lock-json`)와 freeze artifact sha256/bytes/mtime 기록을 추가해, 선택된 run-id/selection row/입력 freeze 상태를 단일 JSON으로 재현 가능하게 고정할 수 있습니다.
@@ -187,8 +190,16 @@ python3 scripts/generate_dataset.py \
 
 ## Experiment reproducibility
 - Run definitions live in `ops/experiment_matrix.json`
-- Latest increment: [`docs/reproducibility_v136.md`](./docs/reproducibility_v136.md)
+- Latest increment: [`docs/reproducibility_v137.md`](./docs/reproducibility_v137.md)
 - `--repro-lock-json`를 사용하면 selection row, preflight summary, snapshot hash, freeze artifact digest를 단일 lock artifact로 남길 수 있습니다.
+
+### v137 스모크 프리플라이트 (2026-03-24)
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v137 --max-manual-qc-review-traceable-known-query-unknown-year-group-top24-share 1.0 --max-manual-qc-review-traceable-known-query-unknown-year-group-top24-over-global-group-top24-ratio 1.0 --max-manual-qc-review-traceable-known-query-unknown-year-group-hhi 0.33 --min-manual-qc-review-traceable-known-query-unknown-year-group-effective-count 3.3
+
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v137_plan --plan-only --include-run-id screening_prompt_runner_unknown_year_group_hhi_p99_p40_reprolock_v137 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v137.json --selection-csv results/selection_report_smoke_v137.csv --repro-lock-json results/selection_report_smoke_v137.lock.json --preflight-markdown --require-prompt-bank-version v137.0 --require-freeze-artifact refs/openalex_results.jsonl --require-freeze-artifact results/lit_search_report.json --require-freeze-artifact results/screening_quality_report.json --max-planned-sample-temperature-p99-over-p45-share-ratio 1.05 --max-planned-sample-temperature-p99-over-p40-share-ratio 1.08 --manifest-note "preflight v137 unknown-year group hhi+entropy + p99/p40 repro-lock guard"
+```
 
 ### v136 스모크 프리플라이트 (2026-03-24)
 
