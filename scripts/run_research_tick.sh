@@ -121,6 +121,13 @@ read_lock_pid_file() {
   printf '%s' "$pid"
 }
 
+ensure_queue_file_safe() {
+  local queue_file="$1"
+  local when_fail="${2:-1}"
+
+  is_path_safe_from_symlink "$queue_file" || return "$when_fail"
+}
+
 read_proc_field() {
   local pid="$1"
   local field="$2"
@@ -363,7 +370,7 @@ dedupe_queue_file() {
   local queue_file="$1"
   local tmp_file=""
 
-  is_path_safe_from_symlink "$queue_file" || return 1
+  ensure_queue_file_safe "$queue_file" 1 || return 1
   [ -f "$queue_file" ] || return 0
   tmp_file="$(make_queue_temp_file "$queue_file" dedupe)"
 
@@ -380,7 +387,7 @@ dequeue_run_id() {
   local queue_file="$1"
   local tmp_file=""
 
-  is_path_safe_from_symlink "$queue_file" || return 1
+  ensure_queue_file_safe "$queue_file" 1 || return 1
 
   if [ ! -f "$queue_file" ]; then
     printf ''
@@ -443,7 +450,7 @@ enqueue_run_id_unique() {
   local run_id="$2"
   local canonical_run_id=""
 
-  is_path_safe_from_symlink "$queue_file" || return 0
+  ensure_queue_file_safe "$queue_file" 0 || return 0
   canonical_run_id="$(sanitize_queue_run_id "$run_id")" || return 0
 
   touch "$queue_file"
