@@ -35,10 +35,12 @@ refresh_status() {
   local ts
   ts="$(date -u +%Y%m%dT%H%M%SZ)_$$"
 
-  run_status_command "$STATUS_LOG_DIR/research_tick_status_${ts}.log" \
-    python3 scripts/update_live_status.py
-  run_status_command "$STATUS_LOG_DIR/research_tick_research_status_${ts}.log" \
-    python3 scripts/research_status.py
+  local status_script status_log
+  for status_script in update_live_status.py research_status.py; do
+    status_log="${STATUS_LOG_DIR}/research_tick_${status_script%.py}_${ts}.log"
+    run_status_command "$status_log" \
+      python3 "scripts/${status_script}"
+  done
 }
 
 skip_with_status() {
