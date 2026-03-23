@@ -95,16 +95,8 @@ if [ ! -f "$QUEUE_FILE" ] || [ ! -s "$QUEUE_FILE" ]; then
   skip_with_status "no queued run-id"
 fi
 
-normalize_line() {
-  printf '%s' "$1" | tr -d '\r'
-}
-
-trim_line() {
-  printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
-}
-
 canonical_line() {
-  trim_line "$(normalize_line "$1")"
+  printf '%s' "$1" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
 is_queue_data_line() {
