@@ -135,6 +135,12 @@ iter_queue_data_lines() {
 dequeue_run_id() {
   local queue_file="$1"
   local tmp_file
+
+  if [ ! -f "$queue_file" ]; then
+    printf ''
+    return 0
+  fi
+
   tmp_file="$(mktemp "${queue_file}.tmp.XXXXXX")"
 
   cleanup_tmp_queue_file() {
