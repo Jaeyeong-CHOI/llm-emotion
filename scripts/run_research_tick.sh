@@ -395,6 +395,13 @@ materialize_sanitized_queue() {
   iter_queue_lines "$queue_file" > "$out_file"
 }
 
+materialize_unique_lines() {
+  local in_file="$1"
+  local out_file="$2"
+
+  awk '{ if (!seen[$0]++) print $0 }' < "$in_file" > "$out_file"
+}
+
 dedupe_queue_file() {
   local queue_file="$1"
   local tmp_file=""
@@ -410,7 +417,7 @@ dedupe_queue_file() {
     return 1
   fi
 
-  if ! awk '{ if (!seen[$0]++) print $0 }' < "$tmp_file" > "$dedup_file"; then
+  if ! materialize_unique_lines "$tmp_file" "$dedup_file"; then
     rm -f "$tmp_file" "$dedup_file"
     return 1
   fi
