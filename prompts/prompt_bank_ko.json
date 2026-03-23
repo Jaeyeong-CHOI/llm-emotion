@@ -1,5 +1,5 @@
 {
-  "version": "v138.0",
+  "version": "v139.0",
   "language": "ko",
   "scenarios": [
     {
@@ -6437,6 +6437,55 @@
       ],
       "prompt": "실험 러너 preflight에서 p99/p40은 통과했지만 p99/p35 비율이 급등해 tail 가속이 남는 배치를 회고하라. repro-lock artifact를 근거로 중단 기준, 재시도 정책, 다음 실행의 temperature budget 재할당안을 7~10문장으로 제시하라.",
       "source": "synthetic"
+    },
+    {
+      "id": "screening_unknown_year_group_top26_entropy_stability_v139",
+      "label": "screening unknown-year group top26 entropy stability",
+      "scenario": "manual QC review traceable known-query에서 unknown-year query-group top25는 통과했지만 top26 누적과 entropy/effective-count가 다시 흔들리는 상황",
+      "emotion_axis": "regret",
+      "difficulty": "hard",
+      "tags": [
+        "screening",
+        "unknown-year",
+        "query-group",
+        "top26",
+        "entropy",
+        "stability"
+      ],
+      "domain": "research_ops",
+      "prompt": "manual QC review traceable known-query에서 unknown-year query-group top26 누적이 급증한 원인을 진단하라. top24/top25와 비교해 어떤 group이 추가로 과점됐는지 설명하고, entropy/effective-count를 함께 복구하는 query-group 재배치 규칙을 3단계로 제안하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_protocol_trace_mesh_v139",
+      "label": "prompt bank countervoice protocol trace mesh",
+      "scenario": "프롬프트 뱅크에서 protocol compliance와 evidence provenance 축이 약해 screening 반례 회전이 단조로워진 상황",
+      "emotion_axis": "regret",
+      "difficulty": "hard",
+      "tags": [
+        "prompt-bank",
+        "countervoice",
+        "protocol",
+        "provenance",
+        "mesh"
+      ],
+      "domain": "research_ops",
+      "prompt": "prompt bank countervoice 세트에서 protocol compliance·evidence provenance 반례가 약해진 원인을 분석하라. query-group tail 복구에 기여하는 신규 반례 프롬프트 3개를 설계하고, 각 프롬프트가 어떤 편향(과점, 누락, 추적성 붕괴)을 완화하는지 명시하라."
+    },
+    {
+      "id": "runner_temperature_p99_p30_reprolock_tripwire_v139",
+      "label": "runner temperature p99/p30 repro-lock tripwire",
+      "scenario": "실험 러너 preflight에서 p99/p35는 통과했지만 p99/p30 비율이 급등해 최상단 tail 가속이 남은 상황",
+      "emotion_axis": "regret",
+      "difficulty": "hard",
+      "tags": [
+        "runner",
+        "temperature",
+        "p99-p30",
+        "repro-lock",
+        "tripwire"
+      ],
+      "domain": "research_ops",
+      "prompt": "실험 러너 preflight에서 p99/p35는 통과했지만 p99/p30 비율이 급등한 배치를 회고하라. repro-lock artifact를 근거로 중단 기준, 재시도 상한, 다음 배치의 temperature budget 재할당 규칙을 7~10문장으로 제시하라."
     }
   ],
   "personas": [
@@ -9604,6 +9653,42 @@
         "budget_control"
       ],
       "source": "synthetic"
+    },
+    {
+      "id": "unknown_year_group_top26_entropy_steward_v139",
+      "label": "unknown-year group top26 entropy steward",
+      "prompt_style": "unknown-year review 큐에서 query-group top26 누적과 entropy/effective-count를 함께 감시해 과점 복귀를 선제 차단한다.",
+      "style_tags": [
+        "screening",
+        "query-group",
+        "entropy",
+        "unknown-year",
+        "operations"
+      ]
+    },
+    {
+      "id": "protocol_trace_countervoice_curator_v139",
+      "label": "protocol-trace countervoice curator",
+      "prompt_style": "protocol compliance와 evidence provenance 축의 반례 프롬프트를 균형 있게 회전시켜 스크리닝 추적성 공백을 줄인다.",
+      "style_tags": [
+        "prompt-bank",
+        "countervoice",
+        "protocol",
+        "provenance",
+        "curation"
+      ]
+    },
+    {
+      "id": "p99_p30_reprolock_operator_v139",
+      "label": "p99/p30 repro-lock operator",
+      "prompt_style": "p99/p30 tail 압력을 repro-lock artifact와 결합해 사전 중단 기준과 temperature budget 재배분 규칙을 고정한다.",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "repro-lock",
+        "tripwire",
+        "operations"
+      ]
     }
   ],
   "temperatures": [

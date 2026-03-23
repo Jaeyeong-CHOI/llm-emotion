@@ -66,7 +66,12 @@
     "evidence triangulation",
     "protocol deviation",
     "reporting bias",
-    "open science"
+    "open science",
+    "emotion trajectory",
+    "counterfactual consistency",
+    "regret calibration",
+    "evidence provenance",
+    "protocol compliance"
   ],
   "high_priority": [
     "regret",
@@ -106,7 +111,11 @@
     "counterfactual explanation",
     "regret sensitivity",
     "emotion robustness",
-    "evidence triangulation"
+    "evidence triangulation",
+    "emotion trajectory",
+    "counterfactual consistency",
+    "regret calibration",
+    "evidence provenance"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -160,7 +169,12 @@
     "reporting bias",
     "triangulation",
     "open science",
-    "replication package"
+    "replication package",
+    "protocol amendment",
+    "deviation log",
+    "open methods",
+    "reproducibility checklist",
+    "audit trail"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -524,6 +538,31 @@
       "open science",
       "open-science",
       "transparent research"
+    ],
+    "emotion trajectory": [
+      "emotion trajectory",
+      "affective trajectory",
+      "emotion dynamics"
+    ],
+    "counterfactual consistency": [
+      "counterfactual consistency",
+      "counterfactual coherence",
+      "counterfactual alignment"
+    ],
+    "regret calibration": [
+      "regret calibration",
+      "regret intensity calibration",
+      "regret signal calibration"
+    ],
+    "evidence provenance": [
+      "evidence provenance",
+      "provenance trace",
+      "evidence traceability"
+    ],
+    "protocol compliance": [
+      "protocol compliance",
+      "protocol adherence",
+      "registered protocol compliance"
     ]
   },
   "weights": {
@@ -614,7 +653,13 @@
     "reporting bias",
     "triangulation",
     "open science checklist",
-    "replication package"
+    "replication package",
+    "protocol amendment",
+    "deviation log",
+    "open methods appendix",
+    "reproducibility checklist",
+    "evidence provenance table",
+    "audit trail"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {
