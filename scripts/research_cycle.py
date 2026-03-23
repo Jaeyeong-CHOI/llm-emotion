@@ -35,6 +35,15 @@ def run_step(state: dict, name: str, cmd: Sequence[str]):
     return code, out, err
 
 
+def run_steps(state: dict, steps: list[tuple[str, list[str]]]) -> bool:
+    """Run all requested steps in order; return False on first failure."""
+
+    for name, cmd in steps:
+        code, _, _ = run_step(state, name, cmd)
+        if code != 0:
+            return False
+
+    return True
 
 
 def collect_screening_label_stats(refs_path):
@@ -93,7 +102,21 @@ def main():
                 "docs/evidence-table.md",
             ],
         ),
-        ("mock_generate", ["python3", "scripts/generate_dataset.py", "--out", "data/raw/mock_generations.jsonl", "--n", "10", "--seed", "42", "--prompt-bank", "prompts/prompt_bank_ko.json"]),
+        (
+            "mock_generate",
+            [
+                "python3",
+                "scripts/generate_dataset.py",
+                "--out",
+                "data/raw/mock_generations.jsonl",
+                "--n",
+                "10",
+                "--seed",
+                "42",
+                "--prompt-bank",
+                "prompts/prompt_bank_ko.json",
+            ],
+        ),
         (
             "mock_analyze",
             [
@@ -110,10 +133,8 @@ def main():
         ("append_brief_log", ["python3", "scripts/update_brief_log.py"]),
     ]
 
-    for name, cmd in steps:
-        code, _, _ = run_step(state, name, cmd)
-        if code != 0:
-            return 1
+    if not run_steps(state, steps):
+        return 1
 
     report_path = ROOT / "results" / "screening_quality_report.json"
     if not report_path.exists():
