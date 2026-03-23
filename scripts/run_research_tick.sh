@@ -37,11 +37,40 @@ skip_with_status() {
 echo "[tick] $(date -u +'%Y-%m-%dT%H:%M:%SZ') start"
 
 LOCK_DIR="/tmp/llm_emotion_research_tick.lock"
-if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+LOCK_PID_FILE="$LOCK_DIR/pid"
+
+acquire_lock() {
+  if mkdir "$LOCK_DIR" 2>/dev/null; then
+    printf '%s\n' "$$" > "$LOCK_PID_FILE"
+    return 0
+  fi
+
+  local lock_pid=""
+  if [ -f "$LOCK_PID_FILE" ]; then
+    lock_pid="$(cat "$LOCK_PID_FILE" 2>/dev/null || true)"
+  fi
+
+  if [ -n "$lock_pid" ] && ! kill -0 "$lock_pid" 2>/dev/null; then
+    echo "[tick] stale lock detected (pid=$lock_pid); recovering"
+    rm -f "$LOCK_PID_FILE"
+    rmdir "$LOCK_DIR" 2>/dev/null || true
+
+    if mkdir "$LOCK_DIR" 2>/dev/null; then
+      printf '%s\n' "$$" > "$LOCK_PID_FILE"
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
+if ! acquire_lock; then
   echo "[tick] lock busy; another tick is running, skip"
   exit 0
 fi
+
 cleanup_lock() {
+  rm -f "$LOCK_PID_FILE"
   rmdir "$LOCK_DIR" 2>/dev/null || true
 }
 trap cleanup_lock EXIT
