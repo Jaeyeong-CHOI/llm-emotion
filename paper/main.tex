@@ -80,17 +80,19 @@ Our contribution is narrower but operationally important: building a continuous,
 \label{tab:litmap}
 \footnotesize
 \centering
-\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.23\linewidth}X>{\RaggedRight\arraybackslash}p{0.22\linewidth}}
+\resizebox{\columnwidth}{!}{%
+\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.24\linewidth}p{0.46\linewidth}>{\RaggedRight\arraybackslash}p{0.22\linewidth}}
 \toprule
 Stream & Representative findings & Relevance to this study\\
 \midrule
-Counterfactual and regret psychology & Counterfactual phrasing and temporal repair indicate measurable markers. & Defines explicit linguistic targets.\\
-LLM social cognition & ToM behavior is sensitive to framing and formatting. & Requires strict scenario/persona/temperature controls.\\
-Anthropomorphism & Fluency strongly drives perceived affect/intent. & Warns against affect-state interpretation.\\
-Emotion/benchmarking & Coverage and perturbation protocols improve reliability. & Informs QC gates and reproducibility design.\\
-Pipeline reproducibility & Automated status/traceability enables long-run monitoring. & Supports 1-minute continuous operations.\\
+Counterfactual and regret psychology & Counterfactual phrasing and temporal repair. & Defines explicit markers.\\
+LLM social cognition & ToM is framing-sensitive. & Uses strict control settings.\\
+Anthropomorphism & Fluency drives perceived affect/intent. & Avoids affect-state over-interpretation.\\
+Emotion/benchmarking & Coverage + perturbation improve reliability. & Supports QC and reproducibility design.\\
+Pipeline reproducibility & Long-run monitoring with status/traceability. & Supports continuous operation.\\
 \bottomrule
 \end{tabularx}
+}%
 \end{table}
 
 \section{Research Design}
@@ -118,19 +120,21 @@ The study is implemented as an automated loop. Table~\ref{tab:pipeline} summariz
 \label{tab:pipeline}
 \footnotesize
 \centering
-\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.17\linewidth}X}
+\resizebox{\columnwidth}{!}{%
+\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.30\linewidth}X}
 \toprule
 \textbf{Module} & \textbf{Function} \\
 \midrule
 Literature retrieval & Rule-based OpenAlex normalization and deduplication.\\
 Screening quality gate & Quantitative gates with pass/fail summaries.\\
-Scenario/persona grid & 436 scenarios and 311 personas with 5 temperatures.\\
-Generator & Deterministic, configuration-driven sample generation.\\
+Scenario/persona grid & 436 scenarios, 311 personas, 5 temp levels.\\
+Generator & Deterministic, config-driven sample generation.\\
 Marker analysis & Lexicon extraction and marker-level aggregation.\\
-Experiment driver & Multi-condition orchestration and aggregate metric collection.\\
+Experiment driver & Orchestration + aggregate metric collection.\\
 State tracking & Cron logs, dashboards, and compact summaries.\\
 \bottomrule
 \end{tabularx}
+}%
 \end{table}
 
 \subsection{Automated literature workflow}
