@@ -107,6 +107,21 @@ is_queue_data_line() {
   [[ -n "$line" ]] && [[ ! "$line" =~ ^# ]]
 }
 
+iter_queue_data_lines() {
+  local queue_file="$1"
+  local raw_line=""
+
+  [ -f "$queue_file" ] || return 0
+
+  while IFS= read -r raw_line || [ -n "$raw_line" ]; do
+    local line
+    line="$(canonical_line "$raw_line")"
+    if is_queue_data_line "$line"; then
+      printf '%s\n' "$line"
+    fi
+  done < "$queue_file"
+}
+
 dequeue_run_id() {
   local queue_file="$1"
   local tmp_file
@@ -154,16 +169,14 @@ queue_contains_run_id() {
   local canonical_run_id
   canonical_run_id="$(canonical_line "$run_id")"
 
-  [ -f "$queue_file" ] || return 1
   is_queue_data_line "$canonical_run_id" || return 1
 
-  while IFS= read -r raw_line || [ -n "$raw_line" ]; do
-    local line
-    line="$(canonical_line "$raw_line")"
-    if is_queue_data_line "$line" && [ "$line" = "$canonical_run_id" ]; then
+  local queue_line=""
+  while IFS= read -r queue_line; do
+    if [ "$queue_line" = "$canonical_run_id" ]; then
       return 0
     fi
-  done < "$queue_file"
+  done < <(iter_queue_data_lines "$queue_file")
 
   return 1
 }
