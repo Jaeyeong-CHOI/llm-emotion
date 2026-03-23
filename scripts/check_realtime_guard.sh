@@ -5,25 +5,10 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT"
 
-load_env_file() {
-  local env_file="${LLM_EMOTION_ENV_FILE:-$ROOT/.env.real_model}"
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/research_env.sh"
 
-  if [[ -n "${LLM_EMOTION_ENV_FILE:-}" && -f "${LLM_EMOTION_ENV_FILE}" ]]; then
-    env_file="$LLM_EMOTION_ENV_FILE"
-  elif [[ -f "$ROOT/.env.real_model" ]]; then
-    env_file="$ROOT/.env.real_model"
-  else
-    return 1
-  fi
-
-  set -a
-  # shellcheck disable=SC1090
-  source "$env_file"
-  set +a
-  return 0
-}
-
-load_env_file
+load_research_env
 
 run_step() {
   local index="$1"

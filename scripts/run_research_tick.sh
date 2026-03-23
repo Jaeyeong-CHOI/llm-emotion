@@ -5,20 +5,11 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 cd "$ROOT"
 
-load_env_file() {
-  local env_file="$1"
-  [ -f "$env_file" ] || return 1
+# shellcheck disable=SC1091
+source "$SCRIPT_DIR/research_env.sh"
 
-  set -a
-  # shellcheck disable=SC1090
-  source "$env_file"
-  set +a
-  return 0
-}
-
-ENV_FILE="${LLM_EMOTION_ENV_FILE:-$ROOT/.env.real_model}"
-if ! load_env_file "$ENV_FILE"; then
-  echo "[tick] env file not found (${ENV_FILE}); skip" >&2
+if ! load_research_env; then
+  echo "[tick] env file not found; skip" >&2
   exit 0
 fi
 
