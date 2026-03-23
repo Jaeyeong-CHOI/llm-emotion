@@ -229,6 +229,13 @@ iter_queue_lines() {
 }
 
 
+make_queue_temp_file() {
+  local queue_file="$1"
+  local suffix="${2:-tmp}"
+
+  mktemp "${queue_file}.${suffix}.XXXXXX"
+}
+
 dedupe_queue_file() {
   local queue_file="$1"
   local tmp_file=""
@@ -237,7 +244,7 @@ dedupe_queue_file() {
   local normalized=""
 
   [ -f "$queue_file" ] || return 0
-  tmp_file="$(mktemp "${queue_file}.dedupe.XXXXXX")"
+  tmp_file="$(make_queue_temp_file "$queue_file" dedupe)"
 
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     canonical="$(canonicalize_queue_line "$raw_line" || true)"
@@ -268,7 +275,7 @@ dequeue_run_id() {
     return 0
   fi
 
-  tmp_file="$(mktemp "${queue_file}.tmp.XXXXXX")"
+  tmp_file="$(make_queue_temp_file "$queue_file" dequeue)"
 
   local picked=""
   local line=""
