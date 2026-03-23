@@ -28,12 +28,10 @@ run_status_command() {
 }
 
 refresh_status() {
-  while IFS='|' read -r log_path command; do
-    run_status_command "$log_path" bash -lc "$command"
-  done <<'EOF'
-/tmp/research_tick_status.log|python3 scripts/update_live_status.py
-/tmp/research_tick_research_status.log|python3 scripts/research_status.py
-EOF
+  run_status_command "/tmp/research_tick_status.log" \
+    python3 scripts/update_live_status.py
+  run_status_command "/tmp/research_tick_research_status.log" \
+    python3 scripts/research_status.py
 }
 
 skip_with_status() {
