@@ -3132,6 +3132,32 @@
         "p99_p30_reprolock_operator_v139",
         "evidence_seeking"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_top27_temperature_p99_p25_v140",
+      "description": "v14.0 unknown-year group top27+entropy 안정화 + protocol-trace countervoice mesh + runner p99/p25 repro-lock tripwire smoke",
+      "n": 6,
+      "seed": 140,
+      "repeats": 1,
+      "temperatures": [
+        0.1,
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top27_entropy_stability_v140",
+        "prompt_bank_countervoice_protocol_trace_mesh_v140",
+        "runner_temperature_p99_p25_reprolock_tripwire_v140"
+      ],
+      "persona_ids": [
+        "unknown_year_group_top27_entropy_steward_v140",
+        "protocol_trace_countervoice_curator_v140",
+        "p99_p25_reprolock_operator_v140",
+        "evidence_seeking"
+      ]
     }
   ]
 }

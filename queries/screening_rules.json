@@ -71,7 +71,13 @@
     "counterfactual consistency",
     "regret calibration",
     "evidence provenance",
-    "protocol compliance"
+    "protocol compliance",
+    "search strategy",
+    "analysis plan",
+    "materials availability",
+    "analysis pipeline",
+    "data availability statement",
+    "sensitivity analysis"
   ],
   "high_priority": [
     "regret",
@@ -115,7 +121,11 @@
     "emotion trajectory",
     "counterfactual consistency",
     "regret calibration",
-    "evidence provenance"
+    "evidence provenance",
+    "preregistration",
+    "search strategy",
+    "sensitivity analysis",
+    "data availability statement"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -174,7 +184,11 @@
     "deviation log",
     "open methods",
     "reproducibility checklist",
-    "audit trail"
+    "audit trail",
+    "data availability",
+    "analysis reproducibility",
+    "registered protocol compliance",
+    "sensitivity analysis"
   ],
   "exclude_if_any": [
     "speech recognition",
