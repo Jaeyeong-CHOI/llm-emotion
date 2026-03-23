@@ -63,7 +63,7 @@ These definitions support our focus on language-level observables rather than em
 Theory-of-mind studies on LLMs show a mixed landscape: strong scores in some benchmark conditions but high sensitivity to prompts, instruction style, and surface perturbations.
 Large-scale evaluations and stress tests~\cite{kosinski2024tom, strachan2024, tombench2024, opentom2024, simpletom2024, hito2023, mindgames2023, epitome2024, reevaltom2025} indicate that reproducibility requires strict protocol control and explicit coverage constraints.
 Complementary cognitive-psychology analyses also argue that strong task performance should be interpreted as pattern-level behavioral competence, not direct evidence of human-like mental-state understanding~\cite{binz2023}; this caution is consistent with broader debates on what counts as ``understanding'' in LLM behavior reports, role-playing effects in instruction-following models, and capability demonstrations that can otherwise invite overgeneralization~\cite{mitchell2023debate, shanahan2023roleplay, bubeck2023sparks}.
-Work on robustness under minor alterations~\cite{ullman2023, shapira2023cleverhans} and prompting strategies for perspective-taking and ToM elicitation~\cite{ma2024, moghaddam2023boostingtom} suggests that protocol variance can materially alter observed social reasoning. Additional evidence comparing LLM ToM performance with children on advanced tasks highlights non-uniform capability profiles across benchmark families~\cite{vanduijn2023conll}, and multi-agent collaboration studies indicate that social-reasoning behavior can change under interactive coordination settings rather than single-turn probes~\cite{li2023multiagenttom}.
+Work on robustness under minor alterations~\cite{ullman2023, shapira2023cleverhans} and prompting strategies for perspective-taking and ToM elicitation~\cite{ma2024, moghaddam2023boostingtom} suggests that protocol variance can materially alter observed social reasoning. We also account for evaluation-metric artifacts highlighted in scaling analyses showing that apparent capability ``jumps'' can be induced by discontinuous scoring choices rather than genuinely discontinuous competence changes~\cite{schaeffer2023mirage}. Additional evidence comparing LLM ToM performance with children on advanced tasks highlights non-uniform capability profiles across benchmark families~\cite{vanduijn2023conll}, and multi-agent collaboration studies indicate that social-reasoning behavior can change under interactive coordination settings rather than single-turn probes~\cite{li2023multiagenttom}.
 
 \subsection{Anthropomorphic attribution and emotional intelligence}
 A separate but adjacent literature shows that users often attribute personality, emotion, and agency to AI text systems, so interpretation risk must be treated as an empirical measurement issue rather than an intent claim.
@@ -75,7 +75,7 @@ This motivates explicitly separating linguistic behavior from affective ontology
 Related work across ToM, emotion, and social-signal evaluation consistently emphasizes: (i) benchmark family coverage, (ii) perturbation tests, and (iii) transparent statistical reporting.
 Beyond ToM-only settings, prior emotion-focused resources such as EmpatheticDialogues and GoEmotions show that label granularity, domain shift, and annotation design materially affect measured performance~\cite{rashkin2019, demszky2020}, while shared-task settings in affective NLP highlight reproducibility challenges tied to preprocessing and class imbalance~\cite{mohammad2018semeval}. Task-specific studies on LLM emotion detection and real-time emotion generation in HRI report promising domain performance, and dedicated emotional-intelligence benchmarking suggests non-trivial variance across model families and task formulations~\cite{emotiondetect2023, hriemotion2023, emobench2024, emobench2, fragileemotionreasoning2025}; however, these metrics and interaction settings are not directly aligned with controlled regret-marker elicitation.
 General-purpose LLM evaluation frameworks also stress multi-metric reporting, scenario stratification, and explicit documentation of evaluation limitations~\cite{liang2023helm,chang2024survey,bommasani2021foundation,lin2022truthfulqa,srivastava2022beyond}.
-We additionally follow reproducible-science guidance on transparent analysis plans, preregistered confirmatory workflows, and robustness against researcher degrees of freedom~\cite{munafo2017manifesto, simmons2011falsepositive, gelman2014garden, nosk2018prereg}.
+We additionally follow reproducible-science guidance on transparent analysis plans, preregistered confirmatory workflows, and robustness against researcher degrees of freedom~\cite{munafo2017manifesto, simmons2011falsepositive, gelman2014garden, nosk2018prereg}. We align reporting and artifact disclosure with machine-learning reproducibility standards (e.g., checklist-based documentation of data, code, and compute settings) to improve rerun fidelity across environments~\cite{pineau2021improving}.
 Our pipeline is aligned with this design tradition through automated retrieval, multi-gate screening, scenario coverage diagnostics, and failure-aware orchestration.
 
 \subsection{Research gap addressed by this study}
@@ -90,12 +90,12 @@ Our contribution is narrower but operationally important: building a continuous,
 \setlength{\tabcolsep}{3pt}
 \begin{tabularx}{\linewidth}{@{}>{\RaggedRight\arraybackslash}p{0.22\linewidth}X@{}}
 \toprule
-Stream & Evidence and relevance\\
+Stream & Evidence relevance\\
 \midrule
-Counterfactual and regret psychology & Counterfactual phrasing predicts measurable markers and defines explicit target features.\\
-LLM social cognition & ToM is framing-sensitive, requiring strict controls over scenario, persona, and temperature.\\
-Anthropomorphism & Fluency can inflate perceived intent, motivating conservative interpretation.\\
-Emotion/benchmarking & Coverage plus perturbation testing improves reliability and reproducibility.\\
+Counterfactual/regret psychology & Counterfactual phrasing predicts measurable markers and motivates explicit target features.\\
+LLM social cognition & ToM is framing-sensitive, requiring controls over scenario, persona, and temperature.\\
+Anthropomorphism & Fluency can inflate perceived intent, so interpretation remains conservative.\\
+Emotion benchmarking & Coverage + perturbation testing improves reliability and reproducibility.\\
 Pipeline reproducibility & Long-run status monitoring and traceability support continuous operation.\\
 \bottomrule
 \end{tabularx}
