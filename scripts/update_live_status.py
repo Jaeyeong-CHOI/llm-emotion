@@ -7,8 +7,17 @@ from research_ops_common import ROOT, STATE_PATH, display_value, get_nested_fiel
 CRON_STATE_PATH = ROOT / "ops" / "cron_runtime_status.json"
 OUT_PATH = ROOT / "LIVE_STATUS.md"
 
-
 fmt = display_value
+
+
+def _build_status_lines(cron: dict[str, object]) -> list[str]:
+    status_fields = [
+        ("연구 루프(1분)", get_nested_field(cron, "continuous", "status")),
+        ("중요상황 상시 보고(1분)", get_nested_field(cron, "live_report", "status")),
+        ("최근 연구 루프 결과", get_nested_field(cron, "continuous", "lastRunStatus")),
+    ]
+
+    return [f"- {label}: **{value}**" for label, value in status_fields]
 
 
 def main() -> None:
@@ -29,9 +38,7 @@ def main() -> None:
         f"- 생성 샘플 수(파이프라인 검증용): **{fmt(snapshot.get('mock_samples_generated'), '0')}개**",
         "",
         "## 자동화 상태",
-        f"- 연구 루프(1분): **{get_nested_field(cron, 'continuous', 'status')}**",
-        f"- 중요상황 상시 보고(1분): **{get_nested_field(cron, 'live_report', 'status')}**",
-        f"- 최근 연구 루프 결과: **{get_nested_field(cron, 'continuous', 'lastRunStatus')}**",
+        *_build_status_lines(cron),
         "",
         "## 현재 단계 요약",
         "- [x] 체계적 선행연구 수집 파이프라인 구축",
