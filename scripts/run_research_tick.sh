@@ -67,19 +67,16 @@ is_expected_tick_command() {
 
 lock_pid_uid_and_command() {
   local pid="$1"
-  local ps_line=""
   local owner_uid=""
   local command=""
 
   is_numeric_pid "$pid" || return 1
 
-  ps_line="$(ps -p "$pid" -o uid= -o command= 2>/dev/null | head -n 1 | tr -d '\r' || true)"
-  [ -n "$ps_line" ] || return 1
-
-  owner_uid="$(printf '%s' "$ps_line" | awk '{print $1}')"
-  command="$(printf '%s' "$ps_line" | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+//')"
+  owner_uid="$(ps -p "$pid" -o uid= 2>/dev/null | tr -d '\r' | head -n 1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' || true)"
+  command="$(ps -p "$pid" -o command= 2>/dev/null | tr -d '\r' | head -n 1 || true)"
 
   [[ -n "$owner_uid" ]] || return 1
+  [[ -n "$command" ]] || return 1
   [[ "$owner_uid" == "$(id -u)" ]] || return 1
   is_expected_tick_command "$command"
 }
