@@ -47,16 +47,11 @@ def dedupe_preserve_order(values: list[str]) -> list[str]:
 
 def parse_env_var_list(raw: str, default: list[str]) -> list[str]:
     """Parse comma/space-separated env-var names with stable de-duplication."""
-    if not raw:
+    tokens = [t for t in re.split(r"[\s,]+", (raw or "").strip()) if t]
+    if not tokens:
         return dedupe_preserve_order(default)
-
-    tokens = re.split(r"[\s,]+", raw.strip())
-    vars_ = [t for t in tokens if t]
-    if not vars_:
-        return dedupe_preserve_order(default)
-
     # Keep first occurrence order so CLI intent stays predictable.
-    return dedupe_preserve_order(vars_)
+    return dedupe_preserve_order(tokens)
 
 
 def check_var(value: str):
@@ -65,7 +60,7 @@ def check_var(value: str):
     return exists, placeholder
 
 
-def check_vars(names):
+def check_vars(names: list[str]):
     status = {}
     missing = []
     placeholder_vars = []
@@ -80,6 +75,16 @@ def check_vars(names):
         if placeholder:
             placeholder_vars.append(name)
     return status, missing, placeholder_vars
+
+
+def check_env_block(names: list[str]):
+    status, missing, placeholder_vars = check_vars(names)
+    return {
+        "names": names,
+        "available": status,
+        "missing": missing,
+        "placeholder": placeholder_vars,
+    }
 
 
 def main():
@@ -102,11 +107,11 @@ def main():
     )
     args = ap.parse_args()
 
-    required = parse_env_var_list(args.required_vars, DEFAULT_REQUIRED)
-    optional = parse_env_var_list(args.optional_vars, OPTIONAL_PROJECT_VARS)
+    required_names = parse_env_var_list(args.required_vars, DEFAULT_REQUIRED)
+    optional_names = parse_env_var_list(args.optional_vars, OPTIONAL_PROJECT_VARS)
 
-    required_status, required_missing, required_placeholder_vars = check_vars(required)
-    optional_status, optional_missing, optional_placeholder_vars = check_vars(optional)
+    required = check_env_block(required_names)
+    optional = check_env_block(optional_names)
 
     endpoint = os.getenv("OPENAI_BASE_URL", "").strip()
     endpoint_scheme_ok = True
@@ -120,7 +125,12 @@ def main():
     if api_key and not re.match(r"^sk-", api_key):
         suspicious.append("OPENAI_API_KEY")
 
-    available_vars = {**required_status, **optional_status}
+    required_missing = required["missing"]
+    required_placeholder_vars = required["placeholder"]
+    optional_missing = optional["missing"]
+    optional_placeholder_vars = optional["placeholder"]
+
+    available_vars = {**required["available"], **optional["available"]}
 
     # 실모델 실행 게이트는 강제 required 기준 + API 키 유효성 + 엔드포인트 스킴 점검
     ready = not required_missing and not required_placeholder_vars and not suspicious
@@ -143,8 +153,8 @@ def main():
 
     payload = {
         "ready": ready,
-        "required_vars": required,
-        "optional_vars": optional,
+        "required_vars": required["names"],
+        "optional_vars": optional["names"],
         "available_vars": available_vars,
         "missing_vars": required_missing,
         "optional_missing_vars": optional_missing,
