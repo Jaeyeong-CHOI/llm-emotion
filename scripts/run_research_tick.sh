@@ -110,8 +110,8 @@ read_lock_pid_file() {
   local pid=""
 
   [ -f "$pid_file" ] || return 1
-  pid="$(cat "$pid_file" 2>/dev/null || true)"
-  printf '%s' "$(printf '%s' "$pid" | tr -d '\r' | trim_whitespace)"
+  pid="$(head -n 1 "$pid_file" 2>/dev/null | normalize_text || true)"
+  printf '%s' "$pid"
 }
 
 read_proc_field() {
@@ -261,8 +261,13 @@ fi
 
 QUEUE_FILE="ops/continuous_run_ids.txt"
 
+normalize_text() {
+  local value="$1"
+  printf '%s' "$value" | tr -d '\r' | trim_whitespace
+}
+
 canonical_line() {
-  printf '%s' "$1" | tr -d '\r' | trim_whitespace
+  normalize_text "$1"
 }
 
 strip_queue_comment() {
