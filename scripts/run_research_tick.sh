@@ -528,27 +528,14 @@ materialize_sanitized_queue() {
   iter_queue_lines "$queue_file" > "$out_file"
 }
 
-replace_queue_if_needed() {
+commit_queue_update() {
   local queue_file="$1"
   local tmp_file="$2"
 
   if ! replace_if_changed "$queue_file" "$tmp_file"; then
     rm -f "$tmp_file"
-    return 0
-  fi
-
-  return 0
-}
-
-commit_queue_update() {
-  local queue_file="$1"
-  local tmp_file="$2"
-
-  if ! replace_queue_if_needed "$queue_file" "$tmp_file"; then
     return 1
   fi
-
-  rm -f "$tmp_file"
 }
 
 dedupe_queue_file() {
