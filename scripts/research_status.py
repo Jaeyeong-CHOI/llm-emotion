@@ -5,16 +5,25 @@ from research_ops_common import display_value, get_stats_snapshot, load_research
 
 
 
+def _render_rows(rows: list[tuple[str, Any]]) -> None:
+    for key, value in rows:
+        print(f"- {key}: {display_value(value)}")
+
+
 def main() -> None:
     state = load_research_state()
     snapshot = get_stats_snapshot(state)
 
     print("# Research Status")
-    print(f"- last_run: {display_value(state.get('last_run'))}")
-    print(f"- last_success: {display_value(snapshot.get('last_success'))}")
-    print(f"- papers_collected: {display_value(snapshot.get('papers_collected'))}")
-    print(f"- evidence_rows: {display_value(snapshot.get('evidence_rows'))}")
-    print(f"- mock_samples_generated: {display_value(snapshot.get('mock_samples_generated'))}")
+
+    rows = [
+        ("last_run", state.get("last_run")),
+        ("last_success", snapshot.get("last_success")),
+        ("papers_collected", snapshot.get("papers_collected")),
+        ("evidence_rows", snapshot.get("evidence_rows")),
+        ("mock_samples_generated", snapshot.get("mock_samples_generated")),
+    ]
+    _render_rows(rows)
 
     if snapshot.get("last_error"):
         print(f"- last_error: {display_value(snapshot.get('last_error'))}")
