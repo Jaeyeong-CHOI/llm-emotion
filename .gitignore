@@ -8,3 +8,4 @@ data/raw/*.jsonl
 data/processed/*
 results/*
 !results/.gitkeep
+.env.real_model

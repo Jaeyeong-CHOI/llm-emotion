@@ -107,3 +107,17 @@ python3 scripts/research_status.py
 
 - `ops/real_model_readiness.json.ready == true` 가 되면 실모델 전환 조건 통과.
 - `ops/cron_runtime_status.json`의 `continuous`/`live_report` 상태가 `enabled`로 보이면 상태 missing이 사라집니다.
+
+
+## 7) avrtg 연구 키 1회성 동기화 (요청 반영)
+아래 스크립트는 **AVRTG_QUERY_GEN/.env**에서 키를 가져와 `llm-emotion/.env.real_model`에 넣습니다.
+값은 출력하지 않습니다.
+
+```bash
+cd /Users/jaeyeong_openclaw/.openclaw/workspace/llm-emotion
+AVRTG_ENV_FILE=/Users/jaeyeong_openclaw/.openclaw/workspace/AVRTG_QUERY_GEN/.env   LLM_EMOTION_REAL_MODEL='gpt-4o'   LLM_EMOTION_REAL_MODEL_REGION='us-east-1'   bash scripts/sync_keys_from_avrtg.sh
+```
+
+필요 시 org/project는 기존 `.env.real_model`의 값이 남아 있으면 유지되고, 없으면 빈 상태로 남습니다.
+
+`source .env.real_model` 후 `check_real_model_readiness.py`에서 missing 변수를 추가로 채워야 합니다.
