@@ -19,6 +19,13 @@ refresh_status() {
   python3 scripts/research_status.py >/tmp/research_tick_research_status.log 2>&1 || true
 }
 
+skip_with_status() {
+  local reason="$1"
+  echo "[tick] ${reason}; skip"
+  refresh_status
+  exit 0
+}
+
 echo "[tick] $(date -u +'%Y-%m-%dT%H:%M:%SZ') start"
 
 LOCK_DIR="/tmp/llm_emotion_research_tick.lock"
@@ -33,16 +40,12 @@ trap cleanup_lock EXIT
 
 READY_LINE="$(python3 scripts/check_real_model_readiness.py | tr -d '\r' | head -n 1)"
 if [[ "$READY_LINE" != "ready=true" ]]; then
-  echo "[tick] readiness=${READY_LINE}; skip execution"
-  refresh_status
-  exit 0
+  skip_with_status "readiness=${READY_LINE}"
 fi
 
 QUEUE_FILE="ops/continuous_run_ids.txt"
 if [ ! -f "$QUEUE_FILE" ] || [ ! -s "$QUEUE_FILE" ]; then
-  echo "[tick] no queued run-id; skip"
-  refresh_status
-  exit 0
+  skip_with_status "no queued run-id"
 fi
 
 TMP_FILE="$(mktemp "${QUEUE_FILE}.tmp.XXXXXX")"
@@ -66,9 +69,7 @@ rm -f "$PICKED_FILE"
 
 
 if [ -z "$RUN_ID" ]; then
-  echo "[tick] no valid run-id found in queue; skip"
-  refresh_status
-  exit 0
+  skip_with_status "no valid run-id found in queue"
 fi
 
 echo "[tick] execute run_id=$RUN_ID"
