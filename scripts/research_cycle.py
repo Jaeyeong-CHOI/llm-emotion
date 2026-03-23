@@ -12,10 +12,18 @@ from research_ops_common import (
     save_research_state,
 )
 
+PYTHON_CMD = "python3"
+
 
 def run(cmd: Sequence[str]):
     p = subprocess.run(cmd, cwd=ROOT, text=True, capture_output=True)
     return p.returncode, p.stdout, p.stderr
+
+
+def _py(step_name: str, *args: str) -> list[str]:
+    """Build a python command list with a stable interpreter prefix."""
+
+    return [PYTHON_CMD, step_name, *args]
 
 
 def run_step(state: dict, name: str, cmd: Sequence[str]):
@@ -80,8 +88,7 @@ def main():
     steps = [
         (
             "literature_search",
-            [
-                "python3",
+            _py(
                 "scripts/search_openalex.py",
                 "--config",
                 "queries/search_queries.json",
@@ -89,23 +96,21 @@ def main():
                 "queries/screening_rules.json",
                 "--out",
                 "refs/openalex_results.jsonl",
-            ],
+            ),
         ),
         (
             "evidence_table",
-            [
-                "python3",
+            _py(
                 "scripts/build_evidence_table.py",
                 "--in",
                 "refs/openalex_results.jsonl",
                 "--out",
                 "docs/evidence-table.md",
-            ],
+            ),
         ),
         (
             "mock_generate",
-            [
-                "python3",
+            _py(
                 "scripts/generate_dataset.py",
                 "--out",
                 "data/raw/mock_generations.jsonl",
@@ -115,22 +120,21 @@ def main():
                 "42",
                 "--prompt-bank",
                 "prompts/prompt_bank_ko.json",
-            ],
+            ),
         ),
         (
             "mock_analyze",
-            [
-                "python3",
+            _py(
                 "scripts/analyze_regret_markers.py",
                 "--in",
                 "data/raw/mock_generations.jsonl",
                 "--out",
                 "results/mock_metrics.json",
-            ],
+            ),
         ),
-        ("snapshot_cron_status", ["python3", "scripts/snapshot_cron_status.py"]),
-        ("update_live_status", ["python3", "scripts/update_live_status.py"]),
-        ("append_brief_log", ["python3", "scripts/update_brief_log.py"]),
+        ("snapshot_cron_status", _py("scripts/snapshot_cron_status.py")),
+        ("update_live_status", _py("scripts/update_live_status.py")),
+        ("append_brief_log", _py("scripts/update_brief_log.py")),
     ]
 
     if not run_steps(state, steps):
@@ -143,8 +147,7 @@ def main():
         triage_code, triage_out, _ = run_step(
             state,
             "screening_triage_plan",
-            [
-                "python3",
+            _py(
                 "scripts/build_screening_triage_plan.py",
                 "--in",
                 "results/screening_quality_report.json",
@@ -152,7 +155,7 @@ def main():
                 "results/screening_triage_plan.json",
                 "--out-md",
                 "results/screening_triage_plan.md",
-            ],
+            ),
         )
         if triage_code != 0:
             return 1
