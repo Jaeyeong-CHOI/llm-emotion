@@ -1,5 +1,5 @@
 {
-  "version": "v141.0",
+  "version": "v141.1",
   "language": "ko",
   "scenarios": [
     {
@@ -6595,6 +6595,66 @@
         "experiment_ops"
       ],
       "prompt": "실모델 전환 이전 체크리스트를 운영형으로 설계하라. 환경변수 가용성, 요청 제한, 추적 로그, 재시작 안정성, 실패 시 롤백 기준을 preflight 템플릿으로 작성하고, 누락 시 실행 차단 규칙까지 명시하라."
+    },
+    {
+      "id": "screening_unknown_year_provenance_recovery_v1411",
+      "label": "screening provenance recovery",
+      "scenario": "review 큐에서 unknown-year 표기의 query-근거 분산이 0이어서 unknown-year 집약도 가드가 반복 실패하는 상태를 완화해야 함",
+      "emotion_axis": "control",
+      "difficulty": "hard",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "provenance",
+        "bridge",
+        "traceability",
+        "recovery"
+      ],
+      "domains": [
+        "research_ops",
+        "systematic_review",
+        "screening"
+      ],
+      "prompt": "현재 unknown-year traceability 지표가 0에 근접한 상태다. review 큐에서 year/그룹 단위 메타데이터 매칭 누락을 줄이기 위해, source_query, source_group, query_hit 로그를 기준으로 5개 사례를 고르고 누락 원인을 원인-대응-검증 항목(재검색 키워드, 쿼리 규칙, 전처리 규칙)으로 제안하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_repair_hard_case_v1411",
+      "label": "prompt bank anti-bias repair",
+      "scenario": "프롬프트 뱅크에서 control/repair 비율은 높은데 counterfactual·regulation 반례가 밀집되어 분산이 붕괴된 상황",
+      "emotion_axis": "vigilance",
+      "difficulty": "hard",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "coverage",
+        "diversification",
+        "anti_biased"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "experiment_ops"
+      ],
+      "prompt": "최근 코퍼스에서 counterfactual·regulation 시나리오가 과대표집되어 상반된 반례가 부족한 상태다. 7개 신규 시나리오와 2개 기존 시나리오를 대체 제안하되, domain/감정축/난이도 조합의 최소 3축 균형을 만족하도록 제시하라. 각 항목은 왜 실험 분산을 높이는지 한 줄 이유를 붙여라."
+    },
+    {
+      "id": "runner_real_model_transition_readiness_v1411",
+      "label": "runner real-model transition",
+      "scenario": "실모델 전환 직전 단계에서 API 키/요금제/요청정책/재시작 정책 점검이 선행되지 않아 중단이 예상되는 상태",
+      "emotion_axis": "control",
+      "difficulty": "medium",
+      "tags": [
+        "runner",
+        "real_model",
+        "readiness",
+        "preflight",
+        "operability"
+      ],
+      "domains": [
+        "research_ops",
+        "experiment_ops"
+      ],
+      "prompt": "실모델 전환 직전 운영 체크리스트를 생성하라: 1) 환경변수 및 권한, 2) 호출 제한/타임아웃/비용 가드, 3) 재시도·중단 전략, 4) 로그·재현성 산출물, 5) 실패시 롤백 기준. 각 항목에 PASS/FAIL 기준과 위반 시 즉시 중단 조건을 넣어라."
     }
   ],
   "personas": [

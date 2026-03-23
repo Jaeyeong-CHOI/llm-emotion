@@ -1,0 +1,373 @@
+{
+  "version": "v141.1",
+  "generated_at": "2026-03-23T18:15:00",
+  "target_size": 40,
+  "n_selected": 40,
+  "sources_summary": {
+    "include_count": 0,
+    "review_count": 77,
+    "total_rows": 279
+  },
+  "items": [
+    {
+      "rank": 1,
+      "openalex_id": "https://openalex.org/W4410431873",
+      "doi": "https://doi.org/10.1073/pnas.2415898122",
+      "title": "The benefits and dangers of anthropomorphic conversational agents",
+      "year": 2025,
+      "label": "review",
+      "score": 12.6759
+    },
+    {
+      "rank": 2,
+      "openalex_id": "https://openalex.org/W4391988000",
+      "doi": "https://doi.org/10.48550/arxiv.2402.12071",
+      "title": "EmoBench: Evaluating the Emotional Intelligence of Large Language Models",
+      "year": 2024,
+      "label": "review",
+      "score": 12.1564
+    },
+    {
+      "rank": 3,
+      "openalex_id": "https://openalex.org/W4399511655",
+      "doi": "https://doi.org/10.48550/arxiv.2406.05063",
+      "title": "Are Large Language Models More Empathetic than Humans?",
+      "year": 2024,
+      "label": "review",
+      "score": 10.005
+    },
+    {
+      "rank": 4,
+      "openalex_id": "https://openalex.org/W4400032957",
+      "doi": "https://doi.org/10.1162/tacl_a_00674",
+      "title": "Comparing Humans and Large Language Models on an Experimental Protocol Inventory for Theory of Mind Evaluation (EPITOME)",
+      "year": 2024,
+      "label": "review",
+      "score": 9.9649
+    },
+    {
+      "rank": 5,
+      "openalex_id": "https://openalex.org/W4398143508",
+      "doi": "https://doi.org/10.1038/s41562-024-01882-z",
+      "title": "Testing theory of mind in large language models and humans",
+      "year": 2024,
+      "label": "review",
+      "score": 9.5411
+    },
+    {
+      "rank": 6,
+      "openalex_id": "https://openalex.org/W4286476369",
+      "doi": "https://doi.org/10.36227/techrxiv.19919483",
+      "title": "CPED: A Large-Scale Chinese Personalized and Emotional Dialogue Dataset for Conversational AI",
+      "year": 2022,
+      "label": "review",
+      "score": 9.392
+    },
+    {
+      "rank": 7,
+      "openalex_id": "https://openalex.org/W4415191887",
+      "doi": "https://doi.org/10.48550/arxiv.2508.05880",
+      "title": "Large language models show fragile cognitive reasoning about human emotions",
+      "year": 2025,
+      "label": "review",
+      "score": 9.1569
+    },
+    {
+      "rank": 8,
+      "openalex_id": "https://openalex.org/W4377024131",
+      "doi": "https://doi.org/10.1016/j.mcpdig.2023.03.006",
+      "title": "A Framework for Critically Assessing ChatGPT and Other Large Language Artificial Intelligence Model Applications in Health Care",
+      "year": 2023,
+      "label": "review",
+      "score": 8.8877
+    },
+    {
+      "rank": 9,
+      "openalex_id": "https://openalex.org/W4399053129",
+      "doi": "https://doi.org/10.3389/frobt.2024.1363713",
+      "title": "Recommendations for designing conversational companion robots with older adults through foundation models",
+      "year": 2024,
+      "label": "review",
+      "score": 8.7688
+    },
+    {
+      "rank": 10,
+      "openalex_id": "https://openalex.org/W4386117324",
+      "doi": "https://doi.org/10.1111/pcn.13588",
+      "title": "The now and future of <scp>ChatGPT</scp> and <scp>GPT</scp> in psychiatry",
+      "year": 2023,
+      "label": "review",
+      "score": 8.6767
+    },
+    {
+      "rank": 11,
+      "openalex_id": "https://openalex.org/W4411630063",
+      "doi": "https://doi.org/10.18653/v1/2024.eacl-long.138",
+      "title": "Clever Hans or Neural Theory of Mind? Stress Testing Social Reasoning in Large Language Models",
+      "year": 2024,
+      "label": "review",
+      "score": 8.4719
+    },
+    {
+      "rank": 12,
+      "openalex_id": "https://openalex.org/W4389523767",
+      "doi": "https://doi.org/10.18653/v1/2023.emnlp-main.13",
+      "title": "Theory of Mind for Multi-Agent Collaboration via Large Language Models",
+      "year": 2023,
+      "label": "review",
+      "score": 8.3174
+    },
+    {
+      "rank": 13,
+      "openalex_id": "https://openalex.org/W4410139681",
+      "doi": "https://doi.org/10.1089/cyber.2024.0536",
+      "title": "Artificial Intelligence and the Illusion of Understanding: A Systematic Review of Theory of Mind and Large Language Models",
+      "year": 2025,
+      "label": "review",
+      "score": 8.2914
+    },
+    {
+      "rank": 14,
+      "openalex_id": "https://openalex.org/W4378474033",
+      "doi": "https://doi.org/10.48550/arxiv.2305.14763",
+      "title": "Clever Hans or Neural Theory of Mind? Stress Testing Social Reasoning in Large Language Models",
+      "year": 2023,
+      "label": "review",
+      "score": 8.2172
+    },
+    {
+      "rank": 15,
+      "openalex_id": "https://openalex.org/W4403863303",
+      "doi": "https://doi.org/10.1073/pnas.2405460121",
+      "title": "Evaluating large language models in theory of mind tasks",
+      "year": 2024,
+      "label": "review",
+      "score": 8.0872
+    },
+    {
+      "rank": 16,
+      "openalex_id": "https://openalex.org/W4385156310",
+      "doi": "https://doi.org/10.1101/2023.07.17.549421",
+      "title": "Identification and Description of Emotions by Current Large Language Models",
+      "year": 2023,
+      "label": "review",
+      "score": 7.9114
+    },
+    {
+      "rank": 17,
+      "openalex_id": "https://openalex.org/W4392181976",
+      "doi": "https://doi.org/10.48550/arxiv.2402.15052",
+      "title": "ToMBench: Benchmarking Theory of Mind in Large Language Models",
+      "year": 2024,
+      "label": "review",
+      "score": 7.849
+    },
+    {
+      "rank": 18,
+      "openalex_id": "https://openalex.org/W4403579973",
+      "doi": "https://doi.org/10.48550/arxiv.2410.13648",
+      "title": "SimpleToM: Exposing the Gap between Explicit ToM Inference and Implicit ToM Application in LLMs",
+      "year": 2024,
+      "label": "review",
+      "score": 7.5012
+    },
+    {
+      "rank": 19,
+      "openalex_id": "https://openalex.org/W4390872056",
+      "doi": "https://doi.org/10.1109/access.2024.3354705",
+      "title": "Pseudo-Labeling With Large Language Models for Multi-Label Emotion Classification of French Tweets",
+      "year": 2024,
+      "label": "review",
+      "score": 7.3906
+    },
+    {
+      "rank": 20,
+      "openalex_id": "https://openalex.org/W4389520279",
+      "doi": "https://doi.org/10.18653/v1/2023.findings-emnlp.717",
+      "title": "Hi-ToM: A Benchmark for Evaluating Higher-Order Theory of Mind Reasoning in Large Language Models",
+      "year": 2023,
+      "label": "review",
+      "score": 7.3023
+    },
+    {
+      "rank": 21,
+      "openalex_id": "https://openalex.org/W4389521014",
+      "doi": "https://doi.org/10.18653/v1/2023.conll-1.25",
+      "title": "Theory of Mind in Large Language Models: Examining Performance of 11 State-of-the-Art models vs. Children Aged 7-10 on Advanced Tests",
+      "year": 2023,
+      "label": "review",
+      "score": 7.263
+    },
+    {
+      "rank": 22,
+      "openalex_id": "https://openalex.org/W4360891289",
+      "doi": "https://doi.org/10.48550/arxiv.2303.13375",
+      "title": "Capabilities of GPT-4 on Medical Challenge Problems",
+      "year": 2023,
+      "label": "review",
+      "score": 7.2609
+    },
+    {
+      "rank": 23,
+      "openalex_id": "https://openalex.org/W4327946446",
+      "doi": "https://doi.org/10.3390/healthcare11060887",
+      "title": "ChatGPT Utility in Healthcare Education, Research, and Practice: Systematic Review on the Promising Perspectives and Valid Concerns",
+      "year": 2023,
+      "label": "review",
+      "score": 7.159
+    },
+    {
+      "rank": 24,
+      "openalex_id": "https://openalex.org/W4390832673",
+      "doi": "https://doi.org/10.1145/3610978.3640767",
+      "title": "Theory of Mind Abilities of Large Language Models in Human-Robot Interaction: An Illusion?",
+      "year": 2024,
+      "label": "review",
+      "score": 7.0995
+    },
+    {
+      "rank": 25,
+      "openalex_id": "https://openalex.org/W4389519998",
+      "doi": "https://doi.org/10.18653/v1/2023.findings-emnlp.72",
+      "title": "Towards A Holistic Landscape of Situated Theory of Mind in Large Language Models",
+      "year": 2023,
+      "label": "review",
+      "score": 7.0184
+    },
+    {
+      "rank": 26,
+      "openalex_id": "https://openalex.org/W4319452268",
+      "doi": "https://doi.org/10.48550/arxiv.2302.02083",
+      "title": "Evaluating Large Language Models in Theory of Mind Tasks",
+      "year": 2023,
+      "label": "review",
+      "score": 6.8824
+    },
+    {
+      "rank": 27,
+      "openalex_id": "https://openalex.org/W4413115901",
+      "doi": "https://doi.org/10.1098/rstb.2023.0499",
+      "title": "Re-evaluating Theory of Mind evaluation in large language models",
+      "year": 2025,
+      "label": "review",
+      "score": 6.8757
+    },
+    {
+      "rank": 28,
+      "openalex_id": "https://openalex.org/W4382491679",
+      "doi": "https://doi.org/10.48550/arxiv.2306.15401",
+      "title": "Explainable Multimodal Emotion Recognition",
+      "year": 2023,
+      "label": "review",
+      "score": 6.8285
+    },
+    {
+      "rank": 29,
+      "openalex_id": "https://openalex.org/W4402671614",
+      "doi": "https://doi.org/10.18653/v1/2024.acl-long.451",
+      "title": "Think Twice: Perspective-Taking Improves Large Language Models’ Theory-of-Mind Capabilities",
+      "year": 2024,
+      "label": "review",
+      "score": 6.7593
+    },
+    {
+      "rank": 30,
+      "openalex_id": "https://openalex.org/W4389519950",
+      "doi": "https://doi.org/10.18653/v1/2023.findings-emnlp.303",
+      "title": "MindGames: Targeting Theory of Mind in Large Language Models with Dynamic Epistemic Modal Logic",
+      "year": 2023,
+      "label": "review",
+      "score": 6.609
+    },
+    {
+      "rank": 31,
+      "openalex_id": "https://openalex.org/W4384071683",
+      "doi": "https://doi.org/10.1038/s41586-023-06291-2",
+      "title": "Large language models encode clinical knowledge",
+      "year": 2023,
+      "label": "review",
+      "score": 6.4272
+    },
+    {
+      "rank": 32,
+      "openalex_id": "https://openalex.org/W4402671125",
+      "doi": "https://doi.org/10.18653/v1/2024.acl-long.847",
+      "title": "ToMBench: Benchmarking Theory of Mind in Large Language Models",
+      "year": 2024,
+      "label": "review",
+      "score": 6.4064
+    },
+    {
+      "rank": 33,
+      "openalex_id": "https://openalex.org/W4414971647",
+      "doi": "https://doi.org/10.48550/arxiv.2510.04484",
+      "title": "Psychological Steering in LLMs: An Evaluation of Effectiveness and Trustworthiness",
+      "year": 2025,
+      "label": "review",
+      "score": 6.3878
+    },
+    {
+      "rank": 34,
+      "openalex_id": "https://openalex.org/W4402684060",
+      "doi": "https://doi.org/10.18653/v1/2024.findings-acl.685",
+      "title": "TimeToM: Temporal Space is the Key to Unlocking the Door of Large Language Models’ Theory-of-Mind",
+      "year": 2024,
+      "label": "review",
+      "score": 6.3682
+    },
+    {
+      "rank": 35,
+      "openalex_id": "https://openalex.org/W4399400240",
+      "doi": "https://doi.org/10.48550/arxiv.2406.00954",
+      "title": "Annotation Guidelines-Based Knowledge Augmentation: Towards Enhancing Large Language Models for Educational Text Classification",
+      "year": 2024,
+      "label": "review",
+      "score": 6.1731
+    },
+    {
+      "rank": 36,
+      "openalex_id": "https://openalex.org/W4393065402",
+      "doi": "https://doi.org/10.1007/s11704-024-40231-1",
+      "title": "A survey on large language model based autonomous agents",
+      "year": 2024,
+      "label": "review",
+      "score": 5.8829
+    },
+    {
+      "rank": 37,
+      "openalex_id": "https://openalex.org/W4388843275",
+      "doi": "https://doi.org/10.48550/arxiv.2311.10227",
+      "title": "Think Twice: Perspective-Taking Improves Large Language Models' Theory-of-Mind Capabilities",
+      "year": 2023,
+      "label": "review",
+      "score": 5.6674
+    },
+    {
+      "rank": 38,
+      "openalex_id": "https://openalex.org/W4404445421",
+      "doi": "https://doi.org/10.1609/aiide.v20i1.31867",
+      "title": "Evaluating the Efficacy of LLMs to Emulate Realistic Human Personalities",
+      "year": 2024,
+      "label": "review",
+      "score": 5.6136
+    },
+    {
+      "rank": 39,
+      "openalex_id": "https://openalex.org/W4392001696",
+      "doi": "https://doi.org/10.1016/j.commtr.2023.100116",
+      "title": "GPT-4 enhanced multimodal grounding for autonomous driving: Leveraging cross-modal attention with large language models",
+      "year": 2024,
+      "label": "review",
+      "score": 5.4234
+    },
+    {
+      "rank": 40,
+      "openalex_id": "https://openalex.org/W4410808756",
+      "doi": "https://doi.org/10.1109/access.2025.3574629",
+      "title": "Benchmarking Open-Source Large Language Models for Sentiment and Emotion Classification in Indonesian Tweets",
+      "year": 2025,
+      "label": "review",
+      "score": 5.2798
+    }
+  ]
+}
