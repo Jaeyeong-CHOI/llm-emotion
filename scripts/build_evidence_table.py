@@ -18,6 +18,13 @@ def classify_pillar(group_name: str) -> str:
     return "Other"
 
 
+def _safe_int(value: object, fallback: int = 0) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return fallback
+
+
 def row_to_md(i: int, r: dict) -> str:
     title = (r.get("title") or "").replace("|", "\\|")
     year = r.get("year") or ""
@@ -49,9 +56,9 @@ def main():
         rows,
         key=lambda r: (
             0 if r.get("screening_label") == "include" else 1,
-            -(r.get("screening_score") or 0),
-            -(r.get("cited_by_count") or 0),
-            -(r.get("year") or 0),
+            -_safe_int(r.get("screening_score")),
+            -_safe_int(r.get("cited_by_count")),
+            -_safe_int(r.get("year")),
         ),
     )
 
