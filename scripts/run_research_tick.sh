@@ -211,24 +211,20 @@ iter_queue_lines() {
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local canonical
     canonical="$(canonicalize_queue_line "$raw_line" || true)"
-    [ -n "$canonical" ] || continue
-    printf '%s\n' "$canonical"
-  done < "$queue_file"
-}
+    is_queue_data_line "$canonical" || continue
 
-iter_queue_lines_normalized() {
-  local queue_file="$1"
-  local canonical=""
-  local normalized=""
-
-  while IFS= read -r canonical; do
+    local normalized
     normalized="$(normalize_queue_run_id "$canonical" || true)"
     if [ -n "$normalized" ]; then
       printf '%s\n' "$normalized"
     else
       echo "[tick] invalid run-id skipped: $canonical" >&2
     fi
-  done < <(iter_queue_lines "$queue_file")
+  done < "$queue_file"
+}
+
+iter_queue_lines_normalized() {
+  iter_queue_lines "$1"
 }
 
 
