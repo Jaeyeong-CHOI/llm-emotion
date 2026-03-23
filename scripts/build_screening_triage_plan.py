@@ -31,7 +31,17 @@ def load_report(path: Path) -> tuple[list[Gate], list[Hotspot]]:
         data = {}
 
     gates = []
-    for row in data.get("gates", []):
+    for idx, row in enumerate(data.get("gates", [])):
+        if not isinstance(row, dict):
+            gates.append(
+                Gate(
+                    name=f"invalid_gate_{idx}",
+                    status="invalid",
+                    observed=row,
+                    threshold="",
+                )
+            )
+            continue
         gates.append(
             Gate(
                 name=str(row.get("name", "")),
