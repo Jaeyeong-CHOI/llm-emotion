@@ -148,7 +148,15 @@ trim_whitespace() {
 
 normalize_text() {
   local value="$1"
-  printf '%s' "$value" | tr -d '\r' | trim_whitespace
+  value="${value//$'\r'/}"
+  trim_whitespace <<< "$value"
+}
+
+read_proc_field_raw() {
+  local pid="$1"
+  local field="$2"
+
+  ps -p "$pid" -o "${field}=" 2>/dev/null | tr -d '\r' | head -n 1 || true
 }
 
 read_trimmed_first_line() {
@@ -158,7 +166,7 @@ read_trimmed_first_line() {
   raw_line="$(head -n 1 "$file" 2>/dev/null || true)"
   [ -n "$raw_line" ] || return 1
 
-  printf '%s' "$(normalize_text "$raw_line")"
+  normalize_text "$raw_line"
 }
 
 read_lock_pid_file() {
@@ -181,11 +189,12 @@ read_proc_field() {
   local strip_ws="${3:-0}"
 
   local value=""
-  value="$(ps -p "$pid" -o "${field}=" 2>/dev/null | tr -d '\r' | head -n 1 || true)"
+  value="$(read_proc_field_raw "$pid" "$field")"
   [ -n "$value" ] || return 1
 
   if [ "$strip_ws" = "1" ]; then
-    value="$(printf '%s' "$value" | trim_whitespace)"
+    normalize_text "$value"
+    return 0
   fi
 
   printf '%s' "$value"
