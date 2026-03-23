@@ -213,8 +213,7 @@ lock_pid_uid_and_command() {
   is_numeric_pid "$pid" || return 1
 
   proc_info="$(read_proc_uid_and_command "$pid")" || return 1
-  owner_uid="$(printf '%s\n' "$proc_info" | sed -n '1p')"
-  command="$(printf '%s\n' "$proc_info" | sed -n '2p')"
+  IFS=$'\n' read -r owner_uid command <<< "$proc_info"
 
   [[ -n "$owner_uid" ]] || return 1
   [[ -n "$command" ]] || return 1
