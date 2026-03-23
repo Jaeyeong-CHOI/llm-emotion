@@ -69,6 +69,12 @@ def read_json_dict(path: Path) -> dict[str, Any]:
 
 
 def write_json(path: Path, payload: Any) -> None:
+    # Harden against symlink-based path hijacking for local state files.
+    if path.exists() and path.is_symlink():
+        raise RuntimeError(f"refusing to overwrite symlink state file: {path}")
+    if path.parent.exists() and path.parent.is_symlink():
+        raise RuntimeError(f"refusing to write into symlink directory: {path.parent}")
+
     path.parent.mkdir(parents=True, exist_ok=True)
     data = json.dumps(payload, ensure_ascii=False, indent=2)
 
@@ -77,6 +83,7 @@ def write_json(path: Path, payload: Any) -> None:
     ) as handle:
         handle.write(data)
         handle.flush()
+        os.fchmod(handle.fileno(), 0o600)
         os.fsync(handle.fileno())
         temp_path = Path(handle.name)
 
