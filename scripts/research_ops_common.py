@@ -167,8 +167,11 @@ def get_stats_snapshot(state: dict[str, Any]) -> dict[str, Any]:
 def count_lines(path: Path) -> int:
     if not path.exists():
         return 0
-    with path.open("r", encoding="utf-8") as handle:
-        return sum(1 for _ in handle)
+    try:
+        with path.open("rb") as handle:
+            return sum(1 for _ in handle)
+    except OSError:
+        return 0
 
 
 def append_note(state: dict[str, Any], text: str, limit: int = 40) -> None:
