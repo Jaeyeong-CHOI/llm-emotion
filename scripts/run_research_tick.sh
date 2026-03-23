@@ -270,12 +270,14 @@ strip_queue_comment() {
   printf '%s' "${line%%#*}"
 }
 
-sanitize_queue_run_id() {
-  local line=""
+parse_queue_line() {
+  local raw_line="$1"
+  local log_invalid="$2"
+  local stripped=""
   local canonical=""
 
-  line="$(strip_queue_comment "$1")"
-  canonical="$(canonical_line "$line")"
+  stripped="$(strip_queue_comment "$raw_line")"
+  canonical="$(canonical_line "$stripped")"
 
   [[ -n "$canonical" ]] || return 1
 
@@ -284,7 +286,15 @@ sanitize_queue_run_id() {
     return 0
   fi
 
+  if [ "$log_invalid" = "1" ]; then
+    echo "[tick] invalid run-id skipped: $canonical" >&2
+  fi
+
   return 1
+}
+
+sanitize_queue_run_id() {
+  parse_queue_line "$1"
 }
 
 iter_queue_lines() {
@@ -295,16 +305,9 @@ iter_queue_lines() {
   [ -f "$queue_file" ] || return 0
 
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
-    if sanitized="$(sanitize_queue_run_id "$raw_line" 2>/dev/null)"; then
+    if sanitized="$(parse_queue_line "$raw_line" 1 2>/dev/null)"; then
       printf '%s\n' "$sanitized"
       continue
-    fi
-
-    local stripped
-    stripped="$(strip_queue_comment "$raw_line")"
-    stripped="$(canonical_line "$stripped")"
-    if [[ -n "$stripped" ]]; then
-      echo "[tick] invalid run-id skipped: $stripped" >&2
     fi
   done < "$queue_file"
 }
