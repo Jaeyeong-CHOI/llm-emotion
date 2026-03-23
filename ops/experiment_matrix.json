@@ -2527,6 +2527,44 @@
         "runner_reliability_architect",
         "temperature_top15_uniformity_guard_v116"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_top8_temperature_top16_v117",
+      "description": "v11.7 unknown-year group top8/global top8 ratio guard + counterbalance patch + temperature top16 uniformity tripwire smoke",
+      "n": 12,
+      "seed": 1117,
+      "repeats": 2,
+      "temperatures": [
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        1.0,
+        1.1,
+        1.2,
+        1.3,
+        1.4,
+        1.5,
+        1.6
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top8_ratio_guard_v117",
+        "prompt_bank_unknown_year_group_top8_counterbalance_patch_v117",
+        "runner_temperature_top16_uniformity_tripwire_v117"
+      ],
+      "persona_ids": [
+        "screening_quality_guard",
+        "prompt_bank_curator",
+        "runner_reliability_architect",
+        "unknown_year_group_top8_ratio_triager_v117",
+        "temperature_top16_uniformity_guard_v117"
+      ]
     }
   ]
 }

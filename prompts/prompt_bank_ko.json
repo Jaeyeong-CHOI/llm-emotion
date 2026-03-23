@@ -1,5 +1,5 @@
 {
-  "version": "v11.6",
+  "version": "v11.7",
   "language": "ko",
   "scenarios": [
     {
@@ -5227,6 +5227,69 @@
       "domain": "research_ops",
       "emotion_axis": "regret",
       "difficulty": "hard"
+    },
+    {
+      "id": "screening_unknown_year_group_top8_ratio_guard_v117",
+      "label": "review",
+      "text": "manual QC에서 known-query traceable unknown-year subset의 query-group 분포를 점검했더니 top7까지는 허용 범위였지만 top8 누적 점유율이 global known-query group baseline 대비 과열되는 조짐이 나타났다. top8 share와 top8-over-global-group-top8 ratio를 동시에 관리하는 triage 절차를 설계하고, fail/pass 판정 기준과 후속 보정 액션을 제시하라.",
+      "domains": [
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "anxiety"
+      ],
+      "difficulty": "hard",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "top8",
+        "ratio_guard",
+        "traceability"
+      ]
+    },
+    {
+      "id": "prompt_bank_unknown_year_group_top8_counterbalance_patch_v117",
+      "label": "include",
+      "text": "prompt bank 관점에서 unknown-year query-group top8 편중을 줄이기 위해 countervoice 문항을 어떻게 재배치할지 제안하라. top8 누적 점유율 완화, group tail 보존, 라벨/도메인 다양성 유지라는 세 목표를 동시에 만족하는 패치 전략을 운영 메모 형태(6~8문장)로 작성하라.",
+      "domains": [
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "responsibility"
+      ],
+      "difficulty": "hard",
+      "tags": [
+        "prompt_bank",
+        "counterbalance",
+        "unknown_year",
+        "query_group",
+        "top8",
+        "tail"
+      ]
+    },
+    {
+      "id": "runner_temperature_top16_uniformity_tripwire_v117",
+      "label": "review",
+      "prompt": "실험 러너 preflight에서 top15까지는 균등성 guard를 통과했지만, top16 누적 temperature share와 uniform 대비 비율이 급상승하는 실패가 발생했다. top16 share/top16-over-uniform ratio tripwire를 정의하고, 위반 시 샘플 재분배·중단·재개 기준을 수치 중심으로 제시하는 운영 플레이북을 작성하라.",
+      "domains": [
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "anxiety",
+        "regret"
+      ],
+      "difficulty": "hard",
+      "tags": [
+        "runner",
+        "preflight",
+        "temperature",
+        "top16",
+        "uniformity",
+        "tripwire"
+      ]
     }
   ],
   "personas": [
@@ -7672,6 +7735,30 @@
         "top15",
         "uniformity",
         "guard"
+      ]
+    },
+    {
+      "id": "unknown_year_group_top8_ratio_triager_v117",
+      "system": "너는 screening 분포 편중을 정량적으로 조정하는 triage 운영자다.",
+      "instruction": "unknown-year query-group 분포에서 top8 누적 점유율과 global baseline 대비 ratio를 함께 해석하고, 편중 완화·tail 보강·재검증 순서로 실행 계획을 수치 기반으로 제시한다.",
+      "style_tags": [
+        "screening",
+        "query_group",
+        "unknown_year",
+        "ratio_guard",
+        "top8"
+      ]
+    },
+    {
+      "id": "temperature_top16_uniformity_guard_v117",
+      "system": "너는 실험 러너의 temperature 분포 안정성을 지키는 preflight 감사자다.",
+      "instruction": "top16 누적 share와 top16-over-uniform ratio를 핵심 경보로 점검하고, 임계치 초과 시 즉시 중단·재분배·재개 조건을 명시해 실행 리스크를 낮춘다.",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "uniformity",
+        "top16",
+        "preflight"
       ]
     }
   ],
