@@ -51,7 +51,11 @@
     "emotional granularity calibration",
     "regret repair strategy",
     "counterfactual confidence interval",
-    "emotion-policy alignment"
+    "emotion-policy alignment",
+    "construct validity",
+    "many-analyst",
+    "open data",
+    "emotion schema"
   ],
   "high_priority": [
     "regret",
@@ -81,7 +85,9 @@
     "anticipated counterfactual affect",
     "regret decision model",
     "emotional granularity calibration",
-    "regret repair strategy"
+    "regret repair strategy",
+    "construct validity",
+    "emotion schema"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -124,6 +130,10 @@
     "multiverse analysis",
     "specification curve",
     "open materials"
+    ,
+    "open data",
+    "many-analyst",
+    "construct validity"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -412,6 +422,26 @@
       "emotion-policy alignment",
       "emotion policy alignment",
       "affect-policy alignment"
+    ],
+    "construct validity": [
+      "construct validity",
+      "construct validation",
+      "validity evidence"
+    ],
+    "many-analyst": [
+      "many-analyst",
+      "many analyst",
+      "many-analysts"
+    ],
+    "open data": [
+      "open data",
+      "shared data",
+      "public dataset release"
+    ],
+    "emotion schema": [
+      "emotion schema",
+      "emotion schemas",
+      "affective schema"
     ]
   },
   "weights": {
@@ -490,7 +520,10 @@
     "robustness check",
     "registered replication report",
     "measurement validity",
-    "causal mediation"
+    "causal mediation",
+    "construct validity",
+    "open data",
+    "many-analyst"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {

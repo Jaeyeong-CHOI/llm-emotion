@@ -1,5 +1,5 @@
 {
-  "version": "v135.0",
+  "version": "v136.0",
   "language": "ko",
   "scenarios": [
     {
@@ -6235,6 +6235,7 @@
       "id": "screening_duplicate_title_conflict_v135",
       "label": "systematic_review",
       "text": "동일 제목/유사 제목 논문이 수동 QC 큐에 반복되어 dedup label conflict가 늘었다. 어떤 증거를 먼저 확인해 중복/상이 연구를 구분할지 단계별로 제시하라.",
+      "prompt": "동일 제목/유사 제목 논문이 수동 QC 큐에 반복되어 dedup label conflict가 늘었다. 어떤 증거를 먼저 확인해 중복/상이 연구를 구분할지 단계별로 제시하라.",
       "tags": [
         "screening_quality",
         "dedup",
@@ -6248,6 +6249,70 @@
       "emotion_axes": [
         "frustration",
         "control"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "screening_unknown_year_group_hhi_guard_v136",
+      "label": "systematic_review",
+      "text": "manual QC review에서 unknown-year traceable known-query 행의 query-group 분포가 넓어 보이지만 실제로는 소수 group에 과도하게 몰려 있다. HHI와 effective count를 함께 점검해 어떤 query-group부터 재스크리닝해야 하는지 제안하라.",
+      "prompt": "manual QC review에서 unknown-year traceable known-query 행의 query-group 분포가 넓어 보이지만 실제로는 소수 group에 과도하게 몰려 있다. HHI와 effective count를 함께 점검해 어떤 query-group부터 재스크리닝해야 하는지 제안하라.",
+      "tags": [
+        "screening_quality",
+        "unknown_year",
+        "query_group",
+        "hhi",
+        "effective_count"
+      ],
+      "domains": [
+        "research_ops",
+        "systematic_review"
+      ],
+      "emotion_axes": [
+        "control",
+        "anxiety"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "prompt_bank_repro_countervoice_mesh_v136",
+      "label": "prompt_bank",
+      "text": "프롬프트 뱅크에 방법론 반론과 재현성 점검 문장을 추가해야 한다. 동일한 반론이 반복되지 않도록 domain, evidence type, recovery action 축을 교차해 countervoice mesh를 설계하라.",
+      "prompt": "프롬프트 뱅크에 방법론 반론과 재현성 점검 문장을 추가해야 한다. 동일한 반론이 반복되지 않도록 domain, evidence type, recovery action 축을 교차해 countervoice mesh를 설계하라.",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "reproducibility",
+        "methodology"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_design"
+      ],
+      "emotion_axes": [
+        "confidence",
+        "control"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "runner_repro_lock_freeze_guard_v136",
+      "label": "runner",
+      "text": "실험 러너가 freeze artifact는 확인하지만 선택된 run-id와 실행 계획이 나중에 재생산되기 어렵다. selection row, artifact sha256, manifest note를 함께 고정하는 repro lock artifact 설계를 제안하라.",
+      "prompt": "실험 러너가 freeze artifact는 확인하지만 선택된 run-id와 실행 계획이 나중에 재생산되기 어렵다. selection row, artifact sha256, manifest note를 함께 고정하는 repro lock artifact 설계를 제안하라.",
+      "tags": [
+        "runner",
+        "reproducibility",
+        "freeze_artifact",
+        "lockfile"
+      ],
+      "domains": [
+        "research_ops",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "control",
+        "vigilance"
       ],
       "difficulty": "medium"
     }
@@ -9313,6 +9378,42 @@
         "operations",
         "risk_control",
         "quantitative",
+        "direct"
+      ]
+    },
+    {
+      "id": "unknown_year_group_hhi_auditor_v136",
+      "name": "Unknown-year group HHI 감사자",
+      "description": "unknown-year review 큐의 query-group 집중도와 effective count를 동시에 감시하는 감사자",
+      "instruction": "당신은 unknown-year review 큐에서 query-group 과점을 수치로 점검하고, HHI와 effective count가 동시에 개선되는 재스크리닝 순서를 제안한다.",
+      "style_tags": [
+        "audit",
+        "distribution_control",
+        "query_group",
+        "reproducibility"
+      ]
+    },
+    {
+      "id": "repro_countervoice_curator_v136",
+      "name": "재현성 countervoice 큐레이터",
+      "description": "프롬프트 뱅크에 방법론 반론과 재현성 질문을 균형 있게 주입하는 큐레이터",
+      "instruction": "당신은 프롬프트 뱅크에서 동일 근거 반복을 줄이고, 방법론 반론과 재현성 점검 질문을 분산 배치하는 큐레이터다.",
+      "style_tags": [
+        "prompt_design",
+        "countervoice",
+        "methodology",
+        "coverage"
+      ]
+    },
+    {
+      "id": "freeze_lock_operator_v136",
+      "name": "Freeze lock 운영자",
+      "description": "freeze artifact와 실행 계획 lockfile을 맞춰 보며 재실행 가능성을 확인하는 운영자",
+      "instruction": "당신은 freeze artifact 해시, 실행 선택 셀, 재개 조건이 서로 어긋나지 않도록 lockfile 기반 검증 포인트를 제시한다.",
+      "style_tags": [
+        "operations",
+        "reproducibility",
+        "artifact_control",
         "direct"
       ]
     }

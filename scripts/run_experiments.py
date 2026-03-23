@@ -1015,6 +1015,24 @@ def maybe_file_sha256(path: Path) -> str:
     return file_sha256(path)
 
 
+def describe_file(path: Path) -> dict:
+    exists = path.exists()
+    payload = {
+        "path": str(path.relative_to(ROOT)) if path.is_absolute() and ROOT in path.parents else str(path),
+        "exists": exists,
+        "sha256": "",
+        "bytes": 0,
+        "mtime_utc": "",
+    }
+    if not exists:
+        return payload
+    stat = path.stat()
+    payload["sha256"] = file_sha256(path)
+    payload["bytes"] = stat.st_size
+    payload["mtime_utc"] = dt.datetime.fromtimestamp(stat.st_mtime, dt.UTC).isoformat(timespec="seconds")
+    return payload
+
+
 def load_run_ids_from_file(path: Path) -> set[str]:
     run_ids = set()
     for raw in path.read_text(encoding="utf-8").splitlines():
@@ -1085,6 +1103,7 @@ def main():
     ap.add_argument("--selection-report", default="", help="optional JSON path for selected scenario/persona counts")
     ap.add_argument("--print-selection", action="store_true", help="print selected scenario/persona counts per run id")
     ap.add_argument("--selection-csv", default="", help="optional CSV path for selected scenario/persona counts")
+    ap.add_argument("--repro-lock-json", default="", help="optional JSON path for reproducibility lock artifact")
     ap.add_argument("--require-min-scenarios", type=int, default=0, help="fail if a run selects fewer than this many scenarios")
     ap.add_argument("--require-min-personas", type=int, default=0, help="fail if a run selects fewer than this many personas")
     ap.add_argument("--require-min-temperature-count", type=int, default=0, help="fail if a run uses fewer than this many temperatures")
@@ -2234,7 +2253,9 @@ def main():
             continue
         full_path = ROOT / rel_path
         exists = full_path.exists()
-        freeze_artifacts.append({"path": rel_path, "exists": exists})
+        artifact_info = describe_file(full_path)
+        artifact_info["path"] = rel_path
+        freeze_artifacts.append(artifact_info)
         if not exists:
             missing_freeze_artifacts.append(rel_path)
     if missing_freeze_artifacts:
@@ -5028,6 +5049,35 @@ def main():
         selection_csv_path = ROOT / args.selection_csv
         selection_csv_path.parent.mkdir(parents=True, exist_ok=True)
         write_selection_csv(selection_csv_path, selection_rows)
+
+    if args.repro_lock_json:
+        repro_lock_path = ROOT / args.repro_lock_json
+        repro_lock_path.parent.mkdir(parents=True, exist_ok=True)
+        repro_lock_payload = {
+            "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+            "command": shell_join([sys.executable, *sys.argv]),
+            "config": args.config,
+            "run_label": label,
+            "plan_only": args.plan_only,
+            "config_fingerprint": config_fingerprint(cfg),
+            "git_commit": get_git_commit(),
+            "manifest": str(manifest_path.relative_to(ROOT)),
+            "runs_csv": str((outdir / "runs.csv").relative_to(ROOT)),
+            "run_id_summary_csv": str((outdir / "run_id_summary.csv").relative_to(ROOT)),
+            "preflight_json": str(preflight_json_path.relative_to(ROOT)),
+            "preflight_csv": str(preflight_csv_path.relative_to(ROOT)),
+            "quarantine_json": str(quarantine_json_path.relative_to(ROOT)),
+            "quarantine_csv": str(quarantine_csv_path.relative_to(ROOT)),
+            "manifest_note": manifest_note,
+            "manifest_note_file": args.manifest_note_file,
+            "selected_run_ids": sorted(include_run_ids),
+            "missing_run_ids": missing_run_ids,
+            "selection_rows": selection_rows,
+            "preflight_summary": preflight_summary,
+            "freeze_artifacts": freeze_artifacts,
+            "snapshot_hashes": snapshot_hashes,
+        }
+        write_json(repro_lock_path, repro_lock_payload)
 
     if args.manifest_markdown:
         write_manifest_markdown(outdir / "manifest.md", manifest)

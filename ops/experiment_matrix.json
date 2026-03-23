@@ -3029,6 +3029,31 @@
         "temperature_p99_p45_guard_v134",
         "evidence_seeking"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_hhi_repro_lock_v136",
+      "description": "v13.6 unknown-year group HHI/effective-count guard + reproducibility countervoice mesh + runner repro-lock smoke",
+      "n": 6,
+      "seed": 136,
+      "repeats": 1,
+      "temperatures": [
+        0.2,
+        0.4,
+        0.7,
+        1.0
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_hhi_guard_v136",
+        "prompt_bank_repro_countervoice_mesh_v136",
+        "runner_repro_lock_freeze_guard_v136"
+      ],
+      "persona_ids": [
+        "unknown_year_group_hhi_auditor_v136",
+        "repro_countervoice_curator_v136",
+        "freeze_lock_operator_v136",
+        "evidence_seeking"
+      ]
     }
   ]
 }

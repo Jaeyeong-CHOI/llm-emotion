@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year query-group HHI / effective count 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-hhi`, `--min-manual-qc-review-traceable-known-query-unknown-year-group-effective-count`)를 추가해, top-N 누적 비율이 통과해도 남는 query-group 집중 붕괴를 직접 fail-fast로 차단합니다.
+- Prompt bank expanded to `v136.0` with **unknown-year group HHI guard / reproducibility countervoice mesh / runner repro-lock artifact** 시나리오와 신규 페르소나(`unknown_year_group_hhi_auditor_v136`, `repro_countervoice_curator_v136`, `freeze_lock_operator_v136`)를 추가했습니다.
+- Experiment runner에 **repro lock artifact**(`--repro-lock-json`)와 freeze artifact sha256/bytes/mtime 기록을 추가해, 선택된 run-id/selection row/입력 freeze 상태를 단일 JSON으로 재현 가능하게 고정할 수 있습니다.
 - Literature screening quality gate에 **unknown-year query-group top24 absolute/global ratio backstop**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top24-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top24-over-global-group-top24-ratio`)를 추가해, top23 통과 이후에도 남는 query-group 누적 과점을 fail-fast로 차단합니다.
 - Prompt bank expanded to `v134.0` with **unknown-year group top24 backstop / top24 methodology countervoice patch / temperature p99-p45 tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top24_backstop_triager_v134`, `top24_methodology_countervoice_curator_v134`, `temperature_p99_p45_guard_v134`)를 추가했습니다.
 - Experiment runner preflight에 **temperature p99/p45 share ratio guardrail** (`--max-planned-sample-temperature-p99-over-p45-share-ratio`)을 추가해, p99/p50이 통과해도 최상단 tail 가속이 남는 배치를 사전에 차단합니다.
@@ -184,7 +187,16 @@ python3 scripts/generate_dataset.py \
 
 ## Experiment reproducibility
 - Run definitions live in `ops/experiment_matrix.json`
-- Latest increment: [`docs/reproducibility_v134.md`](./docs/reproducibility_v134.md)
+- Latest increment: [`docs/reproducibility_v136.md`](./docs/reproducibility_v136.md)
+- `--repro-lock-json`를 사용하면 selection row, preflight summary, snapshot hash, freeze artifact digest를 단일 lock artifact로 남길 수 있습니다.
+
+### v136 스모크 프리플라이트 (2026-03-24)
+
+```bash
+python3 scripts/check_screening_quality.py --report results/lit_search_report.json --audit results/lit_screening_audit.json --manual-qc-csv results/manual_qc_queue.csv --out results/screening_quality_report.json --out-md results/screening_quality_report.md --run-label screening_qc_v136 --max-manual-qc-review-traceable-known-query-unknown-year-group-top24-share 1.0 --max-manual-qc-review-traceable-known-query-unknown-year-group-top24-over-global-group-top24-ratio 1.0 --max-manual-qc-review-traceable-known-query-unknown-year-group-hhi 0.34 --min-manual-qc-review-traceable-known-query-unknown-year-group-effective-count 3.2
+
+python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-label smoke_v136_plan --plan-only --include-run-id screening_prompt_runner_unknown_year_group_hhi_repro_lock_v136 --fail-on-missing-run-id --print-selection --selection-report results/selection_report_smoke_v136.json --selection-csv results/selection_report_smoke_v136.csv --repro-lock-json results/selection_report_smoke_v136.lock.json --preflight-markdown --require-prompt-bank-version v136.0 --require-freeze-artifact refs/openalex_results.jsonl --require-freeze-artifact results/lit_search_report.json --require-freeze-artifact results/screening_quality_report.json --max-planned-sample-temperature-p99-over-p45-share-ratio 1.05 --manifest-note "preflight v136 unknown-year group HHI + repro lock"
+```
 
 ### v9.6 스모크 프리플라이트 (2026-03-23)
 
