@@ -8,7 +8,7 @@ from research_ops_common import (
     append_note,
     count_lines,
     load_research_state,
-    now_isoseconds,
+    now_iso_seconds,
     save_research_state,
 )
 
@@ -65,7 +65,7 @@ def collect_screening_label_stats(refs_path):
 
 def main():
     state = load_research_state()
-    now = now_isoseconds()
+    now = now_iso_seconds()
     state["last_run"] = now
 
     steps = [

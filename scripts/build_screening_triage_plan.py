@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
-from research_ops_common import now_isoseconds, read_json, write_json
+from research_ops_common import now_iso_seconds, read_json, write_json
 
 
 @dataclass
@@ -162,7 +162,7 @@ def build_actions(failed_gates: Iterable[Gate], hotspots: list[Hotspot]) -> list
 
 
 def render_markdown(actions: list[dict]) -> str:
-    ts = now_isoseconds()
+    ts = now_iso_seconds()
     lines = [
         "# Screening Quality Triage Plan",
         "",
@@ -196,7 +196,7 @@ def main() -> int:
     actions = build_actions(failed, hotspots)
 
     payload = {
-        "generated_at_utc": now_isoseconds(),
+        "generated_at_utc": now_iso_seconds(),
         "input": str(input_path),
         "failed_gate_count": len(failed),
         "actions": actions,

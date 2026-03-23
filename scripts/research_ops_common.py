@@ -20,9 +20,14 @@ def now_iso8601_utc() -> str:
     return dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def now_iso_seconds() -> str:
+    """Return a stable UTC timestamp (alias name for readability)."""
+    return now_iso8601_utc()
+
+
 def now_isoseconds() -> str:
     """Backward-compatible alias kept for existing callers."""
-    return now_iso8601_utc()
+    return now_iso_seconds()
 
 
 def read_json(path: Path, default: Any | None = None) -> Any:
@@ -130,5 +135,5 @@ def append_note(state: dict[str, Any], text: str, limit: int = 40) -> None:
     except (TypeError, ValueError):
         safe_limit = 40
 
-    notes.append(f"[{now_isoseconds()}] {text}")
+    notes.append(f"[{now_iso_seconds()}] {text}")
     state["notes"] = notes[-safe_limit:]
