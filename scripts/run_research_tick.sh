@@ -260,10 +260,6 @@ if [ -z "$RUN_ID" ]; then
   skip_with_status "no queued run-id"
 fi
 
-if ! RUN_ID="$(normalize_queue_run_id "$RUN_ID")"; then
-  skip_with_status "invalid run-id format (${RUN_ID})"
-fi
-
 queue_contains_canonical_run_id() {
   local queue_file="$1"
   local canonical_run_id="$2"
