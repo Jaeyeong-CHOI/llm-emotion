@@ -50,6 +50,12 @@ def has_unsafe_chars(value: str) -> bool:
     return bool(CONTROL_CHAR_PATTERN.search(value or ""))
 
 
+def is_probable_openai_api_key(value: str) -> bool:
+    """Reject obviously non-OpenAI keys while allowing both sk- and sk-proj-."""
+    v = (value or "").strip()
+    return bool(re.match(r"^(sk-|sk-proj-)", v))
+
+
 def dedupe_preserve_order(values: list[str]) -> list[str]:
     """Preserve insertion order while removing duplicates."""
     return list(dict.fromkeys(values))
@@ -197,7 +203,7 @@ def main():
             suspicious.append("OPENAI_BASE_URL")
 
     api_key = (os.getenv("OPENAI_API_KEY") or "").strip()
-    if api_key and not re.match(r"^sk-", api_key):
+    if api_key and not is_probable_openai_api_key(api_key):
         suspicious.append("OPENAI_API_KEY")
 
     required_missing = required.missing
