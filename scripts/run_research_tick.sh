@@ -53,6 +53,13 @@ is_numeric_pid() {
   [[ "$pid" =~ ^[0-9]+$ ]]
 }
 
+is_expected_tick_command() {
+  local command="$1"
+
+  [[ "$command" == *"$ROOT/scripts/run_research_tick.sh"* ]] \
+    || [[ "$command" == *"scripts/run_research_tick.sh"* ]]
+}
+
 lock_pid_uid_and_command() {
   local pid="$1"
   local ps_line=""
@@ -69,7 +76,7 @@ lock_pid_uid_and_command() {
 
   [[ -n "$owner_uid" ]] || return 1
   [[ "$owner_uid" == "$(id -u)" ]] || return 1
-  [[ "$command" == *"run_research_tick.sh"* ]]
+  is_expected_tick_command "$command"
 }
 
 claim_lock_dir() {
