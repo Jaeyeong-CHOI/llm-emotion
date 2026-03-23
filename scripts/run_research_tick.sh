@@ -244,22 +244,29 @@ acquire_lock() {
     return 1
   fi
 
+  try_recover_lock() {
+    local candidate_pid="${1:-}"
+
+    if recover_stale_lock "$candidate_pid"; then
+      LOCK_ACQUIRED=1
+      return 0
+    fi
+    return 1
+  }
+
   local lock_pid=""
   if [ -f "$LOCK_PID_FILE" ]; then
     if lock_pid="$(read_lock_pid_file "$LOCK_PID_FILE" || true)"; then
       if ! lock_pid_is_active_tick_owner "$lock_pid"; then
-        if recover_stale_lock "$lock_pid"; then
-          LOCK_ACQUIRED=1
+        if try_recover_lock "$lock_pid"; then
           return 0
         fi
       fi
-    elif recover_stale_lock ""; then
-      LOCK_ACQUIRED=1
+    elif try_recover_lock ""; then
       return 0
     fi
   elif is_stale_lock_dir; then
-    if recover_stale_lock ""; then
-      LOCK_ACQUIRED=1
+    if try_recover_lock ""; then
       return 0
     fi
   fi
