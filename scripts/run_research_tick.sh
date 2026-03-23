@@ -110,6 +110,7 @@ dequeue_run_id() {
   tmp_file="$(mktemp "${queue_file}.tmp.XXXXXX")"
 
   local picked=""
+  local raw_line=""
 
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
@@ -118,8 +119,8 @@ dequeue_run_id() {
       picked="$line"
       continue
     fi
-    printf '%s\n' "$raw_line" >> "$tmp_file"
-  done < "$queue_file"
+    printf '%s\n' "$raw_line"
+  done < "$queue_file" > "$tmp_file"
 
   if ! mv "$tmp_file" "$queue_file"; then
     rm -f "$tmp_file"
