@@ -18,6 +18,35 @@ ensure_dir() {
   mkdir -p "$dir"
 }
 
+run_experiments_tick() {
+  local run_id="$1"
+  local artifact_dir="$2"
+
+  local -a cmd=(
+    python3
+    scripts/run_experiments_with_profile.py
+    --profile
+    ops/runner_tick_profile.json
+    --
+    --run-label
+    "smoke_auto_tick_$(date -u +%Y%m%d%H%M%S)"
+    --include-run-id
+    "$run_id"
+    --fail-on-missing-run-id
+    --max-runs
+    1
+    --required-live-model-env
+    OPENAI_API_KEY,LLM_EMOTION_REAL_MODEL,LLM_EMOTION_REAL_MODEL_REGION
+    --execution-log-jsonl
+    "$artifact_dir/command_log.jsonl"
+    --budget-report-json
+    "$artifact_dir/budget_report.json"
+    --budget-report-md
+    "$artifact_dir/budget_report.md"
+  )
+
+  "${cmd[@]}"
+}
 STATUS_LOG_DIR="${TMPDIR:-/tmp}/llm_emotion_research_tick"
 ensure_dir "$STATUS_LOG_DIR"
 
@@ -553,17 +582,7 @@ RUN_IN_FLIGHT=1
 RUN_ARTIFACT_DIR="results/experiments/${RUN_ID}_auto_tick"
 ensure_dir "$RUN_ARTIFACT_DIR"
 
-if ! python3 scripts/run_experiments_with_profile.py \
-  --profile ops/runner_tick_profile.json \
-  -- \
-  --run-label "smoke_auto_tick_$(date -u +%Y%m%d%H%M%S)" \
-  --include-run-id "$RUN_ID" \
-  --fail-on-missing-run-id \
-  --max-runs 1 \
-  --required-live-model-env "OPENAI_API_KEY,LLM_EMOTION_REAL_MODEL,LLM_EMOTION_REAL_MODEL_REGION" \
-  --execution-log-jsonl "$RUN_ARTIFACT_DIR/command_log.jsonl" \
-  --budget-report-json "$RUN_ARTIFACT_DIR/budget_report.json" \
-  --budget-report-md "$RUN_ARTIFACT_DIR/budget_report.md"; then
+if ! run_experiments_tick "$RUN_ID" "$RUN_ARTIFACT_DIR"; then
   run_failed=1
   echo "[tick] run_id=$RUN_ID failed; re-queue for retry"
   enqueue_run_id_unique "$QUEUE_FILE" "$RUN_ID"
