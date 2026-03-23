@@ -64,6 +64,10 @@ trim_line() {
   printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
+canonical_line() {
+  trim_line "$(normalize_line "$1")"
+}
+
 is_queue_data_line() {
   local line="$1"
   [[ -n "$line" ]] && [[ ! "$line" =~ ^# ]]
@@ -78,7 +82,7 @@ dequeue_run_id() {
 
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
-    line="$(trim_line "$(normalize_line "$raw_line")")"
+    line="$(canonical_line "$raw_line")"
     if [ -z "$picked" ] && is_queue_data_line "$line"; then
       picked="$line"
       continue
@@ -116,7 +120,7 @@ enqueue_run_id_unique() {
   touch "$queue_file"
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
-    line="$(trim_line "$(normalize_line "$raw_line")")"
+    line="$(canonical_line "$raw_line")"
     if [ "$line" = "$run_id" ]; then
       return 0
     fi
