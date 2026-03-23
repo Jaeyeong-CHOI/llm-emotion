@@ -1,103 +1,113 @@
-\documentclass[11pt,a4paper]{article}
-\usepackage[margin=1in]{geometry}
+\documentclass[conference,10pt]{IEEEtran}
 \usepackage[T1]{fontenc}
 \usepackage{times}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{hyperref}
 \usepackage{tikz}
 \usepackage{microtype}
-\usepackage{setspace}
 
-\title{Exploring Regret- and Deprivation-Like Signals in LLMs: Automated Pipeline and Preliminary Evidence}
-\author{Jaeyeong CHOI \\\
-DGIST EECS \\\\ \texttt{jaeyeong2022@dgist.ac.kr}}
-\date{\today}
+\title{Behavioral Signatures of Regret-Like Language in Large Language Models: Automated Pipeline and Preliminary Evidence}
+\author{Jaeyeong CHOI\thanks{DGIST EECS, \texttt{jaeyeong2022@dgist.ac.kr}}}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-We do not claim that large language models (LLMs) experience emotion.
-Instead, this study tests whether LLMs exhibit text patterns behaviorally similar to human regret-like responses after loss or missed opportunities.
-Prior work shows apparent socio-emotional performance in LLMs is often sensitive to prompts and task format; therefore, we focus on reproducible behavior traces rather than internal state claims \cite{kosinski2024tom,epstude2008theory,roese2002regret,ullman2023llm,strachan2024mind,anthro2023}.
+This paper examines whether large language models (LLMs) display language patterns similar to human regret-like responses after loss or missed opportunities.
+We do not claim internal emotion; we test observable behavioral markers under controlled prompts.
+This work focuses on a reproducible end-to-end pipeline for literature screening, prompt control, run logging, and automated status tracking.
 \end{abstract}
 
+\section*{Keywords}
+LLM behavior, regret-like language, counterfactual reasoning, reproducibility, automation
+
 \section{Introduction}
-Humans often express regret through counterfactual language (\textit{if only ...}), self-attribution, and repeated reflection on irreversible events.
-From this view, a key question is whether LLM outputs show the same patterns under comparable conditions.
+Humans often express regret through counterfactual language (\textit{if only ...}), self-attribution, and repeated reflection on irreversible decisions.
+Previous studies report that apparent socio-emotional behavior in LLMs is sensitive to prompt format, so we define a task-specific behavioral marker for regret-like output rather than emotional experience.
 
 \section{Methods}
-The research pipeline consists of four components:
+The pipeline has four components:
 \begin{enumerate}
-  \item \textbf{Literature collection and screening:} OpenAlex-based retrieval with repeatable rule filters.
-  \item \textbf{Prompt bank expansion:} scenario and persona templates for loss, reversal, and reflection.
-  \item \textbf{Experiment runner:} scenario/persona/temperature combinations with reproducible logging.
-  \item \textbf{State tracking:} continuous status files and scheduled jobs.
+  \item \textbf{Literature collection and screening}: OpenAlex retrieval plus rule-based filtering.
+  \item \textbf{Prompt bank construction}: scenario and persona templates for loss, reversal, and reflection.
+  \item \textbf{Experiment runner}: scenario/persona/temperature combinations with reproducible metadata logging.
+  \item \textbf{State tracking}: automated dashboards, cron jobs, and compact summary logs.
 \end{enumerate}
 
-\section{Current Results}
-Table~\ref{tab:status} and Figure~\ref{fig:progress} summarize the current state of the project.
+\section{Current status}
+Table~\ref{tab:status} and Figure~\ref{fig:progress} summarize the current state.
 
 \begin{table}[t]
-\centering
-\caption{Current status snapshot}
+\caption{Project status snapshot}
 \label{tab:status}
+\centering
 \begin{tabular}{lccc}
 \toprule
 \textbf{Item} & \textbf{Value} & \textbf{Interpretation} & \textbf{Status} \\
 Literature candidates & 279 & Core review pool before strict curation & Screening in progress \\
 Evidence-table rows & 279 & Auto-synced from retrieval log & Stable \\
-Validation samples & 109,500 & Mock-data stress tests only & Running \\
+Validation samples & 109,500 & Mock-data stress test only & Running \\
 Cron interval & 1 minute & Continuous automation & Auto-retrying \\
-Overall stage & 52\% prepared & Pre-experiment stage & On track \\
+Overall progress & 52\% prepared & Pre-experiment stage & On track \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{figure}[t]
 \centering
-\resizebox{0.9\textwidth}{!}{%
+\resizebox{0.85\linewidth}{!}{%
 \begin{tikzpicture}[x=2cm,y=1.5cm]
   \draw[->,thick] (0,0) -- (5.8,0) node[right]{Module};
   \draw[->,thick] (0,0) -- (0,3.2) node[above]{Progress (\%)};
   \foreach \x in {1,...,5} {
     \draw (\x,0) -- (\x,-0.08);
   }
-  \foreach \x/\lab/\y in {1/Infra/92,2/Literature/78,3/Experiment/64,4/Analysis/24,5/Paper/16} {
+  \foreach \x/\lab/\y in {1/Infrastructure/92,2/Literature/78,3/Experiment/64,4/Analysis/24,5/Manuscript/16} {
     \fill[blue!35] (\x,0) rectangle +(0.5,\y/30);
     \node[below] at (\x+0.25,-0.12) {\small \lab};
     \node[above] at (\x+0.25,\y/30) {\y\%};
   }
 \end{tikzpicture}}
-\caption{Module-wise progress from the live dashboard. Plot width is constrained to keep it within page margins.}
+\caption{Module-wise progress from the live dashboard; width constrained to page size.}
 \label{fig:progress}
 \end{figure}
 
 \section{Discussion}
-The infrastructure is now reproducible and automatable.
-The next move is to switch from mock checks to real model calls and fit interaction models for scenario, persona, and temperature.
+The research infrastructure is now reproducible and automatable.
+Next we should switch from mock checks to real model calls and test interaction effects across scenario, persona, and temperature.
 
 \section{Limitations}
 \begin{itemize}
-  \item Core evidence is still based on synthetic text checks.
-  \item Literature screening remains at candidate-level and has not yet become a strict gold set.
-  \item Statistical interpretation is pending large-scale model outputs.
+  \item Evidence is currently based on synthetic checks, not full model outputs.
+  \item Literature screening is still at the candidate stage and not yet a strict gold set.
+  \item Statistical inference remains preliminary.
 \end{itemize}
 
 \section{Next Steps}
-\begin{enumerate}
-  \item Run real-model batches (at least 30 samples per condition).
-  \item Run mixed-effects robustness analyses.
+\begin{itemize}
+  \item Run real-model batches (minimum 30 samples per condition).
+  \item Fit mixed-effects models for prompt/persona/temperature interactions.
   \item Add blinded human annotation for interpretation validity.
-  \item Finalize a full manuscript with full references and richer figures.
-\end{enumerate}
+  \item Finalize a full submission-ready manuscript.
+\end{itemize}
 
 \section{Conclusion}
-This project establishes a reusable and transparent pipeline for studying regret-like behavior in LLM outputs.
-With the pipeline stable, the next stage is to produce inference-grade evidence from production model runs.
+This study provides a reproducible framework for evaluating regret-like behavior claims in LLM outputs.
+The pipeline is now ready for inference-grade experiments with production model calls.
 
-\bibliographystyle{plain}
-\bibliography{references}
+\begin{thebibliography}{99}
+\bibitem{kosinski2024tom}
+Kosinski, M. (2024). Evaluating large language models in theory of mind tasks.
+\bibitem{roese2008theory}
+Epstude, K. and Roese, N. J. (2008). The functional theory of counterfactual thinking.
+\bibitem{roese2002regret}
+Roese, N. J. and Epstude, K. (2017). What have we learned about regret?
+\bibitem{ullman2023llm}
+Ullman, T. (2023). Large language models fail on trivial alterations to theory-of-mind tasks.
+\bibitem{strachan2024mind}
+Strachan, J. W. A., et al. (2024). Testing theory of mind in large language models and humans.
+\bibitem{kim2023}
+Kim, M. J. and Lee, S. H. (2023). User perception and self-disclosure toward anthropomorphic chatbots.
+\end{thebibliography}
 
 \end{document}
