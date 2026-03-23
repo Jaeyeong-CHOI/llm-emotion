@@ -146,10 +146,19 @@ if ! acquire_lock; then
   skip_with_status "lock busy; another tick is running"
 fi
 
-cleanup_lock() {
+RUN_IN_FLIGHT=0
+RUN_FINALIZED=0
+RUN_ID=""
+
+cleanup_on_exit() {
   clear_lock_dir
+
+  if [ "$RUN_IN_FLIGHT" -eq 1 ] && [ "$RUN_FINALIZED" -eq 0 ] && [ -n "$RUN_ID" ] && [ -n "${QUEUE_FILE:-}" ]; then
+    echo "[tick] interrupted before finalizing run_id=$RUN_ID; re-queue for retry"
+    enqueue_run_id_unique "$QUEUE_FILE" "$RUN_ID"
+  fi
 }
-trap cleanup_lock EXIT
+trap cleanup_on_exit EXIT
 
 READY_LINE="$(python3 scripts/check_real_model_readiness.py | tr -d '\r' | head -n 1)"
 if [[ "$READY_LINE" != "ready=true" ]]; then
@@ -286,6 +295,7 @@ enqueue_run_id_unique() {
 
 echo "[tick] execute run_id=$RUN_ID"
 run_failed=0
+RUN_IN_FLIGHT=1
 if ! python3 scripts/run_experiments.py \
   --config ops/experiment_matrix.json \
   --run-label "smoke_auto_tick_$(date -u +%Y%m%d%H%M%S)" \
@@ -305,6 +315,8 @@ if ! python3 scripts/run_experiments.py \
   echo "[tick] run_id=$RUN_ID failed; re-queue for retry"
   enqueue_run_id_unique "$QUEUE_FILE" "$RUN_ID"
 fi
+RUN_FINALIZED=1
+RUN_IN_FLIGHT=0
 
 refresh_status
 
