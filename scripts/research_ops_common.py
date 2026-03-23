@@ -40,6 +40,20 @@ def save_research_state(state: dict[str, Any]) -> None:
     write_json(STATE_PATH, state)
 
 
+def get_stats_snapshot(state: dict[str, Any]) -> dict[str, Any]:
+    """Return a stable stats snapshot with defaults for missing fields."""
+    stats = state.get("stats", {})
+    if not isinstance(stats, dict):
+        stats = {}
+    return {
+        "papers_collected": stats.get("papers_collected", 0),
+        "evidence_rows": stats.get("evidence_rows", 0),
+        "mock_samples_generated": stats.get("mock_samples_generated", 0),
+        "last_success": state.get("last_success", "-"),
+        "last_error": state.get("last_error"),
+    }
+
+
 def count_lines(path: Path) -> int:
     if not path.exists():
         return 0

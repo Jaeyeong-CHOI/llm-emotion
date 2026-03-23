@@ -1,21 +1,9 @@
 #!/usr/bin/env python3
-import json
 import datetime
-from pathlib import Path
+from research_ops_common import ROOT, STATE_PATH, get_stats_snapshot, read_json
 
-ROOT = Path(__file__).resolve().parents[1]
-STATE_PATH = ROOT / "ops" / "research_state.json"
 CRON_STATE_PATH = ROOT / "ops" / "cron_runtime_status.json"
 OUT_PATH = ROOT / "LIVE_STATUS.md"
-
-
-def read_json(path: Path):
-    if not path.exists():
-        return {}
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
 
 
 def fmt(v, default="-"):
@@ -26,7 +14,7 @@ def main():
     state = read_json(STATE_PATH)
     cron = read_json(CRON_STATE_PATH)
 
-    stats = state.get("stats", {})
+    snapshot = get_stats_snapshot(state)
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     lines = [
@@ -35,9 +23,9 @@ def main():
         f"- 마지막 갱신: **{now} (Asia/Seoul 기준 로컬 실행 시각)**",
         f"- 마지막 실행: **{fmt(state.get('last_run'))}**",
         f"- 마지막 성공: **{fmt(state.get('last_success'))}**",
-        f"- 수집 논문 수(후보): **{fmt(stats.get('papers_collected'), '0')}편**",
-        f"- Evidence Table 행 수: **{fmt(stats.get('evidence_rows'), '0')}행**",
-        f"- 생성 샘플 수(파이프라인 검증용): **{fmt(stats.get('mock_samples_generated'), '0')}개**",
+        f"- 수집 논문 수(후보): **{fmt(snapshot.get('papers_collected'), '0')}편**",
+        f"- Evidence Table 행 수: **{fmt(snapshot.get('evidence_rows'), '0')}행**",
+        f"- 생성 샘플 수(파이프라인 검증용): **{fmt(snapshot.get('mock_samples_generated'), '0')}개**",
         "",
         "## 자동화 상태",
         f"- 연구 루프(1분): **{fmt((cron.get('continuous') or {}).get('status'), 'unknown')}**",
