@@ -8,6 +8,10 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year query-group top20 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top20-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top20-over-global-group-top20-ratio`)를 추가해, top19 통과 이후에도 남는 query-group 누적 과점을 fail-fast로 차단합니다.
+- Prompt bank expanded to `v129.0` with **unknown-year group top20 ratio guard / top20 countervoice mesh patch / temperature p99-p70 tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top20_ratio_triager_v129`, `top20_countervoice_mesh_curator_v129`, `temperature_p99_p70_guard_v129`)를 추가했습니다.
+- Experiment runner preflight에 **temperature p99/p70 share ratio guardrail** (`--max-planned-sample-temperature-p99-over-p70-share-ratio`)을 추가해, p99/p75가 통과해도 최상단 tail 가속이 남는 배치를 사전에 차단합니다.
+- Literature screening 규칙(`queries/screening_rules.json`)에 **counterfactual regret intensity / emotion regulation failure / regulatory fit / registered report / manipulation check** alias·method cue를 보강해 선행연구 스크리닝 재현율과 방법론 추적성을 강화했습니다.
 - Literature screening quality gate에 **unknown-year query-group top19 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top19-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top19-over-global-group-top19-ratio`)를 추가해, top18 통과 이후에도 남는 query-group 누적 과점을 fail-fast로 차단합니다.
 - Prompt bank expanded to `v128.0` with **unknown-year group top19 ratio guard / top19 countervoice mesh patch / temperature p99-p75 tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top19_ratio_triager_v128`, `top19_countervoice_mesh_curator_v128`, `temperature_p99_p75_guard_v128`)를 추가했습니다.
 - Experiment runner preflight에 **temperature p99/p75 share ratio guardrail** (`--max-planned-sample-temperature-p99-over-p75-share-ratio`)을 추가해, p99/p80이 통과해도 최상단 tail 가속이 남는 배치를 사전에 차단합니다.
@@ -133,7 +137,7 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 - Screening quality gate continues to track **review evidence-link decay share** (`--max-manual-qc-review-evidence-link-decay-share`) to fail fast when review 근거의 문장-링크 연결이 약화됩니다.
 
 ## Repository structure
-- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v128.md`)
+- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v129.md`)
 - `queries/`: retrieval queries and screening rules
 - `prompts/`: Korean prompt bank and scenario source material
 - `scripts/`: literature sync, dataset generation, analysis, experiment runner

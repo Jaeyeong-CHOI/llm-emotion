@@ -38,7 +38,12 @@
     "decision affect theory",
     "counterfactual simulation",
     "post-decisional regret",
-    "emotion regulation flexibility"
+    "emotion regulation flexibility",
+    "counterfactual regret intensity",
+    "emotion regulation failure",
+    "implementation intention",
+    "regulatory fit",
+    "measurement model"
   ],
   "high_priority": [
     "regret",
@@ -60,7 +65,10 @@
     "counterfactual simulation",
     "emotion regulation flexibility",
     "affective forecasting bias",
-    "emotion regulation choice"
+    "emotion regulation choice",
+    "counterfactual regret intensity",
+    "emotion regulation failure",
+    "regulatory fit"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -92,7 +100,11 @@
     "multilevel modeling",
     "pre-registered study",
     "within-subject design",
-    "measurement invariance"
+    "measurement invariance",
+    "registered report",
+    "preregistered analysis",
+    "manipulation check",
+    "measurement model"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -283,6 +295,29 @@
       "regulatory flexibility",
       "adaptive regulation",
       "flexible regulation"
+    ],
+    "counterfactual regret intensity": [
+      "counterfactual regret intensity",
+      "regret intensity",
+      "anticipated regret intensity",
+      "counterfactual regret magnitude"
+    ],
+    "emotion regulation failure": [
+      "emotion regulation failure",
+      "regulation failure",
+      "failed reappraisal",
+      "regulation breakdown"
+    ],
+    "regulatory fit": [
+      "regulatory fit",
+      "fit effect",
+      "promotion focus",
+      "prevention focus"
+    ],
+    "implementation intention": [
+      "implementation intention",
+      "if-then plan",
+      "if then planning"
     ]
   },
   "weights": {
@@ -347,7 +382,12 @@
     "think aloud protocol",
     "micro-longitudinal",
     "daily diary",
-    "multilevel modeling"
+    "multilevel modeling",
+    "registered report",
+    "preregistered analysis",
+    "manipulation check",
+    "measurement model",
+    "latent variable model"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {

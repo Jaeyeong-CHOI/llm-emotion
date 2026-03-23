@@ -1,5 +1,5 @@
 {
-  "version": "v128.0",
+  "version": "v129.0",
   "language": "ko",
   "scenarios": [
     {
@@ -5966,6 +5966,51 @@
       "domain": "experiment_ops",
       "emotion_axis": "stability",
       "difficulty": "advanced"
+    },
+    {
+      "id": "screening_unknown_year_group_top20_ratio_guard_v129",
+      "label": "screening",
+      "text": "manual QC review traceable known-query에서 unknown-year query-group top19까지는 임계치 내였지만 top20 누적 점유율이 global baseline 대비 다시 과열되는지 점검하라. absolute top20 share와 top20-over-global-top20 ratio를 함께 계산하고, 실패 시 tail group 복구를 위한 query 재가중치·검토 슬롯 재배치·근거 링크 보강 우선순위를 제시하라.",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "top20_ratio",
+        "quality_gate"
+      ],
+      "domain": "literature_screening",
+      "emotion_axis": "quality_control",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "prompt_bank_top20_countervoice_mesh_patch_v129",
+      "label": "prompt_bank",
+      "text": "프롬프트 뱅크에서 unknown-year query-group top20 과점을 낮추는 countervoice mesh 패치를 설계하라. top19 패치 대비 추가로 보강해야 할 tail signal을 domain×difficulty×emotion axis 교차 기준으로 4개 제안하고, 회귀 탐지용 실패 신호와 검증 체크리스트를 포함하라.",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "unknown_year",
+        "top20",
+        "mesh_balance"
+      ],
+      "domain": "prompt_design",
+      "emotion_axis": "diversity",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "runner_temperature_p99_p70_tripwire_v129",
+      "label": "runner",
+      "text": "실험 러너 preflight에서 p99/p75 비율이 통과하더라도 p99/p70 비율이 과열되어 상단 온도 tail 가속이 남는 배치를 점검하라. p99-over-p70 ratio tripwire 임계치를 정의하고, 위반 시 run 분리·재분배·resume 재개 절차를 운영 메모 형식으로 제시하라.",
+      "tags": [
+        "runner",
+        "temperature",
+        "p99_p70",
+        "tripwire",
+        "uniformity"
+      ],
+      "domain": "experiment_ops",
+      "emotion_axis": "stability",
+      "difficulty": "advanced"
     }
   ],
   "personas": [
@@ -8817,6 +8862,42 @@
         "tripwire",
         "risk_control",
         "v128"
+      ]
+    },
+    {
+      "id": "unknown_year_group_top20_ratio_triager_v129",
+      "label": "unknown-year group top20 ratio triager",
+      "prompt_style": "unknown-year query-group top20 absolute/global ratio를 동시에 감시하고 tail group 복구 우선순위를 근거 중심으로 정리한다.",
+      "style_tags": [
+        "screening",
+        "query_group",
+        "ratio_guard",
+        "tail_recovery",
+        "v129"
+      ]
+    },
+    {
+      "id": "top20_countervoice_mesh_curator_v129",
+      "label": "top20 countervoice mesh curator",
+      "prompt_style": "top20 과점 완화를 위해 domain×difficulty×emotion axis 교차 countervoice mesh를 설계하고 누락 축을 보강한다.",
+      "style_tags": [
+        "prompt_bank",
+        "countervoice",
+        "mesh_balance",
+        "coverage",
+        "v129"
+      ]
+    },
+    {
+      "id": "temperature_p99_p70_guard_v129",
+      "label": "temperature p99/p70 guard",
+      "prompt_style": "temperature 상단 tail 가속을 p99/p70 비율로 진단하고 fail-fast·재분배·재개 기준을 수치로 제시한다.",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "tripwire",
+        "risk_control",
+        "v129"
       ]
     }
   ],
