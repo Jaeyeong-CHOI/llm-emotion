@@ -41,9 +41,16 @@ echo "[tick] $(date -u +'%Y-%m-%dT%H:%M:%SZ') start"
 LOCK_DIR="/tmp/llm_emotion_research_tick.lock"
 LOCK_PID_FILE="$LOCK_DIR/pid"
 
+is_numeric_pid() {
+  local pid="$1"
+  [[ "$pid" =~ ^[0-9]+$ ]]
+}
+
 lock_pid_matches_tick_script() {
   local pid="$1"
   local command=""
+
+  is_numeric_pid "$pid" || return 1
 
   command="$(ps -p "$pid" -o command= 2>/dev/null | head -n 1 | tr -d '\r' || true)"
   [[ "$command" == *"run_research_tick.sh"* ]]
@@ -65,7 +72,7 @@ acquire_lock() {
   fi
 
   if [ -n "$lock_pid" ]; then
-    if ! kill -0 "$lock_pid" 2>/dev/null || ! lock_pid_matches_tick_script "$lock_pid"; then
+    if ! is_numeric_pid "$lock_pid" || ! kill -0 "$lock_pid" 2>/dev/null || ! lock_pid_matches_tick_script "$lock_pid"; then
       echo "[tick] stale lock detected (pid=$lock_pid); recovering"
       rm -f "$LOCK_PID_FILE"
       rmdir "$LOCK_DIR" 2>/dev/null || true
