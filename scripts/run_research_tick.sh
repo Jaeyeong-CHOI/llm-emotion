@@ -484,10 +484,11 @@ replace_if_changed() {
 
   if cmp -s "$queue_file" "$tmp_file" 2>/dev/null; then
     rm -f "$tmp_file"
-    return 1
+    return 0
   fi
 
   mv "$tmp_file" "$queue_file"
+  return 0
 }
 
 cleanup_tmp_files() {
