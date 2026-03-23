@@ -84,18 +84,18 @@ is_expected_tick_command() {
       continue
     fi
 
-    # 1) literal token itself
-    normalized="$(realpath "$token" 2>/dev/null || true)"
-    if [ -n "$normalized" ] && [ "$normalized" = "$RUN_TICK_SCRIPT" ]; then
-      return 0
-    fi
-
-    # 2) token relative to script directory (handles `bash run_research_tick.sh`)
-    candidate="${SCRIPT_DIR}/${token}"
-    normalized="$(realpath "$candidate" 2>/dev/null || true)"
-    if [ -n "$normalized" ] && [ "$normalized" = "$RUN_TICK_SCRIPT" ]; then
-      return 0
-    fi
+    for candidate in \
+      "$token" \
+      "${SCRIPT_DIR}/${token}" \
+      "${ROOT}/${token}"; do
+      if [ ! -e "$candidate" ]; then
+        continue
+      fi
+      normalized="$(realpath "$candidate" 2>/dev/null || true)"
+      if [ -n "$normalized" ] && [ "$normalized" = "$RUN_TICK_SCRIPT" ]; then
+        return 0
+      fi
+    done
   done
 
   return 1
