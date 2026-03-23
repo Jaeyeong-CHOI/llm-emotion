@@ -73,13 +73,6 @@ dequeue_run_id() {
   tmp_file="$(mktemp "${queue_file}.tmp.XXXXXX")"
 
   local picked=""
-  local done=0
-  cleanup_tmp() {
-    if [ "$done" -eq 0 ]; then
-      rm -f "$tmp_file"
-    fi
-  }
-  trap cleanup_tmp RETURN
 
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
@@ -91,8 +84,11 @@ dequeue_run_id() {
     printf '%s\n' "$raw_line" >> "$tmp_file"
   done < "$queue_file"
 
-  mv "$tmp_file" "$queue_file"
-  done=1
+  if ! mv "$tmp_file" "$queue_file"; then
+    rm -f "$tmp_file"
+    return 1
+  fi
+
   printf '%s' "$picked"
 }
 
