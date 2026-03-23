@@ -1,8 +1,28 @@
 {
   "continuous": {
-    "status": "missing"
+    "name": "llm-emotion-continuous-research",
+    "resolved_id": "5774a9df-01a2-4de3-8016-710120693fef",
+    "enabled": true,
+    "status": "enabled",
+    "lastRunStatus": "ok",
+    "lastRunAtMs": 1774257992620,
+    "consecutiveErrors": 0,
+    "nextRunAtMs": 1774258273356
   },
   "live_report": {
-    "status": "missing"
+    "name": "llm-emotion-important-live-report",
+    "resolved_id": "2a4cf4a2-8b68-4661-8b57-52ff0829cf71",
+    "enabled": true,
+    "status": "enabled",
+    "lastRunStatus": "ok",
+    "lastRunAtMs": 1774258234417,
+    "consecutiveErrors": 0,
+    "nextRunAtMs": 1774258294417
+  },
+  "_meta": {
+    "resolved": {
+      "continuous": "name:llm-emotion-continuous-research",
+      "live_report": "name:llm-emotion-important-live-report"
+    }
   }
 }

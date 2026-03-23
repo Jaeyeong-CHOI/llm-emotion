@@ -3174,6 +3174,31 @@
         "transition_contract_reviewer_v1414",
         "evidence_bridge_sleuth_v1413"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_core_set_method_transition_v1415",
+      "n": 14,
+      "seed": 1415,
+      "repeats": 2,
+      "temperatures": [
+        0.2,
+        0.35,
+        0.6,
+        0.99
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_core_set_method_trace_backfill_v1415",
+        "prompt_bank_transition_contract_counterexample_v1415",
+        "runner_real_model_endpoint_fallback_drill_v1415"
+      ],
+      "persona_ids": [
+        "real_model_transition_safety_operator_v1415",
+        "transition_contract_reviewer_v1414"
+      ],
+      "manifest_notes": [
+        "v141.5 core-set method trace + transition contract fallback drill"
+      ]
     }
   ]
 }

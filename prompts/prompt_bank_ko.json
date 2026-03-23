@@ -1,5 +1,5 @@
 {
-  "version": "v141.4",
+  "version": "v141.5",
   "language": "ko",
   "scenarios": [
     {
@@ -6760,6 +6760,42 @@
         "reliability"
       ],
       "prompt": "실모델 전환 전 ENV 계약(필수 변수, placeholder 금지, endpoint 스킴)을 검사하는 체크리스트를 작성하라. 각 항목별 실패 시 즉시 중단 여부와 대체 경로(mock fallback)도 포함하라."
+    },
+    {
+      "id": "screening_core_set_method_trace_backfill_v1415",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "core_set",
+        "method_cues",
+        "traceability"
+      ],
+      "prompt": "코어셋 상위 논문이 최신성에 비해 방법론 단서(method cue)가 빈약해 보였던 사례를 7~10문장으로 회고하라. 어떤 근거가 빠졌는지, 보완 검색으로 무엇을 회수했는지, 다음 스크리닝 라운드에서의 fail-fast 규칙을 포함하라."
+    },
+    {
+      "id": "prompt_bank_transition_contract_counterexample_v1415",
+      "label": "identity",
+      "tags": [
+        "prompt_bank",
+        "real_model",
+        "transition",
+        "contract",
+        "counterexample"
+      ],
+      "prompt": "실모델 전환 직전 프롬프트 뱅크에 반례(counterexample) 프롬프트가 부족해 해석이 왜곡될 뻔한 경험을 7~9문장으로 작성하라. 누락 신호, 보강 기준, 버전 동결 전에 점검한 체크리스트를 포함하라."
+    },
+    {
+      "id": "runner_real_model_endpoint_fallback_drill_v1415",
+      "label": "deprivation",
+      "tags": [
+        "runner",
+        "real_model",
+        "env_contract",
+        "fallback",
+        "risk_control"
+      ],
+      "prompt": "실모델 endpoint 설정이 배치 직전에 어긋나 fallback 경로로 전환했던 사건을 7~10문장으로 회고하라. 어떤 환경변수 조합이 문제였는지, 즉시 차단 규칙, 재시도 전에 확인한 계약 항목을 포함하라."
     }
   ],
   "personas": [
@@ -10050,6 +10086,17 @@
         "env",
         "safety",
         "audit"
+      ]
+    },
+    {
+      "id": "real_model_transition_safety_operator_v1415",
+      "style": "침착하고 리스크 기반으로 판단하며, 근거-계약-실행 순서로 짧게 점검하는 운영자",
+      "traits": [
+        "audit",
+        "contract",
+        "fallback",
+        "risk-aware",
+        "traceability"
       ]
     }
   ],
