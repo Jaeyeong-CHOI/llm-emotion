@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year query-group top13 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top13-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top13-over-global-group-top13-ratio`)를 추가해, top12 통과 이후에도 남는 query-group 누적 과점을 fail-fast로 차단합니다.
+- Prompt bank expanded to `v121.0` with **unknown-year group top13 ratio guard / top13 countervoice patch / temperature p90-median tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top13_ratio_triager_v121`, `top13_countervoice_architect_v121`, `temperature_p90_median_guard_v121`)를 추가했습니다.
+- Experiment runner preflight에 **temperature p90/median share ratio guardrail** (`--max-planned-sample-temperature-p90-over-median-share-ratio`)을 추가해, top-k 누적 비율이 통과해도 분포 상단-중앙 편차가 커진 배치를 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year query-group top11 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top11-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top11-over-global-group-top11-ratio`)를 추가해, top10 통과 이후에도 남는 query-group 누적 과점을 fail-fast로 차단합니다.
 - Prompt bank expanded to `v12.0` with **unknown-year group top11 ratio guard / top11 counterbalance patch / temperature top19 uniformity tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top11_ratio_triager_v120`, `top11_counterbalance_architect_v120`, `temperature_top19_uniformity_guard_v120`)를 추가했습니다.
 - Experiment runner preflight에 **temperature top19 share + top19-over-uniform guardrail** (`--max-planned-sample-temperature-top19-share`, `--max-planned-sample-temperature-top19-over-uniform-ratio`)을 추가해, top18 통과 배치에서도 남는 누적 편중을 사전에 차단합니다.
@@ -113,7 +116,7 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 - Screening quality gate continues to track **review evidence-link decay share** (`--max-manual-qc-review-evidence-link-decay-share`) to fail fast when review 근거의 문장-링크 연결이 약화됩니다.
 
 ## Repository structure
-- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v119.md`)
+- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v121.md`)
 - `queries/`: retrieval queries and screening rules
 - `prompts/`: Korean prompt bank and scenario source material
 - `scripts/`: literature sync, dataset generation, analysis, experiment runner

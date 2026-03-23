@@ -1,5 +1,5 @@
 {
-  "version": "v118.0",
+  "version": "v121.0",
   "language": "ko",
   "scenarios": [
     {
@@ -5533,6 +5533,73 @@
       ],
       "difficulty": "advanced",
       "prompt": "실험 러너 preflight에서 top15 guardrail은 통과했지만 top16 누적 temperature share와 uniform 대비 비율이 과열된 상황을 가정하라. top16 share/top16-over-uniform ratio 임계치를 제시하고, 위반 시 중단·재분배·재개 절차를 단계별로 작성하라."
+    },
+    {
+      "id": "screening_unknown_year_group_top13_ratio_guard_v121",
+      "label": "screening",
+      "tags": [
+        "screening",
+        "quality-gate",
+        "unknown-year",
+        "known-query",
+        "group-top13",
+        "ratio"
+      ],
+      "domains": [
+        "systematic_review",
+        "screening_qc"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "fairness",
+        "robustness"
+      ],
+      "difficulty": "advanced",
+      "prompt": "manual QC review에서 unknown-year traceable known-query의 group top13 누적 점유율이 global known-query group top13 baseline을 초과하는 조짐이 나타났다. top13 share와 top13/global ratio 게이트를 정의하고, 실패 시 query-group 재표본추출·근거링크 재검증·재심사 큐 재배치를 순서대로 제시하라."
+    },
+    {
+      "id": "prompt_bank_unknown_year_group_top13_countervoice_patch_v121",
+      "label": "prompt_bank",
+      "tags": [
+        "prompt-bank",
+        "expansion",
+        "countervoice",
+        "unknown-year",
+        "group-top13"
+      ],
+      "domains": [
+        "prompt_engineering",
+        "systematic_review"
+      ],
+      "emotion_axes": [
+        "coverage",
+        "balance",
+        "repair"
+      ],
+      "difficulty": "advanced",
+      "prompt": "unknown-year 편향을 줄이기 위해 group top13에 과소대표된 관점을 보강하는 countervoice 프롬프트 패치를 설계하라. 각 패치는 (a) 편향 징후, (b) 질문 리프레이밍, (c) 근거 요구 형식, (d) 실패 시 대체 질문을 포함해야 한다."
+    },
+    {
+      "id": "runner_temperature_p90_median_tripwire_v121",
+      "label": "runner",
+      "tags": [
+        "runner",
+        "temperature",
+        "p90",
+        "median",
+        "tripwire"
+      ],
+      "domains": [
+        "experiment_ops",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "stability",
+        "vigilance",
+        "control"
+      ],
+      "difficulty": "advanced",
+      "prompt": "실험 러너 preflight에서 temperature 분포의 p90 share가 median share를 크게 상회해 tail 다양성이 붕괴되는 상황을 가정하라. p90/median ratio 기반 fail-fast 규칙을 정의하고, 위반 시 온도 재배분·run-id 재균형·재시도 예산 조정 절차를 작성하라."
     }
   ],
   "personas": [
@@ -8105,6 +8172,41 @@
         "uniformity",
         "tripwire",
         "v120"
+      ]
+    },
+    {
+      "id": "unknown_year_group_top13_ratio_triager_v121",
+      "description": "unknown-year group top13/global top13 ratio 이상 징후를 탐지하고 screening 게이트를 조정하는 triager",
+      "style_tags": [
+        "screening",
+        "unknown-year",
+        "group-top13",
+        "ratio",
+        "triage",
+        "v121"
+      ]
+    },
+    {
+      "id": "top13_countervoice_architect_v121",
+      "description": "과소대표 query-group을 반영한 countervoice 패치를 설계해 prompt bank 커버리지를 확장하는 architect",
+      "style_tags": [
+        "prompt-bank",
+        "countervoice",
+        "coverage",
+        "group-top13",
+        "v121"
+      ]
+    },
+    {
+      "id": "temperature_p90_median_guard_v121",
+      "description": "temperature p90/median share ratio를 활용해 preflight 편중을 차단하는 runner guard 담당자",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "p90-median",
+        "uniformity",
+        "tripwire",
+        "v121"
       ]
     }
   ],
