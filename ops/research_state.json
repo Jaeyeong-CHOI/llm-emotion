@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-03-23T18:36:34",
-  "last_success": "2026-03-23T18:36:34",
+  "last_run": "2026-03-23T18:47:52",
+  "last_success": "2026-03-23T18:47:52",
   "last_error": null,
   "stats": {
     "papers_collected": 279,
@@ -13,14 +13,6 @@
     "real_model_ready": false
   },
   "notes": [
-    "[2026-03-23T17:54:01] OK append_brief_log",
-    "[2026-03-23T17:58:29] RUN check_screening_quality -> status=review, quality_score=0.0",
-    "[2026-03-23T17:58:31] RUN build_screening_triage_plan -> actionable_items=18",
-    "[2026-03-23T17:58:31] CHG run_experiments.py import os hotfix (NameError 해결)",
-    "[2026-03-23T17:58:35] PREPLAN run_experiments smoke_v141_plan (1 run-cell selected, plan-only, success_rate=0.0)",
-    "[2026-03-23T17:59:22] BRIEF_LOG appended at 17:59 with valid state",
-    "[2026-03-23T18:03:35] OK literature_search",
-    "[2026-03-23T18:03:35] OK evidence_table",
     "[2026-03-23T18:03:35] OK screening_triage_plan",
     "[2026-03-23T18:04:06] OK mock_generate",
     "[2026-03-23T18:07:42] OK mock_analyze",
@@ -52,6 +44,14 @@
     "[2026-03-23T18:42:38] OK mock_analyze",
     "[2026-03-23T18:42:42] OK snapshot_cron_status",
     "[2026-03-23T18:42:42] OK update_live_status",
-    "[2026-03-23T18:42:42] OK append_brief_log"
+    "[2026-03-23T18:42:42] OK append_brief_log",
+    "[2026-03-23T18:48:47] OK literature_search",
+    "[2026-03-23T18:48:47] OK evidence_table",
+    "[2026-03-23T18:48:47] OK screening_triage_plan",
+    "[2026-03-23T18:49:19] OK mock_generate",
+    "[2026-03-23T18:53:11] OK mock_analyze",
+    "[2026-03-23T18:53:15] OK snapshot_cron_status",
+    "[2026-03-23T18:53:15] OK update_live_status",
+    "[2026-03-23T18:53:15] OK append_brief_log"
   ]
 }
