@@ -11,9 +11,14 @@ OUT = ROOT / "ops" / "cron_runtime_status.json"
 CONTINUOUS_NAME_DEFAULT = "llm-emotion-continuous-research"
 LIVE_REPORT_NAME_DEFAULT = "llm-emotion-important-live-report"
 
-# legacy hard-coded fallback IDs (for quick back-compat)
-CONTINUOUS_ID_FALLBACK = "33f59b94-c1e7-44f7-ac2b-f2490043bcc6"
-LIVE_REPORT_ID_FALLBACK = "36361127-9526-4c77-a742-e83d6b4d701e"
+# 우선순위:
+# 1) env로 지정한 cron ID
+# 2) 이름 정확 일치
+# 3) 이름 포함 매칭(유일할 때만)
+# 4) 하드코딩 fallback은 운영 환경 변경 시 오탐을 유발하므로 미사용
+
+CONTINUOUS_ID_FALLBACK = None
+LIVE_REPORT_ID_FALLBACK = None
 
 CRON_TARGETS = [
     (
@@ -68,10 +73,12 @@ def find_by_id_or_name(jobs, env_id_key, fallback_id, name_key):
         j = contains_matches[0]
         return j, j.get("id"), f"fuzzy:{name_key}"
 
-    # final fallback: kept for compatibility if names changed
-    fallback = jobs.get(fallback_id)
-    if fallback:
-        return fallback, fallback_id, "fallback-id"
+    # final fallback: legacy ID 기반 복구 경로는 의도적으로 비활성화
+    # 이름 기반 매칭만으로 안정적으로 복구되며, 잘못된 고정 ID를 피한다.
+    if fallback_id:
+        fallback = jobs.get(fallback_id)
+        if fallback:
+            return fallback, fallback_id, "fallback-id"
     return None, None, "fallback-id"
 
 

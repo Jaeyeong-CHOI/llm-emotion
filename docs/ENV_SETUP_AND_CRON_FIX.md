@@ -75,10 +75,10 @@ cron payload는 wrapper를 실행하도록 바꾸면 됩니다.
 ---
 
 ## 4) 현재 cron ID 동기화(자동 탐지)
-`snapshot_cron_status.py`가 이제는 다음 순서로 찾습니다.
+`snapshot_cron_status.py`는 다음 순서로 찾습니다.
 1) `LLM_EMOTION_CONTINUOUS_CRON_ID`, `LLM_EMOTION_LIVE_CRON_ID` env가 있으면 그 ID 사용
-2) 이름으로 매칭 (`llm-emotion-continuous-research`, `llm-emotion-important-live-report`)
-3) 최종 fallback로 legacy hardcoded ID 사용
+2) 이름으로 정확 일치 매칭 (`llm-emotion-continuous-research`, `llm-emotion-important-live-report`)
+3) 이름 일부 포함으로 단일 매칭되는 경우 선택
 
 현재 실제 등록된 job id 확인:
 ```bash
