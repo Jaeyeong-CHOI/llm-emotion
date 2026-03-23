@@ -206,7 +206,7 @@ dequeue_run_id() {
         continue
       fi
 
-      printf '# invalid run-id skipped: %s\n' "$raw_line"
+      echo "[tick] invalid run-id skipped: $raw_line" >&2
       continue
     fi
     printf '%s\n' "$raw_line"
