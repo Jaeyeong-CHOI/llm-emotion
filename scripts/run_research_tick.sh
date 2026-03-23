@@ -80,6 +80,22 @@ trim_whitespace() {
   sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
+read_proc_field() {
+  local pid="$1"
+  local field="$2"
+  local strip_ws="${3:-0}"
+
+  local value=""
+  value="$(ps -p "$pid" -o "${field}=" 2>/dev/null | tr -d '\r' | head -n 1 || true)"
+  [ -n "$value" ] || return 1
+
+  if [ "$strip_ws" = "1" ]; then
+    value="$(printf '%s' "$value" | trim_whitespace)"
+  fi
+
+  printf '%s' "$value"
+}
+
 lock_pid_uid_and_command() {
   local pid="$1"
   local owner_uid=""
@@ -87,8 +103,8 @@ lock_pid_uid_and_command() {
 
   is_numeric_pid "$pid" || return 1
 
-  owner_uid="$(ps -p "$pid" -o uid= 2>/dev/null | tr -d '\r' | head -n 1 | trim_whitespace || true)"
-  command="$(ps -p "$pid" -o command= 2>/dev/null | tr -d '\r' | head -n 1 || true)"
+  owner_uid="$(read_proc_field "$pid" uid 1 || true)"
+  command="$(read_proc_field "$pid" command 0 || true)"
 
   [[ -n "$owner_uid" ]] || return 1
   [[ -n "$command" ]] || return 1
