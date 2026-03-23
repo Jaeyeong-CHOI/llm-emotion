@@ -18,22 +18,23 @@ def run(cmd: Sequence[str]):
     return p.returncode, p.stdout, p.stderr
 
 
-def run_screening_triage_plan_step() -> tuple[int, str, str]:
-    report_path = ROOT / "results" / "screening_quality_report.json"
-    if not report_path.exists():
-        return 0, "[skip] screening_quality_report.json not found\n", ""
-    return run(
-        [
-            "python3",
-            "scripts/build_screening_triage_plan.py",
-            "--in",
-            "results/screening_quality_report.json",
-            "--out",
-            "results/screening_triage_plan.json",
-            "--out-md",
-            "results/screening_triage_plan.md",
-        ]
-    )
+def run_step(state: dict, name: str, cmd: Sequence[str]):
+    code, out, err = run(cmd)
+    if code != 0:
+        state["last_error"] = {
+            "step": name,
+            "code": code,
+            "stderr": err[-1500:],
+        }
+        append_note(state, f"FAILED {name}: code={code}")
+        save_research_state(state)
+        print(f"[FAIL] {name}\n{err}")
+        return code, out, err
+
+    append_note(state, f"OK {name}")
+    return code, out, err
+
+
 
 
 def collect_screening_label_stats(refs_path):
@@ -110,27 +111,36 @@ def main():
     ]
 
     for name, cmd in steps:
-        code, out, err = run(cmd)
+        code, _, _ = run_step(state, name, cmd)
         if code != 0:
-            state["last_error"] = {"step": name, "code": code, "stderr": err[-1500:]}
-            append_note(state, f"FAILED {name}: code={code}")
-            save_research_state(state)
-            print(f"[FAIL] {name}\n{err}")
             return 1
-        append_note(state, f"OK {name}")
 
-    triage_code, triage_out, triage_err = run_screening_triage_plan_step()
-    if triage_code != 0:
-        state["last_error"] = {
-            "step": "screening_triage_plan",
-            "code": triage_code,
-            "stderr": triage_err[-1500:],
-        }
-        append_note(state, f"FAILED screening_triage_plan: code={triage_code}")
-        save_research_state(state)
-        print(f"[FAIL] screening_triage_plan\n{triage_err}")
-        return 1
-    append_note(state, "OK screening_triage_plan" if triage_out.strip() == "" else triage_out.strip())
+    report_path = ROOT / "results" / "screening_quality_report.json"
+    if not report_path.exists():
+        append_note(state, "OK screening_triage_plan: [skip] screening_quality_report.json not found")
+    else:
+        triage_code, triage_out, _ = run_step(
+            state,
+            "screening_triage_plan",
+            [
+                "python3",
+                "scripts/build_screening_triage_plan.py",
+                "--in",
+                "results/screening_quality_report.json",
+                "--out",
+                "results/screening_triage_plan.json",
+                "--out-md",
+                "results/screening_triage_plan.md",
+            ],
+        )
+        if triage_code != 0:
+            return 1
+
+        # Preserve previous custom success note behavior.
+        append_note(
+            state,
+            "OK screening_triage_plan" if triage_out.strip() == "" else triage_out.strip(),
+        )
 
     state["last_success"] = now
     state["last_error"] = None
