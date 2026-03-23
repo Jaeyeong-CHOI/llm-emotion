@@ -14,9 +14,15 @@ else
   exit 0
 fi
 
+run_status_command() {
+  local log_path="$1"
+  shift
+  "$@" >"$log_path" 2>&1 || true
+}
+
 refresh_status() {
-  python3 scripts/update_live_status.py >/tmp/research_tick_status.log 2>&1 || true
-  python3 scripts/research_status.py >/tmp/research_tick_research_status.log 2>&1 || true
+  run_status_command /tmp/research_tick_status.log python3 scripts/update_live_status.py
+  run_status_command /tmp/research_tick_research_status.log python3 scripts/research_status.py
 }
 
 skip_with_status() {
@@ -74,6 +80,16 @@ if [ -z "$RUN_ID" ]; then
   skip_with_status "no valid run-id found in queue"
 fi
 
+enqueue_run_id_unique() {
+  local queue_file="$1"
+  local run_id="$2"
+
+  if grep -Fqx "$run_id" "$queue_file"; then
+    return 0
+  fi
+  printf '%s\n' "$run_id" >> "$queue_file"
+}
+
 echo "[tick] execute run_id=$RUN_ID"
 run_failed=0
 if ! python3 scripts/run_experiments.py \
@@ -93,7 +109,7 @@ if ! python3 scripts/run_experiments.py \
   --budget-report-md "results/experiments/${RUN_ID}_auto_tick/budget_report.md"; then
   run_failed=1
   echo "[tick] run_id=$RUN_ID failed; re-queue for retry"
-  printf '%s\n' "$RUN_ID" >> "$QUEUE_FILE"
+  enqueue_run_id_unique "$QUEUE_FILE" "$RUN_ID"
 fi
 
 refresh_status
