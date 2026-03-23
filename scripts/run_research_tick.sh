@@ -73,7 +73,8 @@ if [ -z "$RUN_ID" ]; then
 fi
 
 echo "[tick] execute run_id=$RUN_ID"
-python3 scripts/run_experiments.py \
+run_failed=0
+if ! python3 scripts/run_experiments.py \
   --config ops/experiment_matrix.json \
   --run-label "smoke_auto_tick_$(date -u +%Y%m%d%H%M%S)" \
   --include-run-id "$RUN_ID" \
@@ -87,8 +88,16 @@ python3 scripts/run_experiments.py \
   --manifest-markdown \
   --execution-log-jsonl "results/experiments/${RUN_ID}_auto_tick/command_log.jsonl" \
   --budget-report-json "results/experiments/${RUN_ID}_auto_tick/budget_report.json" \
-  --budget-report-md "results/experiments/${RUN_ID}_auto_tick/budget_report.md" || true
+  --budget-report-md "results/experiments/${RUN_ID}_auto_tick/budget_report.md"; then
+  run_failed=1
+  echo "[tick] run_id=$RUN_ID failed; re-queue for retry"
+  printf '%s\n' "$RUN_ID" >> "$QUEUE_FILE"
+fi
 
 refresh_status
 
-echo "[tick] done"
+if [ "$run_failed" -eq 0 ]; then
+  echo "[tick] done"
+else
+  echo "[tick] done (with failure, re-queued)"
+fi
