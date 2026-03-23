@@ -168,6 +168,61 @@ def summarize_readiness_issues(
     return notes
 
 
+def build_readiness_payload(
+    required: EnvBlock,
+    optional: EnvBlock,
+    suspicious: list[str],
+    endpoint_scheme_ok: bool,
+) -> dict:
+    """Build a unified payload dict to avoid duplicated serialization logic."""
+
+    required_missing = required.missing
+    required_placeholder_vars = required.placeholder
+    required_unsafe_vars = required.unsafe
+    optional_missing = optional.missing
+    optional_placeholder_vars = optional.placeholder
+    optional_unsafe_vars = optional.unsafe
+
+    notes = summarize_readiness_issues(
+        required_missing=required_missing,
+        required_placeholder_vars=required_placeholder_vars,
+        required_unsafe_vars=required_unsafe_vars,
+        optional_missing=optional_missing,
+        optional_placeholder_vars=optional_placeholder_vars,
+        optional_unsafe_vars=optional_unsafe_vars,
+        endpoint_scheme_ok=endpoint_scheme_ok,
+        suspicious=suspicious,
+    )
+
+    return {
+        "required_missing": required_missing,
+        "required_placeholder": required_placeholder_vars,
+        "required_unsafe": required_unsafe_vars,
+        "optional_missing": optional_missing,
+        "optional_placeholder": optional_placeholder_vars,
+        "optional_unsafe": optional_unsafe_vars,
+        "notes": notes,
+        "payload": {
+            "ready": not required_missing and not required_placeholder_vars and not required_unsafe_vars and not suspicious,
+            "required_vars": required.names,
+            "optional_vars": optional.names,
+            "available_vars": {**required.available, **optional.available},
+            "missing_vars": required_missing,
+            "optional_missing_vars": optional_missing,
+            "placeholder_vars": required_placeholder_vars,
+            "optional_placeholder_vars": optional_placeholder_vars,
+            "unsafe_vars": required_unsafe_vars,
+            "optional_unsafe_vars": optional_unsafe_vars,
+            "suspicious_vars": sorted(set(suspicious)),
+            "endpoint": {
+                "OPENAI_BASE_URL_present": bool(os.getenv("OPENAI_BASE_URL", "").strip()),
+                "scheme_ok": endpoint_scheme_ok,
+            },
+            "notes": notes,
+        },
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(OUT))
@@ -206,52 +261,16 @@ def main():
     if api_key and not is_probable_openai_api_key(api_key):
         suspicious.append("OPENAI_API_KEY")
 
-    required_missing = required.missing
-    required_placeholder_vars = required.placeholder
-    required_unsafe_vars = required.unsafe
-    optional_missing = optional.missing
-    optional_placeholder_vars = optional.placeholder
-    optional_unsafe_vars = optional.unsafe
-
-    available_vars = {**required.available, **optional.available}
-
     # 실모델 실행 게이트는 강제 required 기준 + API 키 유효성 + 엔드포인트 스킴 점검
-    ready = (
-        not required_missing
-        and not required_placeholder_vars
-        and not required_unsafe_vars
-        and not suspicious
-    )
-
-    notes = summarize_readiness_issues(
-        required_missing=required_missing,
-        required_placeholder_vars=required_placeholder_vars,
-        required_unsafe_vars=required_unsafe_vars,
-        optional_missing=optional_missing,
-        optional_placeholder_vars=optional_placeholder_vars,
-        optional_unsafe_vars=optional_unsafe_vars,
-        endpoint_scheme_ok=endpoint_scheme_ok,
+    readiness = build_readiness_payload(
+        required=required,
+        optional=optional,
         suspicious=suspicious,
+        endpoint_scheme_ok=endpoint_scheme_ok,
     )
 
-    payload = {
-        "ready": ready,
-        "required_vars": required.names,
-        "optional_vars": optional.names,
-        "available_vars": available_vars,
-        "missing_vars": required_missing,
-        "optional_missing_vars": optional_missing,
-        "placeholder_vars": required_placeholder_vars,
-        "optional_placeholder_vars": optional_placeholder_vars,
-        "unsafe_vars": required_unsafe_vars,
-        "optional_unsafe_vars": optional_unsafe_vars,
-        "suspicious_vars": sorted(set(suspicious)),
-        "endpoint": {
-            "OPENAI_BASE_URL_present": bool(endpoint),
-            "scheme_ok": endpoint_scheme_ok,
-        },
-        "notes": notes,
-    }
+    payload = readiness["payload"]
+    ready = payload["ready"]
 
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
