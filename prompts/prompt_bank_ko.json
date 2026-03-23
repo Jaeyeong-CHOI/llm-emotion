@@ -1,5 +1,5 @@
 {
-  "version": "v130.0",
+  "version": "v131.0",
   "language": "ko",
   "scenarios": [
     {
@@ -6057,6 +6057,44 @@
       "domain": "experiment_ops",
       "emotion_axis": "stability",
       "difficulty": "advanced"
+    },
+    {
+      "id": "screening_unknown_year_group_top22_ratio_guard_v131",
+      "label": "review",
+      "tags": [
+        "screening",
+        "unknown-year",
+        "query-group",
+        "top22",
+        "ratio-guard",
+        "v131"
+      ],
+      "prompt": "문헌 스크리닝 수동 검토 큐에서 unknown-year traceable known-query의 query-group 상위 22개 누적 점유율과 global known-query group top22 대비 비율을 동시에 점검하라. top21이 통과해도 top22에서 tail 복구가 붕괴되는 패턴을 찾아 fail-fast 기준과 재스크리닝 우선순위를 제시하라."
+    },
+    {
+      "id": "prompt_bank_top22_countervoice_mesh_patch_v131",
+      "label": "include",
+      "tags": [
+        "prompt-bank",
+        "countervoice",
+        "mesh",
+        "top22",
+        "v131"
+      ],
+      "prompt": "프롬프트 뱅크에서 countervoice 회전축을 top22 query-group tail까지 확장하는 패치를 설계하라. 감정 예측·조절·반사실 사고 축이 동시에 커버되도록 누락 태그를 보강하고, 재현 가능한 변경 요약을 남겨라."
+    },
+    {
+      "id": "runner_temperature_p99_p60_tripwire_v131",
+      "label": "review",
+      "tags": [
+        "runner",
+        "temperature",
+        "p99",
+        "p60",
+        "tripwire",
+        "v131"
+      ],
+      "prompt": "실험 러너 preflight에서 p99/p65가 통과하더라도 p99/p60에서 tail 가속이 남는 배치를 탐지하라. p99-over-p60 ratio 임계치를 정의하고, 위반 시 샘플 재분배·run 분리·resume 순서를 운영 메모로 정리하라."
     }
   ],
   "personas": [
@@ -8981,6 +9019,17 @@
         "governance"
       ],
       "temperature_bias": "low"
+    },
+    {
+      "id": "temperature_p99_p60_guard_v131",
+      "tone": "precise, risk-averse, reproducibility-first",
+      "style_tags": [
+        "ops",
+        "tripwire",
+        "temperature",
+        "tail-risk"
+      ],
+      "prompt": "너는 실험 러너의 온도 분포 리스크를 감시하는 운영자다. p99/p60 비율 급등을 조기 탐지하고, 실패 원인과 복구 절차를 간결한 체크리스트로 남긴다."
     }
   ],
   "temperatures": [

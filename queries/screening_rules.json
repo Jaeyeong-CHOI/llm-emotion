@@ -333,6 +333,21 @@
       "metacognitive reappraisal",
       "metacognitive emotion regulation",
       "meta-reappraisal"
+    ],
+    "emotion regulation choice architecture": [
+      "emotion regulation choice architecture",
+      "regulation choice architecture",
+      "strategy-choice architecture"
+    ],
+    "affective forecasting calibration": [
+      "affective forecasting calibration",
+      "forecast calibration",
+      "emotion forecast calibration"
+    ],
+    "counterfactual simulation depth": [
+      "counterfactual simulation depth",
+      "counterfactual depth",
+      "simulation depth"
     ]
   },
   "weights": {
@@ -405,7 +420,10 @@
     "latent variable model",
     "equivalence test",
     "smallest effect size of interest",
-    "invariance testing"
+    "invariance testing",
+    "sequential analysis",
+    "multiverse analysis",
+    "robustness check"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {

@@ -238,6 +238,8 @@ def write_markdown(path: Path, payload: dict):
             f"- manual_qc_review_traceable_known_query_unknown_year_group_top20_over_global_group_top20_ratio: `{payload['summary']['manual_qc_review_traceable_known_query_unknown_year_group_top20_over_global_group_top20_ratio']}`",
             f"- manual_qc_review_traceable_known_query_unknown_year_group_top21_share: `{payload['summary']['manual_qc_review_traceable_known_query_unknown_year_group_top21_share']}`",
             f"- manual_qc_review_traceable_known_query_unknown_year_group_top21_over_global_group_top21_ratio: `{payload['summary']['manual_qc_review_traceable_known_query_unknown_year_group_top21_over_global_group_top21_ratio']}`",
+            f"- manual_qc_review_traceable_known_query_unknown_year_group_top22_share: `{payload['summary']['manual_qc_review_traceable_known_query_unknown_year_group_top22_share']}`",
+            f"- manual_qc_review_traceable_known_query_unknown_year_group_top22_over_global_group_top22_ratio: `{payload['summary']['manual_qc_review_traceable_known_query_unknown_year_group_top22_over_global_group_top22_ratio']}`",
             f"- manual_qc_review_traceable_known_query_unknown_year_group_tail_share: `{payload['summary']['manual_qc_review_traceable_known_query_unknown_year_group_tail_share']}`",
             f"- manual_qc_review_traceable_known_query_unknown_year_group_tail_over_global_group_tail_ratio: `{payload['summary']['manual_qc_review_traceable_known_query_unknown_year_group_tail_over_global_group_tail_ratio']}`",
             f"- manual_qc_review_traceable_known_query_year_js_divergence: `{payload['summary']['manual_qc_review_traceable_known_query_year_js_divergence']}`",
@@ -455,6 +457,8 @@ def main():
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-group-top20-over-global-group-top20-ratio", type=float, default=1.0)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-group-top21-share", type=float, default=1.0)
     ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-group-top21-over-global-group-top21-ratio", type=float, default=1.0)
+    ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-group-top22-share", type=float, default=1.0)
+    ap.add_argument("--max-manual-qc-review-traceable-known-query-unknown-year-group-top22-over-global-group-top22-ratio", type=float, default=1.0)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-unknown-year-group-tail-share", type=float, default=0.08)
     ap.add_argument("--min-manual-qc-review-traceable-known-query-unknown-year-group-tail-over-global-group-tail-ratio", type=float, default=0.75)
     ap.add_argument("--min-review-bridge-traceable-known-query-share", type=float, default=0.6)
@@ -1304,6 +1308,15 @@ def main():
         if global_known_query_group_counts
         else 0.0
     )
+    global_known_query_group_top22_share = (
+        round(
+            sum(sorted((int(v or 0) for v in global_known_query_group_counts.values()), reverse=True)[:22])
+            / max(1, sum(int(v or 0) for v in global_known_query_group_counts.values())),
+            4,
+        )
+        if global_known_query_group_counts
+        else 0.0
+    )
     global_known_query_top1_share = (
         round(max((int(v or 0) for v in global_known_query_counts.values()), default=0) / max(1, sum(int(v or 0) for v in global_known_query_counts.values())), 4)
         if global_known_query_counts
@@ -1678,6 +1691,15 @@ def main():
         if manual_qc_review_traceable_known_query_unknown_year_rows
         else 0.0
     )
+    manual_qc_review_traceable_known_query_unknown_year_group_top22_share = (
+        round(
+            sum(sorted((int(v or 0) for v in manual_qc_review_traceable_known_query_unknown_year_group_counts.values()), reverse=True)[:22])
+            / max(1, manual_qc_review_traceable_known_query_unknown_year_rows),
+            4,
+        )
+        if manual_qc_review_traceable_known_query_unknown_year_rows
+        else 0.0
+    )
     manual_qc_review_traceable_known_query_unknown_year_group_top10_over_global_group_top10_ratio = (
         round(
             manual_qc_review_traceable_known_query_unknown_year_group_top10_share / max(1e-9, global_known_query_group_top10_share),
@@ -1772,6 +1794,14 @@ def main():
             4,
         )
         if global_known_query_group_top21_share > 0
+        else 0.0
+    )
+    manual_qc_review_traceable_known_query_unknown_year_group_top22_over_global_group_top22_ratio = (
+        round(
+            manual_qc_review_traceable_known_query_unknown_year_group_top22_share / max(1e-9, global_known_query_group_top22_share),
+            4,
+        )
+        if global_known_query_group_top22_share > 0
         else 0.0
     )
     manual_qc_review_traceable_known_query_unknown_year_group_tail_share = round(
@@ -2864,6 +2894,24 @@ def main():
             "threshold": f"<={args.max_manual_qc_review_traceable_known_query_unknown_year_group_top21_over_global_group_top21_ratio}",
         },
         {
+            "name": "manual_qc_review_traceable_known_query_unknown_year_group_top22_share_ceiling",
+            "status": "pass"
+            if manual_qc_review_traceable_known_query_unknown_year_group_top22_share
+            <= args.max_manual_qc_review_traceable_known_query_unknown_year_group_top22_share
+            else "fail",
+            "observed": manual_qc_review_traceable_known_query_unknown_year_group_top22_share,
+            "threshold": f"<={args.max_manual_qc_review_traceable_known_query_unknown_year_group_top22_share}",
+        },
+        {
+            "name": "manual_qc_review_traceable_known_query_unknown_year_group_top22_over_global_group_top22_ratio_ceiling",
+            "status": "pass"
+            if manual_qc_review_traceable_known_query_unknown_year_group_top22_over_global_group_top22_ratio
+            <= args.max_manual_qc_review_traceable_known_query_unknown_year_group_top22_over_global_group_top22_ratio
+            else "fail",
+            "observed": manual_qc_review_traceable_known_query_unknown_year_group_top22_over_global_group_top22_ratio,
+            "threshold": f"<={args.max_manual_qc_review_traceable_known_query_unknown_year_group_top22_over_global_group_top22_ratio}",
+        },
+        {
             "name": "manual_qc_review_traceable_known_query_unknown_year_group_tail_share_floor",
             "status": "pass"
             if manual_qc_review_traceable_known_query_unknown_year_group_tail_share
@@ -3306,6 +3354,8 @@ def main():
             "known_query_unknown_year_group_top20_over_global_group_top20_ratio": manual_qc_review_traceable_known_query_unknown_year_group_top20_over_global_group_top20_ratio,
             "known_query_unknown_year_group_top21_share": manual_qc_review_traceable_known_query_unknown_year_group_top21_share,
             "known_query_unknown_year_group_top21_over_global_group_top21_ratio": manual_qc_review_traceable_known_query_unknown_year_group_top21_over_global_group_top21_ratio,
+            "known_query_unknown_year_group_top22_share": manual_qc_review_traceable_known_query_unknown_year_group_top22_share,
+            "known_query_unknown_year_group_top22_over_global_group_top22_ratio": manual_qc_review_traceable_known_query_unknown_year_group_top22_over_global_group_top22_ratio,
             "known_query_unknown_year_group_tail_share": manual_qc_review_traceable_known_query_unknown_year_group_tail_share,
             "known_query_unknown_year_group_tail_over_global_group_tail_ratio": manual_qc_review_traceable_known_query_unknown_year_group_tail_over_global_group_tail_ratio,
             "known_query_year_js_divergence": manual_qc_review_traceable_known_query_year_js_divergence,
@@ -3486,6 +3536,8 @@ def main():
             "manual_qc_review_traceable_known_query_unknown_year_group_top20_over_global_group_top20_ratio": manual_qc_review_traceable_known_query_unknown_year_group_top20_over_global_group_top20_ratio,
             "manual_qc_review_traceable_known_query_unknown_year_group_top21_share": manual_qc_review_traceable_known_query_unknown_year_group_top21_share,
             "manual_qc_review_traceable_known_query_unknown_year_group_top21_over_global_group_top21_ratio": manual_qc_review_traceable_known_query_unknown_year_group_top21_over_global_group_top21_ratio,
+            "manual_qc_review_traceable_known_query_unknown_year_group_top22_share": manual_qc_review_traceable_known_query_unknown_year_group_top22_share,
+            "manual_qc_review_traceable_known_query_unknown_year_group_top22_over_global_group_top22_ratio": manual_qc_review_traceable_known_query_unknown_year_group_top22_over_global_group_top22_ratio,
             "manual_qc_review_traceable_known_query_unknown_year_group_tail_share": manual_qc_review_traceable_known_query_unknown_year_group_tail_share,
             "manual_qc_review_traceable_known_query_unknown_year_group_tail_over_global_group_tail_ratio": manual_qc_review_traceable_known_query_unknown_year_group_tail_over_global_group_tail_ratio,
             "manual_qc_review_traceable_known_query_year_js_divergence": manual_qc_review_traceable_known_query_year_js_divergence,
