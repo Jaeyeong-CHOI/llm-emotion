@@ -271,9 +271,17 @@ cleanup_on_exit() {
 }
 trap cleanup_on_exit EXIT
 
-READY_LINE="$(normalize_text "$(python3 scripts/check_real_model_readiness.py | head -n 1)")"
-if [[ "$READY_LINE" != "ready=true" ]]; then
-  skip_with_status "readiness=${READY_LINE}"
+read_readiness_line() {
+  local raw_line=""
+
+  raw_line="$(python3 scripts/check_real_model_readiness.py | awk '/^ready=/{print $0; exit}')" || return 1
+  [ -n "$raw_line" ] || return 1
+  printf '%s' "$(normalize_text "$raw_line")"
+}
+
+READY_LINE="$(read_readiness_line || true)"
+if [ -z "$READY_LINE" ] || [[ "$READY_LINE" != "ready=true" ]]; then
+  skip_with_status "readiness=${READY_LINE:-unknown}"
 fi
 
 QUEUE_FILE="ops/continuous_run_ids.txt"
