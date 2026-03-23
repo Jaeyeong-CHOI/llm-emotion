@@ -388,26 +388,45 @@ replace_if_changed() {
   mv "$tmp_file" "$queue_file"
 }
 
+materialize_sanitized_queue() {
+  local queue_file="$1"
+  local out_file="$2"
+
+  iter_queue_lines "$queue_file" > "$out_file"
+}
+
 dedupe_queue_file() {
   local queue_file="$1"
   local tmp_file=""
+  local dedup_file=""
 
   ensure_queue_file_safe "$queue_file" 1 || return 1
   [ -f "$queue_file" ] || return 0
   tmp_file="$(make_queue_temp_file "$queue_file" dedupe)"
+  dedup_file="${tmp_file}.dedupe"
 
-  if ! awk '{ if (!seen[$0]++) print $0 }' < <(iter_queue_lines "$queue_file") > "$tmp_file"; then
-    rm -f "$tmp_file"
+  if ! materialize_sanitized_queue "$queue_file" "$tmp_file"; then
+    rm -f "$tmp_file" "$dedup_file"
     return 1
   fi
 
-  if ! replace_if_changed "$queue_file" "$tmp_file"; then
+  if ! awk '{ if (!seen[$0]++) print $0 }' < "$tmp_file" > "$dedup_file"; then
+    rm -f "$tmp_file" "$dedup_file"
+    return 1
+  fi
+
+  if ! replace_if_changed "$queue_file" "$dedup_file"; then
+    rm -f "$tmp_file" "$dedup_file"
     return 0
   fi
+
+  rm -f "$tmp_file" "$dedup_file"
 }
 dequeue_run_id() {
   local queue_file="$1"
   local tmp_file=""
+  local next_file=""
+  local picked=""
 
   ensure_queue_file_safe "$queue_file" 1 || return 1
 
@@ -417,27 +436,29 @@ dequeue_run_id() {
   fi
 
   tmp_file="$(make_queue_temp_file "$queue_file" dequeue)"
+  next_file="${tmp_file}.next"
 
-  local picked=""
-  local line=""
+  if ! materialize_sanitized_queue "$queue_file" "$tmp_file"; then
+    rm -f "$tmp_file" "$next_file"
+    return 1
+  fi
 
-  while IFS= read -r line || [ -n "$line" ]; do
-    if [ -z "$picked" ]; then
-      picked="$line"
-      continue
+  picked="$(sed -n '1p' "$tmp_file")"
+  if [ -n "$picked" ]; then
+    if ! sed -n '2,$p' "$tmp_file" > "$next_file"; then
+      rm -f "$tmp_file" "$next_file"
+      return 1
     fi
 
-    printf '%s\n' "$line"
-  done < <(iter_queue_lines "$queue_file") > "$tmp_file"
-
-  if [ -n "$picked" ]; then
-    if ! replace_if_changed "$queue_file" "$tmp_file"; then
+    if ! replace_if_changed "$queue_file" "$next_file"; then
+      rm -f "$tmp_file" "$next_file"
       return 1
     fi
   else
-    rm -f "$tmp_file"
+    rm -f "$tmp_file" "$next_file"
   fi
 
+  rm -f "$tmp_file"
   printf '%s' "$picked"
 }
 
