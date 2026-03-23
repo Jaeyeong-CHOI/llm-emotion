@@ -38,6 +38,10 @@ def main():
         ),
         ("evidence_table", "python3 scripts/build_evidence_table.py --in refs/openalex_results.jsonl --out docs/evidence-table.md"),
         (
+            "screening_triage_plan",
+            "if [ -f results/screening_quality_report.json ]; then python3 scripts/build_screening_triage_plan.py --in results/screening_quality_report.json --out results/screening_triage_plan.json --out-md results/screening_triage_plan.md; else echo '[skip] screening_quality_report.json not found'; fi",
+        ),
+        (
             "mock_generate",
             "python3 scripts/generate_dataset.py --out data/raw/mock_generations.jsonl --n 10 --seed 42 --prompt-bank prompts/prompt_bank_ko.json",
         ),

@@ -1,5 +1,5 @@
 {
-  "version": "v12.1",
+  "version": "v118.0",
   "language": "ko",
   "scenarios": [
     {
@@ -5488,6 +5488,51 @@
         "repair"
       ],
       "difficulty": "advanced"
+    },
+    {
+      "id": "prompt_bank_unknown_year_group_top9_counterbalance_v118",
+      "label": "prompt_bank",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "unknown_year",
+        "query_group",
+        "top9",
+        "counterbalance"
+      ],
+      "domains": [
+        "prompt_design",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "diversity",
+        "repair",
+        "vigilance"
+      ],
+      "difficulty": "advanced",
+      "prompt": "프롬프트 뱅크에서 unknown-year query-group top9 과집중을 완화하기 위한 counterbalance 패치를 설계하라. 상위 그룹 과열을 낮추는 countervoice 4개를 제안하고, 각 항목의 실패 신호와 회귀 점검 지표를 포함하라."
+    },
+    {
+      "id": "runner_temperature_top16_uniformity_tripwire_v118",
+      "label": "runner",
+      "tags": [
+        "runner",
+        "temperature",
+        "top16",
+        "uniformity",
+        "tripwire"
+      ],
+      "domains": [
+        "experiment_ops",
+        "research_ops"
+      ],
+      "emotion_axes": [
+        "stability",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "advanced",
+      "prompt": "실험 러너 preflight에서 top15 guardrail은 통과했지만 top16 누적 temperature share와 uniform 대비 비율이 과열된 상황을 가정하라. top16 share/top16-over-uniform ratio 임계치를 제시하고, 위반 시 중단·재분배·재개 절차를 단계별로 작성하라."
     }
   ],
   "personas": [
