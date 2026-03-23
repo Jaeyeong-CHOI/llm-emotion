@@ -48,25 +48,27 @@ if [ ! -f "$QUEUE_FILE" ] || [ ! -s "$QUEUE_FILE" ]; then
   skip_with_status "no queued run-id"
 fi
 
-TMP_FILE="$(mktemp "${QUEUE_FILE}.tmp.XXXXXX")"
-PICKED_FILE="$(mktemp "/tmp/llm_emotion_run_id.XXXXXX")"
-awk -v picked_file="$PICKED_FILE" '
-  BEGIN { picked=0 }
-  {
-    line=$0
-    gsub(/\r/, "", line)
-    if (!picked && line !~ /^[[:space:]]*$/ && line !~ /^[[:space:]]*#/) {
-      print line > picked_file
-      picked=1
-      next
-    }
-    print $0
-  }
-' "$QUEUE_FILE" > "$TMP_FILE"
-mv "$TMP_FILE" "$QUEUE_FILE"
-RUN_ID="$(tr -d '\r\n' < "$PICKED_FILE")"
-rm -f "$PICKED_FILE"
+dequeue_run_id() {
+  local queue_file="$1"
+  local tmp_file
+  tmp_file="$(mktemp "${queue_file}.tmp.XXXXXX")"
 
+  local picked=""
+  while IFS= read -r raw_line || [ -n "$raw_line" ]; do
+    local line
+    line="$(printf '%s' "$raw_line" | tr -d '\r')"
+    if [ -z "$picked" ] && [[ ! "$line" =~ ^[[:space:]]*$ ]] && [[ ! "$line" =~ ^[[:space:]]*# ]]; then
+      picked="$line"
+      continue
+    fi
+    printf '%s\n' "$raw_line" >> "$tmp_file"
+  done < "$queue_file"
+
+  mv "$tmp_file" "$queue_file"
+  printf '%s' "$picked"
+}
+
+RUN_ID="$(dequeue_run_id "$QUEUE_FILE")"
 
 if [ -z "$RUN_ID" ]; then
   skip_with_status "no valid run-id found in queue"
