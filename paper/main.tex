@@ -12,7 +12,7 @@
 \usepackage{setspace}
 \usepackage{amsmath}
 \setlength{\emergencystretch}{1.5em}
-\setlength{\tabcolsep}{2pt}
+\setlength{\tabcolsep}{1.2pt}
 \sloppy
 \usepackage{cite}
 
@@ -78,10 +78,9 @@ Our contribution is narrower but operationally important: building a continuous,
 \begin{table}[t]
 \caption{Prior-work streams and their methodological relevance}
 \label{tab:litmap}
-\footnotesize
+\scriptsize
 \centering
-\resizebox{\columnwidth}{!}{%
-\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.24\linewidth}p{0.46\linewidth}>{\RaggedRight\arraybackslash}p{0.22\linewidth}}
+\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.23\linewidth}p{0.50\linewidth}>{\RaggedRight\arraybackslash}p{0.21\linewidth}}
 \toprule
 Stream & Representative findings & Relevance to this study\\
 \midrule
@@ -92,7 +91,6 @@ Emotion/benchmarking & Coverage + perturbation improve reliability. & Supports Q
 Pipeline reproducibility & Long-run monitoring with status/traceability. & Supports continuous operation.\\
 \bottomrule
 \end{tabularx}
-}%
 \end{table}
 
 \section{Research Design}
@@ -120,7 +118,6 @@ The study is implemented as an automated loop. Table~\ref{tab:pipeline} summariz
 \label{tab:pipeline}
 \footnotesize
 \centering
-\resizebox{\columnwidth}{!}{%
 \begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.30\linewidth}X}
 \toprule
 \textbf{Module} & \textbf{Function} \\
@@ -134,7 +131,6 @@ Experiment driver & Orchestration + aggregate metric collection.\\
 State tracking & Cron logs, dashboards, and compact summaries.\\
 \bottomrule
 \end{tabularx}
-}%
 \end{table}
 
 \subsection{Automated literature workflow}
