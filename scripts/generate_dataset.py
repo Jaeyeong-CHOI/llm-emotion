@@ -3,7 +3,7 @@ import argparse
 import json
 import pathlib
 import random
-from typing import Dict, List
+from typing import Dict, List, Iterable
 
 from research_ops_common import parse_csv_set, row_list_values
 
