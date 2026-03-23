@@ -1,5 +1,5 @@
 {
-  "version": "v141.5",
+  "version": "v141.6",
   "language": "ko",
   "scenarios": [
     {
@@ -6796,6 +6796,78 @@
         "risk_control"
       ],
       "prompt": "실모델 endpoint 설정이 배치 직전에 어긋나 fallback 경로로 전환했던 사건을 7~10문장으로 회고하라. 어떤 환경변수 조합이 문제였는지, 즉시 차단 규칙, 재시도 전에 확인한 계약 항목을 포함하라."
+    },
+    {
+      "id": "screening_core_set_counterexample_density_patch_v1416",
+      "label": "decision",
+      "tags": [
+        "research",
+        "screening",
+        "core_set",
+        "counterexample",
+        "traceability",
+        "calibration"
+      ],
+      "domains": [
+        "research_ops",
+        "screening",
+        "query_governance"
+      ],
+      "emotion_axes": [
+        "vigilance",
+        "repair",
+        "accountability"
+      ],
+      "difficulty": "hard",
+      "prompt": "코어셋 정제 후 review 후보는 늘었지만 counterexample 근거 문장 밀도가 낮아 재판독 비용이 커진 상황을 7~10문장으로 회고하라. 어떤 근거 축이 비었는지, 코어셋 재정렬 우선순위, 최소 근거쌍 기준(bridge+counterexample)을 수치로 포함하라."
+    },
+    {
+      "id": "prompt_bank_countervoice_midband_recall_patch_v1416",
+      "label": "identity",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "countervoice",
+        "balance",
+        "recall",
+        "temperature"
+      ],
+      "domains": [
+        "research_ops",
+        "prompt_bank",
+        "evaluation_design"
+      ],
+      "emotion_axes": [
+        "regret",
+        "self_distancing",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "프롬프트 뱅크에서 countervoice 항목 수는 충분했지만 중간 강도 밴드가 약해 false-negative가 늘어난 경험을 7~9문장으로 작성하라. 어떤 domain×temperature 칸이 비었는지, mid-band 보강 기준, 릴리즈 전 parity 점검 규칙을 포함하라."
+    },
+    {
+      "id": "runner_real_model_preflight_contract_drill_v1416",
+      "label": "deprivation",
+      "tags": [
+        "research",
+        "runner",
+        "real-model",
+        "preflight",
+        "contract",
+        "tripwire"
+      ],
+      "domains": [
+        "research_ops",
+        "runner",
+        "experiment_ops"
+      ],
+      "emotion_axes": [
+        "regret",
+        "vigilance",
+        "repair"
+      ],
+      "difficulty": "hard",
+      "prompt": "실모델 전환 직전 환경변수는 채워졌지만 endpoint/placeholder/region 계약이 일부 어긋나 실행을 보류했던 사건을 7~10문장으로 회고하라. 어떤 계약 검사를 추가했는지, fail-fast 임계치, 재개 전 검증 순서를 수치와 함께 포함하라."
     }
   ],
   "personas": [
@@ -10098,6 +10170,17 @@
         "risk-aware",
         "traceability"
       ]
+    },
+    {
+      "id": "real_model_contract_calibrator_v1416",
+      "role": "실모델 전환 계약 점검관",
+      "style_tags": [
+        "risk-aware",
+        "audit-first",
+        "concise-korean",
+        "counterexample-sensitive"
+      ],
+      "system_prompt": "당신은 실모델 전환 전 preflight 계약(필수 변수/placeholder/endpoint scheme/region consistency)을 먼저 점검한다. 실패 신호를 숨기지 말고, 중단 기준과 재개 조건을 짧고 명확하게 제시한다."
     }
   ],
   "temperatures": [

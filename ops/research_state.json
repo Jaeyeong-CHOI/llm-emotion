@@ -1,6 +1,6 @@
 {
-  "last_run": "2026-03-23T18:47:52",
-  "last_success": "2026-03-23T18:47:52",
+  "last_run": "2026-03-23T18:59:07",
+  "last_success": "2026-03-23T18:59:07",
   "last_error": null,
   "stats": {
     "papers_collected": 279,
@@ -9,15 +9,10 @@
     "screen_include": 0,
     "screen_review": 77,
     "core_set_size": 32,
-    "prompt_bank_version": "v141.5",
-    "real_model_ready": false
+    "prompt_bank_version": "v141.6",
+    "real_model_ready": true
   },
   "notes": [
-    "[2026-03-23T18:03:35] OK screening_triage_plan",
-    "[2026-03-23T18:04:06] OK mock_generate",
-    "[2026-03-23T18:07:42] OK mock_analyze",
-    "[2026-03-23T18:07:46] OK snapshot_cron_status",
-    "[2026-03-23T18:07:46] OK update_live_status",
     "[2026-03-23T18:07:46] OK append_brief_log",
     "[2026-03-23T18:10:11] OK core_set generation (ops/core_set.json, target=40)",
     "[2026-03-23T18:10:11] OK prompt_bank expanded to v141.1 with 3 scenarios (screening provenance / prompt countervoice / preflight)",
@@ -52,6 +47,11 @@
     "[2026-03-23T18:53:11] OK mock_analyze",
     "[2026-03-23T18:53:15] OK snapshot_cron_status",
     "[2026-03-23T18:53:15] OK update_live_status",
-    "[2026-03-23T18:53:15] OK append_brief_log"
+    "[2026-03-23T18:53:15] OK append_brief_log",
+    "[2026-03-23T18:59:07] RUN screening_quality v1416 check completed (status=review, fail_count=18)",
+    "[2026-03-23T18:59:07] OK core_set refined to 32 items with recency/method coverage rebalance (v141.6)",
+    "[2026-03-23T18:59:07] OK prompt_bank expanded to v141.6 with 3 scenarios + 1 persona (countervoice mid-band + real-model contract drill 포함)",
+    "[2026-03-23T18:59:07] PREPLAN run_experiments smoke_v1416_plan (2 run-cells selected, plan-only, selected_total_samples=672)",
+    "[2026-03-23T18:59:07] OK real_model_readiness contract check executed, ready=True"
   ]
 }

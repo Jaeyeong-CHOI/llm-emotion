@@ -77,7 +77,11 @@
     "materials availability",
     "analysis pipeline",
     "data availability statement",
-    "sensitivity analysis"
+    "sensitivity analysis",
+    "causal sensitivity analysis",
+    "counterfactual validity",
+    "emotion label reliability",
+    "protocol drift monitoring"
   ],
   "high_priority": [
     "regret",
@@ -125,7 +129,10 @@
     "preregistration",
     "search strategy",
     "sensitivity analysis",
-    "data availability statement"
+    "data availability statement",
+    "causal sensitivity analysis",
+    "counterfactual validity",
+    "emotion label reliability"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -188,7 +195,11 @@
     "data availability",
     "analysis reproducibility",
     "registered protocol compliance",
-    "sensitivity analysis"
+    "sensitivity analysis",
+    "sensitivity robustness check",
+    "causal sensitivity analysis",
+    "protocol drift audit",
+    "label reliability audit"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -577,6 +588,26 @@
       "protocol compliance",
       "protocol adherence",
       "registered protocol compliance"
+    ],
+    "causal sensitivity analysis": [
+      "causal sensitivity analysis",
+      "causal robustness check",
+      "sensitivity-to-assumptions"
+    ],
+    "counterfactual validity": [
+      "counterfactual validity",
+      "counterfactual faithfulness",
+      "counterfactual plausibility"
+    ],
+    "emotion label reliability": [
+      "emotion label reliability",
+      "annotation reliability",
+      "label consistency"
+    ],
+    "protocol drift monitoring": [
+      "protocol drift monitoring",
+      "protocol drift audit",
+      "analysis drift monitoring"
     ]
   },
   "weights": {
@@ -673,7 +704,11 @@
     "open methods appendix",
     "reproducibility checklist",
     "evidence provenance table",
-    "audit trail"
+    "audit trail",
+    "sensitivity robustness check",
+    "causal sensitivity analysis",
+    "protocol drift audit",
+    "label reliability audit"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {
