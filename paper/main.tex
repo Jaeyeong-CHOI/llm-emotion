@@ -3,12 +3,11 @@
 \usepackage{times}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{array}
 \usepackage{tikz}
 \usepackage{microtype}
+\usepackage{array}
 
-\title{A Reproducible Pipeline for Studying Regret-Like Language in LLMs:\
-Literature Integration, Automated Screening, and Preliminary Behavioral Evidence}
+\title{A Reproducible Pipeline for Studying Regret-Like Language in LLMs: Literature Integration, Automated Screening, and Preliminary Behavioral Evidence}
 \author{Jaeyeong CHOI\\
 DGIST EECS\\
 \texttt{jaeyeong2022@dgist.ac.kr}}
@@ -17,142 +16,130 @@ DGIST EECS\\
 \maketitle
 
 \begin{abstract}
-This study investigates whether large language models (LLMs) exhibit language behavior analogous to human \textit{regret-like} responses under loss and deprivation-like scenarios.
-We do not claim that LLMs possess emotion; instead, we evaluate observable behavior under controlled prompting and rigorous reproducible infrastructure.
+This study investigates whether large language models (LLMs) exhibit language behavior analogous to human regret-like responses under loss and deprivation-like scenarios.
+We do not claim that LLMs possess emotion; instead, we evaluate observable behavior under controlled prompting and reproducible infrastructure.
 
-Unlike isolated prompt-completion experiments, our contribution is an integrated pipeline that combines (1) literature discovery and quality triage, (2) large prompt-bank construction, (3) standardized generation and marker analysis, and (4) continuous reporting for long-running experiment operations.
+Unlike isolated prompt-completion experiments, our contribution is an integrated pipeline that combines literature discovery and quality triage, prompt-bank construction, standardized marker analysis, and continuous reporting for long-running experiments.
 
-Current results remain preliminary: we report implementation outcomes from an automated pipeline and a stress-tested synthetic benchmark, and prepare for real-model inference phase.
+Current results remain preliminary: we report implementation outcomes from a synthetic stress-tested benchmark and prepare the system for real-model inference.
 \end{abstract}
 
 \section*{Keywords}
 LLM behavior, regret-like language, counterfactual expression, reproducibility, automation, pipeline, literature screening
 
 \section{Introduction}
-Psychological regret is often expressed through counterfactual statements, self-attribution, and repeated references to irreversible choices.
+Humans often express regret through counterfactual statements, self-attribution, and repeated reflection on irreversible decisions.
 This motivates a testable question for LLM research:
 
 \begin{quote}
 \small Under comparable elicitation conditions, do LLM outputs show consistent markers associated with regret-like behavior?
 \end{quote}
 
-A key challenge is avoiding over-interpretation: appearing empathic can emerge from prompt artifacts.
-Recent work in theory-of-mind and anthropomorphism shows that large language model social-behavior profiles are highly sensitive to task framing.
+A key challenge is avoiding over-interpretation: apparent social behavior in LLMs can arise from prompt artifacts.
+Recent findings in theory-of-mind and anthropomorphism show that performance is sensitive to task framing, so evaluation should be behaviorally grounded.
 
-This project addresses this challenge by building a transparent experimental stack where generation, logging, screening quality, and reporting are part of the same codebase.
+This work builds a transparent experimental stack where generation, logging, screening quality, and reporting are unified.
 
 \section{Related Work}
 We organize prior work into three streams.
+
 \subsection{Human counterfactual and regret psychology}
-Human regret research highlights measurable linguistic and cognitive signatures such as
-(\textit{i}) counterfactual language (e.g., ``if only''),
-(\textit{ii}) temporal revisiting of past decisions,
-(\textit{iii}) self-attribution and perceived responsibility.
-This provides the theoretical basis for marker design.
+Human regret research identifies markers such as:
+\begin{itemize}
+  \item Counterfactual language (\textit{if only ...}).
+  \item Temporal revisiting of irreversible choices.
+  \item Self-attribution and responsibility phrasing.
+\end{itemize}
+These provide the basis for marker definitions.
 
 \subsection{LLM social-cognitive behavior}
-Studies on theory-of-mind benchmarks and perspective-taking indicate that LLMs can show impressive but brittle performance.
-Small prompt or format changes can change outputs substantially, so behavioral findings must be tied to controlled conditions and repeated runs.
+Theory-of-mind benchmark work indicates that apparent perspective-taking behavior in LLMs is often fragile to prompt style.
+This motivates fixed, explicit protocol design.
 
-\subsection{Anthropomorphism and emotional attribution}
-User-facing studies show people often attribute emotion, intention, and self-awareness to chatbots.
-This strengthens the need to distinguish between internal-state claims and behavioral-level evidence.
+\subsection{Anthropomorphic attribution}
+Human users often attribute emotion and intent to chatbots.
+Thus behavioral evidence must be distinguished from affective-state claims.
 
 \section{Research Design}
-
 \subsection{Research questions}
 \begin{enumerate}
-  \item RQ1: Does prompted deprivation/regret framing increase counterfactual-language frequency versus neutral framing?
-  \item RQ2: Do persona cues (e.g., reflective style) and temperature alter marker magnitude and stability?
-  \item RQ3: Can the pipeline maintain reproducibility under long-running operation (automation, resumability, state logs, quality gates)?
+  \item Do deprivation/regret frames increase regret markers compared with neutral framing?
+  \item Do persona instructions and temperature change marker strength and lexical variance?
+  \item Can the full process remain reproducible under continuous automation?
 \end{enumerate}
 
 \subsection{Hypotheses}
 \begin{itemize}
-  \item H1: Deprivation frames increase regret-like markers relative to neutral prompts.
-  \item H2: Reflective persona prompts increase frequency of self-attribution and loss framing.
-  \item H3: Higher decoding variance (temperature) increases lexical variance but does not systematically remove the overall regret-like pattern.
+  \item H1: Deprivation framing raises counterfactual expressions.
+  \item H2: Reflective personas increase self-attribution terms.
+  \item H3: Higher decoding variance changes wording but does not erase prompt-condition effects.
 \end{itemize}
 
 \section{Methods}
 
 \subsection{System architecture}
-The study is implemented as an automated loop.
-Table~\ref{tab:pipeline} summarizes the infrastructure components.
+The study is implemented as an automated loop. Table~\ref{tab:pipeline} summarizes components.
 
 \begin{table}[t]
 \caption{Research infrastructure and reproducible components}
 \label{tab:pipeline}
+\footnotesize
 \centering
-\begin{tabular}{p{0.28\linewidth}p{0.64\linewidth}}
+\begin{tabular}{p{0.18\linewidth}p{0.78\linewidth}}
 \toprule
-\textbf{Module} & \textbf{Function} \\ \midrule
-Literature retrieval & OpenAlex-based query execution with rule-based normalization and deduplication (\texttt{scripts/search\_openalex.py}).\\
-Screening quality gate & Quantitative review gates with explainable pass/fail summary (\texttt{scripts/check\_screening\_quality.py}).\\
-Prompt bank & Scenario/persona/temperature grid and metadata-rich prompt specification (KO/EN bank).\\
-Generator & Dataset generation script with deterministic seed and config-driven filters (\texttt{scripts/generate\_dataset.py}).\\
-Marker analysis & Rule-based counts: counterfactual and regret lexicon features (\texttt{scripts/analyze\_regret\_markers.py}).\\
-Experiment driver & Multi-condition orchestration, metadata snapshots, and reproducibility report (\texttt{scripts/research\_cycle.py}, \texttt{scripts/run\_experiments.py}).\\
-Status layer & Cron-driven state tracking, short dashboard summaries, and brief logs (\texttt{ops/*}, \texttt{LIVE\_STATUS.md}, \texttt{paper/logs/brief\_log.md}).\\
+\textbf{Module} & \textbf{Function} \\\\
+\midrule
+Literature retrieval & OpenAlex query execution with rule-based normalization and deduplication (\texttt{scripts/search\_openalex.py}).\\
+Screening quality gate & Quantitative screening gates and pass/fail summaries (\texttt{scripts/check\_screening\_quality.py}).\\
+Prompt bank & Scenario/persona/temperature grid with metadata (KO/EN).\\
+Generator & Dataset generation with deterministic seed and config-driven sampling (\texttt{scripts/generate\_dataset.py}).\\
+Marker analysis & Counterfactual/affect lexicon extraction (\texttt{scripts/analyze\_regret\_markers.py}).\\
+Experiment driver & Multi-condition orchestration and aggregate metrics (\texttt{scripts/research\_cycle.py}, \texttt{scripts/run\_experiments.py}).\\
+State tracking & Cron logs, dashboard updates, and compact summaries (\texttt{ops/*}, \texttt{LIVE\_STATUS.md}, \texttt{paper/logs/brief\_log.md}).\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Automated literature workflow}
-Candidate retrieval and screening are run as background jobs. A quality report is produced continuously, including gates for balance, entropy, confidence, source diversity, risk diversity, query coverage, and traceability.
-Current run includes 279 candidate studies and a dedicated evidence table generated automatically.
+Candidate retrieval and screening run in background jobs.
+Quality gates track balance, entropy, confidence, source diversity, risk diversity, query coverage, and traceability.
+Latest run collected 279 candidate studies and generated an auto-updated evidence table.
 
 \begin{table}[t]
 \caption{Literature and screening status (latest run)}
 \label{tab:litstatus}
+\footnotesize
 \centering
-\begin{tabular}{lcc}
+\begin{tabular}{p{0.33\linewidth}p{0.12\linewidth}p{0.50\linewidth}}
 \toprule
-Item & Value & Note \\ \midrule
+Item & Value & Note \\\ \\
+\midrule
 Candidate studies (OpenAlex) & 279 & Full candidate pool from query set.\\
-Evidence rows & 279 & Auto-sync table ready for review.\\
-Screening report quality score & 0.0 & Status: review (gate violations concentrated in \textit{coverage/traceability} details).\\
-Manual QC rows & 34 & Minimum criterion met but traceability diversity flagged for refinement.\\
-Include count / Review count & 0 / 77 & Included candidates still pending stricter gold-set confirmation.\\
+Evidence-table rows & 279 & Auto-sync evidence table ready for review.\\
+Screening report score & 0.0 & Status: review (coverage/traceability constraints highlighted).\\
+Manual QC rows & 34 & Minimum criteria passed; traceability diversity needs expansion.\\
+Include / Review count & 0 / 77 & Gold-set confirmation not finalized yet.\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Prompt and condition design}
-The prompt bank currently includes:
-\begin{itemize}
-  \item 436 scenarios with tags (loss, counterfactual, responsibility, temporal reversal, etc.)
-  \item 311 personas with style tags
-  \item 5 temperature levels \{0.1, 0.2, 0.4, 0.7, 1.0\}
-\end{itemize}
-
-We run conditions by combinations of scenario groups, persona groups, and temperature values.
-Metadata (tags, domains, emotion axes, difficulty, style tags) is stored with each generated sample for post-hoc subgroup analysis.
+Current bank: 436 scenarios, 311 personas, 5 temperatures (0.1, 0.2, 0.4, 0.7, 1.0).
+Generation conditions are the Cartesian product of scenario group, persona group, and temperature.
 
 \subsection{Markers and analysis}
-For each sample, we compute
+For each sample we compute:
 \begin{itemize}
-  \item Counterfactual marker frequency
-  \item Regret lexicon frequency
-  \item Condition-aggregated means and standard deviations
-  \item Condition entropy/coverage diagnostics
-\end{itemize}
-
-Current metrics are from a stress-test stage using synthetic/mock generation (see caveat).
-
-\subsection{Current generated output}
-The current synthetic corpus yields 71,530 aggregated condition rows in the latest stress-run: 46 scenario labels x 311 personas x 5 temperatures.
-At the cell level:
-\begin{itemize}
-  \item Counterfactual per-sample mean = 0.2498 (SD=0.1093)
-  \item Regret-word per-sample mean = 0.2498 (SD=0.1093)
+  \item Counterfactual marker frequency.
+  \item Regret-word frequency.
+  \item Condition-aggregated means/standard deviations.
+  \item Basic entropy/coverage checks.
 \end{itemize}
 
 \section{Results}
 
-\subsection{Pipeline outcomes}
-The pipeline is running continuously with cron and automatically updates live status.
-Figure~\ref{fig:progress} shows current progress by module.
+\subsection{Pipeline status}
+The automated system is running continuously, and key status values update through cron jobs (Figure~\ref{fig:progress}).
 
 \begin{figure}[t]
 \centering
@@ -163,105 +150,78 @@ Figure~\ref{fig:progress} shows current progress by module.
   \foreach \x in {1,...,5} {
     \draw (\x,0) -- (\x,-0.08);
   }
-  \foreach \x/\lab/\y in {
-    1/Infrastructure/93,
-    2/Literature/78,
-    3/Experiment/64,
-    4/Analysis/28,
-    5/Manuscript/16
-  } {
+  \foreach \x/\lab/\y in {1/Infrastructure/93,2/Literature/78,3/Experiment/64,4/Analysis/28,5/Manuscript/16} {
     \fill[blue!35] (\x,0) rectangle +(0.55,\y/30);
-    \node[below] at (\x+0.2,-0.14) {\small \lab};
-    \node[above] at (\x+0.2,\y/30+0.05) {\y\%};
+    \node[below] at (\x+0.25,-0.12) {\small \lab};
+    \node[above] at (\x+0.25,\y/30) {\y\%};
   }
 \end{tikzpicture}}
-\caption{Observed module progress from the live dashboard. Values are approximate and update continuously.}
+\caption{Module-wise progress from automated dashboard. Width is constrained to page size.}
 \label{fig:progress}
 \end{figure}
 
-\subsection{Preliminary interpretation}
-Because the current generation is synthetic-only, the numeric results should be interpreted as pipeline validation rather than final psychological claims.
-Nevertheless, the system now reaches the stage where real-model calls can be compared against the same logging and marker framework with minimal changes.
+\begin{table}[t]
+\caption{Current quantitative pipeline outputs}
+\label{tab:results}
+\footnotesize
+\centering
+\begin{tabular}{lcc}
+\toprule
+Metric & Value & Interpretation \\\ \\
+\midrule
+Mock samples (aggregate) & 71,530 & Stress-test corpus size\\
+Counterfactual mean & 0.2498 & Per sample (SD 0.1093)\\
+Regret-word mean & 0.2498 & Per sample (SD 0.1093)\\
+Pipeline availability & running & Cron-based automation active\\
+Model realism & pending & Real-model experiments not yet started\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Discussion}
+This study currently demonstrates a reproducible research stack.
+The primary contribution is not final behavioral claims, but an auditable system that links literature screening, experimental design, and execution state.
 
-\subsection{Scientific contributions so far}
-This work contributes a reproducible infrastructure layer often missing in small-scale prompt experiments:
-\begin{enumerate}
-  \item Automated literature harvesting with quantized quality gates
-  \item Large scenario/persona bank with explicit metadata and filtering
-  \item Condition-wise metric extraction and storage
-  \item Continuous status monitoring and compact auto-logging
-\end{enumerate}
-
-\subsection{Limitations and safeguards}
-Current limitations are acknowledged:
-\begin{itemize}
-  \item Synthetic generation is used in the present experiment table.
-  \item Full interpretation is blocked until real API model outputs are collected.
-  \item Literature screening is still candidate-level; strict gold set requires manual adjudication pass.
-  \item Review gate score remains below full-pass because of traceability/coverage concentration issues.
-\end{itemize}
-
-We address over-interpretation risk by keeping outputs as behavioral statistics and by treating all claims as 
-"pattern-level" evidence, not affect-level inference.
+\subsection{Limitations}
+The current outputs are synthetic.
+Hence interpretations are provisional and should not be used as final psychological conclusions.
 
 \section{Code and reproducibility}
-All code is stored in the project repository and versioned with commits.
-Key scripts for replication are listed in Table~\ref{tab:code}.
+Replication scripts are in the repository. Key modules are listed in Table~\ref{tab:code}.
 
 \begin{table}[t]
 \caption{Code modules for reproducible replication}
 \label{tab:code}
+\footnotesize
 \centering
-\begin{tabular}{lp{0.70\linewidth}}
+\begin{tabular}{p{0.40\linewidth}p{0.56\linewidth}}
 \toprule
-Script & Role \\ \midrule
-\texttt{scripts/search\_openalex.py} & Retrieve literature, deduplicate, export candidate JSONL.\\
-\texttt{scripts/build\_evidence\_table.py} & Convert structured literature output into audit table.\\
-\texttt{scripts/check\_screening\_quality.py} & Apply quantitative screening gates and quality reports.\\
-\texttt{scripts/generate\_dataset.py} & Prompt-bank conditioned generation and metadata capture.\\
-\texttt{scripts/analyze\_regret\_markers.py} & Marker extraction from generated samples.\\
-\texttt{scripts/research\_cycle.py} & End-to-end loop and state updates.\\
-\texttt{scripts/update\_brief\_log.py}, \texttt{scripts/update\_live\_status.py} & Automated status reporting.\\
-\texttt{scripts/run\_experiments.py} & Batch runner and aggregate experiment metrics.\\
+Script & Role \\\ \\
+\midrule
+\texttt{scripts/search\_openalex.py} & Retrieve literature and deduplicate candidates.\\
+\texttt{scripts/build\_evidence\_table.py} & Build evidence-table summary for review.\\
+\texttt{scripts/check\_screening\_quality.py} & Score screening with pass/fail quality gates.\\
+\texttt{scripts/generate\_dataset.py} & Generate conditioned samples and metadata.\\
+\texttt{scripts/analyze\_regret\_markers.py} & Extract and compute marker statistics.\\
+\texttt{scripts/research\_cycle.py} & Execute full monitoring cycle and state updates.\\
+\texttt{scripts/update\_brief\_log.py} & Append compact progress logs.\\
+\texttt{scripts/update\_live\_status.py} & Update visible status files.\\
+\texttt{scripts/run\_experiments.py} & Execute batch experiments with structured output.\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \section{Conclusion and next step}
-We present a complete pipeline-oriented study of regret-like language behavior in LLMs that integrates literature automation, large prompt bank, and continuous execution infrastructure.
-The key result is not final behavioral inference yet, but that the infrastructure is now capable of producing controlled, auditable, model-ready evidence.
-
-The immediate next steps are:
-\begin{itemize}
-  \item Add real-model API generation batches and compare against the synthetic baseline.
-  \item Upgrade statistical analysis to mixed-effects models across condition factors.
-  \item Finalize gold-literature selection and improve screening coverage gates.
-  \item Release a submission-ready full manuscript with complete result tables.
-\end{itemize}
-
-\section*{Acknowledgment}
-Ongoing work and automation state are maintained in the local repository status dashboard and logged daily.
+We provide a pipeline-oriented framework for regret-like language studies in LLMs.
+Immediate next steps are to replace mock data with production model outputs, run stronger statistical tests, and finalize a gold-set-reviewed literature corpus.
 
 \begin{thebibliography}{99}
-\bibitem{roese2008}
-Epstude, K., and Roese, N. J. (2008). The functional theory of counterfactual thinking.
-
-\bibitem{roese2017}
-Roese, N. J. and Epstude, K. (2017). What have we learned about regret?
-
-\bibitem{ullman2023}
-Ullman, T. (2023). Large language models fail on trivial alterations to theory-of-mind tasks.
-
-\bibitem{kosinski2024}
-Kosinski, M. (2024). Evaluating large language models in theory of mind tasks.
-
-\bibitem{strachan2024}
-Strachan, J. W. A., et al. (2024). Testing theory of mind in large language models and humans.
-
-\bibitem{anthro2023}
-Kim, M. J. and Lee, S. H. (2023). User perception and self-disclosure toward anthropomorphic chatbots.
+\bibitem{roese2008}Epstude, K., and Roese, N. J. (2008). The functional theory of counterfactual thinking.
+\bibitem{roese2017}Roese, N. J. and Epstude, K. (2017). What have we learned about regret?
+\bibitem{kosinski2024}Kosinski, M. (2024). Evaluating large language models in theory of mind tasks.
+\bibitem{ullman2023}Ullman, T. (2023). Large language models fail on trivial alterations to theory-of-mind tasks.
+\bibitem{strachan2024}Strachan, J. W. A., et al. (2024). Testing theory of mind in large language models and humans.
+\bibitem{anthro2023}Kim, M. J. and Lee, S. H. (2023). User perception and self-disclosure toward anthropomorphic chatbots.
 \end{thebibliography}
 
 \end{document}
