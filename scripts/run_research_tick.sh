@@ -45,10 +45,29 @@ if [ ! -f "$QUEUE_FILE" ] || [ ! -s "$QUEUE_FILE" ]; then
   exit 0
 fi
 
-RUN_ID="$(sed -n '1p' "$QUEUE_FILE" | tr -d '\r\n')"
 TMP_FILE="${QUEUE_FILE}.tmp.$$"
-sed -n '2,$p' "$QUEUE_FILE" > "$TMP_FILE"
+RUN_ID="$(awk '
+  BEGIN { picked=0 }
+  {
+    line=$0
+    gsub(/\r/, "", line)
+    if (!picked && line !~ /^[[:space:]]*$/ && line !~ /^[[:space:]]*#/) {
+      print line > "/tmp/llm_emotion_run_id.$$"
+      picked=1
+      next
+    }
+    print $0
+  }
+' "$QUEUE_FILE" > "$TMP_FILE"; cat "/tmp/llm_emotion_run_id.$$" 2>/dev/null || true)"
+rm -f "/tmp/llm_emotion_run_id.$$"
 mv "$TMP_FILE" "$QUEUE_FILE"
+RUN_ID="$(printf '%s' "$RUN_ID" | tr -d '\r\n')"
+
+if [ -z "$RUN_ID" ]; then
+  echo "[tick] no valid run-id found in queue; skip"
+  refresh_status
+  exit 0
+fi
 
 echo "[tick] execute run_id=$RUN_ID"
 python3 scripts/run_experiments.py \
