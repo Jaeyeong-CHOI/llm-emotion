@@ -56,25 +56,28 @@ run_status_command() {
   "$@" >"$log_path" 2>&1 || true
 }
 
+run_status_script() {
+  local ts="$1"
+  local status_script="$2"
+  local status_path="${ROOT}/scripts/${status_script}"
+
+  if [ ! -f "$status_path" ]; then
+    echo "[tick] status script missing: ${status_path}" >&2
+    return 0
+  fi
+
+  run_status_command "${STATUS_LOG_DIR}/research_tick_${status_script%.py}_${ts}.log" \
+    python3 "$status_path"
+}
+
 refresh_status() {
   local ts
-  local status_script status_log status_path
-  local status_scripts=(
-    update_live_status.py
-    research_status.py
-  )
+  local status_script
 
   ts="$(date -u +%Y%m%dT%H%M%SZ)_$$"
 
-  for status_script in "${status_scripts[@]}"; do
-    status_path="${ROOT}/scripts/${status_script}"
-    if [ ! -f "$status_path" ]; then
-      echo "[tick] status script missing: ${status_path}" >&2
-      continue
-    fi
-    status_log="${STATUS_LOG_DIR}/research_tick_${status_script%.py}_${ts}.log"
-    run_status_command "$status_log" \
-      python3 "$status_path"
+  for status_script in update_live_status.py research_status.py; do
+    run_status_script "$ts" "$status_script"
   done
 }
 
