@@ -1,0 +1,12 @@
+{
+  "name": "tick_guardrail_smoke_v1",
+  "description": "연속 연구 루프에서 한 건 실험 실행 시 기본 고정 인수 집합",
+  "run_experiments_args": {
+    "config": "ops/experiment_matrix.json",
+    "continue_on_error": true,
+    "max_failed_cells": 0,
+    "max_failure_rate": 0.5,
+    "require_live_model": true,
+    "manifest_markdown": true
+  }
+}

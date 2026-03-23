@@ -406,18 +406,14 @@ run_failed=0
 RUN_IN_FLIGHT=1
 RUN_ARTIFACT_DIR="results/experiments/${RUN_ID}_auto_tick"
 
-if ! python3 scripts/run_experiments.py \
-  --config ops/experiment_matrix.json \
+if ! python3 scripts/run_experiments_with_profile.py \
+  --profile ops/runner_tick_profile.json \
+  -- \
   --run-label "smoke_auto_tick_$(date -u +%Y%m%d%H%M%S)" \
   --include-run-id "$RUN_ID" \
   --fail-on-missing-run-id \
   --max-runs 1 \
-  --require-live-model \
   --required-live-model-env "OPENAI_API_KEY,LLM_EMOTION_REAL_MODEL,LLM_EMOTION_REAL_MODEL_REGION" \
-  --max-failed-cells 0 \
-  --max-failure-rate 0.5 \
-  --continue-on-error \
-  --manifest-markdown \
   --execution-log-jsonl "$RUN_ARTIFACT_DIR/command_log.jsonl" \
   --budget-report-json "$RUN_ARTIFACT_DIR/budget_report.json" \
   --budget-report-md "$RUN_ARTIFACT_DIR/budget_report.md"; then
