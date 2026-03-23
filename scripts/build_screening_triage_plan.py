@@ -4,11 +4,12 @@
 from __future__ import annotations
 
 import argparse
-import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
+
+from research_ops_common import read_json, write_json
 
 
 @dataclass
@@ -26,7 +27,10 @@ class Hotspot:
 
 
 def load_report(path: Path) -> tuple[list[Gate], list[Hotspot]]:
-    data = json.loads(path.read_text(encoding="utf-8"))
+    data = read_json(path, default={})
+    if not isinstance(data, dict):
+        data = {}
+
     gates = []
     for row in data.get("gates", []):
         gates.append(
@@ -194,7 +198,7 @@ def main() -> int:
     out_json.parent.mkdir(parents=True, exist_ok=True)
     out_md.parent.mkdir(parents=True, exist_ok=True)
 
-    out_json.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    write_json(out_json, payload)
     out_md.write_text(render_markdown(actions), encoding="utf-8")
     print(f"[ok] wrote {out_json} and {out_md}")
     return 0
