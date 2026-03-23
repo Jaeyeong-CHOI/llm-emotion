@@ -223,9 +223,17 @@ queue_contains_run_id() {
   local queue_file="$1"
   local run_id="$2"
   local canonical_run_id
+  local queued_run_id=""
 
   canonical_run_id="$(normalize_queue_run_id "$run_id")" || return 1
-  iter_queue_data_lines "$queue_file" | grep -Fqx -- "$canonical_run_id"
+
+  while IFS= read -r queued_run_id; do
+    if [ "$queued_run_id" = "$canonical_run_id" ]; then
+      return 0
+    fi
+  done < <(iter_queue_data_lines "$queue_file")
+
+  return 1
 }
 
 enqueue_run_id_unique() {
