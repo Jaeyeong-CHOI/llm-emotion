@@ -7,6 +7,8 @@ import math
 import re
 from pathlib import Path
 
+from research_ops_common import write_json
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -101,11 +103,6 @@ def js_divergence(lhs: dict[str, int], rhs: dict[str, int]) -> float:
     q = {k: int(rhs.get(k, 0) or 0) / rhs_total for k in keys}
     m = {k: 0.5 * (p[k] + q[k]) for k in keys}
     return round(0.5 * _kl(p, m) + 0.5 * _kl(q, m), 4)
-
-
-def write_json(path: Path, payload: dict):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def write_markdown(path: Path, payload: dict):
