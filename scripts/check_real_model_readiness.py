@@ -48,7 +48,7 @@ def parse_required_vars(raw: str):
     return vars_ or DEFAULT_REQUIRED
 
 
-def check_var(name: str, value: str):
+def check_var(value: str):
     exists = bool(value and str(value).strip())
     placeholder = is_placeholder(str(value or ""))
     return exists, placeholder
@@ -61,7 +61,7 @@ def check_vars(names):
 
     for name in names:
         value = os.getenv(name)
-        exists, placeholder = check_var(name, value)
+        exists, placeholder = check_var(value)
         status[name] = exists
         if not exists:
             missing.append(name)
@@ -94,35 +94,8 @@ def main():
     required = parse_required_vars(args.required_vars)
     optional = parse_required_vars(args.optional_vars)
 
-    required_status = {}
-    optional_status = {}
-
-    required_missing = []
-    required_placeholder_vars = []
-    optional_missing = []
-    optional_placeholder_vars = []
-
-    required_status_tmp = {}
-    optional_status_tmp = {}
-    for name in required:
-        value = os.getenv(name)
-        exists, placeholder = check_var(name, value)
-        required_status_tmp[name] = exists
-        if not exists:
-            required_missing.append(name)
-            continue
-        if placeholder:
-            required_placeholder_vars.append(name)
-
-    for name in optional:
-        value = os.getenv(name)
-        exists, placeholder = check_var(name, value)
-        optional_status_tmp[name] = exists
-        if not exists:
-            optional_missing.append(name)
-            continue
-        if placeholder:
-            optional_placeholder_vars.append(name)
+    required_status, required_missing, required_placeholder_vars = check_vars(required)
+    optional_status, optional_missing, optional_placeholder_vars = check_vars(optional)
 
     endpoint = os.getenv("OPENAI_BASE_URL", "").strip()
     endpoint_scheme_ok = True
@@ -135,11 +108,9 @@ def main():
     if not re.match(r"^sk-", (os.getenv("OPENAI_API_KEY") or "")):
         suspicious.append("OPENAI_API_KEY")
 
-    available_vars = {}
-    available_vars.update(required_status_tmp)
-    for k, v in optional_status_tmp.items():
-        if k not in available_vars:
-            available_vars[k] = v
+    available_vars = {**required_status}
+    for key, value in optional_status.items():
+        available_vars.setdefault(key, value)
 
     # 실모델 실행 게이트는 강제 required 기준 + API 키 유효성 + 엔드포인트 스킴 점검
     ready = not required_missing and not required_placeholder_vars and not suspicious
