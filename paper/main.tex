@@ -4,12 +4,15 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tikz}
+\usepackage{url}
 \usepackage{microtype}
 \usepackage{array}
 \usepackage{tabularx}
 \usepackage{ragged2e}
 \usepackage{setspace}
+\usepackage{amsmath}
 \setlength{\emergencystretch}{1.5em}
+\setlength{\tabcolsep}{2pt}
 \sloppy
 \usepackage{cite}
 
@@ -81,11 +84,11 @@ Our contribution is narrower but operationally important: building a continuous,
 \toprule
 Stream & Representative findings & Relevance to this study\\
 \midrule
-Counterfactual and regret psychology & Counterfactual phrasing, self-blame, and temporal repair loops indicate measurable linguistic signals of regret-like behavior. & Defines observable target markers before modeling assumptions.\\
-LLM social cognition & ToM ability is prompt-sensitive and perturbs under minor format changes. & Justifies strict scenario, persona, and temperature controls.\\
-Anthropomorphism & Users infer affect/intent from fluent responses. & Prevents over-claiming internal emotion from text output.\\
-Emotion/benchmarking & Standardized coverage and perturbation tests are required for reliability. & Informs QC gates and reproducibility checklist design.\\
-Pipeline reproducibility & Automated status and traceability improve continuity in long runs. & Supports our 1-minute continuous operation design.\\
+Counterfactual and regret psychology & Counterfactual phrasing and temporal repair indicate measurable markers. & Defines explicit linguistic targets.\\
+LLM social cognition & ToM behavior is sensitive to framing and formatting. & Requires strict scenario/persona/temperature controls.\\
+Anthropomorphism & Fluency strongly drives perceived affect/intent. & Warns against affect-state interpretation.\\
+Emotion/benchmarking & Coverage and perturbation protocols improve reliability. & Informs QC gates and reproducibility design.\\
+Pipeline reproducibility & Automated status/traceability enables long-run monitoring. & Supports 1-minute continuous operations.\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -119,13 +122,13 @@ The study is implemented as an automated loop. Table~\ref{tab:pipeline} summariz
 \toprule
 \textbf{Module} & \textbf{Function} \\
 \midrule
-Literature retrieval & OpenAlex query execution with rule-based normalization and deduplication (\texttt{scripts/search\_openalex.py}).\\
-Screening quality gate & Quantitative screening gates and pass/fail summaries (\texttt{scripts/check\_screening\_quality.py}).\\
-Prompt bank & Scenario/persona/temperature grid with metadata (KO/EN).\\
-Generator & Dataset generation with deterministic seed and config-driven sampling (\texttt{scripts/generate\_dataset.py}).\\
-Marker analysis & Counterfactual/affect lexicon extraction (\texttt{scripts/analyze\_regret\_markers.py}).\\
-Experiment driver & Multi-condition orchestration and aggregate metrics (\texttt{scripts/research\_cycle.py}, \texttt{scripts/run\_experiments.py}).\\
-State tracking & Cron logs, dashboard updates, and compact summaries (\texttt{ops/*}, \texttt{LIVE\_STATUS.md}, \texttt{paper/logs/brief\_log.md}).\\
+Literature retrieval & Rule-based OpenAlex normalization and deduplication.\\
+Screening quality gate & Quantitative gates with pass/fail summaries.\\
+Scenario/persona grid & 436 scenarios and 311 personas with 5 temperatures.\\
+Generator & Deterministic, configuration-driven sample generation.\\
+Marker analysis & Lexicon extraction and marker-level aggregation.\\
+Experiment driver & Multi-condition orchestration and aggregate metric collection.\\
+State tracking & Cron logs, dashboards, and compact summaries.\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -213,10 +216,13 @@ For real-model outputs, we pre-register a three-factor design with factors: cond
 We model marker rate $y$ as a mixed-effects regression with crossed prompt-item effects:
 
 \begin{equation}
-    y_{ijkl} = \beta_0 + \beta_1 C_i + \beta_2 P_j + \beta_3 T_k + \beta_4(C_i\times P_j) + \beta_5(C_i\times T_k) + u_l + \epsilon_{ijkl}
+\begin{split}
+    y_{ijkl} &= \beta_0 + \beta_1 C_i + \beta_2 P_j + \beta_3 T_k + \beta_4(C_i\times P_j) \\
+    &\quad + \beta_5(C_i\times T_k) + u_l + \epsilon_{ijkl}
+\end{split}
 \end{equation}
-where $C$, $P$, and $T$ represent condition, persona, and temperature, $u_l$ is a random intercept for scenario prompt $l$, and $\epsilon$ is residual error.
-Primary confirmatory tests are Welch $t$-tests (for paired contrast pairs) and fixed-effects ANOVA equivalents with robust standard errors.
+where $C$, $P$, and $T$ represent condition, persona, and temperature, $u_l$ is a random intercept for scenario prompt $l$, and $\epsilon_{ijkl}$ is residual error.
+Primary confirmatory tests are Welch $t$-tests for paired contrasts and fixed-effects ANOVA equivalents with robust standard errors.
 Effect-size reporting follows Cohen's $d$ for pairwise contrasts and partial $\eta^2$ for factors.
 
 \subsection{Current evidence status}
@@ -243,15 +249,15 @@ Replication scripts are in the repository. Key modules are listed in Table~\ref{
 \toprule
 Script & Role \\
 \midrule
-\texttt{scripts/search\_openalex.py} & Retrieve literature and deduplicate candidates.\\
-\texttt{scripts/build\_evidence\_table.py} & Build evidence-table summary for review.\\
-\texttt{scripts/check\_screening\_quality.py} & Score screening with pass/fail quality gates.\\
-\texttt{scripts/generate\_dataset.py} & Generate conditioned samples and metadata.\\
-\texttt{scripts/analyze\_regret\_markers.py} & Extract and compute marker statistics.\\
-\texttt{scripts/research\_cycle.py} & Execute full monitoring cycle and state updates.\\
-\texttt{scripts/update\_brief\_log.py} & Append compact progress logs.\\
-\texttt{scripts/update\_live\_status.py} & Update visible status files.\\
-\texttt{scripts/run\_experiments.py} & Execute batch experiments with structured output.\\
+\path{scripts/search_openalex.py} & Retrieve literature and deduplicate candidates.\\
+\path{scripts/build_evidence_table.py} & Build evidence-table summary for review.\\
+\path{scripts/check_screening_quality.py} & Score screening with pass/fail quality gates.\\
+\path{scripts/generate_dataset.py} & Generate conditioned samples and metadata.\\
+\path{scripts/analyze_regret_markers.py} & Extract and compute marker statistics.\\
+\path{scripts/research_cycle.py} & Execute full monitoring cycle and state updates.\\
+\path{scripts/update_brief_log.py} & Append compact progress logs.\\
+\path{scripts/update_live_status.py} & Update visible status files.\\
+\path{scripts/run_experiments.py} & Execute batch experiments with structured output.\\
 \bottomrule
 \end{tabularx}
 \end{table}
