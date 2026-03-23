@@ -12,6 +12,7 @@ import statistics
 import subprocess
 import sys
 import time
+from collections.abc import Sequence
 from pathlib import Path
 
 from research_ops_common import parse_csv_set, row_list_values, write_json
@@ -31,12 +32,19 @@ def normalized_entropy_from_counts(counts: dict[str, int]) -> float:
     return round(entropy / math.log2(len(values)), 4)
 
 
-def run(cmd: str, timeout_seconds: float | None = None):
+def run(cmd: str | Sequence[str], timeout_seconds: float | None = None):
+    """Run a shell command safely (without shell interpolation)."""
+
+    if isinstance(cmd, str):
+        parsed_cmd = shlex.split(cmd)
+    else:
+        parsed_cmd = list(cmd)
+
     try:
         p = subprocess.run(
-            cmd,
+            parsed_cmd,
             cwd=ROOT,
-            shell=True,
+            shell=False,
             text=True,
             capture_output=True,
             timeout=None if timeout_seconds is None or timeout_seconds <= 0 else timeout_seconds,
@@ -1043,7 +1051,7 @@ def load_run_ids_from_file(path: Path) -> set[str]:
 
 
 def execute_with_retries(
-    cmd: str,
+    cmd: str | Sequence[str],
     *,
     run_key: str,
     stage: str,
