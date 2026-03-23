@@ -159,7 +159,7 @@ read_proc_field_raw() {
   ps -p "$pid" -o "${field}=" 2>/dev/null | tr -d '\r' | head -n 1 || true
 }
 
-read_trimmed_first_line() {
+read_first_line_normalized() {
   local file="$1"
   local raw_line=""
 
@@ -173,7 +173,7 @@ read_lock_pid_file() {
   local pid_file="$1"
 
   is_safe_lock_file "$pid_file" || return 1
-  read_trimmed_first_line "$pid_file" || return 1
+  read_first_line_normalized "$pid_file" || return 1
 }
 
 ensure_queue_file_safe() {
