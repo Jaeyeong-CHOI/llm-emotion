@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 from typing import Any
 
-from research_ops_common import get_stats_snapshot, load_research_state
+from research_ops_common import display_value, get_stats_snapshot, load_research_state
 
-
-def _display_value(value: Any, default: str = "-") -> str:
-    """Return user-facing string with a stable placeholder for missing values."""
-    return default if value is None else str(value)
 
 
 def main() -> None:
@@ -14,14 +10,14 @@ def main() -> None:
     snapshot = get_stats_snapshot(state)
 
     print("# Research Status")
-    print(f"- last_run: {_display_value(state.get('last_run'))}")
-    print(f"- last_success: {_display_value(snapshot.get('last_success'))}")
-    print(f"- papers_collected: {_display_value(snapshot.get('papers_collected'))}")
-    print(f"- evidence_rows: {_display_value(snapshot.get('evidence_rows'))}")
-    print(f"- mock_samples_generated: {_display_value(snapshot.get('mock_samples_generated'))}")
+    print(f"- last_run: {display_value(state.get('last_run'))}")
+    print(f"- last_success: {display_value(snapshot.get('last_success'))}")
+    print(f"- papers_collected: {display_value(snapshot.get('papers_collected'))}")
+    print(f"- evidence_rows: {display_value(snapshot.get('evidence_rows'))}")
+    print(f"- mock_samples_generated: {display_value(snapshot.get('mock_samples_generated'))}")
 
     if snapshot.get("last_error"):
-        print(f"- last_error: {_display_value(snapshot.get('last_error'))}")
+        print(f"- last_error: {display_value(snapshot.get('last_error'))}")
 
     notes = state.get("notes", [])
     if not isinstance(notes, list):

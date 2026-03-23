@@ -11,6 +11,11 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+
+def display_value(value: Any, default: str = "-") -> str:
+    """Return a user-facing string with stable placeholder for missing values."""
+    return default if value is None else str(value)
+
 ROOT = Path(__file__).resolve().parents[1]
 STATE_PATH = ROOT / "ops" / "research_state.json"
 

@@ -3,14 +3,13 @@ import datetime
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from research_ops_common import ROOT, STATE_PATH, get_stats_snapshot, read_json_dict
+from research_ops_common import ROOT, STATE_PATH, display_value, get_stats_snapshot, read_json_dict
 
 CRON_STATE_PATH = ROOT / "ops" / "cron_runtime_status.json"
 OUT_PATH = ROOT / "LIVE_STATUS.md"
 
 
-def fmt(v: Any, default: str = "-") -> str:
-    return default if v is None else str(v)
+fmt = display_value
 
 
 def _cron_field(cron: dict[str, Any], section: str, field: str, default: str = "unknown") -> str:
