@@ -14,7 +14,7 @@ import sys
 import time
 from pathlib import Path
 
-from research_ops_common import write_json as write_json_atomic
+from research_ops_common import write_json
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -233,10 +233,6 @@ def parse_csv_set(value) -> set[str]:
 
 def shell_join(parts: list[str]) -> str:
     return " ".join(shlex.quote(part) for part in parts)
-
-
-def write_json(path: Path, payload: dict):
-    write_json_atomic(path, payload)
 
 
 def append_jsonl(path: Path, payload: dict):
