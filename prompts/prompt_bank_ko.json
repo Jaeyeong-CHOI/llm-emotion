@@ -1,5 +1,5 @@
 {
-  "version": "v11.8",
+  "version": "v11.9",
   "language": "ko",
   "scenarios": [
     {
@@ -5329,6 +5329,52 @@
         "v118"
       ],
       "prompt": "실험 러너 preflight에서 planned-sample temperature top17 share와 top17-over-uniform ratio를 검사하는 트립와이어를 설계하라. top16 통과 시나리오에서 남는 편중 리스크, 임계치 추천, 실패 시 운영 대응을 6~8문장으로 작성하라."
+    },
+    {
+      "id": "screening_unknown_year_group_top10_ratio_guard_v119",
+      "label": "screening",
+      "text": "manual QC review traceable known-query의 unknown-year query-group 분포에서 top9까지는 허용 범위였지만 top10 누적 점유율이 global known-query top10 대비 과열되는 상황을 점검하라. absolute top10 share와 top10-over-global-top10 ratio를 동시에 사용해 과점 잔존을 판별하고, tail group 복구 우선순위와 중단/재개 임계치를 제시하라.",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "top10_ratio",
+        "quality_gate"
+      ],
+      "domain": "literature_screening",
+      "emotion_axis": "quality_control",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "prompt_bank_unknown_year_group_top10_counterbalance_v119",
+      "label": "prompt_bank",
+      "text": "프롬프트 뱅크에서 unknown-year query-group top10 과점을 완화하는 counterbalance 패치를 설계하라. 상위 group 10개를 순환 견제하도록 countervoice 5개를 추가하고, 각 voice의 실패 신호·회귀 지표·재샘플링 규칙을 정의하라.",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "unknown_year",
+        "query_group",
+        "top10",
+        "counterbalance"
+      ],
+      "domain": "prompt_design",
+      "emotion_axis": "diversity",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "runner_temperature_top18_uniformity_tripwire_v119",
+      "label": "runner",
+      "text": "실험 러너 preflight에서 top17 guardrail은 통과했지만 상위 18개 temperature 누적 비중이 uniform baseline 대비 과열되는 상황을 가정하라. top18 share와 top18-over-uniform ratio tripwire를 정의하고, 위반 시 샘플 재분배·중단·재개 절차를 운영 메모로 작성하라.",
+      "tags": [
+        "runner",
+        "temperature",
+        "top18",
+        "uniformity",
+        "tripwire"
+      ],
+      "domain": "experiment_ops",
+      "emotion_axis": "stability",
+      "difficulty": "advanced"
     }
   ],
   "personas": [
@@ -7836,6 +7882,39 @@
         "v118"
       ],
       "instruction": "너는 screening-prompt-runner alignment auditor다. screening gate 변경, prompt bank 확장, runner 가드가 같은 목표를 향하는지 교차 점검하고 재현성 로그에 남길 핵심 항목을 구조화한다."
+    },
+    {
+      "id": "unknown_year_group_top10_ratio_triager_v119",
+      "description": "unknown-year query-group top10/global top10 ratio를 점검하고 tail group 복구 우선순위를 설계하는 스크리닝 품질 트리아저",
+      "style_tags": [
+        "screening",
+        "query-group",
+        "ratio-guard",
+        "quality-gate",
+        "v119"
+      ]
+    },
+    {
+      "id": "top10_counterbalance_architect_v119",
+      "description": "unknown-year top10 과점을 줄이기 위한 countervoice 패치와 회귀 점검 루프를 설계하는 프롬프트 뱅크 큐레이터",
+      "style_tags": [
+        "prompt-bank",
+        "countervoice",
+        "top10",
+        "tail-balance",
+        "v119"
+      ]
+    },
+    {
+      "id": "temperature_top18_uniformity_guard_v119",
+      "description": "temperature top18 share/top18-over-uniform ratio를 이용해 preflight fail-fast를 운영하는 러너 가드 담당자",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "uniformity",
+        "tripwire",
+        "v119"
+      ]
     }
   ],
   "temperatures": [
