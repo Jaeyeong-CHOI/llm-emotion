@@ -8,6 +8,8 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from research_ops_common import write_json
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "ops" / "real_model_readiness.json"
 
@@ -272,9 +274,7 @@ def main():
     payload = readiness["payload"]
     ready = payload["ready"]
 
-    out_path = Path(args.out)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    write_json(Path(args.out), payload)
     print("ready=" + str(ready).lower())
 
 
