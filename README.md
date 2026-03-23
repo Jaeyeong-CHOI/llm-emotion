@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening 규칙(`queries/screening_rules.json`)에 **emotional granularity calibration / regret repair strategy / counterfactual confidence interval / emotion-policy alignment** alias와 **multiverse analysis / specification curve / open materials** method cue를 보강해 스크리닝 재현율과 방법론 추적성을 개선했습니다.
+- Prompt bank expanded to `v133.0` with **unknown-year group top24 ratio guard / top24 countervoice mesh patch / temperature p99-p50 tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top24_ratio_triager_v133`, `top24_countervoice_mesh_curator_v133`, `temperature_p99_p50_guard_v133`)를 추가했습니다.
+- Experiment runner preflight에 **temperature p99/p50 share ratio guardrail** (`--max-planned-sample-temperature-p99-over-p50-share-ratio`)을 추가해, p99/p55가 통과해도 최상단 tail 가속이 남는 배치를 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year query-group top23 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top23-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top23-over-global-group-top23-ratio`)를 추가해, top22 통과 이후에도 남는 query-group 누적 과점을 fail-fast로 차단합니다.
 - Prompt bank expanded to `v132.0` with **unknown-year group top23 ratio guard / top23 countervoice mesh patch / temperature p99-p55 tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top23_ratio_triager_v132`, `top23_countervoice_mesh_curator_v132`, `temperature_p99_p55_guard_v132`)를 추가했습니다.
 - Experiment runner preflight에 **temperature p99/p55 share ratio guardrail** (`--max-planned-sample-temperature-p99-over-p55-share-ratio`)을 추가해, p99/p60이 통과해도 최상단 tail 가속이 남는 배치를 사전에 차단합니다.
@@ -145,7 +148,7 @@ This repository studies behavioral-linguistic similarity, not machine consciousn
 - Screening quality gate continues to track **review evidence-link decay share** (`--max-manual-qc-review-evidence-link-decay-share`) to fail fast when review 근거의 문장-링크 연결이 약화됩니다.
 
 ## Repository structure
-- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v130.md`)
+- `docs/`: review protocol, screening rubric, experiment plan, ops notes, reproducibility playbooks (`docs/reproducibility_v130.md`, `docs/reproducibility_v133.md`)
 - `queries/`: retrieval queries and screening rules
 - `prompts/`: Korean prompt bank and scenario source material
 - `scripts/`: literature sync, dataset generation, analysis, experiment runner

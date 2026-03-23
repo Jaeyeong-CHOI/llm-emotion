@@ -1,5 +1,5 @@
 {
-  "version": "v132.0",
+  "version": "v133.0",
   "language": "ko",
   "scenarios": [
     {
@@ -6134,6 +6134,44 @@
         "v132"
       ],
       "prompt": "실험 러너 preflight에서 p99/p60은 통과하지만 p99/p55 비율이 과열되는 배치를 탐지하라. p99-over-p55 tripwire 임계치, run 분리 조건, 재분배 후 resume 승인 기준을 운영 메모 형식으로 정리하라."
+    },
+    {
+      "id": "screening_unknown_year_group_top24_ratio_guard_v133",
+      "label": "screening",
+      "tags": [
+        "screening",
+        "unknown-year",
+        "query-group",
+        "top24",
+        "ratio",
+        "v133"
+      ],
+      "prompt": "unknown-year review 큐에서 query-group top24 절대/글로벌 비율을 동시에 점검하라. top23 통과 배치에서도 남는 tail 압축을 감지하도록 triage 규칙과 재배분 기준을 제안하라."
+    },
+    {
+      "id": "prompt_bank_top24_countervoice_mesh_patch_v133",
+      "label": "prompt-bank",
+      "tags": [
+        "prompt-bank",
+        "countervoice",
+        "mesh",
+        "top24",
+        "v133"
+      ],
+      "prompt": "프롬프트 뱅크의 정서 반론 메쉬를 top24 축까지 확장하라. 동일 근거 반복을 줄이고 반례 탐색·방법론 점검 질문을 우선 배치하는 패치안을 작성하라."
+    },
+    {
+      "id": "runner_temperature_p99_p50_tripwire_v133",
+      "label": "runner",
+      "tags": [
+        "runner",
+        "temperature",
+        "p99",
+        "p50",
+        "tripwire",
+        "v133"
+      ],
+      "prompt": "실험 러너 preflight에서 p99/p55는 통과하지만 p99/p50 비율이 급등하는 배치를 탐지하라. p99-over-p50 tripwire 임계치와 재분배·재개 승인 체크리스트를 운영 메모로 정리하라."
     }
   ],
   "personas": [
@@ -9098,6 +9136,42 @@
       "id": "temperature_p99_p55_guard_v132",
       "label": "temperature p99/p55 guard",
       "prompt_style": "temperature 상단 tail 가속을 p99/p55 비율로 진단하고 fail-fast·재분배·재개 기준을 수치로 제시한다.",
+      "traits": [
+        "runner",
+        "temperature",
+        "tripwire",
+        "governance"
+      ],
+      "temperature_bias": "low"
+    },
+    {
+      "id": "unknown_year_group_top24_ratio_triager_v133",
+      "label": "unknown-year group top24 ratio triager",
+      "prompt_style": "unknown-year review 큐에서 query-group top24 누적 점유율과 글로벌 대비 비율을 함께 점검해 과점 배치를 즉시 분리한다.",
+      "traits": [
+        "screening",
+        "triage",
+        "ratio-guard",
+        "query-group"
+      ],
+      "temperature_bias": "low"
+    },
+    {
+      "id": "top24_countervoice_mesh_curator_v133",
+      "label": "top24 countervoice mesh curator",
+      "prompt_style": "근거 다양성 저하를 막기 위해 top24 query-group 기준으로 반론·반례·방법론 점검 질문을 균형 있게 주입한다.",
+      "traits": [
+        "prompt-bank",
+        "countervoice",
+        "diversity",
+        "methodology"
+      ],
+      "temperature_bias": "medium"
+    },
+    {
+      "id": "temperature_p99_p50_guard_v133",
+      "label": "temperature p99/p50 guard",
+      "prompt_style": "temperature 상단 tail 가속을 p99/p50 비율로 진단하고 fail-fast·재분배·재개 기준을 수치로 제시한다.",
       "traits": [
         "runner",
         "temperature",

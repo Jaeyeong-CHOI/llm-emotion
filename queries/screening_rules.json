@@ -47,7 +47,11 @@
     "anticipated counterfactual affect",
     "regret decision model",
     "emotion-cognition interaction",
-    "llm-as-judge emotion"
+    "llm-as-judge emotion",
+    "emotional granularity calibration",
+    "regret repair strategy",
+    "counterfactual confidence interval",
+    "emotion-policy alignment"
   ],
   "high_priority": [
     "regret",
@@ -75,7 +79,9 @@
     "regulatory fit",
     "emotion-cognition interaction",
     "anticipated counterfactual affect",
-    "regret decision model"
+    "regret decision model",
+    "emotional granularity calibration",
+    "regret repair strategy"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -114,7 +120,10 @@
     "measurement model",
     "registered replication report",
     "measurement validity",
-    "causal mediation"
+    "causal mediation",
+    "multiverse analysis",
+    "specification curve",
+    "open materials"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -142,6 +151,11 @@
     [
       "affective forecasting",
       "anticipated regret"
+    ],
+    [
+      "emotion regulation",
+      "emotion-policy alignment",
+      "regret repair strategy"
     ]
   ],
   "term_aliases": {
@@ -378,6 +392,26 @@
       "llm-as-judge emotion",
       "llm judge for emotion",
       "llm-based emotion evaluation"
+    ],
+    "emotional granularity calibration": [
+      "emotion granularity calibration",
+      "granularity calibration",
+      "affect granularity calibration"
+    ],
+    "regret repair strategy": [
+      "regret repair strategy",
+      "regret recovery strategy",
+      "post-regret regulation"
+    ],
+    "counterfactual confidence interval": [
+      "counterfactual confidence interval",
+      "counterfactual uncertainty interval",
+      "counterfactual ci"
+    ],
+    "emotion-policy alignment": [
+      "emotion-policy alignment",
+      "emotion policy alignment",
+      "affect-policy alignment"
     ]
   },
   "weights": {
