@@ -41,14 +41,17 @@ def now_isoseconds() -> str:
 
 
 def read_json(path: Path, default: Any | None = None) -> Any:
-    """Read JSON with a defensive fallback copy on missing/invalid files.
+    """Read JSON with a defensive fallback on missing/invalid files.
 
     Returning a deep-copied fallback prevents accidental shared-state mutation
     when callers pass mutable defaults (dict/list).
     """
     fallback = {} if default is None else default
-    if not path.exists():
+
+    # Ignore symlink payloads for local state files to avoid path-hijack reads.
+    if not path.exists() or path.is_symlink():
         return copy.deepcopy(fallback)
+
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError, TypeError):
