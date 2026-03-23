@@ -3,7 +3,7 @@
 
 from datetime import datetime
 
-from research_ops_common import ROOT, get_stats_snapshot, read_json_dict
+from research_ops_common import ROOT, get_nested_field, get_stats_snapshot, read_json_dict
 
 state_path = ROOT / "ops" / "research_state.json"
 cron_path = ROOT / "ops" / "cron_runtime_status.json"
@@ -15,8 +15,8 @@ def main():
     cron = read_json_dict(cron_path)
 
     snapshot = get_stats_snapshot(state)
-    continuous = (cron.get("continuous") or {}).get("status", "unknown")
-    live = (cron.get("live_report") or {}).get("status", "unknown")
+    continuous = get_nested_field(cron, "continuous", "status")
+    live = get_nested_field(cron, "live_report", "status")
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     line = (

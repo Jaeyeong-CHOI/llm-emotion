@@ -86,6 +86,19 @@ def read_json_dict(path: Path) -> dict[str, Any]:
     return as_dict(read_json(path, default={}))
 
 
+def get_nested_field(
+    payload: dict[str, Any],
+    section: str,
+    field: str,
+    default: str = "unknown",
+) -> str:
+    """Read a nested field from a mapping with defensive type checks."""
+    section_data = payload.get(section)
+    if not isinstance(section_data, dict):
+        return default
+    return display_value(section_data.get(field), default)
+
+
 def write_json(path: Path, payload: Any) -> None:
     # Harden against symlink-based path hijacking for local state files.
     if _is_symlink_path(path):

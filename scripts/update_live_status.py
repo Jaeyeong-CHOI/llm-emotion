@@ -1,22 +1,14 @@
 #!/usr/bin/env python3
 import datetime
-from typing import Any
 from zoneinfo import ZoneInfo
 
-from research_ops_common import ROOT, STATE_PATH, display_value, get_stats_snapshot, read_json_dict
+from research_ops_common import ROOT, STATE_PATH, display_value, get_nested_field, get_stats_snapshot, read_json_dict
 
 CRON_STATE_PATH = ROOT / "ops" / "cron_runtime_status.json"
 OUT_PATH = ROOT / "LIVE_STATUS.md"
 
 
 fmt = display_value
-
-
-def _cron_field(cron: dict[str, Any], section: str, field: str, default: str = "unknown") -> str:
-    section_data = cron.get(section)
-    if not isinstance(section_data, dict):
-        section_data = {}
-    return fmt(section_data.get(field), default)
 
 
 def main() -> None:
@@ -37,9 +29,9 @@ def main() -> None:
         f"- 생성 샘플 수(파이프라인 검증용): **{fmt(snapshot.get('mock_samples_generated'), '0')}개**",
         "",
         "## 자동화 상태",
-        f"- 연구 루프(1분): **{_cron_field(cron, 'continuous', 'status')}**",
-        f"- 중요상황 상시 보고(1분): **{_cron_field(cron, 'live_report', 'status')}**",
-        f"- 최근 연구 루프 결과: **{_cron_field(cron, 'continuous', 'lastRunStatus')}**",
+        f"- 연구 루프(1분): **{get_nested_field(cron, 'continuous', 'status')}**",
+        f"- 중요상황 상시 보고(1분): **{get_nested_field(cron, 'live_report', 'status')}**",
+        f"- 최근 연구 루프 결과: **{get_nested_field(cron, 'continuous', 'lastRunStatus')}**",
         "",
         "## 현재 단계 요약",
         "- [x] 체계적 선행연구 수집 파이프라인 구축",
