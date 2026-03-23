@@ -411,39 +411,25 @@ materialize_sanitized_queue() {
   iter_queue_lines "$queue_file" > "$out_file"
 }
 
-materialize_unique_lines() {
-  local in_file="$1"
-  local out_file="$2"
-
-  awk '{ if (!seen[$0]++) print $0 }' < "$in_file" > "$out_file"
-}
-
 dedupe_queue_file() {
   local queue_file="$1"
-  local tmp_file=""
   local dedup_file=""
 
   ensure_queue_file_safe "$queue_file" 1 || return 1
   [ -f "$queue_file" ] || return 0
-  tmp_file="$(make_queue_temp_file "$queue_file" dedupe)"
-  dedup_file="${tmp_file}.dedupe"
+  dedup_file="$(make_queue_temp_file "$queue_file" dedupe)"
 
-  if ! materialize_sanitized_queue "$queue_file" "$tmp_file"; then
-    cleanup_tmp_files "$tmp_file" "$dedup_file"
-    return 1
-  fi
-
-  if ! materialize_unique_lines "$tmp_file" "$dedup_file"; then
-    cleanup_tmp_files "$tmp_file" "$dedup_file"
+  if ! iter_queue_lines "$queue_file" | awk '{ if (!seen[$0]++) print $0 }' > "$dedup_file"; then
+    cleanup_tmp_files "$dedup_file"
     return 1
   fi
 
   if ! replace_if_changed "$queue_file" "$dedup_file"; then
-    cleanup_tmp_files "$tmp_file" "$dedup_file"
+    cleanup_tmp_files "$dedup_file"
     return 0
   fi
 
-  cleanup_tmp_files "$tmp_file" "$dedup_file"
+  cleanup_tmp_files "$dedup_file"
 }
 dequeue_run_id() {
   local queue_file="$1"
