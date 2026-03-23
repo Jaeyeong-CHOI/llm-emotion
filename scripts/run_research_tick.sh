@@ -49,9 +49,13 @@ lock_pid_matches_tick_script() {
   [[ "$command" == *"run_research_tick.sh"* ]]
 }
 
+claim_lock_dir() {
+  mkdir "$LOCK_DIR" 2>/dev/null || return 1
+  printf '%s\n' "$$" > "$LOCK_PID_FILE"
+}
+
 acquire_lock() {
-  if mkdir "$LOCK_DIR" 2>/dev/null; then
-    printf '%s\n' "$$" > "$LOCK_PID_FILE"
+  if claim_lock_dir; then
     return 0
   fi
 
@@ -66,8 +70,7 @@ acquire_lock() {
       rm -f "$LOCK_PID_FILE"
       rmdir "$LOCK_DIR" 2>/dev/null || true
 
-      if mkdir "$LOCK_DIR" 2>/dev/null; then
-        printf '%s\n' "$$" > "$LOCK_PID_FILE"
+      if claim_lock_dir; then
         return 0
       fi
     fi
