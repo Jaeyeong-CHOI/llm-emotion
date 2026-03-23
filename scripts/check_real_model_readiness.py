@@ -32,6 +32,10 @@ PLACEHOLDER_PATTERNS = (
     r"^changeme$",
 )
 
+# 자주 쓰는 정규식은 미리 컴파일
+CONTROL_CHAR_PATTERN = re.compile(r"[\r\n\t]|[\x00-\x08\x0b-\x1f\x7f]")
+ENDPOINT_SCHEME_PATTERN = re.compile(r"^https?://")
+
 
 def is_placeholder(value: str) -> bool:
     v = (value or "").strip().lower()
@@ -42,8 +46,7 @@ def is_placeholder(value: str) -> bool:
 
 def has_unsafe_chars(value: str) -> bool:
     """Detect control characters that can break env-var handling."""
-    text = (value or "")
-    return bool(re.search(r"[\r\n\t]", text)) or bool(re.search(r"[\x00-\x08\x0b-\x1f\x7f]", text))
+    return bool(CONTROL_CHAR_PATTERN.search(value or ""))
 
 
 def dedupe_preserve_order(values: list[str]) -> list[str]:
@@ -162,7 +165,7 @@ def main():
     endpoint_scheme_ok = True
     suspicious = []
     if args.require_endpoint_scheme and endpoint:
-        endpoint_scheme_ok = bool(re.match(r"^https?://", endpoint))
+        endpoint_scheme_ok = bool(ENDPOINT_SCHEME_PATTERN.match(endpoint))
         if not endpoint_scheme_ok:
             suspicious.append("OPENAI_BASE_URL")
 
