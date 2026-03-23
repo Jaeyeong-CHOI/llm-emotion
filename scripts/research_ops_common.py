@@ -31,7 +31,10 @@ def read_json(path: Path, default: Any | None = None) -> Any:
         return copy.deepcopy(fallback)
     try:
         return json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
+    except (json.JSONDecodeError, OSError, TypeError):
+        # Keep behavior deterministic when files are missing, corrupted, or
+        # temporarily incomplete, while surfacing the issue to callers via
+        # fallback data.
         return copy.deepcopy(fallback)
 
 
