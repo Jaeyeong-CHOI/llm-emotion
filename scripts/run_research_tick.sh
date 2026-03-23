@@ -113,11 +113,12 @@ if ! is_safe_run_id "$RUN_ID"; then
   skip_with_status "invalid run-id format (${RUN_ID})"
 fi
 
-enqueue_run_id_unique() {
+queue_contains_run_id() {
   local queue_file="$1"
   local run_id="$2"
 
-  touch "$queue_file"
+  [ -f "$queue_file" ] || return 1
+
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
     line="$(canonical_line "$raw_line")"
@@ -125,6 +126,18 @@ enqueue_run_id_unique() {
       return 0
     fi
   done < "$queue_file"
+
+  return 1
+}
+
+enqueue_run_id_unique() {
+  local queue_file="$1"
+  local run_id="$2"
+
+  touch "$queue_file"
+  if queue_contains_run_id "$queue_file" "$run_id"; then
+    return 0
+  fi
 
   printf '%s\n' "$run_id" >> "$queue_file"
 }
