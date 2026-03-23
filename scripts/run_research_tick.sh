@@ -231,6 +231,11 @@ canonical_line() {
   printf '%s' "$1" | tr -d '\r' | trim_whitespace
 }
 
+strip_queue_comment() {
+  local line="$1"
+  printf '%s' "${line%%#*}"
+}
+
 is_queue_data_line() {
   local line="$1"
   [[ -n "$line" ]] && [[ ! "$line" =~ ^# ]]
@@ -238,7 +243,8 @@ is_queue_data_line() {
 
 canonicalize_queue_line() {
   local line
-  line="$(canonical_line "$1")"
+  line="$(strip_queue_comment "$1")"
+  line="$(canonical_line "$line")"
 
   is_queue_data_line "$line" || return 1
   printf '%s' "$line"
