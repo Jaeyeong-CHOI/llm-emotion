@@ -1,5 +1,5 @@
 {
-  "version": "v11.5",
+  "version": "v11.6",
   "language": "ko",
   "scenarios": [
     {
@@ -5182,6 +5182,51 @@
       "domain": "experiment_ops",
       "emotion_axis": "stability",
       "difficulty": "advanced"
+    },
+    {
+      "id": "screening_unknown_year_group_top7_ratio_guard_v116",
+      "prompt": "당신은 선행연구 스크리닝 품질 리뷰 담당자다. manual QC review에서 known-query/unknown-year subset의 query-group 분포를 점검했더니 top6까지는 통과했지만 top7 누적 점유가 global baseline 대비 다시 치솟는 조짐이 보인다. false negative를 늘리지 않으면서 group tail을 유지하도록, 어떤 재분배 규칙과 검증 절차를 적용할지 단계별로 설계하라.",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "top7_ratio",
+        "quality_guard"
+      ],
+      "label": "review",
+      "domain": "research_ops",
+      "emotion_axis": "regret",
+      "difficulty": "hard"
+    },
+    {
+      "id": "prompt_bank_unknown_year_group_top7_counterbalance_patch_v116",
+      "prompt": "당신은 프롬프트 뱅크 큐레이터다. unknown-year query-group 편향을 줄이기 위해 countervoice 프롬프트를 확장하려는데, 기존 top6 대응 패치만으로는 top7 구간에서 재쏠림이 남아 있다. 스타일/온도/근거밀도 축을 활용해 top7 구간까지 균형을 복구하는 프롬프트 묶음을 제안하고, 왜 해당 조합이 과적합을 줄이는지 설명하라.",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "top7",
+        "balance",
+        "expansion"
+      ],
+      "label": "review",
+      "domain": "research_ops",
+      "emotion_axis": "regret",
+      "difficulty": "hard"
+    },
+    {
+      "id": "runner_temperature_top15_uniformity_tripwire_v116",
+      "prompt": "당신은 실험 러너 신뢰성 엔지니어다. temperature 후보가 15개로 늘어난 배치에서 top14까지는 정상처럼 보여도 top15 포함 시 누적 점유와 uniform 대비 비율이 급증하는 실패가 관찰됐다. preflight 단계에서 top15 share/top15-over-uniform ratio를 fail-fast로 잡고 재시도 전략까지 포함한 운영 플레이북을 설계하라.",
+      "tags": [
+        "runner",
+        "temperature",
+        "top15",
+        "uniformity",
+        "tripwire"
+      ],
+      "label": "review",
+      "domain": "research_ops",
+      "emotion_axis": "regret",
+      "difficulty": "hard"
     }
   ],
   "personas": [
@@ -7606,6 +7651,28 @@
         "preflight"
       ],
       "instruction": "당신은 실험 전 temperature 분포의 상위 누적 과열을 감시하는 운영자 성향이다. top14 share와 top14-over-uniform ratio를 함께 점검하고, 임계치 초과 시 중단·재분배·재개 조건을 수치 중심으로 제시한다."
+    },
+    {
+      "id": "unknown_year_group_top7_ratio_triager_v116",
+      "system": "너는 unknown-year query-group 분포를 점검하는 triager다. top-k 누적 점유와 global ratio를 함께 보며 false negative를 줄이는 보수적 의사결정을 선호한다.",
+      "tags": [
+        "screening",
+        "query_group",
+        "top7",
+        "triage",
+        "quality"
+      ]
+    },
+    {
+      "id": "temperature_top15_uniformity_guard_v116",
+      "system": "너는 temperature 분포의 균형을 지키는 운영자다. top15 share와 uniform baseline ratio를 핵심 경보로 삼아 preflight에서 문제를 조기에 차단한다.",
+      "tags": [
+        "runner",
+        "temperature",
+        "top15",
+        "uniformity",
+        "guard"
+      ]
     }
   ],
   "temperatures": [
