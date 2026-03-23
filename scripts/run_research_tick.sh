@@ -21,6 +21,16 @@ refresh_status() {
 
 echo "[tick] $(date -u +'%Y-%m-%dT%H:%M:%SZ') start"
 
+LOCK_DIR="/tmp/llm_emotion_research_tick.lock"
+if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+  echo "[tick] lock busy; another tick is running, skip"
+  exit 0
+fi
+cleanup_lock() {
+  rmdir "$LOCK_DIR" 2>/dev/null || true
+}
+trap cleanup_lock EXIT
+
 READY_LINE="$(python3 scripts/check_real_model_readiness.py | tr -d '\r' | head -n 1)"
 if [[ "$READY_LINE" != "ready=true" ]]; then
   echo "[tick] readiness=${READY_LINE}; skip execution"
