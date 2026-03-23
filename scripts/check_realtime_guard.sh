@@ -16,16 +16,18 @@ elif [[ -f "$ROOT/.env.real_model" ]]; then
   set +a
 fi
 
-printf "[1/4] real model readiness check\n"
-python3 scripts/check_real_model_readiness.py
+run_step() {
+  local index="$1"
+  local label="$2"
+  shift 2
 
-printf "\n[2/4] cron snapshot refresh\n"
-python3 scripts/snapshot_cron_status.py
+  printf "[%s/4] %s\n" "$index" "$label"
+  "$@"
+}
 
-printf "\n[3/4] live status refresh\n"
-python3 scripts/update_live_status.py
-
-printf "\n[4/4] research status\n"
-python3 scripts/research_status.py
+run_step 1 "real model readiness check" python3 scripts/check_real_model_readiness.py
+run_step 2 "cron snapshot refresh" python3 scripts/snapshot_cron_status.py
+run_step 3 "live status refresh" python3 scripts/update_live_status.py
+run_step 4 "research status" python3 scripts/research_status.py
 
 echo "\nDone."
