@@ -15,11 +15,13 @@ fi
 python3 - "$SRC_ENV" "$DST_ENV" <<'PY'
 import sys
 from pathlib import Path
+from typing import Iterable
 
 
-def load_env(path: Path) -> dict[str, str]:
+def parse_env_text(lines: Iterable[str]) -> dict[str, str]:
+    """Parse simple KEY=VALUE env lines while preserving existing quoting style."""
     env: dict[str, str] = {}
-    for raw in path.read_text(encoding="utf-8").splitlines():
+    for raw in lines:
         line = raw.strip()
         if not line or line.startswith("#"):
             continue
@@ -32,32 +34,22 @@ def load_env(path: Path) -> dict[str, str]:
     return env
 
 
-def parse_file_lines(path: Path) -> list[str]:
+def read_file_lines(path: Path) -> list[str]:
     if not path.exists():
         return []
     return path.read_text(encoding="utf-8").splitlines()
 
 
-def extract_env_map(lines: list[str]) -> dict[str, str]:
-    env: dict[str, str] = {}
-    for raw in lines:
-        if not raw or "=" not in raw or raw.lstrip().startswith("#"):
-            continue
-        key, value = raw.split("=", 1)
-        env[key.strip()] = value
-    return env
-
-
 src_path = Path(sys.argv[1])
 dst_path = Path(sys.argv[2])
 
-source = load_env(src_path)
+source = parse_env_text(src_path.read_text(encoding="utf-8").splitlines())
 for required_key in ("OPENAI_API_KEY", "GEMINI_API_KEY"):
     if not source.get(required_key):
         raise SystemExit(f"ERROR: {required_key} missing in source env")
 
-existing_lines = parse_file_lines(dst_path)
-existing_map = extract_env_map(existing_lines)
+existing_lines = read_file_lines(dst_path)
+existing_map = parse_env_text(existing_lines)
 
 pairs = [
     ("OPENAI_API_KEY", source.get("OPENAI_API_KEY", ""), True),
@@ -69,14 +61,12 @@ pairs = [
 ]
 
 key_set = {k for k, _, _ in pairs}
-updated = {}
-for key, value, _ in pairs:
-    updated[key] = value
+updated = {key: value for key, value, _ in pairs}
 
 out_lines: list[str] = []
 seen: set[str] = set()
 for raw in existing_lines:
-    if not raw or "=" not in raw:
+    if "=" not in raw:
         out_lines.append(raw)
         continue
 
@@ -99,7 +89,7 @@ for key, value, required in pairs:
     out_lines.append(f"{key}={value}")
     seen.add(key)
 
-final_map = extract_env_map(out_lines)
+final_map = parse_env_text(out_lines)
 for required_key in ("OPENAI_API_KEY", "GEMINI_API_KEY"):
     if not final_map.get(required_key):
         raise SystemExit(f"ERROR: sync failed to set {required_key}")
