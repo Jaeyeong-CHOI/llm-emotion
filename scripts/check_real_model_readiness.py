@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,6 +71,17 @@ def check_var(value: str):
     return exists, placeholder, unsafe
 
 
+@dataclass(frozen=True)
+class EnvBlock:
+    """Container for one environment-variable requirement block."""
+
+    names: list[str]
+    available: dict[str, bool]
+    missing: list[str]
+    placeholder: list[str]
+    unsafe: list[str]
+
+
 def check_vars(names: list[str]):
     status = {}
     missing = []
@@ -90,15 +102,15 @@ def check_vars(names: list[str]):
     return status, missing, placeholder_vars, unsafe_vars
 
 
-def check_env_block(names: list[str]):
+def check_env_block(names: list[str]) -> EnvBlock:
     status, missing, placeholder_vars, unsafe_vars = check_vars(names)
-    return {
-        "names": names,
-        "available": status,
-        "missing": missing,
-        "placeholder": placeholder_vars,
-        "unsafe": unsafe_vars,
-    }
+    return EnvBlock(
+        names=names,
+        available=status,
+        missing=missing,
+        placeholder=placeholder_vars,
+        unsafe=unsafe_vars,
+    )
 
 
 def _append_optional_note(
@@ -189,14 +201,14 @@ def main():
     if api_key and not re.match(r"^sk-", api_key):
         suspicious.append("OPENAI_API_KEY")
 
-    required_missing = required["missing"]
-    required_placeholder_vars = required["placeholder"]
-    required_unsafe_vars = required["unsafe"]
-    optional_missing = optional["missing"]
-    optional_placeholder_vars = optional["placeholder"]
-    optional_unsafe_vars = optional["unsafe"]
+    required_missing = required.missing
+    required_placeholder_vars = required.placeholder
+    required_unsafe_vars = required.unsafe
+    optional_missing = optional.missing
+    optional_placeholder_vars = optional.placeholder
+    optional_unsafe_vars = optional.unsafe
 
-    available_vars = {**required["available"], **optional["available"]}
+    available_vars = {**required.available, **optional.available}
 
     # 실모델 실행 게이트는 강제 required 기준 + API 키 유효성 + 엔드포인트 스킴 점검
     ready = (
@@ -219,8 +231,8 @@ def main():
 
     payload = {
         "ready": ready,
-        "required_vars": required["names"],
-        "optional_vars": optional["names"],
+        "required_vars": required.names,
+        "optional_vars": optional.names,
         "available_vars": available_vars,
         "missing_vars": required_missing,
         "optional_missing_vars": optional_missing,
