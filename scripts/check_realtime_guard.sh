@@ -13,27 +13,35 @@ load_research_env
 run_step() {
   local index="$1"
   local label="$2"
-  local command="$3"
-  local idx_total="$4"
+  local total="$3"
+  shift 3
 
-  printf "[%s/%s] %s\n" "$index" "$idx_total" "$label"
-  bash -lc "$command"
+  local -a command=("$@")
+  printf "[%s/%s] %s\n" "$index" "$total" "$label"
+  "${command[@]}"
 }
 
-STEPS=(
-  "real model readiness check|python3 scripts/check_real_model_readiness.py"
-  "cron snapshot refresh|python3 scripts/snapshot_cron_status.py"
-  "live status refresh|python3 scripts/update_live_status.py"
-  "research status|python3 scripts/research_status.py"
+STEP_LABELS=(
+  "real model readiness check"
+  "cron snapshot refresh"
+  "live status refresh"
+  "research status"
 )
 
-TOTAL_STEPS="${#STEPS[@]}"
+STEP_COMMANDS=(
+  "python3 scripts/check_real_model_readiness.py"
+  "python3 scripts/snapshot_cron_status.py"
+  "python3 scripts/update_live_status.py"
+  "python3 scripts/research_status.py"
+)
 
-for i in "${!STEPS[@]}"; do
-  step="${STEPS[$i]}"
-  label="${step%%|*}"
-  cmd="${step#*|}"
-  run_step "$((i + 1))" "$label" "$cmd" "$TOTAL_STEPS"
+TOTAL_STEPS="${#STEP_LABELS[@]}"
+
+for i in "${!STEP_LABELS[@]}"; do
+  label="${STEP_LABELS[$i]}"
+  command="${STEP_COMMANDS[$i]}"
+  read -r -a command_parts <<< "$command"
+  run_step "$((i + 1))" "$label" "$TOTAL_STEPS" "${command_parts[@]}"
 done
 
 printf "\nDone.\n"
