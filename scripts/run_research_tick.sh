@@ -33,13 +33,23 @@ run_status_command() {
 
 refresh_status() {
   local ts
+  local status_script status_log status_path
+  local status_scripts=(
+    update_live_status.py
+    research_status.py
+  )
+
   ts="$(date -u +%Y%m%dT%H%M%SZ)_$$"
 
-  local status_script status_log
-  for status_script in update_live_status.py research_status.py; do
+  for status_script in "${status_scripts[@]}"; do
+    status_path="${ROOT}/scripts/${status_script}"
+    if [ ! -f "$status_path" ]; then
+      echo "[tick] status script missing: ${status_path}" >&2
+      continue
+    fi
     status_log="${STATUS_LOG_DIR}/research_tick_${status_script%.py}_${ts}.log"
     run_status_command "$status_log" \
-      python3 "scripts/${status_script}"
+      python3 "$status_path"
   done
 }
 
