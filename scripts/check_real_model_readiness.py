@@ -41,7 +41,9 @@ def is_placeholder(value: str) -> bool:
 
 
 def has_unsafe_chars(value: str) -> bool:
-    return bool(re.search(r"[\r\n\t]", (value or "")))
+    """Detect control characters that can break env-var handling."""
+    text = (value or "")
+    return bool(re.search(r"[\r\n\t]", text)) or bool(re.search(r"[\x00-\x08\x0b-\x1f\x7f]", text))
 
 
 def dedupe_preserve_order(values: list[str]) -> list[str]:
