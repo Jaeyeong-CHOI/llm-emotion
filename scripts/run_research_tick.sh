@@ -65,6 +65,10 @@ is_expected_tick_command() {
     || [[ "$command" == *"scripts/run_research_tick.sh"* ]]
 }
 
+trim_whitespace() {
+  sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+}
+
 lock_pid_uid_and_command() {
   local pid="$1"
   local owner_uid=""
@@ -72,7 +76,7 @@ lock_pid_uid_and_command() {
 
   is_numeric_pid "$pid" || return 1
 
-  owner_uid="$(ps -p "$pid" -o uid= 2>/dev/null | tr -d '\r' | head -n 1 | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' || true)"
+  owner_uid="$(ps -p "$pid" -o uid= 2>/dev/null | tr -d '\r' | head -n 1 | trim_whitespace || true)"
   command="$(ps -p "$pid" -o command= 2>/dev/null | tr -d '\r' | head -n 1 || true)"
 
   [[ -n "$owner_uid" ]] || return 1
@@ -165,7 +169,7 @@ fi
 QUEUE_FILE="ops/continuous_run_ids.txt"
 
 canonical_line() {
-  printf '%s' "$1" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+  printf '%s' "$1" | tr -d '\r' | trim_whitespace
 }
 
 is_queue_data_line() {
