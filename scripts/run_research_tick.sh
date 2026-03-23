@@ -283,6 +283,29 @@ strip_queue_comment() {
   printf '%s' "${line%%#*}"
 }
 
+is_path_safe_from_symlink() {
+  local path="$1"
+  local current="${path}"
+
+  while [ -n "$current" ]; do
+    if [ -L "$current" ]; then
+      echo "[tick] rejected unsafe path (symlink): ${current}" >&2
+      return 1
+    fi
+
+    if [ "$current" = "." ] || [ "$current" = "/" ]; then
+      return 0
+    fi
+
+    if [ "${current%/*}" = "$current" ]; then
+      break
+    fi
+    current="${current%/*}"
+  done
+
+  return 0
+}
+
 is_valid_run_id() {
   local value="$1"
   [[ "$value" =~ ^[A-Za-z0-9._-]+$ ]]
@@ -350,6 +373,7 @@ dedupe_queue_file() {
   local queue_file="$1"
   local tmp_file=""
 
+  is_path_safe_from_symlink "$queue_file" || return 1
   [ -f "$queue_file" ] || return 0
   tmp_file="$(make_queue_temp_file "$queue_file" dedupe)"
 
@@ -365,6 +389,8 @@ dedupe_queue_file() {
 dequeue_run_id() {
   local queue_file="$1"
   local tmp_file=""
+
+  is_path_safe_from_symlink "$queue_file" || return 1
 
   if [ ! -f "$queue_file" ]; then
     printf ''
@@ -396,7 +422,9 @@ dequeue_run_id() {
   printf '%s' "$picked"
 }
 
-dedupe_queue_file "$QUEUE_FILE"
+if ! dedupe_queue_file "$QUEUE_FILE"; then
+  skip_with_status "unsafe or invalid queue path: $QUEUE_FILE"
+fi
 
 if ! RUN_ID="$(dequeue_run_id "$QUEUE_FILE")"; then
   skip_with_status "failed to dequeue run-id"
@@ -425,6 +453,7 @@ enqueue_run_id_unique() {
   local run_id="$2"
   local canonical_run_id=""
 
+  is_path_safe_from_symlink "$queue_file" || return 0
   canonical_run_id="$(sanitize_queue_run_id "$run_id")" || return 0
 
   touch "$queue_file"
