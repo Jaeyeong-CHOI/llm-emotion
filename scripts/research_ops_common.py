@@ -29,6 +29,16 @@ def read_json(path: Path, default: Any | None = None) -> Any:
         return fallback
 
 
+def as_dict(value: Any) -> dict[str, Any]:
+    """Coerce unknown JSON payloads into a dict for defensive callers."""
+    return value if isinstance(value, dict) else {}
+
+
+def read_json_dict(path: Path) -> dict[str, Any]:
+    """Read a JSON file and always return a dictionary."""
+    return as_dict(read_json(path, default={}))
+
+
 def write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     data = json.dumps(payload, ensure_ascii=False, indent=2)
@@ -55,8 +65,7 @@ def write_json(path: Path, payload: Any) -> None:
 
 
 def load_research_state() -> dict[str, Any]:
-    state = read_json(STATE_PATH, default={})
-    return state if isinstance(state, dict) else {}
+    return read_json_dict(STATE_PATH)
 
 
 def save_research_state(state: dict[str, Any]) -> None:
