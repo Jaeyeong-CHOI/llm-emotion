@@ -441,6 +441,7 @@ dequeue_run_id() {
   local tmp_file=""
   local next_file=""
   local picked=""
+  local rc=0
 
   ensure_queue_file_safe "$queue_file" 1 || return 1
 
@@ -453,26 +454,23 @@ dequeue_run_id() {
   next_file="${tmp_file}.next"
 
   if ! materialize_sanitized_queue "$queue_file" "$tmp_file"; then
-    cleanup_tmp_files "$tmp_file" "$next_file"
+    rc=1
+  else
+    picked="$(sed -n '1p' "$tmp_file")"
+    if [ -n "$picked" ]; then
+      if ! sed -n '2,$p' "$tmp_file" > "$next_file"; then
+        rc=1
+      elif ! replace_if_changed "$queue_file" "$next_file"; then
+        rc=1
+      fi
+    fi
+  fi
+
+  cleanup_tmp_files "$tmp_file" "$next_file"
+  if [ "$rc" -ne 0 ]; then
     return 1
   fi
 
-  picked="$(sed -n '1p' "$tmp_file")"
-  if [ -n "$picked" ]; then
-    if ! sed -n '2,$p' "$tmp_file" > "$next_file"; then
-      cleanup_tmp_files "$tmp_file" "$next_file"
-      return 1
-    fi
-
-    if ! replace_if_changed "$queue_file" "$next_file"; then
-      cleanup_tmp_files "$tmp_file" "$next_file"
-      return 1
-    fi
-  else
-    cleanup_tmp_files "$tmp_file" "$next_file"
-  fi
-
-  cleanup_tmp_files "$tmp_file"
   printf '%s' "$picked"
 }
 
