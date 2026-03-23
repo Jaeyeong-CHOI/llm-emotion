@@ -69,8 +69,10 @@ is_expected_tick_command() {
   local token=""
   local normalized=""
   local candidate=""
+  local -a tokens=()
 
-  for token in $command_line; do
+  IFS=' ' read -r -a tokens <<< "$command_line"
+  for token in "${tokens[@]}"; do
     if [[ "$token" != *run_research_tick.sh ]]; then
       continue
     fi
