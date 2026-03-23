@@ -21,8 +21,17 @@ run_status_command() {
 }
 
 refresh_status() {
-  run_status_command /tmp/research_tick_status.log python3 scripts/update_live_status.py
-  run_status_command /tmp/research_tick_research_status.log python3 scripts/research_status.py
+  local -a status_jobs=(
+    "/tmp/research_tick_status.log|python3 scripts/update_live_status.py"
+    "/tmp/research_tick_research_status.log|python3 scripts/research_status.py"
+  )
+
+  local job
+  for job in "${status_jobs[@]}"; do
+    IFS='|' read -r log_path command <<<"$job"
+    # shellcheck disable=SC2086
+    run_status_command "$log_path" $command
+  done
 }
 
 skip_with_status() {
