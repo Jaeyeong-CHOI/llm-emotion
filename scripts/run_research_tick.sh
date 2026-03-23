@@ -119,11 +119,24 @@ normalize_candidate_to_tick_script() {
 
 strip_surrounding_quotes() {
   local value="$1"
+  local len=0
+  local first=""
+  local last=""
 
-  value="${value#\"}"
-  value="${value%\"}"
-  value="${value#\'}"
-  value="${value%\'}"
+  len=${#value}
+  if [ "$len" -lt 2 ]; then
+    printf '%s' "$value"
+    return
+  fi
+
+  first="${value:0:1}"
+  last="${value:len-1:1}"
+
+  if [[ "$first" == '"' && "$last" == '"' ]] || [[ "$first" == "'" && "$last" == "'" ]]; then
+    printf '%s' "${value:1:len-2}"
+    return
+  fi
+
   printf '%s' "$value"
 }
 
