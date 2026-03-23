@@ -45,23 +45,25 @@ if [ ! -f "$QUEUE_FILE" ] || [ ! -s "$QUEUE_FILE" ]; then
   exit 0
 fi
 
-TMP_FILE="${QUEUE_FILE}.tmp.$$"
-RUN_ID="$(awk '
+TMP_FILE="$(mktemp "${QUEUE_FILE}.tmp.XXXXXX")"
+PICKED_FILE="$(mktemp "/tmp/llm_emotion_run_id.XXXXXX")"
+awk -v picked_file="$PICKED_FILE" '
   BEGIN { picked=0 }
   {
     line=$0
     gsub(/\r/, "", line)
     if (!picked && line !~ /^[[:space:]]*$/ && line !~ /^[[:space:]]*#/) {
-      print line > "/tmp/llm_emotion_run_id.$$"
+      print line > picked_file
       picked=1
       next
     }
     print $0
   }
-' "$QUEUE_FILE" > "$TMP_FILE"; cat "/tmp/llm_emotion_run_id.$$" 2>/dev/null || true)"
-rm -f "/tmp/llm_emotion_run_id.$$"
+' "$QUEUE_FILE" > "$TMP_FILE"
 mv "$TMP_FILE" "$QUEUE_FILE"
-RUN_ID="$(printf '%s' "$RUN_ID" | tr -d '\r\n')"
+RUN_ID="$(tr -d '\r\n' < "$PICKED_FILE")"
+rm -f "$PICKED_FILE"
+
 
 if [ -z "$RUN_ID" ]; then
   echo "[tick] no valid run-id found in queue; skip"
