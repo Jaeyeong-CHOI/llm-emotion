@@ -93,6 +93,15 @@ recover_stale_lock() {
   fi
 }
 
+lock_pid_is_active_tick_owner() {
+  local pid="$1"
+
+  is_numeric_pid "$pid" \
+    && kill -0 "$pid" 2>/dev/null \
+    && lock_pid_owned_by_current_user "$pid" \
+    && lock_pid_matches_tick_script "$pid"
+}
+
 acquire_lock() {
   if claim_lock_dir; then
     return 0
@@ -103,14 +112,9 @@ acquire_lock() {
     lock_pid="$(cat "$LOCK_PID_FILE" 2>/dev/null || true)"
   fi
 
-  if [ -n "$lock_pid" ]; then
-    if ! is_numeric_pid "$lock_pid" \
-      || ! kill -0 "$lock_pid" 2>/dev/null \
-      || ! lock_pid_owned_by_current_user "$lock_pid" \
-      || ! lock_pid_matches_tick_script "$lock_pid"; then
-      if recover_stale_lock "$lock_pid"; then
-        return 0
-      fi
+  if [ -n "$lock_pid" ] && ! lock_pid_is_active_tick_owner "$lock_pid"; then
+    if recover_stale_lock "$lock_pid"; then
+      return 0
     fi
   fi
 
