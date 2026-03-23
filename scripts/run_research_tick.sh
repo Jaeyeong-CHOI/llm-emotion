@@ -223,9 +223,6 @@ iter_queue_normalized_lines() {
   local normalized=""
 
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
-    raw_line="$(canonicalize_queue_line "$raw_line" || true)"
-    [ -n "$raw_line" ] || continue
-
     normalized="$(normalize_queue_run_id "$raw_line" || true)"
     if [ -n "$normalized" ]; then
       printf '%s\n' "$normalized"
