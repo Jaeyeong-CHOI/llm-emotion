@@ -106,18 +106,21 @@ read_file_first_line() {
   head -n 1 "$file" 2>/dev/null || return 1
 }
 
+read_trimmed_first_line() {
+  local file="$1"
+  local raw_line=""
+
+  raw_line="$(read_file_first_line "$file" || true)"
+  [ -n "$raw_line" ] || return 1
+
+  printf '%s' "$(normalize_text "$raw_line")"
+}
+
 read_lock_pid_file() {
   local pid_file="$1"
-  local raw_pid=""
-  local pid=""
 
   [ -f "$pid_file" ] || return 1
-  raw_pid="$(read_file_first_line "$pid_file" || true)"
-  [ -n "$raw_pid" ] || return 1
-
-  pid="$(printf '%s' "$raw_pid" | normalize_text || true)"
-  [ -n "$pid" ] || return 1
-  printf '%s' "$pid"
+  read_trimmed_first_line "$pid_file" || return 1
 }
 
 ensure_queue_file_safe() {
@@ -270,8 +273,17 @@ trap cleanup_on_exit EXIT
 
 read_readiness_line() {
   local raw_line=""
+  local tmp_file=""
 
-  raw_line="$(python3 scripts/check_real_model_readiness.py | awk '/^ready=/{print $0; exit}')" || return 1
+  tmp_file="$(mktemp)"
+  if ! python3 scripts/check_real_model_readiness.py > "$tmp_file" 2>&1; then
+    rm -f "$tmp_file"
+    return 1
+  fi
+
+  raw_line="$(awk '/^ready=/{print $0; exit}' "$tmp_file")"
+  rm -f "$tmp_file"
+
   [ -n "$raw_line" ] || return 1
   printf '%s' "$(normalize_text "$raw_line")"
 }
@@ -286,6 +298,12 @@ QUEUE_FILE="ops/continuous_run_ids.txt"
 strip_queue_comment() {
   local line="$1"
   printf '%s' "${line%%#*}"
+}
+
+canonicalize_run_id_line() {
+  local raw_line="$1"
+
+  printf '%s' "$(normalize_text "$(strip_queue_comment "$raw_line")")"
 }
 
 is_path_safe_from_symlink() {
@@ -320,7 +338,7 @@ parse_queue_line() {
   local log_invalid="$2"
   local canonical=""
 
-  canonical="$(normalize_text "$(strip_queue_comment "$raw_line")")"
+  canonical="$(canonicalize_run_id_line "$raw_line")"
   [[ -n "$canonical" ]] || return 1
 
   if is_valid_run_id "$canonical"; then
