@@ -5,11 +5,10 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
-from research_ops_common import read_json, write_json
+from research_ops_common import now_isoseconds, read_json, write_json
 
 
 @dataclass
@@ -153,7 +152,7 @@ def build_actions(failed_gates: Iterable[Gate], hotspots: list[Hotspot]) -> list
 
 
 def render_markdown(actions: list[dict]) -> str:
-    ts = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    ts = now_isoseconds()
     lines = [
         "# Screening Quality Triage Plan",
         "",
@@ -187,7 +186,7 @@ def main() -> int:
     actions = build_actions(failed, hotspots)
 
     payload = {
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "generated_at_utc": now_isoseconds(),
         "input": str(input_path),
         "failed_gate_count": len(failed),
         "actions": actions,
