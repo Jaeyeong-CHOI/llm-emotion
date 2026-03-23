@@ -318,6 +318,21 @@
       "implementation intention",
       "if-then plan",
       "if then planning"
+    ],
+    "counterfactual richness": [
+      "counterfactual richness",
+      "counterfactual detail richness",
+      "counterfactual elaboration"
+    ],
+    "emotion differentiation training": [
+      "emotion differentiation training",
+      "affect labeling training",
+      "emotion differentiation intervention"
+    ],
+    "metacognitive reappraisal": [
+      "metacognitive reappraisal",
+      "metacognitive emotion regulation",
+      "meta-reappraisal"
     ]
   },
   "weights": {
@@ -387,7 +402,10 @@
     "preregistered analysis",
     "manipulation check",
     "measurement model",
-    "latent variable model"
+    "latent variable model",
+    "equivalence test",
+    "smallest effect size of interest",
+    "invariance testing"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {

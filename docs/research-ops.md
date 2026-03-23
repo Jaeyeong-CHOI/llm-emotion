@@ -22,10 +22,10 @@ python3 scripts/run_experiments.py --config ops/experiment_matrix.json --run-lab
 ```
 
 ## 한국어 운영 메모
-- 스크리닝 품질 점검은 `unknown-year query-group top20` 잔여 과점을 보기 위해 `--max-manual-qc-review-traceable-known-query-unknown-year-group-top20-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top20-over-global-group-top20-ratio`를 함께 사용한다.
-- 프롬프트 뱅크 `v129.0`은 `screening_unknown_year_group_top20_ratio_guard_v129`, `prompt_bank_top20_countervoice_mesh_patch_v129`, `runner_temperature_p99_p70_tripwire_v129` 시나리오와 대응 페르소나를 포함한다.
-- 실험 러너 preflight는 `--max-planned-sample-temperature-p99-over-p70-share-ratio`로 p99/p75 이후에도 남는 상단 tail 가속을 fail-fast 한다.
-- 스크리닝 규칙은 counterfactual regret intensity, emotion regulation failure, regulatory fit alias와 registered report, preregistered analysis, manipulation check, measurement model method cue를 추가로 본다.
+- 스크리닝 품질 점검은 `unknown-year query-group top21` 잔여 과점을 보기 위해 `--max-manual-qc-review-traceable-known-query-unknown-year-group-top21-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top21-over-global-group-top21-ratio`를 함께 사용한다.
+- 프롬프트 뱅크 `v130.0`은 `screening_unknown_year_group_top21_ratio_guard_v130`, `prompt_bank_top21_countervoice_mesh_patch_v130`, `runner_temperature_p99_p65_tripwire_v130` 시나리오와 대응 페르소나를 포함한다.
+- 실험 러너 preflight는 `--max-planned-sample-temperature-p99-over-p65-share-ratio`로 p99/p70 이후에도 남는 상단 tail 가속을 fail-fast 한다.
+- 스크리닝 규칙은 counterfactual richness, emotion differentiation training, metacognitive reappraisal alias와 equivalence test, smallest effect size of interest(SESOI), invariance testing method cue를 추가로 본다.
 
 Each batch now emits `run_id_summary.csv` (aggregated across repeats/cells per run id), per-cell and batch `duration_seconds`, snapshot hashes in `manifest.json`, a generated `reproduce.sh` script, default `preflight.json` / `preflight.csv` artifacts, and `command_log.jsonl` for per-attempt execution traces. Selection reports/CSV include `planned_samples`, while `--require-min-total-samples`, `--require-min-run-ids`, `--require-min-temperature-count`, `--require-min-selected-scenarios`, `--require-min-selected-personas`, and `--require-min-planned-samples-per-run` can hard-fail undersized or too-narrow plans before execution. Manifests also persist `cli_invocation`, merged `manifest_note` text, `manifest_note_file`, `prompt_bank_version`, `run_id_file`, retry settings, and `preflight_summary` context for replayability.
 

@@ -528,6 +528,7 @@ def write_preflight_markdown(path: Path, payload: dict):
         f"- planned_sample_temperature_p99_over_p80_share_ratio: `{summary.get('planned_sample_temperature_p99_over_p80_share_ratio', 0.0)}`",
         f"- planned_sample_temperature_p99_over_p75_share_ratio: `{summary.get('planned_sample_temperature_p99_over_p75_share_ratio', 0.0)}`",
         f"- planned_sample_temperature_p99_over_p70_share_ratio: `{summary.get('planned_sample_temperature_p99_over_p70_share_ratio', 0.0)}`",
+        f"- planned_sample_temperature_p99_over_p65_share_ratio: `{summary.get('planned_sample_temperature_p99_over_p65_share_ratio', 0.0)}`",
         f"- max_planned_sample_temperature_over_uniform_ratio: `{summary.get('max_planned_sample_temperature_over_uniform_ratio', 0.0)}`",
         f"- unique_selected_scenario_labels: `{summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{summary.get('unique_selected_scenario_tags', 0)}`",
@@ -932,6 +933,7 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- planned_sample_temperature_top18_over_uniform_ratio: `{preflight_summary.get('planned_sample_temperature_top18_over_uniform_ratio', 0.0)}`",
         f"- planned_sample_temperature_top19_over_uniform_ratio: `{preflight_summary.get('planned_sample_temperature_top19_over_uniform_ratio', 0.0)}`",
         f"- planned_sample_temperature_top20_over_uniform_ratio: `{preflight_summary.get('planned_sample_temperature_top20_over_uniform_ratio', 0.0)}`",
+        f"- planned_sample_temperature_top21_over_uniform_ratio: `{preflight_summary.get('planned_sample_temperature_top21_over_uniform_ratio', 0.0)}`",
         f"- planned_sample_temperature_hhi: `{preflight_summary.get('planned_sample_temperature_hhi', 0.0)}`",
         f"- planned_sample_temperature_gini: `{preflight_summary.get('planned_sample_temperature_gini', 0.0)}`",
         f"- planned_sample_temperature_p90_over_median_share_ratio: `{preflight_summary.get('planned_sample_temperature_p90_over_median_share_ratio', 0.0)}`",
@@ -943,6 +945,7 @@ def write_manifest_markdown(path: Path, manifest: dict):
         f"- planned_sample_temperature_p99_over_p80_share_ratio: `{preflight_summary.get('planned_sample_temperature_p99_over_p80_share_ratio', 0.0)}`",
         f"- planned_sample_temperature_p99_over_p75_share_ratio: `{preflight_summary.get('planned_sample_temperature_p99_over_p75_share_ratio', 0.0)}`",
         f"- planned_sample_temperature_p99_over_p70_share_ratio: `{preflight_summary.get('planned_sample_temperature_p99_over_p70_share_ratio', 0.0)}`",
+        f"- planned_sample_temperature_p99_over_p65_share_ratio: `{preflight_summary.get('planned_sample_temperature_p99_over_p65_share_ratio', 0.0)}`",
         f"- planned_sample_temperature_entropy: `{preflight_summary.get('planned_sample_temperature_entropy', 0.0)}`",
         f"- unique_selected_scenario_labels: `{preflight_summary.get('unique_selected_scenario_labels', 0)}`",
         f"- unique_selected_scenario_tags: `{preflight_summary.get('unique_selected_scenario_tags', 0)}`",
@@ -1356,6 +1359,12 @@ def main():
         help="fail if top-20 temperatures account for more than this planned-sample share (0 disables)",
     )
     ap.add_argument(
+        "--max-planned-sample-temperature-top21-share",
+        type=float,
+        default=0.0,
+        help="fail if top-21 temperatures account for more than this planned-sample share (0 disables)",
+    )
+    ap.add_argument(
         "--min-planned-sample-temperature-tail-share",
         type=float,
         default=0.0,
@@ -1499,6 +1508,12 @@ def main():
         help="fail if top-20 temperature share exceeds this multiple of uniform top-20 share baseline (0 disables)",
     )
     ap.add_argument(
+        "--max-planned-sample-temperature-top21-over-uniform-ratio",
+        type=float,
+        default=0.0,
+        help="fail if top-21 temperature share exceeds this multiple of uniform top-21 share baseline (0 disables)",
+    )
+    ap.add_argument(
         "--max-planned-sample-temperature-hhi",
         type=float,
         default=0.0,
@@ -1569,6 +1584,12 @@ def main():
         type=float,
         default=0.0,
         help="fail if p99 temperature share / p70 temperature share exceeds this value (0 disables)",
+    )
+    ap.add_argument(
+        "--max-planned-sample-temperature-p99-over-p65-share-ratio",
+        type=float,
+        default=0.0,
+        help="fail if p99 temperature share / p65 temperature share exceeds this value (0 disables)",
     )
     ap.add_argument(
         "--max-planned-sample-temperature-over-uniform-ratio",
@@ -3313,6 +3334,10 @@ def main():
         sum(sorted(planned_sample_temperature_shares.values(), reverse=True)[:20]),
         4,
     )
+    planned_sample_temperature_top21_share = round(
+        sum(sorted(planned_sample_temperature_shares.values(), reverse=True)[:21]),
+        4,
+    )
     planned_sample_temperature_tail_share = round(
         max(0.0, 1.0 - planned_sample_temperature_top2_share),
         4,
@@ -3358,6 +3383,7 @@ def main():
     planned_sample_temperature_p99_over_p80_share_ratio = 0.0
     planned_sample_temperature_p99_over_p75_share_ratio = 0.0
     planned_sample_temperature_p99_over_p70_share_ratio = 0.0
+    planned_sample_temperature_p99_over_p65_share_ratio = 0.0
     if sorted_temperature_shares:
         median_share = sorted_temperature_shares[len(sorted_temperature_shares) // 2]
         p90_idx = max(0, math.ceil(0.9 * len(sorted_temperature_shares)) - 1)
@@ -3365,11 +3391,13 @@ def main():
         p80_idx = max(0, math.ceil(0.8 * len(sorted_temperature_shares)) - 1)
         p75_idx = max(0, math.ceil(0.75 * len(sorted_temperature_shares)) - 1)
         p70_idx = max(0, math.ceil(0.7 * len(sorted_temperature_shares)) - 1)
+        p65_idx = max(0, math.ceil(0.65 * len(sorted_temperature_shares)) - 1)
         p90_share = sorted_temperature_shares[p90_idx]
         p85_share = sorted_temperature_shares[p85_idx]
         p80_share = sorted_temperature_shares[p80_idx]
         p75_share = sorted_temperature_shares[p75_idx]
         p70_share = sorted_temperature_shares[p70_idx]
+        p65_share = sorted_temperature_shares[p65_idx]
         planned_sample_temperature_p90_over_median_share_ratio = round(p90_share / max(1e-9, median_share), 4)
         p95_idx = max(0, math.ceil(0.95 * len(sorted_temperature_shares)) - 1)
         p95_share = sorted_temperature_shares[p95_idx]
@@ -3383,6 +3411,7 @@ def main():
         planned_sample_temperature_p99_over_p80_share_ratio = round(p99_share / max(1e-9, p80_share), 4)
         planned_sample_temperature_p99_over_p75_share_ratio = round(p99_share / max(1e-9, p75_share), 4)
         planned_sample_temperature_p99_over_p70_share_ratio = round(p99_share / max(1e-9, p70_share), 4)
+        planned_sample_temperature_p99_over_p65_share_ratio = round(p99_share / max(1e-9, p65_share), 4)
     uniform_temperature_share = round(1.0 / max(1, len(planned_sample_temperature_shares)), 4)
     uniform_temperature_top2_share = round(min(2, len(planned_sample_temperature_shares)) * uniform_temperature_share, 4)
     uniform_temperature_top3_share = round(min(3, len(planned_sample_temperature_shares)) * uniform_temperature_share, 4)
@@ -3403,6 +3432,7 @@ def main():
     uniform_temperature_top18_share = round(min(18, len(planned_sample_temperature_shares)) * uniform_temperature_share, 4)
     uniform_temperature_top19_share = round(min(19, len(planned_sample_temperature_shares)) * uniform_temperature_share, 4)
     uniform_temperature_top20_share = round(min(20, len(planned_sample_temperature_shares)) * uniform_temperature_share, 4)
+    uniform_temperature_top21_share = round(min(21, len(planned_sample_temperature_shares)) * uniform_temperature_share, 4)
     planned_sample_temperature_top2_over_uniform_ratio = round(
         planned_sample_temperature_top2_share / max(1e-9, uniform_temperature_top2_share),
         4,
@@ -3477,6 +3507,10 @@ def main():
     )
     planned_sample_temperature_top20_over_uniform_ratio = round(
         planned_sample_temperature_top20_share / max(1e-9, uniform_temperature_top20_share),
+        4,
+    )
+    planned_sample_temperature_top21_over_uniform_ratio = round(
+        planned_sample_temperature_top21_share / max(1e-9, uniform_temperature_top21_share),
         4,
     )
     planned_sample_temperature_over_uniform_ratio_by_temperature = {
@@ -3785,6 +3819,14 @@ def main():
             f"{planned_sample_temperature_top20_share} > max_planned_sample_temperature_top20_share={args.max_planned_sample_temperature_top20_share}"
         )
     if (
+        args.max_planned_sample_temperature_top21_share
+        and planned_sample_temperature_top21_share > args.max_planned_sample_temperature_top21_share
+    ):
+        raise RuntimeError(
+            "planned_sample_temperature_top21_share="
+            f"{planned_sample_temperature_top21_share} > max_planned_sample_temperature_top21_share={args.max_planned_sample_temperature_top21_share}"
+        )
+    if (
         args.min_planned_sample_temperature_tail_share
         and planned_sample_temperature_tail_share < args.min_planned_sample_temperature_tail_share
     ):
@@ -3955,6 +3997,14 @@ def main():
         raise RuntimeError(
             "planned_sample_temperature_top20_over_uniform_ratio="
             f"{planned_sample_temperature_top20_over_uniform_ratio} > max_planned_sample_temperature_top20_over_uniform_ratio={args.max_planned_sample_temperature_top20_over_uniform_ratio}"
+        )
+    if (
+        args.max_planned_sample_temperature_top21_over_uniform_ratio
+        and planned_sample_temperature_top21_over_uniform_ratio > args.max_planned_sample_temperature_top21_over_uniform_ratio
+    ):
+        raise RuntimeError(
+            "planned_sample_temperature_top21_over_uniform_ratio="
+            f"{planned_sample_temperature_top21_over_uniform_ratio} > max_planned_sample_temperature_top21_over_uniform_ratio={args.max_planned_sample_temperature_top21_over_uniform_ratio}"
         )
     if (
         args.max_planned_sample_temperature_hhi
@@ -4255,6 +4305,7 @@ def main():
         "planned_sample_temperature_top18_share": planned_sample_temperature_top18_share,
         "planned_sample_temperature_top19_share": planned_sample_temperature_top19_share,
         "planned_sample_temperature_top20_share": planned_sample_temperature_top20_share,
+        "planned_sample_temperature_top21_share": planned_sample_temperature_top21_share,
         "planned_sample_temperature_tail_share": planned_sample_temperature_tail_share,
         "planned_sample_temperature_min_share": planned_sample_temperature_min_share,
         "planned_sample_temperature_floor_bins": planned_sample_temperature_floor_bins,
@@ -4270,6 +4321,7 @@ def main():
         "planned_sample_temperature_p99_over_p80_share_ratio": planned_sample_temperature_p99_over_p80_share_ratio,
         "planned_sample_temperature_p99_over_p75_share_ratio": planned_sample_temperature_p99_over_p75_share_ratio,
         "planned_sample_temperature_p99_over_p70_share_ratio": planned_sample_temperature_p99_over_p70_share_ratio,
+        "planned_sample_temperature_p99_over_p65_share_ratio": planned_sample_temperature_p99_over_p65_share_ratio,
         "uniform_temperature_share": uniform_temperature_share,
         "planned_sample_temperature_top2_over_uniform_ratio": planned_sample_temperature_top2_over_uniform_ratio,
         "planned_sample_temperature_top3_over_uniform_ratio": planned_sample_temperature_top3_over_uniform_ratio,
@@ -4290,6 +4342,7 @@ def main():
         "planned_sample_temperature_top18_over_uniform_ratio": planned_sample_temperature_top18_over_uniform_ratio,
         "planned_sample_temperature_top19_over_uniform_ratio": planned_sample_temperature_top19_over_uniform_ratio,
         "planned_sample_temperature_top20_over_uniform_ratio": planned_sample_temperature_top20_over_uniform_ratio,
+        "planned_sample_temperature_top21_over_uniform_ratio": planned_sample_temperature_top21_over_uniform_ratio,
         "planned_sample_temperature_hhi": planned_sample_temperature_hhi,
         "planned_sample_temperature_over_uniform_ratio_by_temperature": planned_sample_temperature_over_uniform_ratio_by_temperature,
         "max_planned_sample_temperature_over_uniform_ratio": max_planned_sample_temperature_over_uniform_ratio,
@@ -4741,6 +4794,8 @@ def main():
         "max_planned_sample_temperature_top17_share": args.max_planned_sample_temperature_top17_share,
         "max_planned_sample_temperature_top18_share": args.max_planned_sample_temperature_top18_share,
         "max_planned_sample_temperature_top19_share": args.max_planned_sample_temperature_top19_share,
+        "max_planned_sample_temperature_top20_share": args.max_planned_sample_temperature_top20_share,
+        "max_planned_sample_temperature_top21_share": args.max_planned_sample_temperature_top21_share,
         "min_planned_sample_temperature_tail_share": args.min_planned_sample_temperature_tail_share,
         "min_planned_sample_temperature_min_share": args.min_planned_sample_temperature_min_share,
         "planned_sample_temperature_floor_share": args.planned_sample_temperature_floor_share,
@@ -4765,6 +4820,7 @@ def main():
         "max_planned_sample_temperature_top18_over_uniform_ratio": args.max_planned_sample_temperature_top18_over_uniform_ratio,
         "max_planned_sample_temperature_top19_over_uniform_ratio": args.max_planned_sample_temperature_top19_over_uniform_ratio,
         "max_planned_sample_temperature_top20_over_uniform_ratio": args.max_planned_sample_temperature_top20_over_uniform_ratio,
+        "max_planned_sample_temperature_top21_over_uniform_ratio": args.max_planned_sample_temperature_top21_over_uniform_ratio,
         "max_planned_sample_temperature_hhi": args.max_planned_sample_temperature_hhi,
         "max_planned_sample_temperature_share_gap": args.max_planned_sample_temperature_share_gap,
         "max_planned_sample_temperature_gini": args.max_planned_sample_temperature_gini,
@@ -4777,6 +4833,7 @@ def main():
         "max_planned_sample_temperature_p99_over_p80_share_ratio": args.max_planned_sample_temperature_p99_over_p80_share_ratio,
         "max_planned_sample_temperature_p99_over_p75_share_ratio": args.max_planned_sample_temperature_p99_over_p75_share_ratio,
         "max_planned_sample_temperature_p99_over_p70_share_ratio": args.max_planned_sample_temperature_p99_over_p70_share_ratio,
+        "max_planned_sample_temperature_p99_over_p65_share_ratio": args.max_planned_sample_temperature_p99_over_p65_share_ratio,
         "max_planned_sample_temperature_over_uniform_ratio": args.max_planned_sample_temperature_over_uniform_ratio,
         "require_prompt_bank_version": args.require_prompt_bank_version,
         "resume_verify_hashes": args.resume_verify_hashes,
