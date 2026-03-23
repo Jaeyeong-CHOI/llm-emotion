@@ -21,27 +21,24 @@ run_step() {
   "${command[@]}"
 }
 
-STEP_LABELS=(
-  "real model readiness check"
-  "cron snapshot refresh"
-  "live status refresh"
-  "research status"
+STEP_DEFS=$(cat <<'EOF'
+real model readiness check|python3 scripts/check_real_model_readiness.py
+cron snapshot refresh|python3 scripts/snapshot_cron_status.py
+live status refresh|python3 scripts/update_live_status.py
+research status|python3 scripts/research_status.py
+EOF
 )
 
-STEP_COMMANDS=(
-  "python3 scripts/check_real_model_readiness.py"
-  "python3 scripts/snapshot_cron_status.py"
-  "python3 scripts/update_live_status.py"
-  "python3 scripts/research_status.py"
-)
+TOTAL_STEPS=0
+while IFS='|' read -r _; do
+  TOTAL_STEPS=$((TOTAL_STEPS + 1))
+ done <<< "$STEP_DEFS"
 
-TOTAL_STEPS="${#STEP_LABELS[@]}"
-
-for i in "${!STEP_LABELS[@]}"; do
-  label="${STEP_LABELS[$i]}"
-  command="${STEP_COMMANDS[$i]}"
-  read -r -a command_parts <<< "$command"
-  run_step "$((i + 1))" "$label" "$TOTAL_STEPS" "${command_parts[@]}"
-done
+INDEX=0
+while IFS='|' read -r label command_line; do
+  INDEX=$((INDEX + 1))
+  read -r -a command_parts <<< "$command_line"
+  run_step "$INDEX" "$label" "$TOTAL_STEPS" "${command_parts[@]}"
+done <<< "$STEP_DEFS"
 
 printf "\nDone.\n"
