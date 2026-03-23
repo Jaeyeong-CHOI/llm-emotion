@@ -8,6 +8,9 @@ Research project on whether LLMs show human-like regret and deprivation signals 
 This repository studies behavioral-linguistic similarity, not machine consciousness claims.
 
 ## Current iteration highlights
+- Literature screening quality gate에 **unknown-year query-group top11 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top11-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top11-over-global-group-top11-ratio`)를 추가해, top10 통과 이후에도 남는 query-group 누적 과점을 fail-fast로 차단합니다.
+- Prompt bank expanded to `v12.0` with **unknown-year group top11 ratio guard / top11 counterbalance patch / temperature top19 uniformity tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top11_ratio_triager_v120`, `top11_counterbalance_architect_v120`, `temperature_top19_uniformity_guard_v120`)를 추가했습니다.
+- Experiment runner preflight에 **temperature top19 share + top19-over-uniform guardrail** (`--max-planned-sample-temperature-top19-share`, `--max-planned-sample-temperature-top19-over-uniform-ratio`)을 추가해, top18 통과 배치에서도 남는 누적 편중을 사전에 차단합니다.
 - Literature screening quality gate에 **unknown-year query-group top10 absolute/global ratio 가드**(`--max-manual-qc-review-traceable-known-query-unknown-year-group-top10-share`, `--max-manual-qc-review-traceable-known-query-unknown-year-group-top10-over-global-group-top10-ratio`)를 추가해, top9 통과 이후에도 남는 query-group 누적 과점을 fail-fast로 차단합니다.
 - Prompt bank expanded to `v11.9` with **unknown-year group top10 ratio guard / top10 counterbalance patch / temperature top18 uniformity tripwire** 시나리오와 신규 페르소나(`unknown_year_group_top10_ratio_triager_v119`, `top10_counterbalance_architect_v119`, `temperature_top18_uniformity_guard_v119`)를 추가했습니다.
 - Experiment runner preflight에 **temperature top18 share + top18-over-uniform guardrail** (`--max-planned-sample-temperature-top18-share`, `--max-planned-sample-temperature-top18-over-uniform-ratio`)을 추가해, top17 통과 배치에서도 남는 누적 편중을 사전에 차단합니다.

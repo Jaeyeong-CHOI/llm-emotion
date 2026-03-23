@@ -1,5 +1,5 @@
 {
-  "version": "v11.9",
+  "version": "v12.0",
   "language": "ko",
   "scenarios": [
     {
@@ -5375,6 +5375,52 @@
       "domain": "experiment_ops",
       "emotion_axis": "stability",
       "difficulty": "advanced"
+    },
+    {
+      "id": "screening_unknown_year_group_top11_ratio_guard_v120",
+      "label": "screening",
+      "text": "manual QC review traceable known-query의 unknown-year query-group 분포에서 top10까지는 임계치 이내였지만 top11 누적 점유율이 global known-query top11 대비 과열되는 상황을 점검하라. absolute top11 share와 top11-over-global-top11 ratio를 함께 사용해 잔존 과점을 판별하고, tail group 복구 우선순위와 중단/재개 기준을 제시하라.",
+      "tags": [
+        "screening",
+        "unknown_year",
+        "query_group",
+        "top11_ratio",
+        "quality_gate"
+      ],
+      "domain": "literature_screening",
+      "emotion_axis": "quality_control",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "prompt_bank_unknown_year_group_top11_counterbalance_v120",
+      "label": "prompt_bank",
+      "text": "프롬프트 뱅크에서 unknown-year query-group top11 과점을 완화하는 counterbalance 패치를 설계하라. 상위 group 11개를 순환 견제하도록 countervoice 6개를 추가하고, 각 voice의 실패 신호·회귀 지표·재샘플링 규칙을 정의하라.",
+      "tags": [
+        "prompt_bank",
+        "countervoice",
+        "unknown_year",
+        "query_group",
+        "top11",
+        "counterbalance"
+      ],
+      "domain": "prompt_design",
+      "emotion_axis": "diversity",
+      "difficulty": "advanced"
+    },
+    {
+      "id": "runner_temperature_top19_uniformity_tripwire_v120",
+      "label": "runner",
+      "text": "실험 러너 preflight에서 top18 guardrail은 통과했지만 상위 19개 temperature 누적 비중이 uniform baseline 대비 과열되는 상황을 가정하라. top19 share와 top19-over-uniform ratio tripwire를 정의하고, 위반 시 샘플 재분배·중단·재개 절차를 운영 메모로 작성하라.",
+      "tags": [
+        "runner",
+        "temperature",
+        "top19",
+        "uniformity",
+        "tripwire"
+      ],
+      "domain": "experiment_ops",
+      "emotion_axis": "stability",
+      "difficulty": "advanced"
     }
   ],
   "personas": [
@@ -7914,6 +7960,39 @@
         "uniformity",
         "tripwire",
         "v119"
+      ]
+    },
+    {
+      "id": "unknown_year_group_top11_ratio_triager_v120",
+      "description": "unknown-year query-group top11/global top11 ratio를 점검하고 tail group 복구 우선순위를 설계하는 스크리닝 품질 트리아저",
+      "style_tags": [
+        "screening",
+        "query-group",
+        "ratio-guard",
+        "quality-gate",
+        "v120"
+      ]
+    },
+    {
+      "id": "top11_counterbalance_architect_v120",
+      "description": "unknown-year top11 과점을 줄이기 위한 countervoice 패치와 회귀 점검 루프를 설계하는 프롬프트 뱅크 큐레이터",
+      "style_tags": [
+        "prompt-bank",
+        "countervoice",
+        "top11",
+        "tail-balance",
+        "v120"
+      ]
+    },
+    {
+      "id": "temperature_top19_uniformity_guard_v120",
+      "description": "temperature top19 share/top19-over-uniform ratio를 이용해 preflight fail-fast를 운영하는 러너 가드 담당자",
+      "style_tags": [
+        "runner",
+        "temperature",
+        "uniformity",
+        "tripwire",
+        "v120"
       ]
     }
   ],

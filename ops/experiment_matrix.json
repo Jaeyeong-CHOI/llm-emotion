@@ -2625,6 +2625,45 @@
         "top10_counterbalance_architect_v119",
         "temperature_top18_uniformity_guard_v119"
       ]
+    },
+    {
+      "id": "screening_prompt_runner_unknown_year_group_top11_temperature_top19_v120",
+      "description": "v12.0 unknown-year group top11/global top11 ratio guard + top11 counterbalance patch + temperature top19 uniformity tripwire smoke",
+      "n": 12,
+      "seed": 1120,
+      "repeats": 2,
+      "temperatures": [
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9,
+        1.0,
+        1.1,
+        1.2,
+        1.3,
+        1.4,
+        1.5,
+        1.6,
+        1.7,
+        1.8,
+        1.9
+      ],
+      "prompt_bank": "prompts/prompt_bank_ko.json",
+      "scenario_ids": [
+        "screening_unknown_year_group_top11_ratio_guard_v120",
+        "prompt_bank_unknown_year_group_top11_counterbalance_v120",
+        "runner_temperature_top19_uniformity_tripwire_v120"
+      ],
+      "persona_ids": [
+        "unknown_year_group_top11_ratio_triager_v120",
+        "top11_counterbalance_architect_v120",
+        "temperature_top19_uniformity_guard_v120"
+      ]
     }
   ]
 }
