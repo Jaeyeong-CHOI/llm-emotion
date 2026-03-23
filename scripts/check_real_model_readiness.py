@@ -97,6 +97,8 @@ def parse_env_var_list(raw: str, default: list[str]) -> list[str]:
     if not tokens:
         tokens = dedupe_preserve_order(default)
 
+    invalid = dedupe_preserve_order(invalid)
+
     # 위험한 이름은 제외하고 경고만 출력해 실패를 유발하지 않는다.
     if invalid:
         print(
