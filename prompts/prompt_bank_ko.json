@@ -1,5 +1,5 @@
 {
-  "version": "v141.1",
+  "version": "v141.2",
   "language": "ko",
   "scenarios": [
     {
@@ -6655,6 +6655,39 @@
         "experiment_ops"
       ],
       "prompt": "실모델 전환 직전 운영 체크리스트를 생성하라: 1) 환경변수 및 권한, 2) 호출 제한/타임아웃/비용 가드, 3) 재시도·중단 전략, 4) 로그·재현성 산출물, 5) 실패시 롤백 기준. 각 항목에 PASS/FAIL 기준과 위반 시 즉시 중단 조건을 넣어라."
+    },
+    {
+      "id": "screening_review_bridge_recovery_v1412",
+      "label": "screening",
+      "tags": [
+        "screening",
+        "bridge",
+        "traceability",
+        "review"
+      ],
+      "prompt": "선정된 리뷰 항목 중 증거 링크가 약한 후보를 찾고, 각 항목에 대해 1) 주장-근거 대응표, 2) 반례 가능성, 3) 추적 가능한 추가 검색식(대체키워드 3개)을 제시하라. 결과는 PASS/NEED-FOLLOWUP으로 분기하고, 각각 보완 질의의 우선순위를 매겨 제안하라."
+    },
+    {
+      "id": "screening_unknown_year_group_rebalance_v1412",
+      "label": "screening",
+      "tags": [
+        "screening",
+        "quality",
+        "unknown_year",
+        "diversity"
+      ],
+      "prompt": "unknown-year 그룹이 소수 쿼리에 집중되지 않도록 재검토 목록을 작성하라. 쿼리별로 커버리지, 신뢰도, 반례성, 연계 근거를 점수(1-5)로 정렬해 1) 쿼리 재밸런싱 우선순위, 2) 메타분석용 대체군 구성안을 제시하라."
+    },
+    {
+      "id": "runner_real_model_readiness_gap_scan_v1412",
+      "label": "real_model",
+      "tags": [
+        "real_model",
+        "preflight",
+        "readiness",
+        "ops"
+      ],
+      "prompt": "실모델 실행 전 점검표를 생성하라: 1) API 키/권한/할당량, 2) 실행 타임아웃·재시도·비용 가드, 3) 로그/재현성 산출물, 4) 실패 시 롤백 기준, 5) 데이터 오염 방지 점검. 각 항목은 PASS/FAIL/REVIEW와 조치기한을 함께 기록한다."
     }
   ],
   "personas": [
@@ -9916,6 +9949,15 @@
         "hardening",
         "reproducibility"
       ]
+    },
+    {
+      "id": "bridge_deficit_auditor_v1412",
+      "style_tags": [
+        "screening_audit",
+        "traceability",
+        "bridge"
+      ],
+      "instruction": "당신은 리뷰 큐의 근거-연결성(traceability) 결함을 먼저 탐지하고, 증거가 약한 항목은 우선 보완 지시를 명확하게 제시한다."
     }
   ],
   "temperatures": [
