@@ -507,6 +507,17 @@ replace_queue_if_needed() {
   return 0
 }
 
+commit_queue_update() {
+  local queue_file="$1"
+  local tmp_file="$2"
+
+  if ! replace_queue_if_needed "$queue_file" "$tmp_file"; then
+    return 1
+  fi
+
+  rm -f "$tmp_file"
+}
+
 dedupe_queue_file() {
   local queue_file="$1"
   local dedup_file=""
@@ -521,7 +532,11 @@ dedupe_queue_file() {
     return 1
   fi
 
-  replace_queue_if_needed "$queue_file" "$deduped_file" || return 1
+  if ! commit_queue_update "$queue_file" "$deduped_file"; then
+    cleanup_tmp_files "$dedup_file"
+    return 1
+  fi
+
   cleanup_tmp_files "$dedup_file"
 }
 dequeue_run_id() {
@@ -546,7 +561,7 @@ dequeue_run_id() {
       cleanup_tmp_files "$tmp_file" "$next_file"
       return 1
     fi
-    if ! replace_queue_if_needed "$queue_file" "$next_file"; then
+    if ! commit_queue_update "$queue_file" "$next_file"; then
       cleanup_tmp_files "$tmp_file" "$next_file"
       return 1
     fi
