@@ -143,17 +143,6 @@ iter_queue_data_lines() {
   done < "$queue_file"
 }
 
-queue_has_data_lines() {
-  local queue_file="$1"
-  local _line=""
-
-  while IFS= read -r _line; do
-    return 0
-  done < <(iter_queue_data_lines "$queue_file")
-
-  return 1
-}
-
 dequeue_run_id() {
   local queue_file="$1"
   local tmp_file=""
@@ -186,14 +175,10 @@ dequeue_run_id() {
   printf '%s' "$picked"
 }
 
-if ! queue_has_data_lines "$QUEUE_FILE"; then
-  skip_with_status "no queued run-id"
-fi
-
 RUN_ID="$(dequeue_run_id "$QUEUE_FILE")"
 
 if [ -z "$RUN_ID" ]; then
-  skip_with_status "no valid run-id found in queue"
+  skip_with_status "no queued run-id"
 fi
 
 is_safe_run_id() {
