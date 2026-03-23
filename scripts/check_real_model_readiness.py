@@ -126,7 +126,7 @@ def main():
     if required_placeholder_vars:
         notes.append("필수 환경변수에 placeholder 값 존재")
     if optional_missing:
-        notes.append(f"선택 환경변수 미설정(권장): {', '.join(optional)}")
+        notes.append(f"선택 환경변수 미설정(권장): {', '.join(optional_missing)}")
     if optional_placeholder_vars:
         notes.append(f"선택 환경변수에 placeholder 값 존재: {', '.join(optional_placeholder_vars)}")
     if not endpoint_scheme_ok:
