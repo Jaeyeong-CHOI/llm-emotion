@@ -332,6 +332,8 @@ enqueue_run_id_unique() {
 echo "[tick] execute run_id=$RUN_ID"
 run_failed=0
 RUN_IN_FLIGHT=1
+RUN_ARTIFACT_DIR="results/experiments/${RUN_ID}_auto_tick"
+
 if ! python3 scripts/run_experiments.py \
   --config ops/experiment_matrix.json \
   --run-label "smoke_auto_tick_$(date -u +%Y%m%d%H%M%S)" \
@@ -344,9 +346,9 @@ if ! python3 scripts/run_experiments.py \
   --max-failure-rate 0.5 \
   --continue-on-error \
   --manifest-markdown \
-  --execution-log-jsonl "results/experiments/${RUN_ID}_auto_tick/command_log.jsonl" \
-  --budget-report-json "results/experiments/${RUN_ID}_auto_tick/budget_report.json" \
-  --budget-report-md "results/experiments/${RUN_ID}_auto_tick/budget_report.md"; then
+  --execution-log-jsonl "$RUN_ARTIFACT_DIR/command_log.jsonl" \
+  --budget-report-json "$RUN_ARTIFACT_DIR/budget_report.json" \
+  --budget-report-md "$RUN_ARTIFACT_DIR/budget_report.md"; then
   run_failed=1
   echo "[tick] run_id=$RUN_ID failed; re-queue for retry"
   enqueue_run_id_unique "$QUEUE_FILE" "$RUN_ID"
