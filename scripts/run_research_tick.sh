@@ -100,17 +100,11 @@ normalize_text() {
   printf '%s' "$value" | tr -d '\r' | trim_whitespace
 }
 
-read_file_first_line() {
-  local file="$1"
-
-  head -n 1 "$file" 2>/dev/null || return 1
-}
-
 read_trimmed_first_line() {
   local file="$1"
   local raw_line=""
 
-  raw_line="$(read_file_first_line "$file" || true)"
+  raw_line="$(head -n 1 "$file" 2>/dev/null || true)"
   [ -n "$raw_line" ] || return 1
 
   printf '%s' "$(normalize_text "$raw_line")"
