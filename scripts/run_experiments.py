@@ -14,6 +14,9 @@ import sys
 import time
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Optional, Union
+
+# Python 3.9 호환성(PEP604 타입 유니언 `|` 미지원 환경 대응)
 
 from research_ops_common import parse_csv_set, row_list_values, write_json
 
@@ -32,7 +35,7 @@ def normalized_entropy_from_counts(counts: dict[str, int]) -> float:
     return round(entropy / math.log2(len(values)), 4)
 
 
-def run(cmd: str | Sequence[str], timeout_seconds: float | None = None):
+def run(cmd: Union[str, Sequence[str]], timeout_seconds: Optional[float] = None):
     """Run a shell command safely (without shell interpolation)."""
 
     if isinstance(cmd, str):
@@ -1051,14 +1054,14 @@ def load_run_ids_from_file(path: Path) -> set[str]:
 
 
 def execute_with_retries(
-    cmd: str | Sequence[str],
+    cmd: Union[str, Sequence[str]],
     *,
     run_key: str,
     stage: str,
     max_retries: int,
     retry_backoff_seconds: float,
-    execution_log_path: Path | None,
-    timeout_seconds: float | None = None,
+    execution_log_path: Optional[Path],
+    timeout_seconds: Optional[float] = None,
 ) -> tuple[int, str, str, list[dict]]:
     attempts = []
     for attempt_index in range(max_retries + 1):
