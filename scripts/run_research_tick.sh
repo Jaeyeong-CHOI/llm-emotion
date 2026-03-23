@@ -58,9 +58,13 @@ normalize_line() {
   printf '%s' "$1" | tr -d '\r'
 }
 
+trim_line() {
+  printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+}
+
 is_queue_data_line() {
   local line="$1"
-  [[ ! "$line" =~ ^[[:space:]]*$ ]] && [[ ! "$line" =~ ^[[:space:]]*# ]]
+  [[ -n "$line" ]] && [[ ! "$line" =~ ^# ]]
 }
 
 dequeue_run_id() {
@@ -69,9 +73,17 @@ dequeue_run_id() {
   tmp_file="$(mktemp "${queue_file}.tmp.XXXXXX")"
 
   local picked=""
+  local done=0
+  cleanup_tmp() {
+    if [ "$done" -eq 0 ]; then
+      rm -f "$tmp_file"
+    fi
+  }
+  trap cleanup_tmp RETURN
+
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
-    line="$(normalize_line "$raw_line")"
+    line="$(trim_line "$(normalize_line "$raw_line")")"
     if [ -z "$picked" ] && is_queue_data_line "$line"; then
       picked="$line"
       continue
@@ -80,6 +92,7 @@ dequeue_run_id() {
   done < "$queue_file"
 
   mv "$tmp_file" "$queue_file"
+  done=1
   printf '%s' "$picked"
 }
 
@@ -105,7 +118,7 @@ enqueue_run_id_unique() {
   touch "$queue_file"
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
-    line="$(normalize_line "$raw_line")"
+    line="$(trim_line "$(normalize_line "$raw_line")")"
     if [ "$line" = "$run_id" ]; then
       return 0
     fi
