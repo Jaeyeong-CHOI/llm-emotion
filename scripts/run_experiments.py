@@ -14,6 +14,8 @@ import sys
 import time
 from pathlib import Path
 
+from research_ops_common import write_json as write_json_atomic
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -234,7 +236,7 @@ def shell_join(parts: list[str]) -> str:
 
 
 def write_json(path: Path, payload: dict):
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    write_json_atomic(path, payload)
 
 
 def append_jsonl(path: Path, payload: dict):
