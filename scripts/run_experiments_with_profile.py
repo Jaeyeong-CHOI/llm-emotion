@@ -39,7 +39,15 @@ def main() -> int:
     args = ap.parse_args()
 
     profile_path = ROOT / args.profile
-    profile = json.loads(profile_path.read_text(encoding="utf-8"))
+    if not profile_path.exists():
+        raise FileNotFoundError(f"profile not found: {profile_path}")
+    try:
+        profile = json.loads(profile_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"invalid profile JSON: {profile_path}") from exc
+    if not isinstance(profile, dict):
+        raise RuntimeError("profile root must be object")
+
     base_args = profile.get("run_experiments_args") or {}
     if not isinstance(base_args, dict):
         raise RuntimeError("run_experiments_args must be object")
