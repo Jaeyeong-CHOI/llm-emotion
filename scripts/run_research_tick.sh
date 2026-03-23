@@ -138,7 +138,13 @@ iter_queue_data_lines() {
 
 queue_has_data_lines() {
   local queue_file="$1"
-  iter_queue_data_lines "$queue_file" | head -n 1 | grep -q .
+  local _line=""
+
+  while IFS= read -r _line; do
+    return 0
+  done < <(iter_queue_data_lines "$queue_file")
+
+  return 1
 }
 
 dequeue_run_id() {
