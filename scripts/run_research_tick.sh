@@ -54,6 +54,11 @@ if [ ! -f "$QUEUE_FILE" ] || [ ! -s "$QUEUE_FILE" ]; then
   skip_with_status "no queued run-id"
 fi
 
+is_queue_data_line() {
+  local line="$1"
+  [[ ! "$line" =~ ^[[:space:]]*$ ]] && [[ ! "$line" =~ ^[[:space:]]*# ]]
+}
+
 dequeue_run_id() {
   local queue_file="$1"
   local tmp_file
@@ -63,7 +68,7 @@ dequeue_run_id() {
   while IFS= read -r raw_line || [ -n "$raw_line" ]; do
     local line
     line="$(printf '%s' "$raw_line" | tr -d '\r')"
-    if [ -z "$picked" ] && [[ ! "$line" =~ ^[[:space:]]*$ ]] && [[ ! "$line" =~ ^[[:space:]]*# ]]; then
+    if [ -z "$picked" ] && is_queue_data_line "$line"; then
       picked="$line"
       continue
     fi
@@ -93,9 +98,15 @@ enqueue_run_id_unique() {
   local queue_file="$1"
   local run_id="$2"
 
-  if grep -Fqx "$run_id" "$queue_file"; then
-    return 0
-  fi
+  touch "$queue_file"
+  while IFS= read -r raw_line || [ -n "$raw_line" ]; do
+    local line
+    line="$(printf '%s' "$raw_line" | tr -d '\r')"
+    if [ "$line" = "$run_id" ]; then
+      return 0
+    fi
+  done < "$queue_file"
+
   printf '%s\n' "$run_id" >> "$queue_file"
 }
 
