@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import copy
 import datetime as dt
 import json
 import os
@@ -20,13 +21,18 @@ def now_isoseconds() -> str:
 
 
 def read_json(path: Path, default: Any | None = None) -> Any:
+    """Read JSON with a defensive fallback copy on missing/invalid files.
+
+    Returning a deep-copied fallback prevents accidental shared-state mutation
+    when callers pass mutable defaults (dict/list).
+    """
     fallback = {} if default is None else default
     if not path.exists():
-        return fallback
+        return copy.deepcopy(fallback)
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
-        return fallback
+        return copy.deepcopy(fallback)
 
 
 def as_dict(value: Any) -> dict[str, Any]:
