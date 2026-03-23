@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -28,7 +29,16 @@ def read_json(path: Path, default: Any | None = None) -> Any:
 
 def write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    data = json.dumps(payload, ensure_ascii=False, indent=2)
+
+    with tempfile.NamedTemporaryFile(
+        mode="w", encoding="utf-8", dir=path.parent, delete=False
+    ) as handle:
+        handle.write(data)
+        handle.flush()
+        temp_path = Path(handle.name)
+
+    temp_path.replace(path)
 
 
 def load_research_state() -> dict[str, Any]:
