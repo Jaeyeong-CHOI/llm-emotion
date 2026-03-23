@@ -76,17 +76,16 @@ normalize_candidate_to_tick_script() {
 is_expected_tick_command() {
   local command_line="$1"
   local token=""
+  local candidate=""
   local -a tokens=()
 
   IFS=' ' read -r -a tokens <<< "$command_line"
   for token in "${tokens[@]}"; do
-    if [[ "$token" != *run_research_tick.sh ]]; then
-      continue
-    fi
+    [[ "$token" == *run_research_tick.sh* ]] || continue
 
-    normalize_candidate_to_tick_script "$token" && return 0
-    normalize_candidate_to_tick_script "${SCRIPT_DIR}/${token}" && return 0
-    normalize_candidate_to_tick_script "${ROOT}/${token}" && return 0
+    for candidate in "$token" "${SCRIPT_DIR}/${token}" "${ROOT}/${token}"; do
+      normalize_candidate_to_tick_script "$candidate" && return 0
+    done
   done
 
   return 1
