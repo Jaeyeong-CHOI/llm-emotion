@@ -22,25 +22,32 @@ def display_value(value: Any, default: str = "-") -> str:
 def _normalize_token_set(values: Any) -> set[str]:
     """Normalize an arbitrary token-like container into a unique string set."""
 
-    if values is None:
-        return set()
-
-    if isinstance(values, str):
-        tokens = values.split(",")
-    elif isinstance(values, dict):
-        # Preserve previous behavior (ignoring malformed dict values) while still
-        # handling key/value maps that may be serialized collections.
-        tokens = values.keys()
-    elif isinstance(values, Iterable):
-        tokens = list(values)
-    else:
-        return set()
-
+    tokens = list(_iter_token_values(values))
     return {
         normalized
         for raw in tokens
         if (normalized := str(raw).strip())
     }
+
+
+def _iter_token_values(values: Any):
+    """Yield raw token candidates from common container-like inputs."""
+
+    if values is None:
+        return ()
+
+    if isinstance(values, str):
+        return values.split(",")
+
+    if isinstance(values, dict):
+        # Preserve previous behavior (ignoring malformed dict values) while still
+        # handling key/value maps that may be serialized as collections.
+        return values.keys()
+
+    if isinstance(values, Iterable):
+        return values
+
+    return ()
 
 
 def parse_csv_set(value: Any) -> set[str]:
