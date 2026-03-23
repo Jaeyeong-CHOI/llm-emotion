@@ -423,6 +423,11 @@ materialize_sanitized_queue() {
   local queue_file="$1"
   local out_file="$2"
 
+  if [ ! -f "$queue_file" ]; then
+    : > "$out_file"
+    return 0
+  fi
+
   iter_queue_lines "$queue_file" > "$out_file"
 }
 
@@ -431,20 +436,24 @@ dedupe_queue_file() {
   local dedup_file=""
 
   ensure_queue_file_safe "$queue_file" 1 || return 1
-  [ -f "$queue_file" ] || return 0
   dedup_file="$(make_queue_temp_file "$queue_file" dedupe)"
 
-  if ! iter_queue_lines "$queue_file" | awk '{ if (!seen[$0]++) print $0 }' > "$dedup_file"; then
+  if ! materialize_sanitized_queue "$queue_file" "$dedup_file"; then
     cleanup_tmp_files "$dedup_file"
     return 1
   fi
 
-  if ! replace_if_changed "$queue_file" "$dedup_file"; then
-    cleanup_tmp_files "$dedup_file"
+  if ! awk '{ if (!seen[$0]++) print $0 }' "$dedup_file" > "${dedup_file}.deduped"; then
+    cleanup_tmp_files "$dedup_file" "${dedup_file}.deduped"
+    return 1
+  fi
+
+  if ! replace_if_changed "$queue_file" "${dedup_file}.deduped"; then
+    cleanup_tmp_files "$dedup_file" "${dedup_file}.deduped"
     return 0
   fi
 
-  cleanup_tmp_files "$dedup_file"
+  cleanup_tmp_files "$dedup_file" "${dedup_file}.deduped"
 }
 dequeue_run_id() {
   local queue_file="$1"
