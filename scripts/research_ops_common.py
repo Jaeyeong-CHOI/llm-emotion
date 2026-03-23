@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import os
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -37,9 +38,20 @@ def write_json(path: Path, payload: Any) -> None:
     ) as handle:
         handle.write(data)
         handle.flush()
+        os.fsync(handle.fileno())
         temp_path = Path(handle.name)
 
     temp_path.replace(path)
+
+    # Best-effort directory fsync so rename metadata is durably recorded.
+    try:
+        dir_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(dir_fd)
+        finally:
+            os.close(dir_fd)
+    except OSError:
+        pass
 
 
 def load_research_state() -> dict[str, Any]:
