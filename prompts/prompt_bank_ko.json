@@ -1,5 +1,5 @@
 {
-  "version": "v131.0",
+  "version": "v132.0",
   "language": "ko",
   "scenarios": [
     {
@@ -6095,6 +6095,45 @@
         "v131"
       ],
       "prompt": "실험 러너 preflight에서 p99/p65가 통과하더라도 p99/p60에서 tail 가속이 남는 배치를 탐지하라. p99-over-p60 ratio 임계치를 정의하고, 위반 시 샘플 재분배·run 분리·resume 순서를 운영 메모로 정리하라."
+    },
+    {
+      "id": "screening_unknown_year_group_top23_ratio_guard_v132",
+      "label": "review",
+      "tags": [
+        "screening",
+        "unknown-year",
+        "query-group",
+        "top23",
+        "ratio-guard",
+        "v132"
+      ],
+      "prompt": "manual QC review에서 unknown-year traceable known-query의 query-group top23 누적 점유율과 global baseline 대비 비율을 동시에 점검하라. top22 통과 이후에도 남는 tail group 붕괴 신호를 찾아 fail-fast 임계치와 재스크리닝 우선순위를 제시하라."
+    },
+    {
+      "id": "prompt_bank_top23_countervoice_mesh_patch_v132",
+      "label": "include",
+      "tags": [
+        "prompt-bank",
+        "countervoice",
+        "mesh",
+        "top23",
+        "coverage",
+        "v132"
+      ],
+      "prompt": "프롬프트 뱅크에서 top23 query-group tail을 복구하기 위한 countervoice mesh 패치를 설계하라. 감정 예측·정서 조절·반사실 사고 축을 동시에 보강하고, 중복 pruning 및 회귀 점검 규칙을 함께 제시하라."
+    },
+    {
+      "id": "runner_temperature_p99_p55_tripwire_v132",
+      "label": "runner",
+      "tags": [
+        "runner",
+        "temperature",
+        "p99",
+        "p55",
+        "tripwire",
+        "v132"
+      ],
+      "prompt": "실험 러너 preflight에서 p99/p60은 통과하지만 p99/p55 비율이 과열되는 배치를 탐지하라. p99-over-p55 tripwire 임계치, run 분리 조건, 재분배 후 resume 승인 기준을 운영 메모 형식으로 정리하라."
     }
   ],
   "personas": [
@@ -9030,6 +9069,42 @@
         "tail-risk"
       ],
       "prompt": "너는 실험 러너의 온도 분포 리스크를 감시하는 운영자다. p99/p60 비율 급등을 조기 탐지하고, 실패 원인과 복구 절차를 간결한 체크리스트로 남긴다."
+    },
+    {
+      "id": "unknown_year_group_top23_ratio_triager_v132",
+      "label": "unknown-year group top23 ratio triager",
+      "prompt_style": "unknown-year query-group top23 absolute/global ratio를 함께 감시하고 tail group 복구 우선순위를 근거 기반으로 정리한다.",
+      "traits": [
+        "screening",
+        "ratio_guard",
+        "traceability",
+        "tail_recovery"
+      ],
+      "temperature_bias": "low"
+    },
+    {
+      "id": "top23_countervoice_mesh_curator_v132",
+      "label": "top23 countervoice mesh curator",
+      "prompt_style": "top23 과점 완화를 위해 domain×difficulty×emotion axis 교차 countervoice mesh를 설계하고 누락 축을 보강한다.",
+      "traits": [
+        "prompt_bank",
+        "countervoice",
+        "mesh",
+        "coverage"
+      ],
+      "temperature_bias": "medium"
+    },
+    {
+      "id": "temperature_p99_p55_guard_v132",
+      "label": "temperature p99/p55 guard",
+      "prompt_style": "temperature 상단 tail 가속을 p99/p55 비율로 진단하고 fail-fast·재분배·재개 기준을 수치로 제시한다.",
+      "traits": [
+        "runner",
+        "temperature",
+        "tripwire",
+        "governance"
+      ],
+      "temperature_bias": "low"
     }
   ],
   "temperatures": [

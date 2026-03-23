@@ -43,7 +43,11 @@
     "emotion regulation failure",
     "implementation intention",
     "regulatory fit",
-    "measurement model"
+    "measurement model",
+    "anticipated counterfactual affect",
+    "regret decision model",
+    "emotion-cognition interaction",
+    "llm-as-judge emotion"
   ],
   "high_priority": [
     "regret",
@@ -68,7 +72,10 @@
     "emotion regulation choice",
     "counterfactual regret intensity",
     "emotion regulation failure",
-    "regulatory fit"
+    "regulatory fit",
+    "emotion-cognition interaction",
+    "anticipated counterfactual affect",
+    "regret decision model"
   ],
   "review_priority_any": [
     "human evaluation",
@@ -104,7 +111,10 @@
     "registered report",
     "preregistered analysis",
     "manipulation check",
-    "measurement model"
+    "measurement model",
+    "registered replication report",
+    "measurement validity",
+    "causal mediation"
   ],
   "exclude_if_any": [
     "speech recognition",
@@ -348,6 +358,26 @@
       "counterfactual simulation depth",
       "counterfactual depth",
       "simulation depth"
+    ],
+    "anticipated counterfactual affect": [
+      "anticipated counterfactual affect",
+      "anticipated affective counterfactual",
+      "counterfactual affect anticipation"
+    ],
+    "regret decision model": [
+      "regret decision model",
+      "regret theory model",
+      "regret-based decision model"
+    ],
+    "emotion-cognition interaction": [
+      "emotion-cognition interaction",
+      "affect-cognition interaction",
+      "emotion cognition coupling"
+    ],
+    "llm-as-judge emotion": [
+      "llm-as-judge emotion",
+      "llm judge for emotion",
+      "llm-based emotion evaluation"
     ]
   },
   "weights": {
@@ -423,7 +453,10 @@
     "invariance testing",
     "sequential analysis",
     "multiverse analysis",
-    "robustness check"
+    "robustness check",
+    "registered replication report",
+    "measurement validity",
+    "causal mediation"
   ],
   "max_recent_year_bonus_span": 6,
   "include_requires_any": {
