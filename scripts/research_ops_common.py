@@ -71,19 +71,9 @@ ROOT = Path(__file__).resolve().parents[1]
 STATE_PATH = ROOT / "ops" / "research_state.json"
 
 
-def _utc_timestamp() -> str:
-    """Return an unambiguous UTC ISO-8601 timestamp for research logs/state."""
-    return dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def now_iso8601_utc() -> str:
-    """Public helper kept for compatibility with existing callers."""
-    return _utc_timestamp()
-
-
 def now_iso_seconds() -> str:
-    """Stable UTC timestamp alias used by historical callers."""
-    return now_iso8601_utc()
+    """Return an unambiguous UTC ISO-8601 timestamp (YYYY-MM-DDTHH:MM:SSZ)."""
+    return dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 
