@@ -213,6 +213,8 @@ trim_whitespace() {
 normalize_text() {
   local value="$1"
   value="${value//$'\r'/}"
+  # Handle common copy/paste/UTF-8 BOM artifacts at the start of queue lines.
+  value="${value#$'\ufeff'}"
   trim_whitespace <<< "$value"
 }
 
