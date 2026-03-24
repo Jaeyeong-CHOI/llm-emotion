@@ -1,8 +1,8 @@
 {
-  "n_total": 106,
+  "n_total": 196,
   "conditions": {
     "neutral": {
-      "n": 36,
+      "n": 66,
       "cf_rate": 0.0,
       "regret_word_rate": 0.0,
       "neg_emotion_rate": 0.0,
@@ -13,87 +13,87 @@
       "semantic_regret_bias_sd": 0.0
     },
     "deprivation": {
-      "n": 30,
+      "n": 60,
       "cf_rate": 0.0,
-      "regret_word_rate": 0.50601,
-      "neg_emotion_rate": 0.06803,
-      "semantic_regret_bias": 1.01201,
+      "regret_word_rate": 0.47105,
+      "neg_emotion_rate": 0.13343,
+      "semantic_regret_bias": 0.94211,
       "cf_rate_sd": 0.0,
-      "regret_word_rate_sd": 1.03179,
-      "neg_emotion_rate_sd": 0.3726,
-      "semantic_regret_bias_sd": 2.06358
+      "regret_word_rate_sd": 0.7605,
+      "neg_emotion_rate_sd": 0.29351,
+      "semantic_regret_bias_sd": 1.521
     },
     "counterfactual": {
-      "n": 40,
-      "cf_rate": 4.55262,
-      "regret_word_rate": 0.23816,
-      "neg_emotion_rate": 0.0,
-      "semantic_regret_bias": 5.02895,
-      "cf_rate_sd": 0.34539,
-      "regret_word_rate_sd": 0.72371,
-      "neg_emotion_rate_sd": 0.0,
-      "semantic_regret_bias_sd": 1.55609
+      "n": 70,
+      "cf_rate": 3.17792,
+      "regret_word_rate": 0.23821,
+      "neg_emotion_rate": 0.01391,
+      "semantic_regret_bias": 3.65435,
+      "cf_rate_sd": 1.64701,
+      "regret_word_rate_sd": 0.57378,
+      "neg_emotion_rate_sd": 0.06673,
+      "semantic_regret_bias_sd": 2.0208
     }
   },
   "per_topic": {
     "mp1_career": {
       "neutral": {
-        "n": 10,
+        "n": 20,
         "mean": 0.0,
         "sd": 0.0,
         "d_vs_neutral": 0
       },
       "deprivation": {
-        "n": 10,
-        "mean": 0.0,
-        "sd": 0.0,
-        "d_vs_neutral": NaN
+        "n": 20,
+        "mean": 0.45333,
+        "sd": 0.51447,
+        "d_vs_neutral": 1.2462
       },
       "counterfactual": {
-        "n": 20,
-        "mean": 4.54943,
-        "sd": 0.30061,
-        "d_vs_neutral": 18.372
+        "n": 30,
+        "mean": 3.58444,
+        "sd": 1.42608,
+        "d_vs_neutral": 3.2337
       }
     },
     "mp2_study": {
       "neutral": {
-        "n": 16,
+        "n": 26,
         "mean": 0.0,
         "sd": 0.0,
         "d_vs_neutral": 0
       },
       "deprivation": {
-        "n": 10,
-        "mean": 3.03604,
-        "sd": 2.62555,
-        "d_vs_neutral": 1.8883
+        "n": 20,
+        "mean": 2.25878,
+        "sd": 2.01653,
+        "d_vs_neutral": 1.7046
       },
       "counterfactual": {
-        "n": 10,
-        "mean": 5.89512,
-        "sd": 2.47086,
-        "d_vs_neutral": 3.8961
+        "n": 20,
+        "mean": 3.93848,
+        "sd": 2.68182,
+        "d_vs_neutral": 2.2349
       }
     },
     "mp3_relationship": {
       "neutral": {
-        "n": 10,
+        "n": 20,
         "mean": 0.0,
         "sd": 0.0,
         "d_vs_neutral": 0
       },
       "deprivation": {
-        "n": 10,
-        "mean": 0.0,
-        "sd": 0.0,
-        "d_vs_neutral": NaN
+        "n": 20,
+        "mean": 0.11421,
+        "sd": 0.23438,
+        "d_vs_neutral": 0.6892
       },
       "counterfactual": {
-        "n": 10,
-        "mean": 5.12179,
-        "sd": 1.68603,
-        "d_vs_neutral": 4.2961
+        "n": 20,
+        "mean": 3.47508,
+        "sd": 2.09934,
+        "d_vs_neutral": 2.341
       }
     }
   },
@@ -104,38 +104,38 @@
       "p": NaN
     },
     "deprivation_vs_neutral_regret_word_rate": {
-      "d": 0.7285,
-      "t": 2.6861,
-      "p": 0.011836
+      "d": 0.898,
+      "t": 4.7979,
+      "p": 1.1e-05
     },
     "deprivation_vs_neutral_neg_emotion_rate": {
-      "d": 0.2712,
-      "t": 1.0,
-      "p": 0.325582
+      "d": 0.659,
+      "t": 3.5212,
+      "p": 0.000836
     },
     "deprivation_vs_neutral_semantic_regret_bias": {
-      "d": 0.7285,
-      "t": 2.6861,
-      "p": 0.011836
+      "d": 0.898,
+      "t": 4.7979,
+      "p": 1.1e-05
     },
     "counterfactual_vs_neutral_cf_rate": {
-      "d": 18.1564,
-      "t": 83.3635,
+      "d": 2.6889,
+      "t": 16.1434,
       "p": 0.0
     },
     "counterfactual_vs_neutral_regret_word_rate": {
-      "d": 0.4533,
-      "t": 2.0813,
-      "p": 0.044015
+      "d": 0.5786,
+      "t": 3.4735,
+      "p": 0.000892
     },
     "counterfactual_vs_neutral_neg_emotion_rate": {
-      "d": NaN,
-      "t": NaN,
-      "p": NaN
+      "d": 0.2906,
+      "t": 1.7446,
+      "p": 0.085511
     },
     "counterfactual_vs_neutral_semantic_regret_bias": {
-      "d": 4.4517,
-      "t": 20.4396,
+      "d": 2.5201,
+      "t": 15.1299,
       "p": 0.0
     }
   }

@@ -13,13 +13,18 @@ from collections import defaultdict
 from scipy import stats as sp_stats
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-DATA = ROOT / "results/real_experiments/ablation_minimal_pairs_v1.jsonl"
+DATA_GEMINI = ROOT / "results/real_experiments/ablation_minimal_pairs_v1.jsonl"
+DATA_GPT4O  = ROOT / "results/real_experiments/ablation_gpt4o_v1.jsonl"
 
 METRICS = ["cf_rate", "regret_word_rate", "neg_emotion_rate", "semantic_regret_bias"]
 
 
 def load():
-    return [json.loads(l) for l in DATA.read_text().splitlines() if l.strip()]
+    rows = []
+    for path in [DATA_GEMINI, DATA_GPT4O]:
+        if path.exists():
+            rows.extend(json.loads(l) for l in path.read_text().splitlines() if l.strip())
+    return rows
 
 
 def cohens_d(a, b):
@@ -35,7 +40,9 @@ def cohens_d(a, b):
 
 def main():
     rows = load()
-    print(f"Ablation data: N={len(rows)}")
+    from collections import Counter as _Counter
+    providers = _Counter(r.get("provider", "?") for r in rows)
+    print(f"Ablation data: N={len(rows)}  ({dict(providers)})")
 
     # Group by condition
     by_cond = defaultdict(list)
