@@ -21,9 +21,31 @@ run_step() {
   "${command[@]}"
 }
 
-run_step 1 "real model readiness check" 4 python3 scripts/check_real_model_readiness.py
-run_step 2 "cron snapshot refresh" 4 python3 scripts/snapshot_cron_status.py
-run_step 3 "live status refresh" 4 python3 scripts/update_live_status.py
-run_step 4 "research status" 4 python3 scripts/research_status.py
+step_labels=(
+  "real model readiness check"
+  "cron snapshot refresh"
+  "live status refresh"
+  "research status"
+)
+
+step_commands=(
+  "python3 scripts/check_real_model_readiness.py"
+  "python3 scripts/snapshot_cron_status.py"
+  "python3 scripts/update_live_status.py"
+  "python3 scripts/research_status.py"
+)
+
+total_steps=${#step_labels[@]}
+
+if [ "$total_steps" -ne "${#step_commands[@]}" ]; then
+  echo "[guard] mismatch: labels=$total_steps commands=${#step_commands[@]}" >&2
+  exit 1
+fi
+
+for i in "${!step_labels[@]}"; do
+  idx=$((i + 1))
+  run_step "$idx" "${step_labels[$i]}" "$total_steps" bash -lc "${step_commands[$i]}"
+
+done
 
 printf "\nDone.\n"
