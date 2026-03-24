@@ -86,13 +86,18 @@ run_status_script() {
     python3 "$status_path"
 }
 
+STATUS_SCRIPTS=(
+  "update_live_status.py"
+  "research_status.py"
+)
+
 refresh_status() {
   local ts
   local status_script
 
   ts="$(utc_now_compact)_$$"
 
-  for status_script in update_live_status.py research_status.py; do
+  for status_script in "${STATUS_SCRIPTS[@]}"; do
     run_status_script "$ts" "$status_script"
   done
 }
