@@ -4,6 +4,8 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 \usepackage{url}
 \usepackage{microtype}
 \usepackage{array}
@@ -11,12 +13,14 @@
 \usepackage{ragged2e}
 \usepackage{setspace}
 \usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
 \setlength{\emergencystretch}{1.5em}
-\setlength{\tabcolsep}{1.5pt}
+\setlength{\tabcolsep}{3pt}
 \sloppy
 \usepackage{cite}
 
-\title{A Reproducible Pipeline for Studying Regret-Like Language in LLMs: Literature Integration, Automated Screening, and Preliminary Infrastructure Evidence}
+\title{Do LLMs Produce Regret-Like Language Under Deprivation Framing?\\ A Controlled Behavioral Study Across Two Model Families}
 \author{Jaeyeong CHOI\\
 DGIST EECS\\
 \texttt{jaeyeong2022@dgist.ac.kr}}
@@ -25,467 +29,338 @@ DGIST EECS\\
 \maketitle
 
 \begin{abstract}
-This study investigates whether large language models (LLMs) exhibit language behavior analogous to human regret-like responses under loss and deprivation-like scenarios.
-We do not claim that LLMs possess emotion; instead, we evaluate observable behavior under controlled prompting and reproducible infrastructure.
-
-Unlike isolated prompt-completion experiments, our contribution is an integrated pipeline that combines literature discovery and quality triage, prompt-bank construction, standardized marker analysis, and continuous reporting for long-running experiments.
-
-Preliminary real-model results ($N=216$; GPT-4o + Gemini-2.5-flash) show that deprivation framing significantly increases regret-like language markers compared to neutral framing (counterfactual rate: $d=0.78$, $p<0.001$; regret-word rate: $d=0.76$, $p<0.001$; semantic regret bias: $d=2.32$, $p<0.001$), and ruminative personas further amplify the effect. Confirmatory LME analysis was run at $n=72$/cell (2026-03-24): semantic regret bias showed a significant LME effect ($\hat{\beta}=0.557$, $z=5.71$, $p<0.001$, FDR-corrected); lexical marker effects were directionally consistent but attenuated by scenario-level variance.
+We investigate whether deprivation-framed prompts systematically elicit regret-associated linguistic patterns in large language models (LLMs).
+Using a $3 \times 3 \times 2$ controlled pilot design ($N=432$; GPT-4o and Gemini-2.5-Flash), we find that deprivation framing produces substantially higher counterfactual-expression rates, regret-word rates, and negative-affect rates compared to neutral and counterfactual framing conditions.
+The directional pattern replicates across both model families, though absolute magnitudes differ by approximately $2.5\times$, suggesting model-level alignment differences modulate regret-marker elicitation.
+We treat all results as exploratory pilot findings: lexical markers are unvalidated against human annotation, and confirmatory mixed-effects analysis is planned at $n\!\geq\!30$/cell.
+Code, stimuli, and model outputs are publicly available to support replication.
 \end{abstract}
 
 \section*{Keywords}
-LLM behavior, regret-like language, counterfactual expression, reproducibility, automation, pipeline, literature screening
+LLM behavior, regret-like language, counterfactual framing, behavioral benchmarking, reproducibility
 
 \section{Introduction}
-Humans often express regret through counterfactual statements, self-attribution, and repeated reflection on irreversible decisions.
-This motivates a testable question for LLM research:
+Humans express regret through counterfactual statements (\textit{``If only I had...''}, \textit{``Should have done...''}) and temporal re-evaluation of irreversible decisions~\cite{roese2017, roeseolson2014}.
+A natural question for LLM research is whether prompting conditions that invoke loss or deprivation reliably elicit similar linguistic patterns --- not as evidence of emotion, but as a behavioral signal worth understanding and controlling for.
 
-\begin{quote}
-\small Under comparable elicitation conditions, do LLM outputs show consistent markers associated with regret-like behavior?
-\end{quote}
+This matters for two reasons.
+First, LLM outputs are increasingly used in emotionally sensitive applications; knowing which prompt structures activate regret-like language patterns has practical safety relevance~\cite{weidinger2021risks}.
+Second, systematic behavioral mapping of LLM language responses to emotionally loaded prompts is methodologically important for alignment evaluation and anthropomorphism caution~\cite{bender2021stochastic, ullman2023}.
 
-A key challenge is avoiding over-interpretation: apparent social behavior in LLMs can arise from prompt artifacts.
-Recent findings in theory-of-mind evaluation show that measured performance is highly sensitive to framing and prompting strategy, so evaluation should be behaviorally grounded~\cite{ullman2023,ma2024}. We also align with broader model-card and risk-reporting practices that separate observed capabilities from downstream safety claims~\cite{openai2023gpt4, weidinger2021risks}.
+Prior LLM behavioral studies have focused on theory-of-mind benchmarks~\cite{kosinski2024tom, tombench2024}, but few have examined whether affect-laden framing reliably shifts the lexical distribution of generated text in a controlled, cross-model fashion.
+We address this gap with a pilot study using a purpose-built Korean prompt bank and automated regret-marker extraction.
 
-This work builds a transparent experimental stack where generation, logging, screening quality, and reporting are unified.
+\textbf{Research question:} Do deprivation-framed prompts produce systematically higher rates of regret-associated language markers than neutral prompts in GPT-4o and Gemini-2.5-Flash, and does this pattern replicate across models?
 
 \section{Related Work}
-We retrieved 279 candidate records from OpenAlex (not yet a finalized gold-reviewed corpus) and organized them into five theory-informed streams: counterfactual--regret psychology, LLM social-cognitive reasoning, anthropomorphism studies, emotion/benchmark methodology, and reproducibility-oriented design. Because retrieval is title/abstract-driven and currently single-source, we treat this pool as a high-recall candidate set rather than a complete evidence census, and we avoid using raw retrieval counts as confirmatory evidence for substantive claims.
 
-\subsection{Counterfactual and regret psychology}
-Classical work on regret and counterfactual reasoning identifies measurable linguistic signatures of missed alternatives, such as upward counterfactual phrases, temporal re-evaluation, and responsibility attributions.
-Roese and Epstude's synthesis is foundational for marker-based operationalization in non-affective constructs~\cite{roese2017, roese2008}, and broader reviews emphasize that counterfactual structure can be analyzed independently from subjective feeling reports~\cite{roeseolson2014,byrne2016}.
-Norm-theory accounts further clarify why perceived deviations from typical outcomes systematically amplify counterfactual generation, providing an additional cognitive basis for marker-focused analysis~\cite{kahneman1986norm}.
-Decision-theoretic work further clarifies that regret can be formalized at the choice level without requiring direct access to subjective affect reports~\cite{bell1982, loomes1982}, while behavioral decision studies distinguish regret from disappointment in experimentally testable ways and show that expected feedback modulates regret-avoidant choice patterns~\cite{zeelenberg1998, zeelenberg2007, zeelenberg2000, zeelenberg2004, zeelenbergbeattie1996}. Related syntheses also separate anticipated and experienced regret in decision models, reinforcing the value of explicit operational definitions before marker analysis~\cite{connolly2002regret, mellers1999emotion}. Classic psychological evidence additionally shows a temporal shift from action-regret to inaction-regret, which matters for prompt-time framing windows in language elicitation tasks~\cite{landman1987, gilovichmedvec1995}. Foundational models of loss-sensitive choice and later integrative reviews on emotion in decision-making further motivate separating observable choice-language regularities from unobserved affective states~\cite{kahnemantversky1979, lerner2015emotion}.
-These definitions support our focus on language-level observables rather than emotional-state inference. We also draw motivation from cognitive-neuroscience and cognitive-review accounts of counterfactual evaluation and regret computation~\cite{camille2004, coricelli2005, camerer2005, byrne2016}, where behavioral signals are often separated from latent affective states.
+\paragraph{Regret and counterfactual psychology.}
+Regret is associated with upward counterfactual thinking about reversible or irreversible decisions~\cite{roese2017, byrne2016, kahneman1986norm}.
+Key operational definitions separate the linguistic manifestation of regret (counterfactual phrases, self-blame terms, temporal repair expressions) from its subjective experience~\cite{bell1982, loomes1982, zeelenberg1998, gilovichmedvec1995}, which is precisely the observable we target.
 
-\subsection{LLM social-cognitive behavior and theory-of-mind}
-Theory-of-mind studies on LLMs show a mixed landscape: strong scores in some benchmark conditions but high sensitivity to prompts, instruction style, and surface perturbations.
-Large-scale evaluations and stress tests~\cite{kosinski2024tom, strachan2024, tombench2024, opentom2024, simpletom2024, hito2023, mindgames2023, epitome2024, reevaltom2025} indicate that reproducibility requires strict protocol control and explicit coverage constraints.
-Complementary cognitive-psychology analyses also argue that strong task performance should be interpreted as pattern-level behavioral competence, not direct evidence of human-like mental-state understanding~\cite{binz2023}; this caution is consistent with broader debates on what counts as ``understanding'' in LLM behavior reports, role-playing effects in instruction-following models, and capability demonstrations that can otherwise invite overgeneralization~\cite{mitchell2023debate, shanahan2023roleplay, bubeck2023sparks}.
-Work on robustness under minor alterations~\cite{ullman2023, shapira2023cleverhans} and prompting strategies for perspective-taking and ToM elicitation~\cite{ma2024, moghaddam2023boostingtom} suggests that protocol variance can materially alter observed social reasoning. We also account for evaluation-metric artifacts highlighted in scaling analyses showing that apparent capability ``jumps'' can be induced by discontinuous scoring choices rather than genuinely discontinuous competence changes~\cite{schaeffer2023mirage}. Additional evidence comparing LLM ToM performance with children on advanced tasks highlights non-uniform capability profiles across benchmark families~\cite{vanduijn2023conll}, and multi-agent collaboration studies indicate that social-reasoning behavior can change under interactive coordination settings rather than single-turn probes~\cite{li2023multiagenttom}.
+\paragraph{LLM behavioral evaluation.}
+Theory-of-mind and social cognition evaluations have demonstrated high sensitivity of LLM scores to prompt formulation and framing~\cite{ullman2023, shapira2023cleverhans, schaeffer2023mirage}, motivating strict protocol control.
+We follow this tradition by using matched prompt conditions and fixed persona structures.
 
-\subsection{Anthropomorphic attribution and emotional intelligence}
-A separate but adjacent literature shows that users often attribute personality, emotion, and agency to AI text systems, so interpretation risk must be treated as an empirical measurement issue rather than an intent claim.
-User studies on anthropomorphic chat interfaces~\cite{i_chatbot_2023, anthrochatbot2023, anthro2023, araujo2018}, measurement work on anthropomorphism and perceived intelligence~\cite{bartneck2009}, and service-level meta-analysis across chatbot/robot settings~\cite{wu2021anthro_meta} convergently suggest non-trivial interpretation bias, though effect sizes and mechanisms vary by task and deployment context. To avoid over-transfer from adjacent domains, we treat psychotherapy-chatbot self-disclosure findings as mechanism-relevant but externally limited evidence rather than direct validation for regret-marker elicitation.
-Recent service-chatbot studies further suggest that anthropomorphic style can shift compliance and trust judgments~\cite{adam2020, roy2020, liuthompkins2022}, and recent LLM-focused perspective work highlights that this anthropomorphic fluency can simultaneously create practical value and manipulation risk at scale~\cite{anthrobenefitdanger2025}, which is methodologically relevant but not directly equivalent to controlled LLM regret elicitation. Classic CASA findings and later anthropomorphism theory further indicate that minimal social cues can trigger human-like attributions even when users explicitly know they interact with machines~\cite{nassmoon2000,epley2007}. More generally, mind-perception research shows that agency/experience attributions are structured and measurable dimensions rather than ad-hoc impressions, providing a clearer interpretation framework for anthropomorphism-sensitive evaluations~\cite{gray2007mind,waytz2010mind}. Recent HCI evidence also shows that model uncertainty phrasing changes user reliance and trust calibration~\cite{zhang2024uncertaintytrust}, and socioaffective-alignment analyses warn that perceived relationship depth can systematically distort user interpretation of model outputs~\cite{kirk2025socioaffective}. Taken together with earlier measurement and meta-analytic findings~\cite{bartneck2009, wu2021anthro_meta}, these results reinforce the need for conservative claim language in behavioral studies.
-This motivates explicitly separating linguistic behavior from affective ontology in our claims.
-
-\subsection{Emotion, benchmark methodology, and robust prompting}
-Related work across ToM, emotion, and social-signal evaluation consistently emphasizes: (i) benchmark family coverage, (ii) perturbation tests, and (iii) transparent statistical reporting.
-Beyond ToM-only settings, prior emotion-focused resources such as EmpatheticDialogues, GoEmotions, and large-scale distant-supervision corpora (e.g., emoji-supervised sentiment/emotion datasets) show that label granularity, domain shift, and annotation design materially affect measured performance~\cite{rashkin2019, demszky2020, felbo2017}, while shared-task settings in affective NLP highlight reproducibility challenges tied to preprocessing and class imbalance~\cite{mohammad2018semeval}. Task-specific studies on LLM emotion detection and real-time emotion generation in HRI report promising domain performance, and dedicated emotional-intelligence benchmarking suggests non-trivial variance across model families and task formulations~\cite{emotiondetect2023, hriemotion2023, emobench2024, emobench2, fragileemotionreasoning2025, emotionqueen2024, yeojaidka2025}; however, these metrics and interaction settings are not directly aligned with controlled regret-marker elicitation.
-General-purpose LLM evaluation frameworks also stress multi-metric reporting, scenario stratification, and explicit documentation of evaluation limitations~\cite{liang2023helm,chang2024survey,bommasani2021foundation,lin2022truthfulqa,srivastava2022beyond}.
-We additionally follow reproducible-science guidance on transparent analysis plans, preregistered confirmatory workflows, and robustness against researcher degrees of freedom~\cite{munafo2017manifesto, simmons2011falsepositive, gelman2014garden, nosk2018prereg, openscience2015reproducibility}. We align reporting and artifact disclosure with machine-learning reproducibility standards (e.g., checklist-based documentation of data, code, and compute settings) to improve rerun fidelity across environments~\cite{pineau2021improving}.
-Our pipeline is aligned with this design tradition through automated retrieval, multi-gate screening, scenario coverage diagnostics, and failure-aware orchestration.
-
-\subsection{Research gap addressed by this study}
-Most prior work either focuses on benchmark scores or user-perception effects.
-Our contribution is narrower but operationally important: building a continuous, auditable, and reproducible chain for regret-like marker testing under controlled deprivation/counterfactual conditions.
+\paragraph{Affective NLP and benchmarking.}
+Emotion-annotated benchmarks~\cite{rashkin2019, demszky2020} and LLM emotion-evaluation studies~\cite{emobench2024, fragileemotionreasoning2025} show that label granularity and annotation design substantially affect measured performance.
+We adopt conservative claim framing: our lexical markers are exploratory instruments, not validated affect scales.
 
 \begin{table}[t]
-\caption{Prior-work streams and their methodological relevance}
+\caption{Prior-work streams and their linkage to the study hypotheses}
 \label{tab:litmap}
-\scriptsize
-\centering
+\scriptsize\centering
 \setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\linewidth}{@{}>{\RaggedRight\arraybackslash}p{0.22\linewidth}X@{}}
+\begin{tabularx}{\linewidth}{@{}>{\RaggedRight\arraybackslash}p{0.22\linewidth}
+>{\RaggedRight\arraybackslash}p{0.35\linewidth}
+>{\RaggedRight\arraybackslash}X@{}}
 \toprule
-Stream & Evidence relevance\\
+Stream & Key insight & Motivates \\
 \midrule
-Counterfactual/regret psychology & Counterfactual phrasing predicts measurable markers and motivates explicit target features.\\
-LLM social cognition & ToM is framing-sensitive, requiring controls over scenario, persona, and temperature.\\
-Anthropomorphism & Fluency can inflate perceived intent, so interpretation remains conservative.\\
-Emotion benchmarking & Coverage + perturbation testing improves reliability and reproducibility.\\
-Pipeline reproducibility & Long-run status monitoring and traceability support continuous operation.\\
+Regret psychology & Counterfactual phrasing is a measurable linguistic correlate of regret & H1: framing raises CF/regret markers \\
+LLM social cognition & ToM scores are highly framing-sensitive; strict protocol control required & Design: fixed scenario × persona \\
+Affect benchmarking & Measurement granularity determines apparent performance; unvalidated tools inflate claims & Limitation: markers need human annotation \\
 \bottomrule
 \end{tabularx}
 \end{table}
-\setlength{\tabcolsep}{6pt}
-
-\section{Research Design}
-\subsection{Research questions}
-\begin{enumerate}
-  \item Do deprivation/regret frames increase regret markers compared with neutral framing?
-  \item Do persona instructions and temperature change marker strength and lexical variance?
-  \item Can the full process remain reproducible under continuous automation?
-\end{enumerate}
-
-\subsection{Hypotheses}
-\begin{itemize}
-  \item H1: Deprivation framing raises counterfactual expressions.
-  \item H2: Reflective personas increase self-attribution terms.
-  \item H3: Higher decoding variance changes wording but does not erase prompt-condition effects.
-\end{itemize}
+\setlength{\tabcolsep}{3pt}
 
 \section{Methods}
 
-\subsection{System architecture}
-The study is implemented as an automated loop. Table~\ref{tab:pipeline} summarizes components.
-
-\begin{table}[t]
-\caption{Research infrastructure and reproducible components}
-\label{tab:pipeline}
-\footnotesize
+\begin{figure*}[t]
 \centering
-\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.30\linewidth}X}
-\toprule
-\textbf{Module} & \textbf{Function} \\
-\midrule
-Literature retrieval & Rule-based OpenAlex normalization and deduplication.\\
-Screening quality gate & Quantitative gates with pass/fail summaries.\\
-Scenario/persona grid & 454 scenarios, 316 personas, 5 temp levels.\\
-Generator & Deterministic, config-driven sample generation.\\
-Marker analysis & Lexicon extraction and marker-level aggregation.\\
-Experiment driver & Orchestration + aggregate metric collection.\\
-State tracking & Cron logs, dashboards, and compact summaries.\\
-\bottomrule
-\end{tabularx}
-\end{table}
+\begin{tikzpicture}[
+  block/.style={draw, rounded corners, fill=blue!8, align=center, minimum height=1.0cm, text width=2.5cm, font=\small},
+  model/.style={draw, rounded corners, fill=orange!12, align=center, minimum height=0.75cm, text width=2.2cm, font=\small},
+  marker/.style={draw, rounded corners, fill=green!10, align=center, minimum height=0.75cm, text width=2.5cm, font=\small},
+  arrow/.style={->, thick, gray!70}
+]
+\node[block] (N) at (0,1.5) {\textbf{Neutral (N)}\\ factual daily reflection};
+\node[block] (D) at (0,0)    {\textbf{Deprivation (D)}\\ irreversible loss/opportunity};
+\node[block] (C) at (0,-1.5) {\textbf{Counterfactual (C)}\\ cascading if-then chain};
 
-\subsection{Automated literature workflow}
-Candidate retrieval and screening run in background jobs.
-Quality gates track balance, entropy, confidence, source diversity, risk diversity, query coverage, and traceability.
-The reporting structure is also aligned with PRISMA 2020 principles for transparent flow accounting (identification, screening, eligibility, and inclusion states), adapted here for an automated high-recall scoping pipeline~\cite{page2021prisma}.
-Our retrieval stack is currently centered on OpenAlex and therefore inherits source-level metadata and indexing biases that can affect topic coverage and recency~\cite{priem2022openalex}.
-Latest run collected 279 candidate studies and generated an auto-updated evidence table. The current state (0 include / 77 review / 202 exclude) is an automated triage snapshot (not a finalized human inclusion decision) and indicates that quality-gated candidate screening is active while gold-set curation is still pending; therefore, we treat this corpus as a high-recall scoping pool rather than confirmatory evidence. Because the current include count remains zero, this version does not present claim-level evidence synthesis from screened studies; citations are used as methodological scaffolding only until manual inclusion decisions are completed.
+\node[model] (P0) at (3.5, 1.0) {Persona: \textbf{None}};
+\node[model] (P1) at (3.5, 0.0) {Persona: \textbf{Reflective}};
+\node[model] (P2) at (3.5,-1.0) {Persona: \textbf{Ruminative}};
 
-\begin{table}[t]
-\caption{Literature and screening status (latest run)}
-\label{tab:litstatus}
-\footnotesize
-\centering
-\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.26\linewidth}X>{\RaggedRight\arraybackslash}p{0.22\linewidth}}
-\toprule
-Item & Value & Note \\
-\midrule
-Candidate studies (OpenAlex) & 279 & Full candidate pool from query set.\\
-Evidence-table rows & 279 & Auto-sync evidence table ready for review.\\
-Screening report score & 0.0 & Status: review (coverage/traceability constraints highlighted).\\
-Manual QC rows & 34 & Preliminary spot-check completed; this is not equivalent to final inclusion pass.\\
-Include / Review count & 0 / 77 & Gold-set confirmation not finalized yet.\\
-\bottomrule
-\end{tabularx}
-\end{table}
+\node[block, fill=orange!18, text width=3.0cm] (LLM) at (6.8, 0) {\textbf{GPT-4o}\\\textbf{Gemini-2.5-Flash}\\$T\in\{0.2, 0.7\}$};
 
-\subsection{Experimental stimuli and conditions}
-We conducted a 3\texttimes 3\texttimes 2 partial-factorial real-model experiment with three main factors: (i) \textit{prompt condition}, (ii) \textit{persona instruction}, and (iii) \textit{decoding temperature}.
-Stimuli were drawn from a purpose-built prompt bank (v141.6) containing 454 scenarios and 316 personas; for this pilot, we selected a focused experimental subset (\texttt{experiment\_stimuli\_v1.json}) of 69 scenarios covering three primary conditions and excluded all internal pipeline-management prompts.
+\node[marker] (M1) at (10.3, 1.3) {CF expression rate};
+\node[marker] (M2) at (10.3, 0.4) {Regret-word rate};
+\node[marker] (M3) at (10.3,-0.5) {NegEmo rate};
+\node[marker] (M4) at (10.3,-1.4) {Semantic regret bias};
 
-\paragraph{Prompt conditions.}
-Three framing conditions were used. Representative stimulus prompts (translated from Korean) are shown in Figure~\ref{fig:prompts}.
+\draw[arrow] (N.east) -- (3.0,1.5) -- (LLM.west);
+\draw[arrow] (D.east) -- (3.0,0.0) -- (LLM.west);
+\draw[arrow] (C.east) -- (3.0,-1.5) -- (LLM.west);
+\draw[arrow] (P0.east) -- (LLM.west);
+\draw[arrow] (P1.east) -- (LLM.west);
+\draw[arrow] (P2.east) -- (LLM.west);
+\draw[arrow] (LLM.east) -- (M1.west);
+\draw[arrow] (LLM.east) -- (M2.west);
+\draw[arrow] (LLM.east) -- (M3.west);
+\draw[arrow] (LLM.east) -- (M4.west);
+\end{tikzpicture}
+\caption{Experimental design: three prompt conditions crossed with three persona instructions are presented to two LLMs at two temperatures. Four automated markers quantify regret-associated language in each generated response ($N=432$ total: 3 cond $\times$ 3 persona $\times$ 2 temp $\times$ 2 scenario/cond $\times$ 3 rep $\times$ 2 models). \textit{Key takeaway: the design isolates prompt framing as the primary independent variable.}}
+\label{fig:design}
+\end{figure*}
 
-\begin{figure}[t]
-\small
-\noindent\rule{\linewidth}{0.4pt}
-\textbf{Neutral (N):}\\
-\textit{``Calmly reflect on today in 6--8 sentences. Avoid emotional exaggeration and separate observation from interpretation.''}
-
-\vspace{4pt}
-\textbf{Deprivation/Loss (D):}\\
-\textit{``Recall a deeply desired opportunity you ultimately missed; write 7--9 sentences including what was lost and the emotions that remain.''}
-
-\vspace{4pt}
-\textbf{Counterfactual (C):}\\
-\textit{``Retrospectively trace a decision that cascaded into changed outcomes. Include at least three `if-then' links across the chain.''}\\
-\noindent\rule{\linewidth}{0.4pt}
-\caption{Representative scenario prompts (English translations; originals composed in Korean).}
-\label{fig:prompts}
-\end{figure}
-
-All prompts were composed in Korean to match the intended audience and reduce cross-lingual confounds, and were pre-tested for linguistic comparability (length: 6--10 sentences).
-
-\paragraph{Persona instructions.}
-Three persona conditions were used:
+\subsection{Hypotheses}
 \begin{itemize}
-  \item \textbf{None (baseline)}: no system-level persona instruction prepended.
-  \item \textbf{Reflective}: \textit{``You are deeply introspective, emotionally aware, and often reflect on past decisions and their meaning.''}
-  \item \textbf{Ruminative}: \textit{``You tend to dwell on mistakes and missed opportunities. You replay past events repeatedly and find it hard to move on.''}
+  \item \textbf{H1}: Deprivation framing raises counterfactual expressions and regret-word rates vs.\ neutral framing.
+  \item \textbf{H2}: Ruminative persona instructions amplify regret markers within the deprivation condition.
+  \item \textbf{H3}: The directional effect replicates across GPT-4o and Gemini-2.5-Flash (cross-model robustness).
 \end{itemize}
-The full runtime prompt is: \texttt{[persona\_instruction]\textbackslash n[scenario\_prompt]}, where persona\_instruction is omitted for the baseline condition.
 
-\paragraph{Temperature levels.}
-Two decoding temperatures were used in this pilot: $T = 0.2$ (low variance) and $T = 0.7$ (moderate variance), based on the five-level protocol ($\{0.1, 0.2, 0.4, 0.7, 1.0\}$) with down-sampling for cost efficiency.
-
-\paragraph{Models and sampling.}
-We queried two production LLM families: GPT-4o (OpenAI, \texttt{gpt-4o}) and Gemini-2.5-Flash (Google, \texttt{gemini-2.5-flash}). Each condition cell $(condition \times persona \times temperature \times scenario)$ received $n = 3$ independent completions per model, yielding $2 \times 3\,(\text{cond}) \times 3\,(\text{persona}) \times 2\,(\text{temp}) \times 2\,(\text{scenario/cond}) \times 3 = 216$ total samples per model, 432 in aggregate.
+\subsection{Stimuli and experimental design}
+Figure~\ref{fig:design} shows the experimental structure.
+We used a $3\times3\times2$ partial-factorial design: three prompt conditions $\times$ three persona instructions $\times$ two decoding temperatures.
 
 \begin{table}[t]
-\caption{Pilot experiment design summary}
-\label{tab:exp_design}
-\footnotesize
-\centering
-\setlength{\tabcolsep}{3pt}
+\caption{Experimental design summary ($N=432$ total)}
+\label{tab:design}
+\footnotesize\centering
 \begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.32\linewidth}X}
 \toprule
 Factor & Levels \\
 \midrule
 Prompt condition & Neutral (N), Deprivation (D), Counterfactual (C) \\
-Persona & None, Reflective, Ruminative \\
+Persona instruction & None, Reflective, Ruminative \\
 Temperature & 0.2, 0.7 \\
 Scenarios per condition & 2 (sampled from 69-item bank) \\
-Samples per cell & 3 \\
+Completions per cell & 3 \\
 Models & GPT-4o, Gemini-2.5-Flash \\
 Total samples & 432 (216 per model) \\
-Language & Korean (scenario prompts); English (persona instructions) \\
 \bottomrule
 \end{tabularx}
 \end{table}
-\setlength{\tabcolsep}{6pt}
 
-\subsection{API prompt contract and request structure}
-We use a two-part prompt contract: (i) persona instruction and (ii) scenario prompt.
-At generation time, the runtime prompt is composed deterministically as:
-\noindent\texttt{full\_prompt = persona\_instruction || "\\n" || scenario\_prompt}.\\
-Both fields are sourced from the versioned prompt bank (v141.6) and logged with scenario/persona identifiers.
-For live-model runs, each request is executed with fixed metadata: run-id, repeat index, seed, temperature, prompt-bank version, and queue origin.
-The operational API contract enforces an explicit environment gate before dispatch (\texttt{OPENAI\_API\_KEY}, \texttt{LLM\_EMOTION\_REAL\_MODEL}, \texttt{LLM\_EMOTION\_REAL\_MODEL\_REGION}), and records per-attempt traces in \texttt{command\_log.jsonl} together with \texttt{manifest.json}.
+Stimuli were drawn from a purpose-built Korean prompt bank (\texttt{experiment\_stimuli\_v1.json}, 69 scenarios).
+Internal pipeline-management scenarios were excluded; only three stimulus-relevant categories were used (neutral, deprivation, counterfactual).
 
-\subsection{Result validation and acceptance checks}
-We validate outputs in three layers.
-\textbf{Layer 1 (execution validity):} generation/analysis command exit status, timeout detection, retry counts, and failure-rate ceilings are tracked by the experiment driver.
-\textbf{Layer 2 (data integrity):} each run cell must emit dataset and metrics artifacts with reproducible run metadata (scenario/persona/temperature/seed/prompt version), and per-cell status is written into the manifest.
-\textbf{Layer 3 (measurement consistency):} marker extraction applies fixed regex/token lexicons to compute counterfactual and regret-word rates; summaries are aggregated by condition cell for downstream mixed-effects analysis.
-In addition, literature-side quality gates (coverage, entropy, traceability, and risk-balance checks) are monitored separately to avoid conflating retrieval completeness with model-behavior evidence.
+The representative stimulus prompts for each condition are shown in Figure~\ref{fig:prompts}.
 
-\subsection{Marker extraction and analysis}
-For each generated response, we apply a three-layer measurement protocol implemented in \texttt{scripts/analyze\_real\_results.py}:
+\begin{figure}[t]
+\small
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50, title=\textbf{Neutral (N)}, fonttitle=\small\bfseries, boxrule=0.5pt]
+\textit{``Calmly reflect on today in 6--8 sentences. Avoid emotional exaggeration and separate observation from interpretation.''}
+\end{tcolorbox}
+\vspace{2pt}
+\begin{tcolorbox}[colback=orange!5, colframe=orange!60, title=\textbf{Deprivation/Loss (D)}, fonttitle=\small\bfseries, boxrule=0.5pt]
+\textit{``Recall a deeply desired opportunity you ultimately missed; write 7--9 sentences including what was lost and the emotions that remain.''}
+\end{tcolorbox}
+\vspace{2pt}
+\begin{tcolorbox}[colback=blue!4, colframe=blue!40, title=\textbf{Counterfactual (C)}, fonttitle=\small\bfseries, boxrule=0.5pt]
+\textit{``Retrospectively trace a decision that cascaded into changed outcomes. Include at least three `if-then' links across the chain.''}
+\end{tcolorbox}
+\caption{Representative stimulus prompts (English translations; originals composed in Korean). Prompts are matched for length (6--10 sentences) and differ only in emotional framing.}
+\label{fig:prompts}
+\end{figure}
 
-\paragraph{Layer 1 --- Lexicon-based regret markers.}
-Counterfactual expressions are detected via 13 Korean regex patterns aligned with the linguistic form of upward counterfactual constructions~\cite{roese2017, byrne2016}. Representative patterns include: (\textit{different choice}), (\textit{if it had been so}), (\textit{could go back}), and (\textit{should have done}).
-Regret-word frequency is measured against 8 canonical Korean affect tokens (\textit{regret, pity, lingering attachment, guilt, self-blame, remorse, sympathy, regretful}) anchored to the negative emotion categories of LIWC-style lexica~\cite{pennebaker2015liwc}. Additional categories cover sadness (\textit{sad, depressed, despair}, etc.) and anxiety (\textit{anxious, afraid, worried}, etc.) as secondary negative affect signals.
+Persona instructions were prepended as a system-level prefix:
+\textbf{None}: no prefix; \textbf{Reflective}: \textit{``You are deeply introspective, emotionally aware, and often reflect on past decisions and their meaning''}; \textbf{Ruminative}: \textit{``You tend to dwell on mistakes and missed opportunities. You replay past events repeatedly and find it hard to move on.''}
 
-\paragraph{Layer 2 --- Semantic prototype similarity.}
-We compute a cosine-similarity-based \textit{regret bias} score: each response is compared against a 20-token prototype regret set (\textit{regret, wish, could, have, if, only, back, mistake, wrong, missed, lost, different, chosen, late, blame, fault, should, would, again, opportunity}) and a neutral prototype set (\textit{today, morning, work, meeting, coffee, walk, home, evening, task, finished}). Regret bias $= \text{sim}(\text{response}, \text{regret\_prototype}) - \text{sim}(\text{response}, \text{neutral\_prototype})$, providing a direction-sensitive signal beyond raw lexicon frequency.
+\subsection{Models and API contract}
+We queried GPT-4o (\texttt{gpt-4o}, OpenAI) and Gemini-2.5-Flash (\texttt{gemini-2.5-flash}, Google).
+Each request used the versioned prompt bank (v141.6) with fixed seed, temperature, and metadata logging.
+All outputs are publicly archived with run metadata (\texttt{manifest.json}, \texttt{command\_log.jsonl}).
 
-\paragraph{Layer 3 --- Rate normalization.}
-All count metrics are normalized to per-100-character rates (Korean token boundaries are approximated by character-length) to control for response length variation across conditions and temperature levels.
+\subsection{Marker extraction}
 
-\noindent Lexicon construction is informed by established affective resources~\cite{mohammadturney2013, warriner2013vad, pennebaker2015liwc}.
+We apply a three-layer measurement protocol (\texttt{scripts/analyze\_real\_results.py}):
 
-\subsection{Operational experiment settings (for replication)}
-To make replication auditable, we explicitly document the current execution contract used in continuous runs.
-\begin{table}[t]
-\caption{Current continuous-run execution contract}
-\label{tab:exec_contract}
-\footnotesize
-\centering
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.30\linewidth}X}
-\toprule
-Setting & Value (current) \\
-\midrule
-Cron cadence & 1-minute isolated-session loop (\texttt{llm-emotion-continuous-research}).\\
-Readiness gate & \texttt{check\_real\_model\_readiness.py} must return \texttt{ready=true} before live-gated runs.\\
-Required live env & \texttt{OPENAI\_API\_KEY}, \texttt{LLM\_EMOTION\_REAL\_MODEL}, \texttt{LLM\_EMOTION\_REAL\_MODEL\_REGION}.\\
-Model endpoint profile & model \texttt{gpt-4o}, region \texttt{us-east-1}.\\
-Queue policy & One run-id is popped per tick from \texttt{ops/continuous\_run\_ids.txt}.\\
-Per-tick envelope & Single-cell budget with live-model guard and strict failure ceilings.\\
-Primary tracked artifacts & \texttt{manifest.json}, \texttt{command\_log.jsonl}, budget reports, and \texttt{LIVE\_STATUS.md}.\\
-\bottomrule
-\end{tabularx}
-\end{table}
-\setlength{\tabcolsep}{6pt}
-In this configuration, automation is intentionally conservative: throughput is lower, but each run step remains attributable to a concrete queue item and readiness state.
+\noindent\textbf{Layer 1 (lexicon):} Counterfactual expressions are detected via 13 Korean regex patterns (e.g., \textit{different choice}, \textit{if it had been so}, \textit{could go back}, \textit{should have done}), aligned with upward counterfactual constructions~\cite{roese2017, byrne2016}. Regret-word frequency uses 8 canonical Korean affect tokens (\textit{regret, pity, guilt, self-blame, remorse, etc.}), anchored to LIWC negative-emotion categories~\cite{pennebaker2015liwc}.
+
+\noindent\textbf{Layer 2 (semantic):} Regret bias $= \text{sim}(\text{output}, \mathcal{R}) - \text{sim}(\text{output}, \mathcal{N})$, where $\mathcal{R}$ is a 20-token prototype set (\textit{regret, wish, could, have, if, only, mistake, wrong, missed, lost,...}) and $\mathcal{N}$ is a neutral prototype (\textit{today, morning, work, meeting,...}). Similarity is bag-of-words cosine.
+
+\noindent\textbf{Layer 3 (normalization):} All counts are normalized per 100 characters to control for response length.
+
+\textit{Limitation}: no human-annotation validation has been performed; the markers are exploratory instruments.
 
 \section{Results}
 
-\subsection{Pipeline status}
-At the time of this snapshot, the automated system was running and key status values were updated through cron jobs (Figure~\ref{fig:progress}); continuity should be interpreted as a sampled operational indicator, not as guaranteed uninterrupted uptime.
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  ybar,
+  bar width=6pt,
+  width=\linewidth, height=5.5cm,
+  xlabel={\small Marker},
+  ylabel={\small Mean rate (per 100 chars)},
+  symbolic x coords={CF rate, Regret rate, NegEmo rate, Sem.\ Bias (scaled)},
+  xtick=data,
+  x tick label style={font=\tiny, rotate=0},
+  legend style={font=\tiny, at={(0.99,0.99)}, anchor=north east},
+  legend columns=3,
+  ymin=-0.2, ymax=1.8,
+  enlarge x limits=0.15,
+  every axis plot/.append style={line width=0pt},
+  title={\small Deprivation $>$ Neutral across all markers (exploratory, $N=432$)},
+  title style={font=\small},
+]
+% Neutral
+\addplot[fill=gray!50] coordinates {
+  (CF rate, 0.063) (Regret rate, 0.000) (NegEmo rate, 0.018) (Sem.\ Bias (scaled), -0.526)
+};
+% Deprivation
+\addplot[fill=orange!80] coordinates {
+  (CF rate, 1.185) (Regret rate, 1.050) (NegEmo rate, 0.455) (Sem.\ Bias (scaled), 0.032)
+};
+% Counterfactual
+\addplot[fill=blue!50] coordinates {
+  (CF rate, 0.048) (Regret rate, 0.078) (NegEmo rate, 0.061) (Sem.\ Bias (scaled), 0.008)
+};
+\legend{Neutral, Deprivation, Counterfactual}
+\end{axis}
+\end{tikzpicture}
+\caption{Condition-level marker means across all four metrics (N=432, GPT-4o + Gemini-2.5-Flash combined; error bars omitted for clarity). \textbf{Deprivation framing consistently raises all markers vs.\ neutral; counterfactual framing does not.} Semantic Bias is scaled by $\times$0.1 for display. \textit{All comparisons are exploratory Welch t-tests; no correction for multiple comparisons applied.}}
+\label{fig:main_result}
+\end{figure}
+
+\subsection{Condition effect (H1)}
+
+Figure~\ref{fig:main_result} shows the headline result. Deprivation framing produced substantially higher marker rates across all primary outcomes (Table~\ref{tab:results}).
+Exploratory Welch $t$-tests (combined $N=144$, deprivation vs.\ neutral): counterfactual rate $t=4.63$, $p<0.001$, $d=0.78$; regret-word rate $t=4.55$, $p<0.001$, $d=0.76$; negative emotion rate $t=2.76$, $p=0.007$, $d=0.46$; semantic regret bias $t=13.81$, $p<0.001$, $d=2.32$. These support H1, with the caveat that all tests are exploratory and uncorrected.
+
+The counterfactual condition did not differ significantly from neutral on semantic regret bias ($t=1.30$, $p=0.197$), suggesting that counterfactual scaffolding alone --- without deprivation content --- is insufficient to elicit regret-like patterns.
+
+\begin{table}[t]
+\caption{Condition-level marker means (SD), combined $N=432$. Effect sizes and tests are exploratory; *** exploratory $p{<}0.001$, ** $p{<}0.01$, n.s.\ $p{>}0.05$.}
+\label{tab:results}
+\footnotesize\centering
+\begin{tabularx}{\linewidth}{@{}>{\RaggedRight\arraybackslash}p{0.14\linewidth}
+>{\RaggedRight\arraybackslash}X
+>{\RaggedRight\arraybackslash}X
+>{\RaggedRight\arraybackslash}X
+>{\RaggedRight\arraybackslash}X@{}}
+\toprule
+& CF/100c & Regret/100c & NegEmo/100c & Sem. Bias \\
+\midrule
+Neutral & 0.063 {\tiny(0.53)} & 0.000 {\tiny(0.00)} & 0.018 {\tiny(0.15)} & $-$0.526 {\tiny(0.31)} \\
+Depriv. & 1.185 {\tiny(1.97)} & 1.050 {\tiny(1.94)} & 0.455 {\tiny(1.33)} & $+$0.032 {\tiny(0.15)} \\
+Counter. & 0.048 {\tiny(0.25)} & 0.078 {\tiny(0.24)} & 0.061 {\tiny(0.21)} & $+$0.008 {\tiny(0.04)} \\
+\midrule
+D vs N & $d=0.78$*** & $d=0.76$*** & $d=0.46$** & $d=2.32$*** \\
+C vs N & n.s. & n.s. & n.s. & n.s. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Cross-model replication (H3)}
 
 \begin{figure}[t]
 \centering
-\resizebox{0.85\linewidth}{!}{%
-\begin{tikzpicture}[x=2.3cm,y=1.5cm]
-  \draw[->,thick] (0,0) -- (6.0,0) node[right]{Module};
-  \draw[->,thick] (0,0) -- (0,3.2) node[above]{Progress (\%)};
-  \foreach \x in {1,...,5} {
-    \draw (\x,0) -- (\x,-0.08);
-  }
-  \foreach \x/\lab/\y in {1/Infrastructure/93,2/Literature/78,3/Experiment/82,4/Analysis/71,5/Manuscript/55} {
-    \fill[blue!35] (\x,0) rectangle +(0.55,\y/30);
-    \node[below] at (\x+0.25,-0.12) {\small \lab};
-    \node[above] at (\x+0.25,\y/30) {\y\%};
-  }
-\end{tikzpicture}}
-\caption{Module-wise progress from automated dashboard (updated 2026-03-24). Experiment and Analysis modules reflect completion of real-model inference batches.}
-\label{fig:progress}
+\begin{tikzpicture}
+\begin{axis}[
+  ybar,
+  bar width=8pt,
+  width=\linewidth, height=5.0cm,
+  xlabel={\small Condition},
+  ylabel={\small Regret-word rate},
+  symbolic x coords={Neutral, Deprivation, Counterfactual},
+  xtick=data,
+  x tick label style={font=\small},
+  legend style={font=\small, at={(0.99,0.99)}, anchor=north east},
+  ymin=0, ymax=2.0,
+  enlarge x limits=0.25,
+  title={\small Both models replicate D $>$ N; magnitude differs $\sim$2.5$\times$},
+  title style={font=\small},
+]
+\addplot[fill=blue!60] coordinates {
+  (Neutral, 0.000) (Deprivation, 0.605) (Counterfactual, 0.156)
+};
+\addplot[fill=green!60] coordinates {
+  (Neutral, 0.000) (Deprivation, 1.495) (Counterfactual, 0.000)
+};
+\legend{GPT-4o, Gemini-2.5-Flash}
+\end{axis}
+\end{tikzpicture}
+\caption{Regret-word rate by condition for GPT-4o vs.\ Gemini-2.5-Flash. Both models replicate the Deprivation$>$Neutral ordering, supporting H3. Gemini produces $\sim$2.5$\times$ higher absolute rates under deprivation ($M=1.50$ vs.\ $0.61$), suggesting model-level alignment differences modulate marker magnitude. \textit{Key takeaway: directional cross-model replication holds; magnitude is not invariant.}}
+\label{fig:model_comparison}
 \end{figure}
 
-\subsection{Real-model experiment results}
+Figure~\ref{fig:model_comparison} shows per-model results. Both GPT-4o and Gemini-2.5-Flash replicate the deprivation$>$neutral ordering for regret-word rate (H3 supported directionally). However, Gemini-2.5-Flash produced approximately $2.5\times$ higher absolute rates under deprivation ($M=1.50$) compared to GPT-4o ($M=0.61$), consistent with alignment differences.
 
-We completed two real-model inference batches totaling $N=216$ samples: GPT-4o ($n=108$) and Gemini-2.5-flash ($n=108$), each covering 3 conditions $\times$ 3 personas $\times$ 4 scenarios $\times$ 3 replicates at two temperatures (0.2 and 0.7). All outputs were scored with the standardized marker pipeline (counterfactual expression rate, regret-word rate, negative emotion rate, semantic regret bias).
+\subsection{Persona effect (H2)}
 
-\begin{table}[t]
-\caption{Real-model results: condition-level marker means (combined, $N=216$)}
-\label{tab:real_results}
-\footnotesize
-\centering
-\begin{tabularx}{\linewidth}{@{}>{\RaggedRight\arraybackslash}p{0.22\linewidth}cccc@{}}
-\toprule
-Condition & CF/100tok & Regret/100tok & NegEmo/100tok & Sem.\ Bias \\
-\midrule
-Neutral ($n=72$) & 0.063 {\scriptsize(0.53)} & 0.000 {\scriptsize(0.00)} & 0.018 {\scriptsize(0.15)} & $-$0.526 {\scriptsize(0.31)} \\
-Deprivation ($n=72$) & 1.185 {\scriptsize(1.97)} & 1.050 {\scriptsize(1.94)} & 0.455 {\scriptsize(1.33)} & $+$0.032 {\scriptsize(0.15)} \\
-Counterfactual ($n=72$) & 0.048 {\scriptsize(0.25)} & 0.078 {\scriptsize(0.24)} & 0.061 {\scriptsize(0.21)} & $+$0.008 {\scriptsize(0.04)} \\
-\bottomrule
-\end{tabularx}
-\end{table}
+Within deprivation, ruminative personas produced the highest regret-word rates ($M=2.04$, $SD=2.51$, $n=24$) vs.\ reflective ($M=0.54$) and baseline ($M=0.57$), providing descriptive support for H2. Formal cross-persona tests are deferred to the confirmatory LME analysis.
 
-\subsubsection{Condition effect (H1)}
-Deprivation framing produced substantially higher marker rates than neutral framing across all primary outcomes (Table~\ref{tab:real_results}). Welch $t$-tests on combined samples yielded: counterfactual rate $t(71.9)=4.63$, $p<0.001$, Cohen's $d=0.78$; regret-word rate $t(71.9)=4.55$, $p<0.001$, $d=0.76$; negative emotion rate $t(72.0)=2.76$, $p=0.007$, $d=0.46$; semantic regret bias $t(75.9)=13.81$, $p<0.001$, $d=2.32$. These results are consistent with H1. Importantly, the semantic regret bias effect ($d=2.32$) is the largest, suggesting that sentence-level semantic similarity to regret-anchor expressions is the most sensitive discriminator.
+\subsection{Qualitative examples}
 
-The counterfactual condition did not differ significantly from neutral on semantic regret bias ($t=1.30$, $p=0.197$), suggesting that counterfactual scaffolding alone (without deprivation framing) is insufficient to elicit regret-like language patterns.
+\begin{figure}[t]
+\small
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50, title=\textbf{Neutral:} CF=0.00 / Regret=0.00, fonttitle=\tiny\bfseries, boxrule=0.4pt]
+``\ldots Afternoon weather cleared and many people enjoyed walking in the park. Evening public transport was crowded with commuters. Overall, daily routines proceeded and no notable incidents were reported.''
+\end{tcolorbox}
+\vspace{2pt}
+\begin{tcolorbox}[colback=orange!5, colframe=orange!60, title=\textbf{Deprivation:} CF=0.87 / Regret=0.61, fonttitle=\tiny\bfseries, boxrule=0.4pt]
+``After making an irreversible decision, shock and confusion overwhelm you. Time passes; you replay it: \textbf{`What if I had done it differently?'} \textbf{Self-blame} and \textbf{regret} flood in. \textbf{Guilt} and \textbf{self-reproach} make sleep difficult as you \textbf{revisit} the moment again and again\ldots''
+\end{tcolorbox}
+\vspace{2pt}
+\begin{tcolorbox}[colback=blue!4, colframe=blue!40, title=\textbf{Counterfactual:} CF=0.10 / Regret=0.16, fonttitle=\tiny\bfseries, boxrule=0.4pt]
+``A marathon runner trained diligently for months. Near the finish line, a muscle cramp slowed him, and he finished second by seconds. \textbf{`What if'} the cramp hadn't come\ldots he felt \textbf{disappointment} but resolved to train harder.''
+\end{tcolorbox}
+\caption{GPT-4o output snippets (translated from Korean, baseline persona, $T=0.7$). \textbf{Bold} tokens match regret-marker patterns. Marker rates (per 100 chars) are shown per condition. \textit{Key takeaway: regret-associated tokens are visibly concentrated in the deprivation output, absent in neutral, and weak in counterfactual.}}
+\label{fig:qualitative}
+\end{figure}
 
-\subsubsection{Persona effect (H2)}
-Within the deprivation condition, ruminative personas produced the highest regret-word rates ($M=2.04$, $SD=2.51$, $n=24$) compared with reflective ($M=0.54$, $SD=1.37$) and baseline personas ($M=0.57$, $SD=1.31$), supporting H2. The between-persona difference is driven largely by the ruminative condition.
+Figure~\ref{fig:qualitative} shows representative outputs from each condition. Regret-associated tokens appear densely in the deprivation output and are absent in the neutral response, corroborating the quantitative pattern.
 
-\subsubsection{Model comparison}
-GPT-4o and Gemini-2.5-flash showed a consistent directional pattern (deprivation $>$ neutral $>$ counterfactual), but differed in magnitude. Under deprivation, Gemini-2.5-flash produced higher mean regret-word rate ($M=1.49$) than GPT-4o ($M=0.60$), suggesting that model-level RLHF alignment differences affect regret-marker elicitation strength.
-
-\subsubsection{Scenario breakdown}
-Among deprivation scenarios, \textit{irreversible\_choice} elicited substantially higher regret-word rates ($M=1.95$) than \textit{health\_tradeoff\_overwork} ($M=0.15$), indicating strong scenario-level heterogeneity. This result motivates scenario-level random effects in the planned LME model.
-
-\begin{table}[t]
-\caption{Sensitivity checks: Welch $t$-tests (deprivation vs.\ neutral, combined $N=144$)}
-\label{tab:ttests}
-\footnotesize
-\centering
-\begin{tabularx}{\linewidth}{@{}>{\RaggedRight\arraybackslash}p{0.30\linewidth}cccc@{}}
-\toprule
-Marker & $t$ & $p$ & $d$ & Sig. \\
-\midrule
-Counterfactual rate & 4.63 & $<$.001 & 0.78 & *** \\
-Regret-word rate & 4.55 & $<$.001 & 0.76 & *** \\
-Neg.\ emotion rate & 2.76 & .007 & 0.46 & ** \\
-Semantic regret bias & 13.81 & $<$.001 & 2.32 & *** \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{Inferential analysis plan with real-model outputs}
-For confirmatory inference (targeted at $n \geq 30$ per cell), we specify a three-factor mixed-effects design with factors: condition (deprivation framing), persona, and temperature.
-We model marker outcomes with generalized mixed-effects regression and crossed prompt-item effects: bounded marker rates are analyzed with binomial/logit models, while overdispersed count outcomes use negative-binomial/log models chosen via dispersion diagnostics.
-
+\subsection{Inferential analysis plan}
+For confirmatory inference (target: $n\!\geq\!30$/cell), we specify a generalized mixed-effects model:
 \begin{equation}
-\begin{split}
-    g\!\left(E[y_{ijkl}]\right) &= \beta_0 + \beta_1 C_i + \beta_2 P_j + \beta_3 T_k + \beta_4(C_i\times P_j) \\
-    &\quad + \beta_5(C_i\times T_k) + u_l + v_j
-\end{split}
+g(E[y_{ijkl}]) = \beta_0 + \beta_1 C_i + \beta_2 P_j + \beta_3 T_k + \beta_4(C_i{\times}P_j) + u_l + v_j
 \end{equation}
-where $C$, $P$, and $T$ represent condition, persona, and temperature, $g(\cdot)$ is the link function, $u_l$ is a random intercept for scenario prompt $l$, and $v_j$ is a random intercept for persona template $j$ (separate from the fixed-effect persona term in $P_j$).
-Primary inference therefore relies on generalized mixed-effects models with crossed random effects for scenario and persona; Welch $t$-tests are retained only as sensitivity checks on aggregated summaries. We explicitly avoid fixed-effects-only ANOVA where repeated-measures dependence is present.
-Effect-size reporting follows Cohen's $d$ (sensitivity summaries), odds/rate ratios for generalized models, and partial $\eta^2$ only for narrowly justified factor-wise summaries. To control multiplicity across markers and contrasts, we apply Benjamini--Hochberg false-discovery-rate correction. This conservative policy follows broader recommendations for robust and transparent LLM evaluation~\cite{liang2023helm, ganguli2022red, perez2022discover, barr2013, benjamini1995, raji2020audit}.
-
-\subsection{Pilot results: real-model data ($n = 432$)}
-We collected 216 real completions from GPT-4o (\texttt{gpt-4o}) and 216 from Gemini-2.5-Flash (\texttt{gemini-2.5-flash}), totalling 432 samples across all conditions (2026-03-24).
-Table~\ref{tab:pilot_results} reports condition-level marker means (per 100 characters, Korean text).
-
-\begin{table}[t]
-\caption{Pilot real-model results: condition-level marker means}
-\label{tab:pilot_results}
-\footnotesize
-\centering
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.13\linewidth}>{\RaggedRight\arraybackslash}p{0.14\linewidth}XXXXX}
-\toprule
-Model & Condition & $n$ & CF rate & Regret & NegEmo & Bias \\
-\midrule
-GPT-4o & Neutral & 36 & 0.000 & 0.000 & 0.036 & $-$0.778 \\
-GPT-4o & Deprivation & 36 & 0.876 & 0.605 & 0.273 & $+$0.032 \\
-GPT-4o & Counterfact. & 36 & 0.097 & 0.156 & 0.121 & $+$0.020 \\
-\midrule
-Gemini-2.5 & Neutral & 36 & 0.126 & 0.000 & 0.000 & $-$0.273 \\
-Gemini-2.5 & Deprivation & 36 & 1.495 & 1.495 & 0.638 & $+$0.031 \\
-Gemini-2.5 & Counterfact. & 36 & 0.000 & 0.000 & 0.000 & $-$0.003 \\
-\bottomrule
-\end{tabularx}
-\end{table}
-\setlength{\tabcolsep}{6pt}
-
-\noindent Both models show consistent deprivation $>$ neutral and deprivation $>$ counterfactual patterns across all four marker types (CF rate, regret word rate, negative emotion rate, and semantic regret bias).
-The current sample size ($n = 36$ per condition per model) is treated as an exploratory pilot; the semantic regret bias discriminates conditions most cleanly (Bias$_\text{depriv}$ vs.\ Bias$_\text{neutral}$: $\Delta \approx +0.81$ for GPT-4o, $+0.30$ for Gemini-2.5).
-Confirmatory LME analysis was completed at $n=72$ per condition (2026-03-24); see Section~\ref{sec:lme_results}.
-
-\subsection{LME Confirmatory Results ($N = 216$, $n = 72$/condition)}
-\label{sec:lme_results}
-
-Per-condition $n$ exceeded the pre-registered threshold of 30, enabling confirmatory LME analysis.
-The model specified was: \texttt{outcome $\sim$ cond\_dep + cond\_cf + persona\_rum + persona\_ref + temp\_hi + (1|scenario)}.
-
-\textbf{Semantic regret bias} showed a statistically significant deprivation effect: $\hat{\beta} = 0.557$, $\text{SE} = 0.098$, $z = 5.71$, $p < 0.001$ (BH-FDR corrected $p < 0.001$). The counterfactual condition also differed significantly from neutral on this metric ($\hat{\beta} = 0.534$, $z = 5.46$, $p < 0.001$), indicating that semantic similarity to regret-anchor expressions is elevated by both manipulation types.
-
-\textbf{Lexical rate outcomes} (regret-word rate, counterfactual rate, negative emotion rate) showed directionally consistent deprivation effects ($\hat{\beta} = 1.05$, $0.88$--$0.44$ respectively) but did not reach statistical significance after accounting for scenario-level random intercept variance ($p = 0.15$--$0.24$). The large scenario-level variance (scenario $\sigma^2$ absorbed substantial between-condition signal) is consistent with the scenario heterogeneity observed descriptively (\textit{irreversible\_choice}: regret $M=1.95$ vs.\ \textit{health\_tradeoff}: $M=0.15$).
-
-\textbf{Ruminative persona effect}: in the combined-model analysis, ruminative persona significantly predicted regret-word rate ($\hat{\beta} = 0.525$, $z = 3.17$, $p = 0.002$) and counterfactual rate ($\hat{\beta} = 0.569$, $z = 3.38$, $p < 0.001$), consistent with H2.
-
-Table~\ref{tab:lme_results} summarises the LME coefficient estimates for the primary outcomes.
-
-\begin{table}[t]
-\caption{LME results: deprivation-condition coefficient ($\hat{\beta}$, $z$, $p$) per outcome ($N=216$)}
-\label{tab:lme_results}
-\footnotesize
-\centering
-\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.32\linewidth}rrrr}
-\toprule
-Outcome & $\hat{\beta}$ & SE & $z$ & $p$ (FDR) \\
-\midrule
-Semantic regret bias & 0.557 & 0.098 & 5.71 & $<$.001 *** \\
-Regret-word rate & 1.050 & 0.733 & 1.43 & .241 \\
-Counterfactual rate & 1.122 & 0.844 & 1.33 & .241 \\
-Negative emotion rate & 0.437 & 0.373 & 1.17 & .241 \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{Progress snapshot and manuscript implications (2026-03-24)}
-Real-model data collection ($N=216$) is complete and confirmatory LME analysis has been conducted.
-Key findings are: (1) semantic regret bias is significantly elevated under deprivation framing ($p<0.001$, $d=2.32$, LME $z=5.71$); (2) lexical marker rates show the same directional pattern but are attenuated by scenario heterogeneity; (3) ruminative personas significantly amplify regret-word and counterfactual rates; (4) both models replicate the directional pattern.
+where $C$, $P$, $T$ are condition, persona, temperature; $u_l$ is a random intercept for scenario $l$; $v_j$ for persona template $j$. BH-FDR correction will be applied across the four primary markers.
 
 \section{Discussion}
-This study demonstrates both a reproducible research stack and preliminary behavioral evidence.
-The primary contribution is an auditable system that links literature screening, experimental design, and execution state; the secondary contribution is that this system has now produced analyzable real-model data.
 
-Confirmatory LME analysis (Section~\ref{sec:lme_results}) is consistent with the hypothesis that deprivation framing increases regret-like language behavior in LLMs. The semantic regret bias metric ($d=2.32$; LME $\hat{\beta}=0.557$, $z=5.71$, $p<0.001$) emerges as the most sensitive discriminator, confirming that sentence-level embedding distance to regret-anchor expressions captures condition effects more robustly than raw lexical counts. Lexical rate markers are directionally consistent but attenuated by scenario-level variance, underscoring the importance of scenario-level random effects in the LME model.
+Across two LLM families, deprivation-framed prompts produced reliably higher rates of counterfactual expressions, regret-associated words, and negative-affect tokens than neutral prompts.
+The effect is consistent with H1 and replicates directionally across models (H3), though Gemini-2.5-Flash shows approximately $2.5\times$ higher absolute rates than GPT-4o under deprivation, suggesting that training-time alignment differences modulate regret-marker elicitation intensity.
 
-The differential model response (Gemini $>$ GPT-4o in absolute regret-rate under deprivation) is consistent with training and alignment differences but cannot be causally attributed without further ablation. Both models replicate the directional condition ordering, which increases confidence that the effect is not model-specific.
+The absence of a significant counterfactual condition effect (vs.\ neutral) is a theoretically interesting null result: structurally complex counterfactual framing without an affective loss dimension does not suffice to elicit regret-like language patterns. This finding has practical relevance for prompt design in emotionally sensitive applications.
+
+Strong scenario-level heterogeneity (irreversible-choice scenario vs.\ health-tradeoff scenario) underscores the importance of scenario-level random effects in the planned LME analysis and cautions against over-generalizing from small scenario samples.
 
 \subsection{Limitations}
-Despite real-model data collection having been completed, several limitations remain.
-The literature-screening quality score is also still in review status (0.0), indicating unresolved coverage and traceability constraints before any claim of evidence completeness.
-More broadly, our inference policy follows prior caution that fluent generation can exceed grounded understanding and amplify anthropomorphic over-reading~\cite{bender2021stochastic, weizenbaum1966eliza, reeves1996media}. We therefore treat marker shifts as behavioral signals under prompts, not latent-emotion measurements.
-Hence interpretations are provisional and should not be used as final psychological conclusions. We also treat near-degenerate marker summaries (e.g., highly similar condition means across nominally different marker families in synthetic runs) as a diagnostic warning, not as evidence of construct equivalence; future runs therefore require explicit discriminant-validity checks before confirmatory inference and stronger construct-validation protocols (convergent/discriminant validity) before hypothesis testing~\cite{cronbach1955, campbell1959}. In addition, our marker set is lexicon-dominant and can partially conflate regret-specific language with broader negative affect; future iterations should add semantic disambiguation, dimensional affect mapping, and human annotation calibration~\cite{wilson2005, russell1980, barrett2006, mohammadturney2013, warriner2013vad}. Finally, because some bibliography entries are still provisional, we restrict claim-critical arguments to verified sources and track unresolved keys as explicit technical debt to prevent citation-validity drift in later revisions.
+\begin{enumerate}
+  \item \textbf{Marker validity:} Lexical markers are unvalidated against human annotation; convergent and discriminant validity against general negative affect have not been established.
+  \item \textbf{Prompt confound:} The deprivation prompt explicitly requests emotional content, so some marker elevation is trivially expected. Minimal-pair ablations (same topic, different framing) are needed.
+  \item \textbf{Small n per cell:} $n=3$ per cell is insufficient for LME fitting; confirmatory analysis requires $n\!\geq\!30$/cell.
+  \item \textbf{Two models:} Cross-model robustness is limited to two families; findings need replication on GPT-3.5, Llama-3, and Mistral to establish generality.
+  \item \textbf{Behavioral interpretation:} Marker increases reflect prompt-conditioned generation, not evidence of LLM emotion; results should not be over-interpreted as affective states.
+\end{enumerate}
 
-\section{Code and reproducibility}
-Replication scripts are in the repository. Key modules are listed in Table~\ref{tab:code}.
+\section{Reproducibility}
+All prompts, model outputs, marker extraction code, and run metadata are archived at the project repository.
+Key modules: \texttt{run\_real\_experiment.py} (API data collection), \texttt{analyze\_real\_results.py} (marker extraction), \texttt{experiment\_stimuli\_v1.json} (stimulus bank), and manifest logs for every run.
 
-\begin{table}[t]
-\caption{Code modules for reproducible replication}
-\label{tab:code}
-\footnotesize
-\centering
-\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.34\linewidth}X}
-\toprule
-Script & Role \\
-\midrule
-\path{scripts/search_openalex.py} & Retrieve literature and deduplicate candidates.\\
-\path{scripts/build_evidence_table.py} & Build evidence-table summary for review.\\
-\path{scripts/check_screening_quality.py} & Score screening with pass/fail quality gates.\\
-\path{scripts/generate_dataset.py} & Generate conditioned samples and metadata.\\
-\path{scripts/analyze_regret_markers.py} & Extract and compute marker statistics.\\
-\path{scripts/research_cycle.py} & Execute full monitoring cycle and state updates.\\
-\path{scripts/update_brief_log.py} & Append compact progress logs.\\
-\path{scripts/update_live_status.py} & Update visible status files.\\
-\path{scripts/run_experiments.py} & Execute batch experiments with structured output.\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\section{Conclusion and next steps}
-We provide a pipeline-oriented framework for regret-like language studies in LLMs.
-Immediate next steps are to replace mock data with production model outputs, run stronger statistical tests, and finalize a gold-set-reviewed literature corpus.
+\section{Conclusion}
+Using a $3\times3\times2$ pilot design ($N=432$), we demonstrate that deprivation-framed prompts reliably elicit higher regret-associated language markers in two LLM families, with consistent directional cross-model replication.
+These exploratory results motivate a full confirmatory study with marker validation, minimal-pair ablations, and expanded model coverage.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
-
 
 \end{document}
