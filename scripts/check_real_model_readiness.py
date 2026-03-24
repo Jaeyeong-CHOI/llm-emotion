@@ -93,7 +93,6 @@ def parse_env_var_list(raw: str, default: list[str]) -> list[str]:
         else:
             invalid.append(cleaned)
 
-    # 입력이 비면 기본값 사용(기존 동작 유지)
     if not tokens:
         tokens = dedupe_preserve_order(default)
 
@@ -108,6 +107,27 @@ def parse_env_var_list(raw: str, default: list[str]) -> list[str]:
 
     # Keep first occurrence order so CLI intent stays predictable.
     return dedupe_preserve_order(tokens)
+
+
+def split_required_optional_vars(
+    required_raw: list[str], optional_raw: list[str]
+) -> tuple[list[str], list[str], list[str]]:
+    """Deduplicate names and remove duplicates from optional that already appear in required."""
+
+    required = dedupe_preserve_order(required_raw)
+    optional_clean = dedupe_preserve_order(optional_raw)
+
+    unique_optional: list[str] = []
+    overlap: list[str] = []
+    required_set = set(required)
+
+    for name in optional_clean:
+        if name in required_set:
+            overlap.append(name)
+            continue
+        unique_optional.append(name)
+
+    return required, unique_optional, overlap
 
 
 def check_var(value: str):
@@ -174,6 +194,7 @@ def summarize_readiness_issues(
     optional_missing: list[str],
     optional_placeholder_vars: list[str],
     optional_unsafe_vars: list[str],
+    duplicate_requested_vars: list[str],
     endpoint_scheme_ok: bool,
     suspicious: list[str],
 ) -> list[str]:
@@ -194,6 +215,11 @@ def summarize_readiness_issues(
     for vars_, message in optional_notes:
         _append_optional_note(notes, vars_, message)
 
+    if duplicate_requested_vars:
+        notes.append(
+            "required/optional env var 중복 지정: "
+            + ", ".join(duplicate_requested_vars)
+        )
     if not endpoint_scheme_ok:
         notes.append("OPENAI_BASE_URL 스킴 미일치")
     if "OPENAI_API_KEY" in suspicious:
@@ -217,6 +243,7 @@ def _block_payload(block: EnvBlock, *, kind: str) -> dict:
 def build_readiness_payload(
     required: EnvBlock,
     optional: EnvBlock,
+    duplicate_requested_vars: list[str],
     suspicious: list[str],
     endpoint_scheme_ok: bool,
 ) -> dict:
@@ -232,6 +259,7 @@ def build_readiness_payload(
         optional_missing=optional_payload["optional_missing"],
         optional_placeholder_vars=optional_payload["optional_placeholder"],
         optional_unsafe_vars=optional_payload["optional_unsafe"],
+        duplicate_requested_vars=duplicate_requested_vars,
         endpoint_scheme_ok=endpoint_scheme_ok,
         suspicious=suspicious,
     )
@@ -291,8 +319,10 @@ def main():
     )
     args = ap.parse_args()
 
-    required_names = parse_env_var_list(args.required_vars, DEFAULT_REQUIRED)
-    optional_names = parse_env_var_list(args.optional_vars, OPTIONAL_PROJECT_VARS)
+    required_names, optional_names, duplicate_requested_vars = split_required_optional_vars(
+        required_raw=parse_env_var_list(args.required_vars, DEFAULT_REQUIRED),
+        optional_raw=parse_env_var_list(args.optional_vars, OPTIONAL_PROJECT_VARS),
+    )
 
     required = check_env_block(required_names)
     optional = check_env_block(optional_names)
@@ -313,6 +343,7 @@ def main():
     readiness = build_readiness_payload(
         required=required,
         optional=optional,
+        duplicate_requested_vars=duplicate_requested_vars,
         suspicious=suspicious,
         endpoint_scheme_ok=endpoint_scheme_ok,
     )
