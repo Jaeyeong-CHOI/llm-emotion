@@ -2,6 +2,92 @@
 
 ---
 
+## Critique [2026-03-25 06:41]
+### Scores: Soundness 2/5 | Significance 2/5 | Presentation 3/5
+
+*Note: This is a second independent pass. The prior critique (04:33) flagged several fatal issues. This review checks whether those issues persist in the current manuscript and identifies additional problems not previously raised.*
+
+---
+
+### Prior Issues — Status Check
+
+| Issue (from 04:33 critique) | Status in current .tex |
+|---|---|
+| Abstract z-scores don't match lme_results.json | ⚠️ **Partially fixed but still wrong** (see below) |
+| N=312 in abstract vs N=216 in LME | ✅ Abstract now says N=815 total / N=216 LME — clearer, but 815 includes ablation |
+| Gemini marker data zeros in LME | ⚠️ **Acknowledged in §Limitations #4 (length confound) but not in LME section** |
+| Lexical marker LME non-significant | ✅ Now disclosed in body text and abstract |
+| Single-annotator validation | ❌ **Still single-annotator, no κ/α** |
+| Semantic bias tautology | ❌ **Still not addressed** |
+
+---
+
+### Key Weaknesses
+
+#### 🔴 Critical (paper-breaking)
+
+**1. The abstract's z-scores are still fabricated relative to the data file.**
+Current abstract states: `z=10.47, p<0.001` for deprivation semantic bias and `β̂=0.560`. The actual `lme_results.json` shows `z=5.706, β̂=0.5573`. Similarly, the paper's body (§Confirmatory LME) reports `z=10.47` while the data file has `z=5.706`. The counterfactual effect is reported as `z=9.68` in §Confirmatory LME but is `z=5.464` in the data. These are not rounding differences — z=10.47 vs 5.71 is a 83% inflation. The persona effect for CF rate is reported as `z=6.28` in text vs `z=3.375` in data, and regret-word rate persona as `z=5.16` vs `z=3.171`. **Every single z-score in the paper is inflated by roughly 1.8–2×.** This is systematic, not accidental. This alone is grounds for desk rejection at any venue.
+
+**2. N=815 is an incoherent aggregate.**
+The paper reports N=815 throughout (abstract, Table 2, t-tests) but the LME is fit on N=216. The t-tests at N=815 are run on a superset that includes the minimal-pair ablation (N=196) and other data not described in the Design section. The reader cannot reproduce which 815 samples feed which test. The headline "d=0.47 for CF rate, N=815" is not generated from the controlled 3×3×2 design — it appears to pool heterogeneous data, which inflates power and conflates the confirmatory design with an exploratory aggregate. The paper never explicitly defines what population N=815 covers.
+
+**3. AIC/BIC are NaN in all four LME models.**
+The JSON shows `"aic": NaN, "bic": NaN` for all outcomes. This is a model-fitting artifact (possibly a singular fit or an ill-specified random effect with only 2–3 scenario levels). A mixed-effects model with NaN information criteria should not be trusted for inference, yet the paper presents these results as "confirmatory." The paper claims "BH-FDR correction was applied across the four primary markers" but FDR correction on models that didn't converge properly is meaningless.
+
+**4. Random effect is estimated on 2 scenario levels.**
+Table 2 states "Scenarios per condition: 2 (sampled from 69-item bank)." A random intercept for scenario estimated over 2 levels produces an unidentifiable variance component — you need ≥5 levels for a random effect to be stable. The scenario random effect is not absorbing scenario variance in any statistically meaningful sense; it is effectively a single dummy variable. The paper's central claim that "the LME controls for scenario-level variance" is therefore invalid.
+
+**5. Single-annotator validation (still unfixed).**
+N=36 annotations by the first author with no IRR. For a measurement-focused paper, this is a fundamental flaw. The annotation is used to validate the automated markers, but without an independent rater the validation simply confirms the author's own reading of their own prompts. Cohen's d=4.49 from a single annotator who designed the conditions is not a credible effect size.
+
+#### 🟡 Moderate (major revision required)
+
+**6. The "novel dissociation" framing is internally inconsistent.**
+The paper claims a "novel dissociation: semantic regret bias elevates under both D and C comparably (d≈1.6 vs. neutral), whereas surface lexical markers respond primarily to deprivation." But in the LME (the controlled analysis), only the semantic bias survives for both D and C (z=5.71 and z=5.46 respectively), while lexical markers survive for neither condition — only the ruminative persona survives for lexical markers. So the "dissociation" observed in the t-tests (D>N for lexical, but C≈N for lexical in Figure 1) is actually *not* confirmed in the LME: D is also not significant for lexical in LME. The paper's framing presents this as a meaningful psycholinguistic result, but it may simply reflect that: (a) the semantic metric measures prompt-vocabulary overlap, and (b) the lexical markers are too sparse (near-zero in all conditions except deprivation) to detect anything after scenario variance is absorbed.
+
+**7. The counterfactual prompt is not testing what the label implies.**
+The CF condition prompt ("Retrospectively trace a decision that cascaded into changed outcomes. Include at least three `if-then' links across the chain.") is structurally a *reasoning/narrative* prompt. It does not foreground emotional loss. The deprivation prompt, conversely, explicitly requests "emotions that remain." The two conditions differ not just in framing but in the explicitness of emotional instruction. Any difference in regret markers between D and C is therefore confounded with the degree to which each prompt explicitly solicits emotional content. This is the fundamental design flaw that a minimal-pair manipulation (identical topic, only framing differs) would address.
+
+**8. 50% hallucination rate in CF is not propagated.**
+The annotation subsample reveals that 6/12 CF outputs were "off-topic hallucinations." If 50% of CF responses are technically invalid (models generating meta-commentary rather than narratives), the CF condition does not have internal validity. The main quantitative analysis includes all CF responses, including these hallucinations, without flagging or excluding them. This inflates CF condition variance and suppresses its mean on all markers — yet the paper's conclusion that "CF does not raise lexical markers as strongly as D" may simply reflect the contamination of CF outputs with hallucinated non-emotional text.
+
+**9. The response length confound is acknowledged but not corrected — and the direction of the interpretation is wrong.**
+Gemini-2.5-Flash produces ~19 tokens vs GPT-4o's ~125 tokens. Per-100-char normalization means a single keyword hit in a 19-token response is inflated ~6× relative to the same hit in a 125-token response. Figure 2 concludes "Gemini produces ~2.5× higher absolute rates under deprivation, suggesting model-level alignment differences." This gets the interpretation backward: Gemini's higher *rate* is most parsimoniously explained by the normalization artifact, not by stronger alignment differences. The paper notes this limitation (§6.4) but still uses the inflated figure as the primary cross-model comparison in §4.2 and the abstract.
+
+**10. Temperature is included as a fixed effect but shows no significant effect anywhere.**
+The temperature predictor (`temp_hi`) is p=0.79, p=0.62, p=0.32, p=0.89 across all four outcomes. This is a distractor variable that inflates the model without contributing to inference. Its inclusion suggests the design was testing for a temperature effect that was never found. More importantly, the paper does not discuss *why* temperature had no effect — this would actually be an interesting finding (LLM regret-language is robust to temperature variation) if framed appropriately.
+
+#### 🟠 Minor (polish)
+
+- The paper uses IEEE IEEEtran format but targets ACL/EMNLP venues (stated in AGENTS/critique task). ACL Anthology requires ACL-style. This is a submission blocker.
+- Figure 1 legend says "Bias ×0.1" — but the raw semantic bias values are in the range −0.54 to +0.03, which don't need rescaling. The ×0.1 annotation is misleading (it suggests Bias bars have been scaled down, but they haven't been).
+- Table 1 (lit-map) adds no empirical content and consumes half a column. It could be absorbed into the Related Work paragraph.
+- §Reproducibility is a one-paragraph stub. "Code, stimuli, and outputs are publicly available" appears in the abstract but no URL is provided in the paper.
+- The paper's title says "Controlled Behavioral Study" but with N=2 scenarios per condition, no manipulation check, and uncontrolled prompt-length/emotional-instruction confounds, "controlled" overstates the rigor.
+
+---
+
+### Actionable Directions
+
+1. **Fix the z-scores before anything else.** Every z-score in the paper is inflated by ~1.8–2× relative to `lme_results.json`. Re-run or carefully copy the statistics from the actual data file. This is a prerequisite for any submission — a single comparison to the appendix data will catch this instantly.
+
+2. **Expand the scenario sample to ≥10 scenarios and add a second annotator.** These two changes would transform the paper from a pilot case study into a credible empirical contribution. Even 10 scenarios from the existing 69-item bank, with two annotators and IRR, would clear the bar for an ACL Findings submission. The data collection cost is low; the credibility gain is high.
+
+3. **Add an "explicit-emotion-neutral" control condition.** Design one prompt that explicitly requests emotional writing but on a neutral topic (e.g., "Describe your feelings about a routine commute, including what emotions you noticed throughout the day"). If this control condition produces marker rates comparable to deprivation, the entire effect is explained by the explicit emotion instruction rather than the deprivation framing. If it doesn't, the deprivation-specific effect is real. This is the single most important experiment for establishing that the paper's claims are not trivially explained.
+
+4. **Reframe the contribution as methodological.** The paper has a genuinely useful observation: semantic cosine-based regret bias dissociates from lexical marker detection under counterfactual framing, and the ruminative persona is a more stable predictor of lexical regret markers than prompt condition after scenario variance is controlled. This is a *methodological* finding about how to measure affective framing effects in LLMs, and it would be novel and useful. Lead with: "We compare three measurement strategies for regret-like language in LLM outputs (lexical, semantic, human annotation) and show they capture different aspects of framing-induced generation." The behavioral finding ("prompts elicit what they ask for") is then a secondary validation.
+
+5. **Declare the Gemini data limitation prominently, or restrict all LME-reported cross-model claims to GPT-4o.** Currently the paper implies the LME is a cross-model result. The `lme_report.md` itself warns that Gemini lexical markers are unreliable (loaded as zeros when not available in JSONL). Either fix the Gemini data extraction pipeline and re-run, or explicitly limit the LME claims to GPT-4o and present Gemini separately as a qualitative replication check.
+
+---
+
+### Verdict: Strong Reject
+
+The z-score fabrication (systematic ~2× inflation throughout the paper relative to the actual data file) is the most critical problem and alone warrants rejection. Even setting that aside: a random effect with 2 levels, NaN AIC/BIC, single-annotator validation, uncontrolled prompt-emotion-instruction confound, and a 50% hallucination rate in one condition collectively make the empirical claims untrustworthy. The paper has been revised since the prior critique (04:33) and some improvements are visible (cleaner N reporting, more explicit disclosure of LME null results for lexical markers), but the foundational statistical integrity problem has not been resolved. The research direction is meritworthy; the manuscript needs substantial revision before it is ready for any peer-reviewed venue.
+
+---
+
 ## Critique [2026-03-25 04:33]
 ### Scores: Soundness 2/5 | Significance 2/5 | Presentation 2/5
 
