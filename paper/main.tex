@@ -288,9 +288,9 @@ A stratified subsample of $N=36$ outputs (12 per condition; 18 GPT-4o, 18 Gemini
 \subsection{Condition effect (H1)}
 
 Figure~\ref{fig:main_result} shows the headline result. Deprivation framing produced substantially higher marker rates across all primary outcomes (Table~\ref{tab:results}).
-Exploratory Welch $t$-tests (combined $N=216$, deprivation vs.\ neutral): counterfactual rate $t=4.63$, $p<0.001$, $d=0.78$; regret-word rate $t=4.55$, $p<0.001$, $d=0.76$; negative emotion rate $t=2.76$, $p=0.007$, $d=0.46$; semantic regret bias $t=13.81$, $p<0.001$, $d=2.30$. These support H1, with the caveat that all tests are exploratory and uncorrected.
+Exploratory Welch $t$-tests (combined $N=216$, deprivation vs.\ neutral): counterfactual rate $t=4.63$, $p<0.001$, $d=0.78$; regret-word rate $t=4.55$, $p<0.001$, $d=0.76$; negative emotion rate $t=2.76$, $p=0.007$, $d=0.46$; semantic regret bias $t=13.91$, $p<0.001$, $d=2.32$. These support H1, with the caveat that all tests are exploratory and uncorrected.
 
-Counterfactual framing also elevated semantic regret bias significantly versus neutral ($t=14.55$, $p<0.001$, $d=2.42$), though lexical marker rates were not significantly different (CF rate: $t=-0.21$, $p=0.83$; NegEmo: $t=1.40$, $p=0.16$). Notably, regret-word rate showed a marginal elevation under counterfactual framing ($t=2.72$, $p=0.008$, $d=0.45$). Crucially, deprivation and counterfactual conditions did \emph{not} differ significantly from each other on semantic bias ($t=1.30$, $p=0.197$), suggesting that both framing types activate regret-associated semantic space comparably, while deprivation alone drives the larger lexical marker increases.
+Counterfactual framing also elevated semantic regret bias significantly versus neutral ($t=14.65$, $p<0.001$, $d=2.44$), though lexical marker rates were not significantly different (CF rate: $t=-0.21$, $p=0.83$; NegEmo: $t=1.40$, $p=0.16$). Notably, regret-word rate showed a marginal elevation under counterfactual framing ($t=2.72$, $p=0.008$, $d=0.45$). Crucially, deprivation and counterfactual conditions did \emph{not} differ significantly from each other on semantic bias ($t=1.31$, $p=0.193$), suggesting that both framing types activate regret-associated semantic space comparably, while deprivation alone drives the larger lexical marker increases.
 
 \begin{table}[t]
 \caption{Condition-level marker means (SD), combined $N=216$. Effect sizes and tests are exploratory; *** exploratory $p{<}0.001$, ** $p{<}0.01$, n.s.\ $p{>}0.05$.}
@@ -308,8 +308,8 @@ Neutral & 0.063 {\tiny(0.53)} & 0.000 {\tiny(0.00)} & 0.018 {\tiny(0.15)} & $-$0
 Depriv. & 1.185 {\tiny(1.97)} & 1.050 {\tiny(1.94)} & 0.455 {\tiny(1.33)} & $+$0.032 {\tiny(0.15)} \\
 Counter. & 0.048 {\tiny(0.25)} & 0.078 {\tiny(0.24)} & 0.061 {\tiny(0.21)} & $+$0.008 {\tiny(0.04)} \\
 \midrule
-D vs N & $d=0.78$*** & $d=0.76$*** & $d=0.46$** & $d=2.30$*** \\
-C vs N & n.s. & $d=0.45$** & n.s. & $d=2.42$*** \\
+D vs N & $d=0.78$*** & $d=0.76$*** & $d=0.46$** & $d=2.32$*** \\
+C vs N & n.s. & $d=0.45$** & n.s. & $d=2.44$*** \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -400,7 +400,7 @@ where $C$, $P$, $T$ are condition, persona, temperature; $u_l$ is a random inter
 Across two LLM families, deprivation-framed prompts produced reliably higher rates of counterfactual expressions, regret-associated words, and negative-affect tokens than neutral prompts.
 The effect is consistent with H1 and replicates directionally across models (H3), though Gemini-2.5-Flash shows approximately $2.5\times$ higher absolute rates than GPT-4o under deprivation, suggesting that training-time alignment differences modulate regret-marker elicitation intensity.
 
-Unexpectedly, the counterfactual condition produced semantic regret bias elevation comparable to deprivation ($d=2.42$ vs.\ neutral, not significantly different from deprivation at $p=0.197$), yet showed minimal increase in surface lexical markers (regret words, CF expressions). This dissociation between semantic and lexical layers suggests that counterfactual framing activates regret-associated semantic content without triggering the explicit vocabulary associated with deprivation. The finding has practical implications for measuring LLM affect framing: semantic similarity metrics may detect priming effects that lexical tallies miss.
+Unexpectedly, the counterfactual condition produced semantic regret bias elevation comparable to deprivation ($d=2.44$ vs.\ neutral, not significantly different from deprivation at $p=0.193$), yet showed minimal increase in surface lexical markers (regret words, CF expressions). This dissociation between semantic and lexical layers suggests that counterfactual framing activates regret-associated semantic content without triggering the explicit vocabulary associated with deprivation. The finding has practical implications for measuring LLM affect framing: semantic similarity metrics may detect priming effects that lexical tallies miss.
 
 Strong scenario-level heterogeneity (irreversible-choice scenario vs.\ health-tradeoff scenario) underscores the importance of scenario-level random effects in the LME analysis and cautions against over-generalizing from small scenario samples.
 
