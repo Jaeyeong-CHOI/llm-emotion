@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Homebrew) (preloaded format=pdflatex 2026.3.4)  25 MAR 2026 01:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026/Homebrew) (preloaded format=pdflatex 2026.3.4)  25 MAR 2026 01:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -634,8 +634,8 @@ File: tikzlibraryplotmarks.code.tex 2025-08-29 v3.1.11a (3.1.11a)
 (/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/tex/generic/pgf/librari
 es/pgflibraryplotmarks.code.tex
 File: pgflibraryplotmarks.code.tex 2025-08-29 v3.1.11a (3.1.11a)
-)))
-(/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/tex/latex/url/url.sty
+))) (/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/tex/latex/url/url.s
+ty
 \Urlmuskip=\muskip17
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
@@ -725,7 +725,6 @@ Package: setspace 2022/12/04 v6.7b set line spacing
 th.sty
 Package: amsmath 2025/07/09 v2.17z AMS math features
 \@mathmargin=\skip69
-
 For additional information on amsmath, use the `?' option.
 
 (/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/tex/latex/amsmath/amste
@@ -854,7 +853,6 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 30.
 LaTeX Font Info:    ... okay on input line 30.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 30.
 LaTeX Font Info:    ... okay on input line 30.
-
 -- Lines per column: 56 (exact).
 
 (/opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/tex/context/base/mkii/s
@@ -947,12 +945,7 @@ Package pgfplots info on input line 268: Using 'lua backend=false' for axis: x
 coord trafo unsupported.
 Package pgfplots info on input line 336: Using 'lua backend=false' for axis: x 
 coord trafo unsupported.
- [3]
-
-LaTeX Warning: Reference `sec:limitations' on page 4 undefined on input line 36
-0.
-
-[4] (./main.bbl [5])
+[3] [4] (./main.bbl [5])
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -971,20 +964,13 @@ Before submitting the final camera ready copy, remember to:
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
  ) 
 Here is how much of TeX's memory you used:
  29803 strings out of 467525
- 750904 string characters out of 5408440
- 1283486 words of memory out of 5000000
+ 750907 string characters out of 5408440
+ 1283628 words of memory out of 5000000
  57848 multiletter control sequences out of 15000+600000
- 769470 words of font info for 425 fonts, out of 8000000 for 9000
+ 769473 words of font info for 425 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,19n,104p,1361b,2298s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/fonts/type1/public/am
@@ -1008,7 +994,7 @@ b></opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/fonts/type1/urw/times
 /utmbi8a.pfb></opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/fonts/type
 1/urw/times/utmr8a.pfb></opt/homebrew/Cellar/texlive/20260301/share/texmf-dist/
 fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (6 pages, 230974 bytes).
+Output written on main.pdf (6 pages, 231230 bytes).
 PDF statistics:
  112 PDF objects out of 1000 (max. 8388607)
  69 compressed objects within 1 object stream
