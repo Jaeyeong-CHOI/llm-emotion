@@ -183,6 +183,14 @@ def _append_optional_note(
         notes.append(f"{message}: {', '.join(variables)}")
 
 
+def _append_environment_issue_notes(
+    notes: list[str],
+    issue_specs: list[tuple[list[str], str]],
+) -> None:
+    for variables, message in issue_specs:
+        _append_optional_note(notes, variables, message)
+
+
 def summarize_readiness_issues(
     required_missing: list[str],
     required_placeholder_vars: list[str],
@@ -200,16 +208,16 @@ def summarize_readiness_issues(
     if required_missing:
         notes.append("필수 환경변수 누락")
 
-    optional_notes = [
-        (required_placeholder_vars, "필수 환경변수에 placeholder 값 존재"),
-        (required_unsafe_vars, "필수 환경변수에 개행/탭 등 제어문자 존재"),
-        (optional_missing, "선택 환경변수 미설정(권장)"),
-        (optional_placeholder_vars, "선택 환경변수에 placeholder 값 존재"),
-        (optional_unsafe_vars, "선택 환경변수에 개행/탭 등 제어문자 존재"),
-    ]
-
-    for vars_, message in optional_notes:
-        _append_optional_note(notes, vars_, message)
+    _append_environment_issue_notes(
+        notes,
+        [
+            (required_placeholder_vars, "필수 환경변수에 placeholder 값 존재"),
+            (required_unsafe_vars, "필수 환경변수에 개행/탭 등 제어문자 존재"),
+            (optional_missing, "선택 환경변수 미설정(권장)"),
+            (optional_placeholder_vars, "선택 환경변수에 placeholder 값 존재"),
+            (optional_unsafe_vars, "선택 환경변수에 개행/탭 등 제어문자 존재"),
+        ],
+    )
 
     if duplicate_requested_vars:
         notes.append(
