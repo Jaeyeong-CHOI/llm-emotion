@@ -51,9 +51,9 @@ def main():
         rows,
         key=lambda r: (
             0 if r.get("screening_label") == "include" else 1,
-            -_safe_int(r.get("screening_score")),
-            -_safe_int(r.get("cited_by_count")),
-            -_safe_int(r.get("year")),
+            -safe_int(r.get("screening_score")),
+            -safe_int(r.get("cited_by_count")),
+            -safe_int(r.get("year")),
         ),
     )
 
