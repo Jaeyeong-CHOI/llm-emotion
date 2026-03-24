@@ -49,37 +49,6 @@ Recent findings in theory-of-mind evaluation show that measured performance is h
 
 This work builds a transparent experimental stack where generation, logging, screening quality, and reporting are unified.
 
-\begin{figure}[t]
-\centering
-\resizebox{0.98\linewidth}{!}{%
-\begin{tikzpicture}[
-  box/.style={draw, rounded corners, align=center, minimum width=2.35cm, minimum height=0.9cm, fill=blue!7},
-  flow/.style={->, thick}
-]
-\node[box] (lit) at (0,0) {Literature\\retrieval};
-\node[box] (screen) at (2.7,0) {Screening\\\& QC gates};
-\node[box] (prompt) at (5.4,0) {Prompt bank\\(scenario/persona/temp)};
-\node[box] (gen) at (8.1,0) {Generation\\(API/mock)};
-\node[box] (mark) at (10.8,0) {Marker\\analysis};
-\node[box] (infer) at (13.5,0) {Inference\\plan/report};
-
-\draw[flow] (lit) -- (screen);
-\draw[flow] (screen) -- (prompt);
-\draw[flow] (prompt) -- (gen);
-\draw[flow] (gen) -- (mark);
-\draw[flow] (mark) -- (infer);
-
-\node[draw, rounded corners, align=center, minimum width=7.0cm, minimum height=0.95cm, fill=green!8] (ops) at (6.75,-1.6)
-{Continuous ops loop (1-min cron): readiness gate $\rightarrow$ queued run $\rightarrow$ manifest/log update};
-\draw[flow] (ops.north) -- (gen.south);
-\draw[flow] (infer.south) |- (ops.east);
-\draw[flow] (ops.west) |- (lit.south);
-\end{tikzpicture}%
-}
-\caption{End-to-end research framework for regret-like behavior study in LLM outputs.}
-\label{fig:framework}
-\end{figure}
-
 \section{Related Work}
 We retrieved 279 candidate records from OpenAlex (not yet a finalized gold-reviewed corpus) and organized them into five theory-informed streams: counterfactual--regret psychology, LLM social-cognitive reasoning, anthropomorphism studies, emotion/benchmark methodology, and reproducibility-oriented design. Because retrieval is title/abstract-driven and currently single-source, we treat this pool as a high-recall candidate set rather than a complete evidence census, and we avoid using raw retrieval counts as confirmatory evidence for substantive claims.
 
