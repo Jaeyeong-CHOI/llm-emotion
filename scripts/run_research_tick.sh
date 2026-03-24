@@ -109,16 +109,18 @@ LOCK_PID_FILE="$LOCK_DIR/pid"
 LOCK_ACQUIRED=0
 RUN_TICK_SCRIPT="${ROOT}/scripts/run_research_tick.sh"
 
-validate_non_negative_int() {
+coalesce_int_env() {
   local value="$1"
-  [[ "$value" =~ ^[0-9]+$ ]]
+  local default_value="$2"
+
+  if [[ "$value" =~ ^[0-9]+$ ]]; then
+    printf '%s' "$value"
+  else
+    printf '%s' "$default_value"
+  fi
 }
 
-if ! validate_non_negative_int "${LLM_EMOTION_TICK_LOCK_STALE_SECONDS:-900}"; then
-  LOCK_STALE_SECONDS=900
-else
-  LOCK_STALE_SECONDS="${LLM_EMOTION_TICK_LOCK_STALE_SECONDS:-900}"
-fi
+LOCK_STALE_SECONDS="$(coalesce_int_env "${LLM_EMOTION_TICK_LOCK_STALE_SECONDS:-}" 900)"
 
 is_numeric_pid() {
   local pid="$1"
