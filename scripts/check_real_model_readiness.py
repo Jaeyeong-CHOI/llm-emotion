@@ -182,23 +182,18 @@ def summarize_readiness_issues(
     notes: list[str] = []
     if required_missing:
         notes.append("필수 환경변수 누락")
-    _append_optional_note(notes, required_placeholder_vars, "필수 환경변수에 placeholder 값 존재")
-    _append_optional_note(
-        notes,
-        required_unsafe_vars,
-        "필수 환경변수에 개행/탭 등 제어문자 존재",
-    )
-    _append_optional_note(notes, optional_missing, "선택 환경변수 미설정(권장)")
-    _append_optional_note(
-        notes,
-        optional_placeholder_vars,
-        "선택 환경변수에 placeholder 값 존재",
-    )
-    _append_optional_note(
-        notes,
-        optional_unsafe_vars,
-        "선택 환경변수에 개행/탭 등 제어문자 존재",
-    )
+
+    optional_notes = [
+        (required_placeholder_vars, "필수 환경변수에 placeholder 값 존재"),
+        (required_unsafe_vars, "필수 환경변수에 개행/탭 등 제어문자 존재"),
+        (optional_missing, "선택 환경변수 미설정(권장)"),
+        (optional_placeholder_vars, "선택 환경변수에 placeholder 값 존재"),
+        (optional_unsafe_vars, "선택 환경변수에 개행/탭 등 제어문자 존재"),
+    ]
+
+    for vars_, message in optional_notes:
+        _append_optional_note(notes, vars_, message)
+
     if not endpoint_scheme_ok:
         notes.append("OPENAI_BASE_URL 스킴 미일치")
     if "OPENAI_API_KEY" in suspicious:
