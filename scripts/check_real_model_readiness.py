@@ -239,9 +239,6 @@ def _block_payload(block: EnvBlock, *, kind: str) -> dict:
         f"{kind}_available": block.available,
     }
 
-
-
-
 def _build_readiness_summary_payload(
     required_payload: dict,
     optional_payload: dict,
@@ -256,12 +253,34 @@ def _build_readiness_summary_payload(
     }
 
 
+def _build_endpoint_payload(base_url: str, endpoint_scheme_ok: bool) -> dict:
+    """Build endpoint inspection fields for readiness payload."""
+
+    return {
+        "OPENAI_BASE_URL_present": bool(base_url.strip()),
+        "scheme_ok": endpoint_scheme_ok,
+    }
+
+
+def _merge_available_vars(
+    required_payload: dict,
+    optional_payload: dict,
+) -> dict:
+    """Merge required/optional availability maps in a single place."""
+
+    return {
+        **required_payload["required_available"],
+        **optional_payload["optional_available"],
+    }
+
+
 def build_readiness_payload(
     required: EnvBlock,
     optional: EnvBlock,
     duplicate_requested_vars: list[str],
     suspicious: list[str],
     endpoint_scheme_ok: bool,
+    endpoint: str,
 ) -> dict:
     """Build a unified payload dict to avoid duplicated serialization logic."""
 
@@ -300,10 +319,10 @@ def build_readiness_payload(
             "ready": readiness_ok,
             "required_vars": required.names,
             "optional_vars": optional.names,
-            "available_vars": {
-                **required_payload["required_available"],
-                **optional_payload["optional_available"],
-            },
+            "available_vars": _merge_available_vars(
+                required_payload=required_payload,
+                optional_payload=optional_payload,
+            ),
             "missing_vars": required_payload["required_missing"],
             "optional_missing_vars": optional_payload["optional_missing"],
             "placeholder_vars": required_payload["required_placeholder"],
@@ -311,10 +330,10 @@ def build_readiness_payload(
             "unsafe_vars": required_payload["required_unsafe"],
             "optional_unsafe_vars": optional_payload["optional_unsafe"],
             "suspicious_vars": suspicious_vars,
-            "endpoint": {
-                "OPENAI_BASE_URL_present": bool(os.getenv("OPENAI_BASE_URL", "").strip()),
-                "scheme_ok": endpoint_scheme_ok,
-            },
+            "endpoint": _build_endpoint_payload(
+                base_url=endpoint,
+                endpoint_scheme_ok=endpoint_scheme_ok,
+            ),
             "notes": notes,
         },
     }
@@ -367,6 +386,7 @@ def main():
         duplicate_requested_vars=duplicate_requested_vars,
         suspicious=suspicious,
         endpoint_scheme_ok=endpoint_scheme_ok,
+        endpoint=endpoint,
     )
 
     payload = readiness["payload"]
