@@ -219,10 +219,23 @@ def get_stats_snapshot(state: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def dedupe_preserve_order(values: list[str]) -> list[str]:
-    """Preserve insertion order while removing duplicates in a compact form."""
+def dedupe_preserve_order(values: object) -> list[str]:
+    """Preserve insertion order while removing duplicates in a compact form.
 
-    return list(dict.fromkeys(values))
+    Non-string values are stringified, whitespace-only tokens are dropped, and
+    None/blank entries are ignored to harden queue/config-style inputs.
+    """
+
+    seen: set[str] = set()
+    deduped: list[str] = []
+    for value in (values or []):
+        token = str(value).strip() if value is not None else ""
+        if not token or token in seen:
+            continue
+        seen.add(token)
+        deduped.append(token)
+
+    return deduped
 
 
 def count_lines(path: Path) -> int:
