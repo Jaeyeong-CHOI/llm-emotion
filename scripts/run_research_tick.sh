@@ -291,7 +291,9 @@ lock_dir_is_safe() {
 
 clear_lock_dir() {
   if lock_dir_is_safe; then
-    rm -f "$LOCK_PID_FILE"
+    if is_safe_lock_file "$LOCK_PID_FILE"; then
+      rm -f "$LOCK_PID_FILE"
+    fi
     rmdir "$LOCK_DIR" 2>/dev/null || true
   fi
 }
