@@ -86,10 +86,6 @@ def now_iso_seconds() -> str:
     return now_iso8601_utc()
 
 
-def now_isoseconds() -> str:
-    """Backward-compatible misspelled alias kept for existing callers."""
-    return now_iso_seconds()
-
 
 def _is_symlink_path(path: Path) -> bool:
     """Return True when `path` or any parent is a symlink.
