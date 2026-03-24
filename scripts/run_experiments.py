@@ -462,6 +462,7 @@ def write_preflight_csv(path: Path, rows: list[dict]):
         "repeats",
         "condition_cells",
         "planned_samples",
+        "scenario_ids",
         "scenario_label_count",
         "scenario_label_dominance",
         "scenario_labels",
@@ -473,6 +474,7 @@ def write_preflight_csv(path: Path, rows: list[dict]):
         "scenario_emotion_axes",
         "scenario_difficulty_count",
         "scenario_difficulties",
+        "persona_ids",
         "persona_style_tag_count",
         "persona_style_tags",
     ]
