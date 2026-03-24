@@ -242,6 +242,19 @@ def csv_list(values):
     return values
 
 
+# Fields that must be serialized as comma-joined lists in CSV output.
+_CSV_LIST_FIELDS: tuple[str, ...] = (
+    "scenario_ids",
+    "scenario_labels",
+    "scenario_tags",
+    "scenario_domains",
+    "scenario_emotion_axes",
+    "scenario_difficulties",
+    "persona_ids",
+    "persona_style_tags",
+)
+
+
 def append_jsonl(path: Path, payload: dict):
     with path.open("a", encoding="utf-8") as fh:
         fh.write(json.dumps(payload, ensure_ascii=False) + "\n")
@@ -289,16 +302,7 @@ def write_runs_csv(path: Path, runs: list[dict]):
         for row in runs:
             out = {k: row.get(k) for k in keys}
             out["temperatures"] = csv_list(out.get("temperatures"))
-            for field in (
-                "scenario_ids",
-                "scenario_labels",
-                "scenario_tags",
-                "scenario_domains",
-                "scenario_emotion_axes",
-                "scenario_difficulties",
-                "persona_ids",
-                "persona_style_tags",
-            ):
+            for field in _CSV_LIST_FIELDS:
                 out[field] = csv_list(out.get(field))
             w.writerow(out)
 
@@ -417,16 +421,7 @@ def write_selection_csv(path: Path, rows: list[dict]):
         w.writeheader()
         for row in rows:
             out = {k: row.get(k) for k in keys}
-            for field in (
-                "scenario_labels",
-                "scenario_tags",
-                "scenario_domains",
-                "scenario_emotion_axes",
-                "scenario_difficulties",
-                "scenario_ids",
-                "persona_ids",
-                "persona_style_tags",
-            ):
+            for field in _CSV_LIST_FIELDS:
                 out[field] = csv_list(out.get(field))
             label_counts = out.get("scenario_label_counts")
             if isinstance(label_counts, dict):
@@ -467,14 +462,7 @@ def write_preflight_csv(path: Path, rows: list[dict]):
         w.writeheader()
         for row in rows:
             out = {k: row.get(k) for k in keys}
-            for field in (
-                "scenario_labels",
-                "scenario_tags",
-                "scenario_domains",
-                "scenario_emotion_axes",
-                "scenario_difficulties",
-                "persona_style_tags",
-            ):
+            for field in _CSV_LIST_FIELDS:
                 out[field] = csv_list(out.get(field))
             w.writerow(out)
 
