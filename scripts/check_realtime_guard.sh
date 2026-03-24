@@ -10,6 +10,8 @@ source "$SCRIPT_DIR/research_env.sh"
 
 load_research_env
 
+total_steps=4
+
 run_step() {
   local index="$1"
   local label="$2"
@@ -21,31 +23,9 @@ run_step() {
   "${command[@]}"
 }
 
-step_labels=(
-  "real model readiness check"
-  "cron snapshot refresh"
-  "live status refresh"
-  "research status"
-)
-
-step_commands=(
-  "python3 scripts/check_real_model_readiness.py"
-  "python3 scripts/snapshot_cron_status.py"
-  "python3 scripts/update_live_status.py"
-  "python3 scripts/research_status.py"
-)
-
-total_steps=${#step_labels[@]}
-
-if [ "$total_steps" -ne "${#step_commands[@]}" ]; then
-  echo "[guard] mismatch: labels=$total_steps commands=${#step_commands[@]}" >&2
-  exit 1
-fi
-
-for i in "${!step_labels[@]}"; do
-  idx=$((i + 1))
-  run_step "$idx" "${step_labels[$i]}" "$total_steps" bash -lc "${step_commands[$i]}"
-
-done
+run_step 1 "real model readiness check" "$total_steps" python3 scripts/check_real_model_readiness.py
+run_step 2 "cron snapshot refresh" "$total_steps" python3 scripts/snapshot_cron_status.py
+run_step 3 "live status refresh" "$total_steps" python3 scripts/update_live_status.py
+run_step 4 "research status" "$total_steps" python3 scripts/research_status.py
 
 printf "\nDone.\n"
