@@ -553,6 +553,18 @@ commit_queue_update() {
   fi
 }
 
+finalize_queue_update() {
+  local queue_file="$1"
+  local tmp_file="$2"
+
+  if ! commit_queue_update "$queue_file" "$tmp_file"; then
+    cleanup_tmp_files "$tmp_file"
+    return 1
+  fi
+
+  cleanup_tmp_files "$tmp_file"
+}
+
 dedupe_queue_file() {
   local queue_file="$1"
   local dedup_file=""
@@ -567,7 +579,7 @@ dedupe_queue_file() {
     return 1
   fi
 
-  if ! commit_queue_update "$queue_file" "$deduped_file"; then
+  if ! finalize_queue_update "$queue_file" "$deduped_file"; then
     cleanup_tmp_files "$dedup_file"
     return 1
   fi
@@ -596,8 +608,8 @@ dequeue_run_id() {
       cleanup_tmp_files "$tmp_file" "$next_file"
       return 1
     fi
-    if ! commit_queue_update "$queue_file" "$next_file"; then
-      cleanup_tmp_files "$tmp_file" "$next_file"
+    if ! finalize_queue_update "$queue_file" "$next_file"; then
+      cleanup_tmp_files "$tmp_file"
       return 1
     fi
   fi
