@@ -21,42 +21,22 @@ run_step() {
   "${command[@]}"
 }
 
-STEP_LABELS=(
-  "real model readiness check"
-  "cron snapshot refresh"
-  "live status refresh"
-  "research status"
+STEPS=(
+  "real model readiness check::python3 scripts/check_real_model_readiness.py"
+  "cron snapshot refresh::python3 scripts/snapshot_cron_status.py"
+  "live status refresh::python3 scripts/update_live_status.py"
+  "research status::python3 scripts/research_status.py"
 )
-TOTAL_STEPS=${#STEP_LABELS[@]}
 
-run_guard_step() {
-  local index="$1"
-  local -a cmd=()
-
-  case "$index" in
-    0)
-      cmd=(python3 scripts/check_real_model_readiness.py)
-      ;;
-    1)
-      cmd=(python3 scripts/snapshot_cron_status.py)
-      ;;
-    2)
-      cmd=(python3 scripts/update_live_status.py)
-      ;;
-    3)
-      cmd=(python3 scripts/research_status.py)
-      ;;
-    *)
-      echo "[warn] unknown guard step index: ${index}" >&2
-      return 1
-      ;;
-  esac
-
-  run_step "$((index + 1))" "${STEP_LABELS[index]}" "$TOTAL_STEPS" "${cmd[@]}"
-}
+TOTAL_STEPS=${#STEPS[@]}
 
 for ((i = 0; i < TOTAL_STEPS; i++)); do
-  run_guard_step "$i"
+  step="${STEPS[$i]}"
+  label="${step%%::*}"
+  cmd="${step##*::}"
+  # shellcheck disable=SC2086
+  run_step "$((i + 1))" "$label" "$TOTAL_STEPS" $cmd
+
 done
 
 printf "\nDone.\n"
