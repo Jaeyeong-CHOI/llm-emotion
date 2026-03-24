@@ -267,8 +267,15 @@ read_lock_pid_file() {
 ensure_queue_file_safe() {
   local queue_file="$1"
   local when_fail="${2:-1}"
+  local queue_dir=""
 
   is_path_safe_from_symlink "$queue_file" || return "$when_fail"
+
+  queue_dir="$(dirname "$queue_file")"
+  if [ -n "$queue_dir" ] && [ "$queue_dir" != "." ]; then
+    mkdir -p "$queue_dir"
+  fi
+
   if [ -e "$queue_file" ] && [ ! -f "$queue_file" ]; then
     echo "[tick] rejected queue path (not a regular file): ${queue_file}" >&2
     return "$when_fail"
