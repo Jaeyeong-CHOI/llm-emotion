@@ -181,17 +181,21 @@ def save_research_state(state: dict[str, Any]) -> None:
     write_json(STATE_PATH, state)
 
 
-def _safe_int(value: Any, default: int = 0) -> int:
-    """Best-effort integer coercion for stats fields.
+def safe_int(value: Any, default: int = 0) -> int:
+    """Best-effort integer coercion for potentially dirty numeric inputs.
 
-    Research state can be manually edited or partially corrupted by interrupted
-    writes. Coercing numeric counters defensively prevents downstream scripts
-    from failing on unexpected string/float/null payloads.
+    This helper tolerates strings/None/float-like values and falls back to a
+    caller-provided default when coercion fails.
     """
     try:
         return int(value)
     except (TypeError, ValueError):
         return default
+
+
+def _safe_int(value: Any, default: int = 0) -> int:
+    # Backward-compatible alias for internal callers in legacy scripts.
+    return safe_int(value, default=default)
 
 
 def get_stats_snapshot(state: dict[str, Any]) -> dict[str, Any]:

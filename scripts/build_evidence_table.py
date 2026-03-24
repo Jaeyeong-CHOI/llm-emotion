@@ -3,6 +3,8 @@ import argparse
 import json
 from pathlib import Path
 
+from research_ops_common import safe_int
+
 
 def classify_pillar(group_name: str) -> str:
     if isinstance(group_name, list):
@@ -16,13 +18,6 @@ def classify_pillar(group_name: str) -> str:
     if "anthrop" in joined or "emotion" in joined:
         return "Anthropomorphism/Emotion"
     return "Other"
-
-
-def _safe_int(value: object, fallback: int = 0) -> int:
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return fallback
 
 
 def row_to_md(i: int, r: dict) -> str:
