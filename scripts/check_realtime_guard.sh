@@ -21,22 +21,9 @@ run_step() {
   "${command[@]}"
 }
 
-STEPS=(
-  "real model readiness check::python3 scripts/check_real_model_readiness.py"
-  "cron snapshot refresh::python3 scripts/snapshot_cron_status.py"
-  "live status refresh::python3 scripts/update_live_status.py"
-  "research status::python3 scripts/research_status.py"
-)
-
-TOTAL_STEPS=${#STEPS[@]}
-
-for ((i = 0; i < TOTAL_STEPS; i++)); do
-  step="${STEPS[$i]}"
-  label="${step%%::*}"
-  cmd="${step##*::}"
-  # shellcheck disable=SC2086
-  run_step "$((i + 1))" "$label" "$TOTAL_STEPS" $cmd
-
-done
+run_step 1 "real model readiness check" 4 python3 scripts/check_real_model_readiness.py
+run_step 2 "cron snapshot refresh" 4 python3 scripts/snapshot_cron_status.py
+run_step 3 "live status refresh" 4 python3 scripts/update_live_status.py
+run_step 4 "research status" 4 python3 scripts/research_status.py
 
 printf "\nDone.\n"
