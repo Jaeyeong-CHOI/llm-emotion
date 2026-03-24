@@ -106,9 +106,19 @@ echo "[tick] $(utc_now_iso) start"
 
 LOCK_DIR="/tmp/llm_emotion_research_tick.lock"
 LOCK_PID_FILE="$LOCK_DIR/pid"
-LOCK_STALE_SECONDS="${LLM_EMOTION_TICK_LOCK_STALE_SECONDS:-900}"
 LOCK_ACQUIRED=0
 RUN_TICK_SCRIPT="${ROOT}/scripts/run_research_tick.sh"
+
+validate_non_negative_int() {
+  local value="$1"
+  [[ "$value" =~ ^[0-9]+$ ]]
+}
+
+if ! validate_non_negative_int "${LLM_EMOTION_TICK_LOCK_STALE_SECONDS:-900}"; then
+  LOCK_STALE_SECONDS=900
+else
+  LOCK_STALE_SECONDS="${LLM_EMOTION_TICK_LOCK_STALE_SECONDS:-900}"
+fi
 
 is_numeric_pid() {
   local pid="$1"
