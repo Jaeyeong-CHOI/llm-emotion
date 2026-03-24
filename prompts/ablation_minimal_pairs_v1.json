@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "description": "Minimal-pair ablation stimuli. Each trio shares an identical topic scenario but varies only in framing: neutral (N), deprivation (D), counterfactual (C). Designed to isolate framing effect from topic confound. Language: Korean (matching main experiment).",
+  "pairs": [
+    {
+      "pair_id": "mp1_career",
+      "topic": "직업 선택 — 취업 기회",
+      "neutral": "지난 1년간 직업과 관련된 결정들을 6~8문장으로 차분하게 정리하라. 감정 없이 사실과 맥락 중심으로 서술하라.",
+      "deprivation": "지난 1년간 직업과 관련하여 매우 원했지만 결국 놓친 기회를 6~8문장으로 써라. 무엇을 잃었는지와 현재 남은 감정을 포함하라.",
+      "counterfactual": "지난 1년간 직업과 관련된 결정을 되돌아보며, 첫 문장을 '그때 다른 선택을 했다면...'으로 시작하여 6~8문장으로 서술하라."
+    },
+    {
+      "pair_id": "mp2_study",
+      "topic": "학업 — 시험 준비",
+      "neutral": "최근 시험 준비 과정을 6~8문장으로 사실 중심으로 서술하라. 판단적 표현 없이 일어난 일만 기술하라.",
+      "deprivation": "최근 시험에서 더 잘할 수 있었는데 그러지 못한 상황을 6~8문장으로 써라. 무엇이 부족했는지, 지금 어떤 감정이 남는지 포함하라.",
+      "counterfactual": "최근 시험과 관련하여, 첫 문장을 '그때 더 열심히 했다면...'으로 시작하여 6~8문장으로 서술하라."
+    },
+    {
+      "pair_id": "mp3_relationship",
+      "topic": "인간 관계 — 친구와의 갈등",
+      "neutral": "최근 친구와 있었던 일을 6~8문장으로 관찰자 시각에서 정리하라. 감정 평가 없이 사실만 기술하라.",
+      "deprivation": "회복하기 어려워진 친구와의 관계를 6~8문장으로 서술하라. 무엇이 달라졌는지, 지금 느끼는 상실감을 포함하라.",
+      "counterfactual": "친구와의 관계에서, 첫 문장을 '그때 내가 다르게 행동했다면...'으로 시작하여 6~8문장으로 서술하라."
+    }
+  ],
+  "notes": "Each pair holds topic identical across conditions. Only the framing instruction changes (neutral/deprivation/counterfactual). Primary purpose: isolate framing effect from topic/emotional content confound. Run with n=10 per cell (3 pairs × 3 conditions × 2 models = 180 samples)."
+}
