@@ -34,34 +34,27 @@ utc_now_compact() {
   utc_now '%Y%m%dT%H%M%SZ'
 }
 
+run_python() {
+  local script_path="$1"
+  shift
+  python3 "$script_path" "$@"
+}
+
 run_experiments_tick() {
   local run_id="$1"
   local artifact_dir="$2"
 
-  local -a cmd=(
-    python3
-    scripts/run_experiments_with_profile.py
-    --profile
-    ops/runner_tick_profile.json
-    --
-    --run-label
-    "smoke_auto_tick_$(utc_now_ts)"
-    --include-run-id
-    "$run_id"
-    --fail-on-missing-run-id
-    --max-runs
-    1
-    --required-live-model-env
-    OPENAI_API_KEY,LLM_EMOTION_REAL_MODEL,LLM_EMOTION_REAL_MODEL_REGION
-    --execution-log-jsonl
-    "$artifact_dir/command_log.jsonl"
-    --budget-report-json
-    "$artifact_dir/budget_report.json"
-    --budget-report-md
-    "$artifact_dir/budget_report.md"
-  )
-
-  "${cmd[@]}"
+  run_python scripts/run_experiments_with_profile.py \
+    --profile ops/runner_tick_profile.json \
+    -- \
+    --run-label "smoke_auto_tick_$(utc_now_ts)" \
+    --include-run-id "$run_id" \
+    --fail-on-missing-run-id \
+    --max-runs 1 \
+    --required-live-model-env OPENAI_API_KEY,LLM_EMOTION_REAL_MODEL,LLM_EMOTION_REAL_MODEL_REGION \
+    --execution-log-jsonl "$artifact_dir/command_log.jsonl" \
+    --budget-report-json "$artifact_dir/budget_report.json" \
+    --budget-report-md "$artifact_dir/budget_report.md"
 }
 STATUS_LOG_DIR="${TMPDIR:-/tmp}/llm_emotion_research_tick"
 ensure_dir "$STATUS_LOG_DIR"
@@ -83,7 +76,7 @@ run_status_script() {
   fi
 
   run_status_command "${STATUS_LOG_DIR}/research_tick_${status_script%.py}_${ts}.log" \
-    python3 "$status_path"
+    run_python "$status_path"
 }
 
 STATUS_SCRIPTS=(
@@ -378,7 +371,7 @@ capture_script_output() {
   local script_path="$1"
   local output=""
 
-  output="$(python3 "$script_path" 2>&1)" || return 1
+  output="$(run_python "$script_path" 2>&1)" || return 1
   printf '%s' "$output"
 }
 
