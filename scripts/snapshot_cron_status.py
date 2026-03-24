@@ -35,6 +35,23 @@ CRON_TARGETS = [
     ),
 ]
 
+def find_job_by_name(jobs, name_key):
+    for j in jobs.values():
+        if (j.get("name") or "") == name_key:
+            return j
+    return None
+
+
+def find_unique_fuzzy_name_match(jobs, name_key):
+    if not name_key:
+        return None
+
+    matches = [j for j in jobs.values() if name_key in (j.get("name") or "")]
+    if len(matches) == 1:
+        return matches[0]
+
+    return None
+
 
 def run_cron_list() -> str:
     p = subprocess.run(
@@ -59,19 +76,14 @@ def find_by_id_or_name(jobs, env_id_key, fallback_id, name_key):
         # This keeps the system running when IDs are rotated or manually edited.
 
     # primary by name
-    for j in jobs.values():
-        if (j.get("name") or "") == name_key:
-            return j, j.get("id"), f"name:{name_key}"
+    exact = find_job_by_name(jobs, name_key)
+    if exact:
+        return exact, exact.get("id"), f"name:{name_key}"
 
     # substring fallback by contains
-    contains_matches = [
-        j
-        for j in jobs.values()
-        if name_key and name_key in (j.get("name") or "")
-    ]
-    if len(contains_matches) == 1:
-        j = contains_matches[0]
-        return j, j.get("id"), f"fuzzy:{name_key}"
+    fuzzy = find_unique_fuzzy_name_match(jobs, name_key)
+    if fuzzy:
+        return fuzzy, fuzzy.get("id"), f"fuzzy:{name_key}"
 
     # final fallback: legacy ID 기반 복구 경로는 의도적으로 비활성화
     # 이름 기반 매칭만으로 안정적으로 복구되며, 잘못된 고정 ID를 피한다.
