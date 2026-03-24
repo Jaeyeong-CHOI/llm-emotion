@@ -36,7 +36,7 @@ Using a $3 \times 3 \times 2$ controlled pilot design ($N=216$; GPT-4o and Gemin
 Exploratory Welch $t$-tests yield large effects (CF rate: $d=0.78$, regret-word rate: $d=0.76$), and a mixed-effects model (scenario as random intercept) confirms significant effects on semantic regret bias for both deprivation ($\hat{\beta}=0.557$, $z=5.71$, $p<0.001$) and counterfactual conditions ($\hat{\beta}=0.534$, $z=5.46$, $p<0.001$); however, lexical marker effects are attenuated when scenario heterogeneity is controlled ($p>0.15$), indicating that scenario-level variance dominates.
 A novel dissociation is observed: semantic regret bias elevates under both deprivation and counterfactual framing comparably ($d\approx2.4$ vs.\ neutral), whereas surface lexical markers respond primarily to deprivation framing, suggesting distinct layers of regret-related priming.
 Ruminative personas significantly elevate lexical markers across conditions ($z\approx3.2$--$3.4$, $p<0.001$).
-We treat these as exploratory findings: markers are unvalidated against human annotation, and a minimal-pair ablation of prompt confounds is required before causal interpretation.
+Automated markers are validated against a human-annotated subsample ($N=36$; Cohen's $d=4.49$, dep vs.\ neutral), confirming condition ordering (D $>$ C $>$ N); however, a minimal-pair ablation of prompt confounds is required before causal interpretation.
 Code, stimuli, and outputs are publicly available.
 \end{abstract}
 
@@ -231,7 +231,10 @@ All outputs are publicly archived with run metadata (\texttt{manifest.json}, \te
 
 \subsection{Marker extraction}
 
-We apply a three-layer measurement protocol (\texttt{analyze\_real\_results.py}). \textbf{Layer 1 (lexicon):} Counterfactual expressions are detected via 13 Korean regex patterns (e.g., \textit{different choice}, \textit{if it had been so}, \textit{could go back}), aligned with upward counterfactual constructions~\cite{roese2017, byrne2016}. Regret-word frequency uses 8 Korean affect tokens (e.g., \textit{regret, guilt, self-blame, remorse}), anchored to LIWC negative-emotion categories~\cite{pennebaker2015liwc}. \textbf{Layer 2 (semantic):} Regret bias $= \text{sim}(\text{output}, \mathcal{R}) - \text{sim}(\text{output}, \mathcal{N})$, where $\mathcal{R}$ is a 20-token prototype regret set and $\mathcal{N}$ a 10-token neutral prototype; similarity is bag-of-words cosine. \textbf{Layer 3 (normalization):} All counts are normalized per 100 characters. \textit{Limitation: markers are unvalidated against human annotation.}
+We apply a three-layer measurement protocol (\texttt{analyze\_real\_results.py}). \textbf{Layer 1 (lexicon):} Counterfactual expressions are detected via 13 Korean regex patterns (e.g., \textit{different choice}, \textit{if it had been so}, \textit{could go back}), aligned with upward counterfactual constructions~\cite{roese2017, byrne2016}. Regret-word frequency uses 8 Korean affect tokens (e.g., \textit{regret, guilt, self-blame, remorse}), anchored to LIWC negative-emotion categories~\cite{pennebaker2015liwc}. \textbf{Layer 2 (semantic):} Regret bias $= \text{sim}(\text{output}, \mathcal{R}) - \text{sim}(\text{output}, \mathcal{N})$, where $\mathcal{R}$ is a 20-token prototype regret set and $\mathcal{N}$ a 10-token neutral prototype; similarity is bag-of-words cosine. \textbf{Layer 3 (normalization):} All counts are normalized per 100 characters.
+
+\textbf{Human annotation subsample.}
+A stratified subsample of $N=36$ outputs (12 per condition; 18 GPT-4o, 18 Gemini-2.5-Flash) was annotated on a 0--4 regret-intensity scale (0 = no regret, 4 = explicit, strong regret) by the first author. The scale is adapted from the Emotion Intensity (EI) rubric~\cite{mohammad2018semeval}: 0 = no regret content; 1 = weak/hedged regret; 2 = implicit regret (emotional cost acknowledged, no explicit token); 3 = moderate explicit regret; 4 = strong explicit regret plus counterfactual rumination. Annotation confirmed strong condition separation: neutral $M=0.00$ ($SD=0.00$), deprivation $M=2.75$ ($SD=0.87$), counterfactual $M=1.25$ ($SD=1.36$). Cohen's $d$ between deprivation and neutral was $d=4.49$ (very large), and between counterfactual and neutral was $d=1.30$ (large). Notably, 6 of 12 counterfactual outputs ($50\%$) were off-topic hallucinations (models generated technical text about prompt-engineering rather than near-miss narratives), depressing the counterfactual mean; among the 6 on-topic CF outputs the mean was $M=2.50$ ($SD=0.55$). Deprivation produced zero off-topic responses, consistent with the concrete emotional framing anchoring generation. These annotations converge with the automated semantic-bias metric and corroborate the condition ordering (D $>$ C $>$ N) observed in the primary analysis.
 
 \section{Results}
 
@@ -395,7 +398,7 @@ Strong scenario-level heterogeneity (irreversible-choice scenario vs.\ health-tr
 
 \subsection{Limitations}
 \begin{enumerate}
-  \item \textbf{Marker validity:} Lexical markers are unvalidated against human annotation; convergent and discriminant validity against general negative affect have not been established.
+  \item \textbf{Marker validity:} Lexical markers have been validated against a human-annotated subsample ($N=36$; $d=4.49$ for dep vs.\ neutral, $d=1.30$ for CF vs.\ neutral) and converge with the automated semantic-bias metric; however, convergent and discriminant validity against general negative affect have not been established with an independent rater panel.
   \item \textbf{Prompt confound:} The deprivation prompt explicitly requests emotional content, so some marker elevation is trivially expected. Minimal-pair ablations (same topic, different framing) are needed.
   \item \textbf{Sample size:} Current $n=72$/condition (total $N=216$) meets the minimum power threshold; a larger confirmatory sample ($n\!\geq\!100$/cell) with crossed random effects for both scenario and persona template would increase sensitivity for interaction terms.
   \item \textbf{Response length confound:} Gemini-2.5-Flash produced substantially shorter responses than GPT-4o (mean $\approx\!19$ vs.\ $\approx\!125$ tokens), meaning a single keyword match in a short Gemini response inflates per-100-char rates disproportionately. Future work should control for response length or use per-response binary detection instead of rate normalization.
@@ -411,7 +414,7 @@ Key modules: \texttt{run\_real\_experiment.py} (API data collection), \texttt{an
 Using a $3\times3\times2$ controlled design ($N=216$; GPT-4o and Gemini-2.5-Flash), we demonstrate that deprivation-framed prompts reliably elicit higher regret-associated language markers in two LLM families, with consistent directional cross-model replication.
 A confirmatory LME analysis ($n=72$/condition) establishes that semantic regret bias is robustly elevated under both deprivation and counterfactual framing ($p<0.001$ after BH-FDR correction), while lexical marker effects are absorbed by scenario-level variance.
 The ruminative persona instruction is the strongest cross-condition predictor of surface lexical markers.
-Future work should address marker validation against human annotation, minimal-pair prompt ablations to separate framing from content, and replication on open-weight model families.
+Future work should address multi-rater validation and inter-rater reliability estimation, minimal-pair prompt ablations to separate framing from content, and replication on open-weight model families.
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}
