@@ -76,6 +76,17 @@ def now_iso_seconds() -> str:
     return dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def utc_now_iso() -> str:
+    """Return current UTC time as an ISO-8601 string with second precision.
+
+    Equivalent to ``datetime.now(UTC).isoformat(timespec="seconds")``.
+    Use this helper wherever a UTC timestamp field (e.g. ``generated_at_utc``,
+    ``started_at_utc``) needs to be recorded, to avoid scattering the same
+    expression across modules.
+    """
+    return dt.datetime.now(dt.UTC).isoformat(timespec="seconds")
+
+
 
 def _is_symlink_path(path: Path) -> bool:
     """Return True when `path` or any parent is a symlink.

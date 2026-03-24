@@ -18,7 +18,7 @@ from typing import Optional, Union
 
 # Python 3.9 호환성(PEP604 타입 유니언 `|` 미지원 환경 대응)
 
-from research_ops_common import parse_csv_set, pct, row_list_values, safe_int, write_json
+from research_ops_common import parse_csv_set, pct, row_list_values, safe_int, utc_now_iso, write_json
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -729,7 +729,7 @@ def build_budget_report(
         default=None,
     )
     return {
-        "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+        "generated_at_utc": utc_now_iso(),
         "run_label": run_label,
         "summary": {
             "selected_run_cells": selected_run_cells,
@@ -1063,9 +1063,9 @@ def execute_with_retries(
 ) -> tuple[int, str, str, list[dict]]:
     attempts = []
     for attempt_index in range(max_retries + 1):
-        started_at = dt.datetime.now(dt.UTC).isoformat(timespec="seconds")
+        started_at = utc_now_iso()
         code, out, err = run(cmd, timeout_seconds=timeout_seconds)
-        finished_at = dt.datetime.now(dt.UTC).isoformat(timespec="seconds")
+        finished_at = utc_now_iso()
         attempt_payload = {
             "run_key": run_key,
             "stage": stage,
@@ -4609,7 +4609,7 @@ def main():
     write_json(
         quarantine_json_path,
         {
-            "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+            "generated_at_utc": utc_now_iso(),
             "run_label": label,
             "failed_cells": len(quarantine_candidates),
             "rows": quarantine_candidates,
@@ -4856,7 +4856,7 @@ def main():
     write_json(
         budget_violations_json_path,
         {
-            "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+            "generated_at_utc": utc_now_iso(),
             "run_label": label,
             "violation_count": len(budget_violations),
             "violations": budget_violations,
@@ -4874,7 +4874,7 @@ def main():
     write_json(
         preflight_json_path,
         {
-            "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+            "generated_at_utc": utc_now_iso(),
             "config": args.config,
             "run_label": label,
             "selected_run_ids": sorted(selected_run_ids),
@@ -4891,7 +4891,7 @@ def main():
         write_preflight_markdown(
             outdir / "preflight.md",
             {
-                "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+                "generated_at_utc": utc_now_iso(),
                 "config": args.config,
                 "run_label": label,
                 "selected_run_ids": sorted(selected_run_ids),
@@ -4901,7 +4901,7 @@ def main():
         )
 
     manifest = {
-        "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+        "generated_at_utc": utc_now_iso(),
         "config": args.config,
         "config_fingerprint": config_fingerprint(cfg),
         "run_label": label,
@@ -5155,7 +5155,7 @@ def main():
 
     if args.selection_report:
         selection_payload = {
-            "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+            "generated_at_utc": utc_now_iso(),
             "config": args.config,
             "run_label": label,
             "selected_run_ids": sorted(include_run_ids),
@@ -5175,7 +5175,7 @@ def main():
         repro_lock_path = ROOT / args.repro_lock_json
         repro_lock_path.parent.mkdir(parents=True, exist_ok=True)
         repro_lock_payload = {
-            "generated_at_utc": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
+            "generated_at_utc": utc_now_iso(),
             "command": shell_join([sys.executable, *sys.argv]),
             "config": args.config,
             "run_label": label,
