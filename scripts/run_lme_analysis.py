@@ -22,7 +22,7 @@ def load_and_score(data_dir: pathlib.Path) -> pd.DataFrame:
     from analyze_real_results import analyze  # noqa
 
     rows = []
-    for fname in ["batch_v1_pilot_openai", "batch_v1_gemini_v2", "batch_v4_expand_gpt4o", "batch_v5_expand_both"]:
+    for fname in ["batch_v1_pilot_openai", "batch_v1_gemini_v2", "batch_v4_expand_gpt4o", "batch_v5_expand_both", "batch_v6_expand"]:
         path = data_dir / f"{fname}.jsonl"
         if not path.exists():
             continue
