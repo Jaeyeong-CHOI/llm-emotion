@@ -42,6 +42,9 @@ ENDPOINT_SCHEME_PATTERN = re.compile(r"^https?://")
 ENV_NAME_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 ENV_LIST_SPLIT_PATTERN = re.compile(r"[\s,;]+")
 
+# OpenAI API 키 포맷은 최소 접두사 + 길이 검사로 오탐을 줄입니다.
+OPENAI_KEY_PATTERN = re.compile(r"^(?:sk-proj-[A-Za-z0-9_-]{20,}|sk-[A-Za-z0-9_-]{20,})$")
+
 
 def is_placeholder(value: str) -> bool:
     v = (value or "").strip().lower()
@@ -58,7 +61,7 @@ def has_unsafe_chars(value: str) -> bool:
 def is_probable_openai_api_key(value: str) -> bool:
     """Reject obviously non-OpenAI keys while allowing both sk- and sk-proj-."""
     v = (value or "").strip()
-    return bool(re.match(r"^(sk-|sk-proj-)", v))
+    return bool(OPENAI_KEY_PATTERN.match(v))
 
 
 
