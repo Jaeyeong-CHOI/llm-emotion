@@ -180,7 +180,7 @@ def check_env_block(names: list[str]) -> EnvBlock:
     )
 
 
-def _append_optional_note(
+def _append_issue_if_any(
     notes: list[str],
     variables: list[str],
     message: str,
@@ -189,12 +189,12 @@ def _append_optional_note(
         notes.append(f"{message}: {', '.join(variables)}")
 
 
-def _append_environment_issue_notes(
+def _append_issue_blocks(
     notes: list[str],
     issue_specs: list[tuple[list[str], str]],
 ) -> None:
     for variables, message in issue_specs:
-        _append_optional_note(notes, variables, message)
+        _append_issue_if_any(notes, variables, message)
 
 
 def summarize_readiness_issues(
@@ -214,7 +214,7 @@ def summarize_readiness_issues(
     if required_missing:
         notes.append("필수 환경변수 누락")
 
-    _append_environment_issue_notes(
+    _append_issue_blocks(
         notes,
         [
             (required_placeholder_vars, "필수 환경변수에 placeholder 값 존재"),
