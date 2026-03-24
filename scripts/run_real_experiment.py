@@ -78,7 +78,7 @@ def call_gemini(prompt: str, temperature: float, api_key: str) -> str:
     }
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"}, method="POST")
-    with urllib.request.urlopen(req, timeout=30) as r:
+    with urllib.request.urlopen(req, timeout=120) as r:
         resp = json.loads(r.read())
     return resp["candidates"][0]["content"]["parts"][0]["text"].strip()
 
