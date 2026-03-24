@@ -219,6 +219,12 @@ def get_stats_snapshot(state: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def dedupe_preserve_order(values: list[str]) -> list[str]:
+    """Preserve insertion order while removing duplicates in a compact form."""
+
+    return list(dict.fromkeys(values))
+
+
 def count_lines(path: Path) -> int:
     if not path.exists():
         return 0

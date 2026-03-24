@@ -9,7 +9,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from research_ops_common import write_json
+from research_ops_common import dedupe_preserve_order, write_json
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "ops" / "real_model_readiness.json"
@@ -60,10 +60,6 @@ def is_probable_openai_api_key(value: str) -> bool:
     v = (value or "").strip()
     return bool(re.match(r"^(sk-|sk-proj-)", v))
 
-
-def dedupe_preserve_order(values: list[str]) -> list[str]:
-    """Preserve insertion order while removing duplicates."""
-    return list(dict.fromkeys(values))
 
 
 def normalize_env_name(token: str) -> str:
