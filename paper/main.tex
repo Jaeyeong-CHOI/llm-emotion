@@ -155,8 +155,8 @@ Affect benchmarking & Measurement granularity determines apparent performance; u
 \draw[arr] (D.east) -- (cond_merge);
 \draw[arr] (C.east) -- ++(0.2,0) |- (cond_merge);
 
-%% ─── cond_merge → cm: route ABOVE all headers (via y=3.4, above col headers) ──
-\draw[arr] (cond_merge) -- ++(0,3.4) -- (7.3,3.4) -- (cm);
+%% ─── cond_merge → cm: route BELOW persona column (via y=-2.2, clear of P2) ──
+\draw[arr] (cond_merge) -- ++(0,-2.2) -- (7.3,-2.2) -- (cm);
 
 %% ─── Arrows: Personas → pers_merge → cm ────────────────────────────────────
 %% Route P0/P2 to a shared merge node at x=6.5 so their vertical paths
@@ -411,7 +411,27 @@ Strong scenario-level heterogeneity (irreversible-choice scenario vs.\ health-tr
 \subsection{Limitations}\label{sec:limitations}
 \begin{enumerate}
   \item \textbf{Marker validity:} Lexical markers have been validated against a human-annotated subsample ($N=36$; $d=4.49$ for dep vs.\ neutral, $d=1.30$ for CF vs.\ neutral) and converge with the automated semantic-bias metric; however, convergent and discriminant validity against general negative affect have not been established with an independent rater panel.
-  \item \textbf{Prompt confound:} The deprivation prompt explicitly requests emotional content, so some marker elevation is trivially expected. A minimal-pair ablation ($3$ topics $\times 3$ framings $\times n\!\approx\!10$/cell; both GPT-4o and Gemini-2.5-Flash; $N=196$) was conducted to address this. Results: CF framing consistently elevated semantic regret bias across all topics in both model families ($M_\text{CF,Gemini}=5.03$, $d=4.63$; $M_\text{CF,GPT4o}=1.82$, $d=4.26$; combined $d=2.52$, $t=15.13$, $p<0.001$). Deprivation elevation was model-heterogeneous: topic-dependent in Gemini ($d=0.71$ pooled; significant only for the study-exam topic) but more consistent in GPT-4o ($M_\text{dep}=0.87$, $d=1.90$ pooled, elevation present in all three topics; combined $d=0.90$, $t=4.80$, $p<0.001$). For lexical regret markers (regret\_word\_rate), the dissociation was reversed: deprivation showed a stronger effect ($d=0.90$, $p<0.001$) than counterfactual ($d=0.58$, $p<0.001$), confirming that semantic bias captures CF framing artefacts while lexical regret tracks deprivation-specific content. The pattern supports the interpretation that CF framing is a robust cross-model semantic activator, whereas deprivation effects on regret-specific lexical content are more controlled and topic-moderated.
+  \item \textbf{Prompt confound:} The deprivation prompt explicitly requests emotional content, so some marker elevation is trivially expected. A minimal-pair ablation ($3$ topics $\times 3$ framings $\times n\!\approx\!10$/cell; both GPT-4o and Gemini-2.5-Flash; $N=196$) was conducted to address this. Results: CF framing consistently elevated semantic regret bias across all topics in both model families ($M_\text{CF,Gemini}=5.03$, $d=4.63$; $M_\text{CF,GPT4o}=1.82$, $d=4.26$; combined $d=2.52$, $t=15.13$, $p<0.001$). Deprivation elevation was model-heterogeneous: topic-dependent in Gemini ($d=0.71$ pooled; significant only for the study-exam topic) but more consistent in GPT-4o ($M_\text{dep}=0.87$, $d=1.90$ pooled, elevation present in all three topics; combined $d=0.90$, $t=4.80$, $p<0.001$). For lexical regret markers (regret\_word\_rate), the dissociation was reversed: deprivation showed a stronger effect ($d=0.90$, $p<0.001$) than counterfactual ($d=0.58$, $p<0.001$), confirming that semantic bias captures CF framing artefacts while lexical regret tracks deprivation-specific content. The pattern supports the interpretation that CF framing is a robust cross-model semantic activator, whereas deprivation effects on regret-specific lexical content are more controlled and topic-moderated. Table~\ref{tab:ablation_topic} reports the per-topic breakdown.
+
+\begin{table}[ht]
+\caption{Minimal-pair ablation: semantic regret bias by topic ($N=196$). D=deprivation, CF=counterfactual, N=neutral; $d$ is Cohen's $d$ vs.\ neutral.}
+\label{tab:ablation_topic}
+\footnotesize\centering
+\begin{tabularx}{\linewidth}{@{}>{\RaggedRight\arraybackslash}p{0.22\linewidth}
+>{\RaggedRight\arraybackslash}X
+>{\RaggedRight\arraybackslash}X
+>{\RaggedRight\arraybackslash}X@{}}
+\toprule
+Topic & D mean ($d$) & CF mean ($d$) & N mean \\
+\midrule
+Career  & 0.45 ($d=1.25$) & 3.58 ($d=3.23$) & 0.00 \\
+Study   & 2.26 ($d=1.70$) & 3.94 ($d=2.24$) & 0.00 \\
+Relationship & 0.11 ($d=0.69$) & 3.48 ($d=2.34$) & 0.00 \\
+\midrule
+\textbf{Combined} & 0.94 ($d=0.90$)*** & 3.65 ($d=2.52$)*** & 0.00 \\
+\bottomrule
+\end{tabularx}
+\end{table}
   \item \textbf{Sample size:} The confirmatory LME uses $n=72$/condition ($N_\text{LME}=216$); a larger balanced sample with crossed random effects for both scenario and persona template would increase sensitivity for interaction terms.
   \item \textbf{Response length confound:} Gemini-2.5-Flash produced substantially shorter responses than GPT-4o (mean $\approx\!19$ vs.\ $\approx\!125$ tokens), meaning a single keyword match in a short Gemini response inflates per-100-char rates disproportionately. Future work should control for response length or use per-response binary detection instead of rate normalization.
   \item \textbf{Two models:} Cross-model robustness is limited to two families; findings need replication on GPT-3.5, Llama-3, and Mistral to establish generality.
