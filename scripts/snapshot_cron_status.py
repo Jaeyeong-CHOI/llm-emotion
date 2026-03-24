@@ -4,6 +4,10 @@ import os
 import subprocess
 from pathlib import Path
 
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent))
+from research_ops_common import write_json
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "ops" / "cron_runtime_status.json"
 
@@ -128,12 +132,11 @@ def main():
     except Exception as e:
         error = str(e)
         print(error)
-        OUT.parent.mkdir(parents=True, exist_ok=True)
-        OUT.write_text(json.dumps({
+        write_json(OUT, {
             "continuous": {"status": "missing", "enabled": False},
             "live_report": {"status": "missing", "enabled": False},
             "error": error,
-        }, ensure_ascii=False, indent=2), encoding="utf-8")
+        })
         raise SystemExit(1)
 
     jobs_by_id = {j.get("id"): j for j in data.get("jobs", [])}
@@ -156,8 +159,7 @@ def main():
         "resolved": resolved,
     }
 
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+    write_json(OUT, out)
     print(f"Wrote {OUT}")
     for name, method in resolved.items():
         print(f"{name} match: {method} ({out[name].get('resolved_id')})")
