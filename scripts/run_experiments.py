@@ -323,6 +323,25 @@ def pct(numerator: int, denominator: int) -> float:
     return round(numerator / denominator, 4)
 
 
+def _over_selection_ratio(
+    numerator: int,
+    total: int,
+    selected_cells: int,
+    selected_run_cells: int,
+) -> float:
+    """Share-over-share ratio: (numerator/total) / (selected_cells/selected_run_cells).
+
+    Returns 0.0 when any denominator is zero (safe for budget-report rows).
+    Rounds to 4 decimal places, consistent with pct().
+    """
+    if selected_cells <= 0 or total <= 0 or selected_run_cells <= 0:
+        return 0.0
+    return round(
+        pct(numerator, total) / max(pct(selected_cells, selected_run_cells), 0.0001),
+        4,
+    )
+
+
 def live_attempt_share_exceeded(*, run_id: str, generation_attempts_by_run_id: dict[str, int], analysis_attempts_by_run_id: dict[str, int], generation_attempts_total: int, analysis_attempts_total: int, generation_retries_by_run_id: dict[str, int], analysis_retries_by_run_id: dict[str, int], generation_retries_total: int, analysis_retries_total: int, selected_cells_by_run_id: dict[str, int], selected_run_cells: int, max_live_generation_attempt_share_per_run_id: float, max_live_analysis_attempt_share_per_run_id: float, max_live_combined_attempt_share_per_run_id: float, max_live_stage_attempt_share_gap_per_run_id: float, max_live_retry_share_per_run_id: float, max_live_retry_over_selection_ratio_per_run_id: float, max_live_attempt_over_selection_ratio_per_run_id: float) -> tuple[bool, str]:
     run_generation = int(generation_attempts_by_run_id.get(run_id, 0) or 0)
     run_analysis = int(analysis_attempts_by_run_id.get(run_id, 0) or 0)
@@ -632,48 +651,44 @@ def build_budget_report(
                     combined_attempts,
                     generation_attempts_total + analysis_attempts_total,
                 ),
-                "attempt_over_selection_ratio": round(
-                    pct(combined_attempts, generation_attempts_total + analysis_attempts_total)
-                    / max(pct(selected_cells, selected_run_cells), 0.0001),
-                    4,
-                )
-                if selected_cells > 0 and (generation_attempts_total + analysis_attempts_total) > 0 and selected_run_cells > 0
-                else 0.0,
-                "retry_over_selection_ratio": round(
-                    pct(combined_retries, generation_retries_total + analysis_retries_total)
-                    / max(pct(selected_cells, selected_run_cells), 0.0001),
-                    4,
-                )
-                if selected_cells > 0 and (generation_retries_total + analysis_retries_total) > 0 and selected_run_cells > 0
-                else 0.0,
-                "generation_attempt_over_selection_ratio": round(
-                    pct(generation_attempts, generation_attempts_total)
-                    / max(pct(selected_cells, selected_run_cells), 0.0001),
-                    4,
-                )
-                if selected_cells > 0 and generation_attempts_total > 0 and selected_run_cells > 0
-                else 0.0,
-                "analysis_attempt_over_selection_ratio": round(
-                    pct(analysis_attempts, analysis_attempts_total)
-                    / max(pct(selected_cells, selected_run_cells), 0.0001),
-                    4,
-                )
-                if selected_cells > 0 and analysis_attempts_total > 0 and selected_run_cells > 0
-                else 0.0,
+                "attempt_over_selection_ratio": _over_selection_ratio(
+                    combined_attempts,
+                    generation_attempts_total + analysis_attempts_total,
+                    selected_cells,
+                    selected_run_cells,
+                ),
+                "retry_over_selection_ratio": _over_selection_ratio(
+                    combined_retries,
+                    generation_retries_total + analysis_retries_total,
+                    selected_cells,
+                    selected_run_cells,
+                ),
+                "generation_attempt_over_selection_ratio": _over_selection_ratio(
+                    generation_attempts,
+                    generation_attempts_total,
+                    selected_cells,
+                    selected_run_cells,
+                ),
+                "analysis_attempt_over_selection_ratio": _over_selection_ratio(
+                    analysis_attempts,
+                    analysis_attempts_total,
+                    selected_cells,
+                    selected_run_cells,
+                ),
                 "stage_attempt_pressure_ratio": round(
                     max(
-                        (
-                            pct(generation_attempts, generation_attempts_total)
-                            / max(pct(selected_cells, selected_run_cells), 0.0001)
-                        )
-                        if selected_cells > 0 and generation_attempts_total > 0 and selected_run_cells > 0
-                        else 0.0,
-                        (
-                            pct(analysis_attempts, analysis_attempts_total)
-                            / max(pct(selected_cells, selected_run_cells), 0.0001)
-                        )
-                        if selected_cells > 0 and analysis_attempts_total > 0 and selected_run_cells > 0
-                        else 0.0,
+                        _over_selection_ratio(
+                            generation_attempts,
+                            generation_attempts_total,
+                            selected_cells,
+                            selected_run_cells,
+                        ),
+                        _over_selection_ratio(
+                            analysis_attempts,
+                            analysis_attempts_total,
+                            selected_cells,
+                            selected_run_cells,
+                        ),
                     ),
                     4,
                 ),
@@ -689,13 +704,12 @@ def build_budget_report(
                 )
                 if combined_attempts > 0
                 else 0.0,
-                "failure_over_selection_ratio": round(
-                    pct(int(failed_cells_by_run_id.get(run_id, 0) or 0), failed_cells_total)
-                    / max(pct(selected_cells, selected_run_cells), 0.0001),
-                    4,
-                )
-                if selected_cells > 0 and failed_cells_total > 0 and selected_run_cells > 0
-                else 0.0,
+                "failure_over_selection_ratio": _over_selection_ratio(
+                    int(failed_cells_by_run_id.get(run_id, 0) or 0),
+                    failed_cells_total,
+                    selected_cells,
+                    selected_run_cells,
+                ),
             }
         )
 
