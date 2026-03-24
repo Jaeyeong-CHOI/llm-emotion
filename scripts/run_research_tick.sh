@@ -239,11 +239,12 @@ lock_pid_uid_and_command() {
   local owner_uid=""
   local command=""
   local proc_info=""
+  local IFS=$'\n'
 
   is_numeric_pid "$pid" || return 1
 
   proc_info="$(read_proc_uid_and_command "$pid")" || return 1
-  IFS=$'\n' read -r owner_uid command <<< "$proc_info"
+  read -r owner_uid command <<< "$proc_info"
 
   [[ -n "$owner_uid" ]] || return 1
   [[ -n "$command" ]] || return 1
