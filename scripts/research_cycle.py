@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 from collections.abc import Sequence
+from pathlib import Path
 
 from research_ops_common import (
     ROOT,
@@ -74,38 +75,76 @@ def run_steps(state: dict, steps: list[tuple[str, list[str]]]) -> bool:
     return True
 
 
-def collect_screening_label_stats(refs_path):
+def _iter_jsonl_rows(path: Path):
+    if not path.exists():
+        return
+
+    with path.open("r", encoding="utf-8") as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line:
+                continue
+
+            try:
+                yield json.loads(line)
+            except json.JSONDecodeError:
+                yield None
+
+
+def collect_screening_label_stats(refs_path: Path):
     include_n = 0
     review_n = 0
     malformed_rows = 0
 
-    if not refs_path.exists():
-        return include_n, review_n, malformed_rows
+    for row in _iter_jsonl_rows(refs_path):
+        if not isinstance(row, dict):
+            malformed_rows += 1
+            continue
 
-    with refs_path.open("r", encoding="utf-8") as f:
-        for raw_line in f:
-            line = raw_line.strip()
-            if not line:
-                continue
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError:
-                malformed_rows += 1
-                continue
-            if row.get("screening_label") == "include":
-                include_n += 1
-            elif row.get("screening_label") == "review":
-                review_n += 1
+        if row.get("screening_label") == "include":
+            include_n += 1
+        elif row.get("screening_label") == "review":
+            review_n += 1
 
     return include_n, review_n, malformed_rows
 
 
-def main():
-    state = load_research_state()
-    now = now_iso_seconds()
-    state["last_run"] = now
+def _run_screening_triage_plan_if_available(state: dict) -> bool:
+    report_path = ROOT / "results" / "screening_quality_report.json"
 
-    steps = [
+    if not report_path.exists():
+        append_note(
+            state,
+            "OK screening_triage_plan: [skip] screening_quality_report.json not found",
+        )
+        return True
+
+    triage_code, triage_out, _ = run_step(
+        state,
+        "screening_triage_plan",
+        _py(
+            "scripts/build_screening_triage_plan.py",
+            "--in",
+            "results/screening_quality_report.json",
+            "--out",
+            "results/screening_triage_plan.json",
+            "--out-md",
+            "results/screening_triage_plan.md",
+        ),
+    )
+    if triage_code != 0:
+        return False
+
+    # Preserve previous custom success note behavior.
+    append_note(
+        state,
+        "OK screening_triage_plan" if triage_out.strip() == "" else triage_out.strip(),
+    )
+    return True
+
+
+def _build_steps() -> list[tuple[str, list[str]]]:
+    return [
         (
             "literature_search",
             _py(
@@ -157,41 +196,26 @@ def main():
         ("append_brief_log", _py("scripts/update_brief_log.py")),
     ]
 
-    if not run_steps(state, steps):
+
+def main():
+    state = load_research_state()
+    now = now_iso_seconds()
+    state["last_run"] = now
+
+    if not run_steps(state, _build_steps()):
         return 1
 
-    report_path = ROOT / "results" / "screening_quality_report.json"
-    if not report_path.exists():
-        append_note(state, "OK screening_triage_plan: [skip] screening_quality_report.json not found")
-    else:
-        triage_code, triage_out, _ = run_step(
-            state,
-            "screening_triage_plan",
-            _py(
-                "scripts/build_screening_triage_plan.py",
-                "--in",
-                "results/screening_quality_report.json",
-                "--out",
-                "results/screening_triage_plan.json",
-                "--out-md",
-                "results/screening_triage_plan.md",
-            ),
-        )
-        if triage_code != 0:
-            return 1
-
-        # Preserve previous custom success note behavior.
-        append_note(
-            state,
-            "OK screening_triage_plan" if triage_out.strip() == "" else triage_out.strip(),
-        )
+    if not _run_screening_triage_plan_if_available(state):
+        return 1
 
     state["last_success"] = now
     state["last_error"] = None
     stats = state.setdefault("stats", {})
     stats["papers_collected"] = count_lines(ROOT / "refs" / "openalex_results.jsonl")
     stats["evidence_rows"] = max(0, count_lines(ROOT / "docs" / "evidence-table.md") - 4)
-    stats["mock_samples_generated"] = count_lines(ROOT / "data" / "raw" / "mock_generations.jsonl")
+    stats["mock_samples_generated"] = count_lines(
+        ROOT / "data" / "raw" / "mock_generations.jsonl"
+    )
 
     refs_path = ROOT / "refs" / "openalex_results.jsonl"
     include_n, review_n, malformed_rows = collect_screening_label_stats(refs_path)
