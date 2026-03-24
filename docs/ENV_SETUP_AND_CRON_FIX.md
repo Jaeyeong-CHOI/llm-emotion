@@ -125,3 +125,23 @@ AVRTG_ENV_FILE=/Users/jaeyeong_openclaw/.openclaw/workspace/AVRTG_QUERY_GEN/.env
 필요 시 org/project는 기존 `.env.real_model`의 값이 남아 있으면 유지되고, 없으면 빈 상태로 남습니다.
 
 `source .env.real_model` 후 `check_real_model_readiness.py`에서 missing 변수를 추가로 채워야 합니다.
+
+## 8) 1분 자동 연구 루프 운영 규칙(요약)
+`llm-emotion-continuous-research` 크론은 아래 우선순위로 1분마다 처리합니다.
+
+1. **실제 데이터 생성 전환** (A)
+2. **실험 지속** (B)
+3. **논문 개선** (C)
+4. **GitHub 정비/리팩토링** (D)
+
+실행 절차(핵심):
+
+```bash
+cd /Users/jaeyeong_openclaw/.openclaw/workspace/llm-emotion
+bash scripts/run_research_tick.sh
+```
+
+- 큐가 비면 1건의 리팩토링/안정성 개선을 선별 후 검증하고,
+  의미 있는 변경은 커밋/푸시 후보로 남깁니다.
+- 실험/논문/정비 관련 로그만 실질적 변화가 있을 때만 보고합니다.
+
