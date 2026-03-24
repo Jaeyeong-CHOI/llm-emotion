@@ -48,7 +48,7 @@ def main() -> None:
         "- [ ] 실모델 API 기반 본실험 데이터 수집",
         "- [ ] 통계 검정 + 논문 초안",
         "",
-        "> 이 파일은 자동 갱신됩니다. (scripts/research_cycle.py 내부에서 업데이트)",
+        "> 이 파일은 자동 갱신됩니다. (scripts/update_live_status.py가 최근 상태/크론 결과를 갱신)",
     ]
 
     OUT_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
