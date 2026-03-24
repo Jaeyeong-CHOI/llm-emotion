@@ -262,6 +262,22 @@ def _build_endpoint_payload(base_url: str, endpoint_scheme_ok: bool) -> dict:
     }
 
 
+def _build_env_payload_fields(
+    required_payload: dict,
+    optional_payload: dict,
+) -> dict:
+    """Normalize required/optional block summaries into payload-level fields."""
+
+    return {
+        "missing_vars": required_payload["required_missing"],
+        "optional_missing_vars": optional_payload["optional_missing"],
+        "placeholder_vars": required_payload["required_placeholder"],
+        "optional_placeholder_vars": optional_payload["optional_placeholder"],
+        "unsafe_vars": required_payload["required_unsafe"],
+        "optional_unsafe_vars": optional_payload["optional_unsafe"],
+    }
+
+
 def _merge_available_vars(
     required_payload: dict,
     optional_payload: dict,
@@ -323,12 +339,10 @@ def build_readiness_payload(
                 required_payload=required_payload,
                 optional_payload=optional_payload,
             ),
-            "missing_vars": required_payload["required_missing"],
-            "optional_missing_vars": optional_payload["optional_missing"],
-            "placeholder_vars": required_payload["required_placeholder"],
-            "optional_placeholder_vars": optional_payload["optional_placeholder"],
-            "unsafe_vars": required_payload["required_unsafe"],
-            "optional_unsafe_vars": optional_payload["optional_unsafe"],
+            **_build_env_payload_fields(
+                required_payload=required_payload,
+                optional_payload=optional_payload,
+            ),
             "suspicious_vars": suspicious_vars,
             "endpoint": _build_endpoint_payload(
                 base_url=endpoint,
