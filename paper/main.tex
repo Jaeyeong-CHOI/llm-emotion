@@ -30,10 +30,11 @@ DGIST EECS\\
 
 \begin{abstract}
 We investigate whether deprivation-framed prompts systematically elicit regret-associated linguistic patterns in large language models (LLMs).
-Using a $3 \times 3 \times 2$ controlled pilot design ($N=432$; GPT-4o and Gemini-2.5-Flash), we find that deprivation framing produces substantially higher counterfactual-expression rates, regret-word rates, and negative-affect rates compared to neutral and counterfactual framing conditions.
-The directional pattern replicates across both model families, though absolute magnitudes differ by approximately $2.5\times$, suggesting model-level alignment differences modulate regret-marker elicitation.
-We treat all results as exploratory pilot findings: lexical markers are unvalidated against human annotation, and confirmatory mixed-effects analysis is planned at $n\!\geq\!30$/cell.
-Code, stimuli, and model outputs are publicly available to support replication.
+Using a $3 \times 3 \times 2$ controlled pilot design ($N=432$; GPT-4o and Gemini-2.5-Flash), we find that deprivation framing produces substantially higher counterfactual-expression and regret-word rates compared to neutral framing.
+Exploratory Welch $t$-tests yield large effects (CF rate: $d=0.72$, regret-word rate: $d=0.71$), and a mixed-effects model (scenario as random intercept) confirms a significant deprivation effect on semantic regret bias ($\hat{\beta}=0.557$, $z=5.71$, $p<0.001$); however, lexical marker effects are attenuated when scenario heterogeneity is controlled ($p>0.15$), indicating that scenario-level variance dominates.
+Ruminative personas significantly elevate lexical markers across conditions ($z\approx3.2$--$3.4$, $p<0.001$).
+We treat these as exploratory findings: markers are unvalidated against human annotation, and a minimal-pair ablation of prompt confounds is required before causal interpretation.
+Code, stimuli, and outputs are publicly available.
 \end{abstract}
 
 \section*{Keywords}
@@ -302,9 +303,21 @@ C vs N & n.s. & n.s. & n.s. & n.s. \\
 
 Figure~\ref{fig:model_comparison} shows per-model results. Both GPT-4o and Gemini-2.5-Flash replicate the deprivation$>$neutral ordering for regret-word rate (H3 supported directionally). However, Gemini-2.5-Flash produced approximately $2.5\times$ higher absolute rates under deprivation ($M=1.50$) compared to GPT-4o ($M=0.61$), consistent with alignment differences.
 
+\subsection{Mixed-effects analysis}
+
+To account for scenario-level variance, we fit a linear mixed model with scenario as random intercept:
+\begin{equation}
+\text{marker} = \beta_0 + \beta_1 C_D + \beta_2 C_C + \beta_3 P_\text{rfl} + \beta_4 P_\text{rum} + \beta_5 T + u_\text{scenario}
+\end{equation}
+Results show that the \textbf{semantic regret bias} has a significant deprivation effect ($\hat{\beta}=0.557$, $z=5.71$, $p<0.001$) after controlling for scenario. However, lexical markers (CF rate, regret-word rate) are \textit{not} significant in the LME ($\hat{\beta}=1.12$, $z=1.33$, $p=0.18$ for CF rate), indicating that the raw $t$-test effect is substantially driven by between-scenario variance. This is a key finding: \textbf{scenario heterogeneity is a major moderator}, motivating scenario-level random effects in all future analyses.
+
+Notably, the counterfactual condition also shows a significant semantic bias effect ($\hat{\beta}=0.534$, $z=5.46$, $p<0.001$), which suggests the semantic bias metric may reflect prompt-level context overlap rather than deprivation-specific regret generation---a confound requiring ablation in follow-up work.
+
 \subsection{Persona effect (H2)}
 
-Within deprivation, ruminative personas produced the highest regret-word rates ($M=2.04$, $SD=2.51$, $n=24$) vs.\ reflective ($M=0.54$) and baseline ($M=0.57$), providing descriptive support for H2. Formal cross-persona tests are deferred to the confirmatory LME analysis.
+Ruminative personas significantly elevated both CF rate ($z=3.38$, $p<0.001$) and regret-word rate ($z=3.17$, $p<0.002$) in the LME, even after controlling for condition. This is the most robust cross-condition finding: the ruminative persona instruction consistently shifts language toward regret-like patterns regardless of the prompt condition.
+
+Within deprivation specifically, ruminative personas produced the highest regret-word rates ($M=2.04$, $SD=2.51$, $n=24$) vs.\ reflective ($M=0.54$) and baseline ($M=0.57$), consistent with H2.
 
 \subsection{Qualitative examples}
 
@@ -327,8 +340,8 @@ Within deprivation, ruminative personas produced the highest regret-word rates (
 
 Figure~\ref{fig:qualitative} shows representative outputs from each condition. Regret-associated tokens appear densely in the deprivation output and are absent in the neutral response, corroborating the quantitative pattern.
 
-\subsection{Inferential analysis plan}
-For confirmatory inference (target: $n\!\geq\!30$/cell), we specify a generalized mixed-effects model:
+\subsection{Confirmatory analysis plan}
+The current LME (scenario random intercept only) is underpowered due to $n=3$/cell. The full confirmatory design targets $n\!\geq\!30$/cell with crossed random effects for scenario and persona:
 \begin{equation}
 g(E[y_{ijkl}]) = \beta_0 + \beta_1 C_i + \beta_2 P_j + \beta_3 T_k + \beta_4(C_i{\times}P_j) + u_l + v_j
 \end{equation}
