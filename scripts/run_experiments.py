@@ -18,7 +18,7 @@ from typing import Optional, Union
 
 # Python 3.9 호환성(PEP604 타입 유니언 `|` 미지원 환경 대응)
 
-from research_ops_common import parse_csv_set, pct, row_list_values, write_json
+from research_ops_common import parse_csv_set, pct, row_list_values, safe_int, write_json
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -337,8 +337,8 @@ def _over_selection_ratio(
 
 
 def live_attempt_share_exceeded(*, run_id: str, generation_attempts_by_run_id: dict[str, int], analysis_attempts_by_run_id: dict[str, int], generation_attempts_total: int, analysis_attempts_total: int, generation_retries_by_run_id: dict[str, int], analysis_retries_by_run_id: dict[str, int], generation_retries_total: int, analysis_retries_total: int, selected_cells_by_run_id: dict[str, int], selected_run_cells: int, max_live_generation_attempt_share_per_run_id: float, max_live_analysis_attempt_share_per_run_id: float, max_live_combined_attempt_share_per_run_id: float, max_live_stage_attempt_share_gap_per_run_id: float, max_live_retry_share_per_run_id: float, max_live_retry_over_selection_ratio_per_run_id: float, max_live_attempt_over_selection_ratio_per_run_id: float) -> tuple[bool, str]:
-    run_generation = int(generation_attempts_by_run_id.get(run_id, 0) or 0)
-    run_analysis = int(analysis_attempts_by_run_id.get(run_id, 0) or 0)
+    run_generation = safe_int(generation_attempts_by_run_id.get(run_id))
+    run_analysis = safe_int(analysis_attempts_by_run_id.get(run_id))
     run_combined = run_generation + run_analysis
     combined_total = generation_attempts_total + analysis_attempts_total
     if max_live_generation_attempt_share_per_run_id > 0 and generation_attempts_total > 0:
@@ -359,21 +359,21 @@ def live_attempt_share_exceeded(*, run_id: str, generation_attempts_by_run_id: d
         gap = abs(generation_share - analysis_share)
         if gap > max_live_stage_attempt_share_gap_per_run_id:
             return True, f"stage_share_gap={round(gap,4)}>{max_live_stage_attempt_share_gap_per_run_id}"
-    run_retries = int(generation_retries_by_run_id.get(run_id, 0) or 0) + int(analysis_retries_by_run_id.get(run_id, 0) or 0)
+    run_retries = safe_int(generation_retries_by_run_id.get(run_id)) + safe_int(analysis_retries_by_run_id.get(run_id))
     retries_total = generation_retries_total + analysis_retries_total
     if max_live_retry_share_per_run_id > 0 and retries_total > 0:
         retry_share = run_retries / retries_total
         if retry_share > max_live_retry_share_per_run_id:
             return True, f"retry_share={round(retry_share,4)}>{max_live_retry_share_per_run_id}"
     if max_live_retry_over_selection_ratio_per_run_id > 0 and retries_total > 0 and selected_run_cells > 0:
-        selected_share = int(selected_cells_by_run_id.get(run_id, 0) or 0) / selected_run_cells
+        selected_share = safe_int(selected_cells_by_run_id.get(run_id)) / selected_run_cells
         if selected_share > 0:
             retry_share = run_retries / retries_total
             retry_over_selection_ratio = retry_share / selected_share
             if retry_over_selection_ratio > max_live_retry_over_selection_ratio_per_run_id:
                 return True, f"retry_over_selection_ratio={round(retry_over_selection_ratio,4)}>{max_live_retry_over_selection_ratio_per_run_id}"
     if max_live_attempt_over_selection_ratio_per_run_id > 0 and combined_total > 0 and selected_run_cells > 0:
-        selected_share = int(selected_cells_by_run_id.get(run_id, 0) or 0) / selected_run_cells
+        selected_share = safe_int(selected_cells_by_run_id.get(run_id)) / selected_run_cells
         if selected_share > 0:
             combined_share = run_combined / combined_total
             attempt_over_selection_ratio = combined_share / selected_share
@@ -610,11 +610,11 @@ def build_budget_report(
 ) -> dict:
     rows = []
     for run_id in sorted(selected_cells_by_run_id):
-        selected_cells = int(selected_cells_by_run_id.get(run_id, 0) or 0)
-        generation_attempts = int(generation_attempts_by_run_id.get(run_id, 0) or 0)
-        analysis_attempts = int(analysis_attempts_by_run_id.get(run_id, 0) or 0)
-        generation_retries = int(generation_retries_by_run_id.get(run_id, 0) or 0)
-        analysis_retries = int(analysis_retries_by_run_id.get(run_id, 0) or 0)
+        selected_cells = safe_int(selected_cells_by_run_id.get(run_id))
+        generation_attempts = safe_int(generation_attempts_by_run_id.get(run_id))
+        analysis_attempts = safe_int(analysis_attempts_by_run_id.get(run_id))
+        generation_retries = safe_int(generation_retries_by_run_id.get(run_id))
+        analysis_retries = safe_int(analysis_retries_by_run_id.get(run_id))
         combined_attempts = generation_attempts + analysis_attempts
         combined_retries = generation_retries + analysis_retries
         rows.append(
@@ -622,14 +622,14 @@ def build_budget_report(
                 "id": run_id,
                 "selected_cells": selected_cells,
                 "selected_cell_share": pct(selected_cells, selected_run_cells),
-                "successful_cells": int(successful_cells_by_run_id.get(run_id, 0) or 0),
-                "failed_cells": int(failed_cells_by_run_id.get(run_id, 0) or 0),
+                "successful_cells": safe_int(successful_cells_by_run_id.get(run_id)),
+                "failed_cells": safe_int(failed_cells_by_run_id.get(run_id)),
                 "failed_cell_share": pct(
-                    int(failed_cells_by_run_id.get(run_id, 0) or 0),
+                    safe_int(failed_cells_by_run_id.get(run_id)),
                     failed_cells_total,
                 ),
                 "run_id_success_rate": pct(
-                    int(successful_cells_by_run_id.get(run_id, 0) or 0),
+                    safe_int(successful_cells_by_run_id.get(run_id)),
                     selected_cells,
                 ),
                 "generation_attempts": generation_attempts,
@@ -701,7 +701,7 @@ def build_budget_report(
                 if combined_attempts > 0
                 else 0.0,
                 "failure_over_selection_ratio": _over_selection_ratio(
-                    int(failed_cells_by_run_id.get(run_id, 0) or 0),
+                    safe_int(failed_cells_by_run_id.get(run_id)),
                     failed_cells_total,
                     selected_cells,
                     selected_run_cells,
@@ -3673,7 +3673,7 @@ def main():
         for run_id in sorted(selected_cells_by_run_id)
     }
     combined_attempts_by_run_id = {
-        run_id: int(generation_attempts_by_run_id.get(run_id, 0) or 0) + int(analysis_attempts_by_run_id.get(run_id, 0) or 0)
+        run_id: safe_int(generation_attempts_by_run_id.get(run_id)) + safe_int(analysis_attempts_by_run_id.get(run_id))
         for run_id in sorted(selected_cells_by_run_id)
     }
     combined_attempts_total = generation_attempts_total + analysis_attempts_total
@@ -4799,7 +4799,7 @@ def main():
         over_timeout_pressure = []
         for run_id, count in sorted(timeout_failures_by_run_id.items()):
             timeout_share = count / timeout_failures_total
-            selected_share = int(selected_cells_by_run_id.get(run_id, 0) or 0) / max(1, selected_run_cells)
+            selected_share = safe_int(selected_cells_by_run_id.get(run_id)) / max(1, selected_run_cells)
             if selected_share <= 0:
                 continue
             ratio = timeout_share / selected_share
@@ -4819,7 +4819,7 @@ def main():
         over_generation_timeout_pressure = []
         for run_id, count in sorted(generation_timeout_failures_by_run_id.items()):
             timeout_share = count / generation_timeout_failures_total
-            selected_share = int(selected_cells_by_run_id.get(run_id, 0) or 0) / max(1, selected_run_cells)
+            selected_share = safe_int(selected_cells_by_run_id.get(run_id)) / max(1, selected_run_cells)
             if selected_share <= 0:
                 continue
             ratio = timeout_share / selected_share
@@ -4839,7 +4839,7 @@ def main():
         over_analysis_timeout_pressure = []
         for run_id, count in sorted(analysis_timeout_failures_by_run_id.items()):
             timeout_share = count / analysis_timeout_failures_total
-            selected_share = int(selected_cells_by_run_id.get(run_id, 0) or 0) / max(1, selected_run_cells)
+            selected_share = safe_int(selected_cells_by_run_id.get(run_id)) / max(1, selected_run_cells)
             if selected_share <= 0:
                 continue
             ratio = timeout_share / selected_share
