@@ -208,6 +208,17 @@ def summarize_readiness_issues(
     return notes
 
 
+def _block_payload(block: EnvBlock, *, kind: str) -> dict:
+    """Convert an EnvBlock into a compact payload section and keep key names aligned."""
+
+    return {
+        f"{kind}_missing": block.missing,
+        f"{kind}_placeholder": block.placeholder,
+        f"{kind}_unsafe": block.unsafe,
+        f"{kind}_available": block.available,
+    }
+
+
 def build_readiness_payload(
     required: EnvBlock,
     optional: EnvBlock,
@@ -216,44 +227,46 @@ def build_readiness_payload(
 ) -> dict:
     """Build a unified payload dict to avoid duplicated serialization logic."""
 
-    required_missing = required.missing
-    required_placeholder_vars = required.placeholder
-    required_unsafe_vars = required.unsafe
-    optional_missing = optional.missing
-    optional_placeholder_vars = optional.placeholder
-    optional_unsafe_vars = optional.unsafe
+    required_payload = _block_payload(required, kind="required")
+    optional_payload = _block_payload(optional, kind="optional")
 
     notes = summarize_readiness_issues(
-        required_missing=required_missing,
-        required_placeholder_vars=required_placeholder_vars,
-        required_unsafe_vars=required_unsafe_vars,
-        optional_missing=optional_missing,
-        optional_placeholder_vars=optional_placeholder_vars,
-        optional_unsafe_vars=optional_unsafe_vars,
+        required_missing=required_payload["required_missing"],
+        required_placeholder_vars=required_payload["required_placeholder"],
+        required_unsafe_vars=required_payload["required_unsafe"],
+        optional_missing=optional_payload["optional_missing"],
+        optional_placeholder_vars=optional_payload["optional_placeholder"],
+        optional_unsafe_vars=optional_payload["optional_unsafe"],
         endpoint_scheme_ok=endpoint_scheme_ok,
         suspicious=suspicious,
     )
 
+    suspicious_vars = sorted(set(suspicious))
     return {
-        "required_missing": required_missing,
-        "required_placeholder": required_placeholder_vars,
-        "required_unsafe": required_unsafe_vars,
-        "optional_missing": optional_missing,
-        "optional_placeholder": optional_placeholder_vars,
-        "optional_unsafe": optional_unsafe_vars,
+        "required_missing": required_payload["required_missing"],
+        "required_placeholder": required_payload["required_placeholder"],
+        "required_unsafe": required_payload["required_unsafe"],
+        "optional_missing": optional_payload["optional_missing"],
+        "optional_placeholder": optional_payload["optional_placeholder"],
+        "optional_unsafe": optional_payload["optional_unsafe"],
         "notes": notes,
         "payload": {
-            "ready": not required_missing and not required_placeholder_vars and not required_unsafe_vars and not suspicious,
+            "ready": (
+                not required_payload["required_missing"]
+                and not required_payload["required_placeholder"]
+                and not required_payload["required_unsafe"]
+                and not suspicious_vars
+            ),
             "required_vars": required.names,
             "optional_vars": optional.names,
-            "available_vars": {**required.available, **optional.available},
-            "missing_vars": required_missing,
-            "optional_missing_vars": optional_missing,
-            "placeholder_vars": required_placeholder_vars,
-            "optional_placeholder_vars": optional_placeholder_vars,
-            "unsafe_vars": required_unsafe_vars,
-            "optional_unsafe_vars": optional_unsafe_vars,
-            "suspicious_vars": sorted(set(suspicious)),
+            "available_vars": {**required_payload["required_available"], **optional_payload["optional_available"]},
+            "missing_vars": required_payload["required_missing"],
+            "optional_missing_vars": optional_payload["optional_missing"],
+            "placeholder_vars": required_payload["required_placeholder"],
+            "optional_placeholder_vars": optional_payload["optional_placeholder"],
+            "unsafe_vars": required_payload["required_unsafe"],
+            "optional_unsafe_vars": optional_payload["optional_unsafe"],
+            "suspicious_vars": suspicious_vars,
             "endpoint": {
                 "OPENAI_BASE_URL_present": bool(os.getenv("OPENAI_BASE_URL", "").strip()),
                 "scheme_ok": endpoint_scheme_ok,
