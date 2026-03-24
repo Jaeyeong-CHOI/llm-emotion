@@ -1,13 +1,7 @@
 #!/usr/bin/env python3
 from typing import Any
 
-from research_ops_common import display_value, get_stats_snapshot, load_research_state
-
-
-
-def _render_rows(rows: list[tuple[str, Any]]) -> None:
-    for key, value in rows:
-        print(f"- {key}: {display_value(value)}")
+from research_ops_common import get_stats_snapshot, load_research_state, render_markdown_rows
 
 
 def main() -> None:
@@ -23,10 +17,14 @@ def main() -> None:
         ("evidence_rows", snapshot.get("evidence_rows")),
         ("mock_samples_generated", snapshot.get("mock_samples_generated")),
     ]
-    _render_rows(rows)
+    print("\n".join(render_markdown_rows(rows)))
 
     if snapshot.get("last_error"):
-        print(f"- last_error: {display_value(snapshot.get('last_error'))}")
+        print(
+            "\n".join(
+                render_markdown_rows([("last_error", snapshot.get("last_error"))])
+            )
+        )
 
     notes = state.get("notes", [])
     if not isinstance(notes, list):

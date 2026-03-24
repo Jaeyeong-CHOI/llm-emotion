@@ -2,7 +2,7 @@
 import datetime
 from zoneinfo import ZoneInfo
 
-from research_ops_common import ROOT, STATE_PATH, display_value, get_nested_field, get_stats_snapshot, read_json_dict
+from research_ops_common import ROOT, STATE_PATH, display_value, get_nested_field, get_stats_snapshot, read_json_dict, render_markdown_rows
 
 CRON_STATE_PATH = ROOT / "ops" / "cron_runtime_status.json"
 OUT_PATH = ROOT / "LIVE_STATUS.md"
@@ -17,7 +17,8 @@ def _build_status_lines(cron: dict[str, object]) -> list[str]:
         ("최근 연구 루프 결과", get_nested_field(cron, "continuous", "lastRunStatus")),
     ]
 
-    return [f"- {label}: **{value}**" for label, value in status_fields]
+    rendered = render_markdown_rows([(k, f"**{v}**") for k, v in status_fields])
+    return rendered
 
 
 def main() -> None:

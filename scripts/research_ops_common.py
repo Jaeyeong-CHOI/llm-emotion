@@ -18,6 +18,13 @@ def display_value(value: Any, default: str = "-") -> str:
     return default if value is None else str(value)
 
 
+def render_markdown_rows(rows: list[tuple[str, Any]], indent: str = "") -> list[str]:
+    """Render a compact markdown bullet list with stable display conversion."""
+
+    return [
+        f"{indent}- {key}: {display_value(value)}" for key, value in rows
+    ]
+
 
 def _normalize_token_set(values: Any) -> set[str]:
     """Normalize an arbitrary token-like container into a unique string set."""
