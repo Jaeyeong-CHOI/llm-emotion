@@ -7,7 +7,7 @@ import math
 import re
 from pathlib import Path
 
-from research_ops_common import write_json
+from research_ops_common import pct, write_json
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -21,12 +21,6 @@ def load_manual_qc_csv(path: Path) -> list[dict]:
         return []
     with path.open(encoding="utf-8", newline="") as fh:
         return list(csv.DictReader(fh))
-
-
-def pct(numerator: int, denominator: int) -> float:
-    if denominator <= 0:
-        return 0.0
-    return round(numerator / denominator, 4)
 
 
 def is_truthy(value) -> bool:

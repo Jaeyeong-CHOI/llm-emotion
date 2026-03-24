@@ -18,7 +18,7 @@ from typing import Optional, Union
 
 # Python 3.9 호환성(PEP604 타입 유니언 `|` 미지원 환경 대응)
 
-from research_ops_common import parse_csv_set, row_list_values, write_json
+from research_ops_common import parse_csv_set, pct, row_list_values, write_json
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -315,12 +315,6 @@ def aggregate_by_run_id(run_metric_paths: dict[str, list[Path]]) -> list[dict]:
             continue
         rows.append({"id": run_id, **metrics})
     return rows
-
-
-def pct(numerator: int, denominator: int) -> float:
-    if denominator <= 0:
-        return 0.0
-    return round(numerator / denominator, 4)
 
 
 def _over_selection_ratio(

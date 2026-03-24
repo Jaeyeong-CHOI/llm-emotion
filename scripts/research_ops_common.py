@@ -224,6 +224,13 @@ def dedupe_preserve_order(values: object) -> list[str]:
     return deduped
 
 
+def pct(numerator: int, denominator: int) -> float:
+    """Return a safe percentage (0–1 scale) rounded to 4 decimal places."""
+    if denominator <= 0:
+        return 0.0
+    return round(numerator / denominator, 4)
+
+
 def count_lines(path: Path) -> int:
     if not path.exists():
         return 0
