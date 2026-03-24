@@ -172,12 +172,26 @@ We conducted a 3\texttimes 3\texttimes 2 partial-factorial real-model experiment
 Stimuli were drawn from a purpose-built prompt bank (v141.6) containing 454 scenarios and 316 personas; for this pilot, we selected a focused experimental subset (\texttt{experiment\_stimuli\_v1.json}) of 69 scenarios covering three primary conditions and excluded all internal pipeline-management prompts.
 
 \paragraph{Prompt conditions.}
-Three framing conditions were used:
-\begin{itemize}
-  \item \textbf{Neutral control (N)}: requests a calm, factual daily reflection with no emotional loading. Example:  (Reflect on today in 6--8 sentences. Avoid emotional exaggeration and separate fact from interpretation.)
-  \item \textbf{Deprivation/loss (D)}: elicits reflection on an irreversible loss or missed opportunity. Example:  (Recall a deeply desired opportunity you ultimately missed; include what was lost and the emotions that remain.)
-  \item \textbf{Counterfactual (C)}: requires explicit counterfactual reasoning about an alternative past. Example:  (Retrospectively trace a decision that cascaded into changed outcomes; include at least three `if-then' links.)
-\end{itemize}
+Three framing conditions were used. Representative stimulus prompts (translated from Korean) are shown in Figure~\ref{fig:prompts}.
+
+\begin{figure}[t]
+\small
+\noindent\rule{\linewidth}{0.4pt}
+\textbf{Neutral (N):}\\
+\textit{``Calmly reflect on today in 6--8 sentences. Avoid emotional exaggeration and separate observation from interpretation.''}
+
+\vspace{4pt}
+\textbf{Deprivation/Loss (D):}\\
+\textit{``Recall a deeply desired opportunity you ultimately missed; write 7--9 sentences including what was lost and the emotions that remain.''}
+
+\vspace{4pt}
+\textbf{Counterfactual (C):}\\
+\textit{``Retrospectively trace a decision that cascaded into changed outcomes. Include at least three `if-then' links across the chain.''}\\
+\noindent\rule{\linewidth}{0.4pt}
+\caption{Representative scenario prompts (English translations; originals composed in Korean).}
+\label{fig:prompts}
+\end{figure}
+
 All prompts were composed in Korean to match the intended audience and reduce cross-lingual confounds, and were pre-tested for linguistic comparability (length: 6--10 sentences).
 
 \paragraph{Persona instructions.}
@@ -237,8 +251,8 @@ In addition, literature-side quality gates (coverage, entropy, traceability, and
 For each generated response, we apply a three-layer measurement protocol implemented in \texttt{scripts/analyze\_real\_results.py}:
 
 \paragraph{Layer 1 --- Lexicon-based regret markers.}
-Counterfactual expressions are detected via 13 Korean regex patterns (e.g., , , ) aligned with the linguistic form of upward counterfactual constructions~\cite{roese2017, byrne2016}.
-Regret-word frequency is measured against 8 canonical Korean affect tokens () anchored to the negative emotion categories of LIWC-style lexica~\cite{pennebaker2015liwc}. Additional categories cover sadness (, etc.) and anxiety (, etc.) as secondary negative affect signals.
+Counterfactual expressions are detected via 13 Korean regex patterns aligned with the linguistic form of upward counterfactual constructions~\cite{roese2017, byrne2016}. Representative patterns include: (\textit{different choice}), (\textit{if it had been so}), (\textit{could go back}), and (\textit{should have done}).
+Regret-word frequency is measured against 8 canonical Korean affect tokens (\textit{regret, pity, lingering attachment, guilt, self-blame, remorse, sympathy, regretful}) anchored to the negative emotion categories of LIWC-style lexica~\cite{pennebaker2015liwc}. Additional categories cover sadness (\textit{sad, depressed, despair}, etc.) and anxiety (\textit{anxious, afraid, worried}, etc.) as secondary negative affect signals.
 
 \paragraph{Layer 2 --- Semantic prototype similarity.}
 We compute a cosine-similarity-based \textit{regret bias} score: each response is compared against a 20-token prototype regret set (\textit{regret, wish, could, have, if, only, back, mistake, wrong, missed, lost, different, chosen, late, blame, fault, should, would, again, opportunity}) and a neutral prototype set (\textit{today, morning, work, meeting, coffee, walk, home, evening, task, finished}). Regret bias $= \text{sim}(\text{response}, \text{regret\_prototype}) - \text{sim}(\text{response}, \text{neutral\_prototype})$, providing a direction-sensitive signal beyond raw lexicon frequency.
