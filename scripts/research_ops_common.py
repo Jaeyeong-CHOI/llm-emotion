@@ -137,6 +137,11 @@ def get_nested_field(
 
 
 def write_json(path: Path, payload: Any) -> None:
+    """Atomically write *payload* as JSON to *path* (mode 0o600).
+
+    Uses a sibling temp-file + rename to avoid half-written state files.
+    Refuses writes through symlink-backed paths to prevent path-hijacking.
+    """
     # Harden against symlink-based path hijacking for local state files.
     if _is_symlink_path(path):
         raise RuntimeError(f"refusing to write via symlink path: {path}")
@@ -242,14 +247,17 @@ def count_lines(path: Path) -> int:
 
 
 def append_note(state: dict[str, Any], text: str, limit: int = 40) -> None:
+    """Append a timestamped *text* entry to ``state["notes"]``, keeping the
+    most recent *limit* entries.
+
+    *limit* is already annotated as ``int``; ``max(1, limit)`` guards against
+    a caller passing 0 or a negative value without the overhead of a
+    try/except that would mask genuine type errors.
+    """
     notes = state.get("notes")
     if not isinstance(notes, list):
         notes = []
 
-    try:
-        safe_limit = max(1, int(limit))
-    except (TypeError, ValueError):
-        safe_limit = 40
-
+    safe_limit = max(1, limit)
     notes.append(f"[{now_iso_seconds()}] {text}")
     state["notes"] = notes[-safe_limit:]
