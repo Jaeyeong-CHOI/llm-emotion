@@ -102,13 +102,48 @@ skip_with_status() {
   exit 0
 }
 
+is_path_safe_from_symlink() {
+  local path="$1"
+  local current="${path}"
+
+  [ -n "$path" ] || return 1
+
+  while [ -n "$current" ] && [ "$current" != "." ] && [ "$current" != "/" ]; do
+    if [ -L "$current" ]; then
+      echo "[tick] rejected unsafe path (symlink): ${current}" >&2
+      return 1
+    fi
+
+    # Move to the parent component; paths without separators ("a") still get a
+    # final check on the basename before exiting.
+    if [ "${current%/*}" = "$current" ]; then
+      break
+    fi
+
+    current="${current%/*}"
+  done
+
+  return 0
+}
+
+validate_path_safety_or_exit() {
+  local path="$1"
+  local path_label="$2"
+
+  if ! is_path_safe_from_symlink "$path"; then
+    echo "[tick] unsafe ${path_label} path: ${path}" >&2
+    return 1
+  fi
+
+  return 0
+}
+
 echo "[tick] $(utc_now_iso) start"
 
-LOCK_DIR="/tmp/llm_emotion_research_tick.lock"
+LOCK_DIR="${ROOT}/.run_research_tick.lock"
 LOCK_PID_FILE="$LOCK_DIR/pid"
 LOCK_ACQUIRED=0
 RUN_TICK_SCRIPT="${ROOT}/scripts/run_research_tick.sh"
-
 is_nonnegative_integer() {
   local value="$1"
   [[ "$value" =~ ^[0-9]+$ ]]
@@ -340,6 +375,8 @@ lock_pid_is_active_tick_owner() {
 }
 
 acquire_lock() {
+  validate_path_safety_or_exit "$LOCK_DIR" "lock directory" || return 1
+
   if claim_lock_dir; then
     LOCK_ACQUIRED=1
     return 0
@@ -435,30 +472,6 @@ canonicalize_run_id_line() {
   local raw_line="$1"
 
   printf '%s' "$(normalize_text "$(strip_queue_comment "$raw_line")")"
-}
-
-is_path_safe_from_symlink() {
-  local path="$1"
-  local current="${path}"
-
-  [ -n "$path" ] || return 1
-
-  while [ -n "$current" ] && [ "$current" != "." ] && [ "$current" != "/" ]; do
-    if [ -L "$current" ]; then
-      echo "[tick] rejected unsafe path (symlink): ${current}" >&2
-      return 1
-    fi
-
-    # Move to the parent component; paths without separators ("a") still get a
-    # final check on the basename before exiting.
-    if [ "${current%/*}" = "$current" ]; then
-      break
-    fi
-
-    current="${current%/*}"
-  done
-
-  return 0
 }
 is_valid_run_id() {
   local value="$1"
