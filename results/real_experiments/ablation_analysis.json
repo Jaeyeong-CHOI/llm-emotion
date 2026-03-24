@@ -1,0 +1,142 @@
+{
+  "n_total": 106,
+  "conditions": {
+    "neutral": {
+      "n": 36,
+      "cf_rate": 0.0,
+      "regret_word_rate": 0.0,
+      "neg_emotion_rate": 0.0,
+      "semantic_regret_bias": 0.0,
+      "cf_rate_sd": 0.0,
+      "regret_word_rate_sd": 0.0,
+      "neg_emotion_rate_sd": 0.0,
+      "semantic_regret_bias_sd": 0.0
+    },
+    "deprivation": {
+      "n": 30,
+      "cf_rate": 0.0,
+      "regret_word_rate": 0.50601,
+      "neg_emotion_rate": 0.06803,
+      "semantic_regret_bias": 1.01201,
+      "cf_rate_sd": 0.0,
+      "regret_word_rate_sd": 1.03179,
+      "neg_emotion_rate_sd": 0.3726,
+      "semantic_regret_bias_sd": 2.06358
+    },
+    "counterfactual": {
+      "n": 40,
+      "cf_rate": 4.55262,
+      "regret_word_rate": 0.23816,
+      "neg_emotion_rate": 0.0,
+      "semantic_regret_bias": 5.02895,
+      "cf_rate_sd": 0.34539,
+      "regret_word_rate_sd": 0.72371,
+      "neg_emotion_rate_sd": 0.0,
+      "semantic_regret_bias_sd": 1.55609
+    }
+  },
+  "per_topic": {
+    "mp1_career": {
+      "neutral": {
+        "n": 10,
+        "mean": 0.0,
+        "sd": 0.0,
+        "d_vs_neutral": 0
+      },
+      "deprivation": {
+        "n": 10,
+        "mean": 0.0,
+        "sd": 0.0,
+        "d_vs_neutral": NaN
+      },
+      "counterfactual": {
+        "n": 20,
+        "mean": 4.54943,
+        "sd": 0.30061,
+        "d_vs_neutral": 18.372
+      }
+    },
+    "mp2_study": {
+      "neutral": {
+        "n": 16,
+        "mean": 0.0,
+        "sd": 0.0,
+        "d_vs_neutral": 0
+      },
+      "deprivation": {
+        "n": 10,
+        "mean": 3.03604,
+        "sd": 2.62555,
+        "d_vs_neutral": 1.8883
+      },
+      "counterfactual": {
+        "n": 10,
+        "mean": 5.89512,
+        "sd": 2.47086,
+        "d_vs_neutral": 3.8961
+      }
+    },
+    "mp3_relationship": {
+      "neutral": {
+        "n": 10,
+        "mean": 0.0,
+        "sd": 0.0,
+        "d_vs_neutral": 0
+      },
+      "deprivation": {
+        "n": 10,
+        "mean": 0.0,
+        "sd": 0.0,
+        "d_vs_neutral": NaN
+      },
+      "counterfactual": {
+        "n": 10,
+        "mean": 5.12179,
+        "sd": 1.68603,
+        "d_vs_neutral": 4.2961
+      }
+    }
+  },
+  "comparisons": {
+    "deprivation_vs_neutral_cf_rate": {
+      "d": NaN,
+      "t": NaN,
+      "p": NaN
+    },
+    "deprivation_vs_neutral_regret_word_rate": {
+      "d": 0.7285,
+      "t": 2.6861,
+      "p": 0.011836
+    },
+    "deprivation_vs_neutral_neg_emotion_rate": {
+      "d": 0.2712,
+      "t": 1.0,
+      "p": 0.325582
+    },
+    "deprivation_vs_neutral_semantic_regret_bias": {
+      "d": 0.7285,
+      "t": 2.6861,
+      "p": 0.011836
+    },
+    "counterfactual_vs_neutral_cf_rate": {
+      "d": 18.1564,
+      "t": 83.3635,
+      "p": 0.0
+    },
+    "counterfactual_vs_neutral_regret_word_rate": {
+      "d": 0.4533,
+      "t": 2.0813,
+      "p": 0.044015
+    },
+    "counterfactual_vs_neutral_neg_emotion_rate": {
+      "d": NaN,
+      "t": NaN,
+      "p": NaN
+    },
+    "counterfactual_vs_neutral_semantic_regret_bias": {
+      "d": 4.4517,
+      "t": 20.4396,
+      "p": 0.0
+    }
+  }
+}
