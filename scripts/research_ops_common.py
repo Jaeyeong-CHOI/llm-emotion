@@ -200,9 +200,6 @@ def safe_int(value: Any, default: int = 0) -> int:
         return default
 
 
-def _safe_int(value: Any, default: int = 0) -> int:
-    # Backward-compatible alias for internal callers in legacy scripts.
-    return safe_int(value, default=default)
 
 
 def get_stats_snapshot(state: dict[str, Any]) -> dict[str, Any]:
@@ -211,9 +208,9 @@ def get_stats_snapshot(state: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(stats, dict):
         stats = {}
     return {
-        "papers_collected": _safe_int(stats.get("papers_collected", 0)),
-        "evidence_rows": _safe_int(stats.get("evidence_rows", 0)),
-        "mock_samples_generated": _safe_int(stats.get("mock_samples_generated", 0)),
+        "papers_collected": safe_int(stats.get("papers_collected", 0)),
+        "evidence_rows": safe_int(stats.get("evidence_rows", 0)),
+        "mock_samples_generated": safe_int(stats.get("mock_samples_generated", 0)),
         "last_success": state.get("last_success", "-"),
         "last_error": state.get("last_error"),
     }
