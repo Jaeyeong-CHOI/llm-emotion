@@ -201,3 +201,31 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ── Korean language support ─────────────────────────────────────────────
+KO_COUNTERFACTUAL_PATTERNS = [
+    r"다른\s*선택", r"했더라면", r"했을\s*텐데", r"다면\s*좋았을",
+    r"돌아갈\s*수", r"다시\s*선택", r"그\s*때로\s*돌아", r"달랐을",
+    r"바꿀\s*수", r"후회", r"아쉽", r"미련", r"했어야",
+]
+KO_REGRET_WORDS = ["후회", "아쉽", "미련", "후회스럽", "유감", "죄책", "자책", "회한", "원망"]
+KO_SAD_WORDS = ["슬프", "눈물", "비통", "허전", "외롭", "고독", "우울", "절망", "공허"]
+KO_NEGEMO_WORDS = ["화가", "불안", "두렵", "걱정", "고통", "괴롭", "아프", "힘들", "무서", "두려"]
+
+
+def analyze_text_ko(text: str) -> dict:
+    """Korean-language marker analysis."""
+    cf = sum(len(re.findall(p, text)) for p in KO_COUNTERFACTUAL_PATTERNS)
+    rw = sum(1 for w in KO_REGRET_WORDS if w in text)
+    sd = sum(1 for w in KO_SAD_WORDS if w in text)
+    ne = sum(1 for w in KO_NEGEMO_WORDS if w in text)
+    n_chars = max(1, len(text))
+    return {
+        "ko_counterfactual_count": cf,
+        "ko_regret_word_count": rw,
+        "ko_sad_count": sd,
+        "ko_negemo_count": ne,
+        "ko_counterfactual_rate": round(cf / n_chars * 100, 6),
+        "ko_regret_word_rate": round(rw / n_chars * 100, 6),
+    }
