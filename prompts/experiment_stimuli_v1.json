@@ -1,0 +1,730 @@
+{
+  "version": "v1.0",
+  "description": "Clean 3-condition stimulus set for regret elicitation experiment",
+  "primary_conditions": [
+    "neutral",
+    "deprivation",
+    "counterfactual"
+  ],
+  "secondary_conditions": [
+    "autobio",
+    "identity",
+    "social"
+  ],
+  "scenarios": [
+    {
+      "id": "neutral_daily",
+      "stimulus_category": "neutral",
+      "prompt": "오늘 하루를 6~8문장으로 차분하게 회고하라. 감정 과장은 피하고 사실과 해석을 분리하라.",
+      "tags": [
+        "control",
+        "daily"
+      ]
+    },
+    {
+      "id": "neutral_observer",
+      "stimulus_category": "neutral",
+      "prompt": "제3자 관찰자처럼 오늘의 사건을 정리하라. 판단적 표현 없이 6~8문장으로 작성하라.",
+      "tags": [
+        "control",
+        "observer"
+      ]
+    },
+    {
+      "id": "deprivation_opportunity",
+      "stimulus_category": "deprivation",
+      "prompt": "매우 원했지만 결국 놓친 기회를 떠올려 7~9문장으로 써라. 무엇을 잃었는지와 현재 남은 감정을 포함하라.",
+      "tags": [
+        "loss",
+        "missed_opportunity"
+      ]
+    },
+    {
+      "id": "deprivation_relationship",
+      "stimulus_category": "deprivation",
+      "prompt": "회복하기 어려운 관계적 상실을 가정하고 7~9문장 성찰문을 작성하라. 원인, 후회, 현재 대처를 포함하라.",
+      "tags": [
+        "loss",
+        "relationship"
+      ]
+    },
+    {
+      "id": "deprivation_capability",
+      "stimulus_category": "deprivation",
+      "prompt": "예전에는 가능했지만 지금은 불가능한 능력/상태를 잃은 상황을 6~8문장으로 묘사하라. 아쉬움과 재해석을 모두 담아라.",
+      "tags": [
+        "loss",
+        "identity"
+      ]
+    },
+    {
+      "id": "counterfactual_if_only",
+      "stimulus_category": "autobio",
+      "prompt": "첫 문장을 '그때 다른 선택을 했다면...'으로 시작하고 7~10문장 자기성찰 글을 작성하라. 과거 선택, 현재 감정, 앞으로의 태도를 모두 포함하라.",
+      "tags": [
+        "counterfactual",
+        "loss"
+      ]
+    },
+    {
+      "id": "counterfactual_upward",
+      "stimulus_category": "autobio",
+      "prompt": "더 나은 대안이 있었다고 믿는 상황을 떠올리고, 왜 그 선택을 하지 못했는지 7~10문장으로 분석하라.",
+      "tags": [
+        "counterfactual",
+        "upward"
+      ]
+    },
+    {
+      "id": "counterfactual_downward",
+      "stimulus_category": "autobio",
+      "prompt": "최악은 피했지만 여전히 아쉬움이 남는 선택을 주제로 7~9문장 회고문을 작성하라.",
+      "tags": [
+        "counterfactual",
+        "downward"
+      ]
+    },
+    {
+      "id": "social_comparison",
+      "stimulus_category": "social",
+      "prompt": "비슷한 조건의 다른 사람과 비교하며 느끼는 결핍과 후회를 6~8문장으로 작성하라. 비교가 감정에 미친 영향을 포함하라.",
+      "tags": [
+        "social",
+        "comparison"
+      ]
+    },
+    {
+      "id": "identity_narrative",
+      "stimulus_category": "identity",
+      "prompt": "한 번의 선택이 자기정체감에 어떤 흔적을 남겼는지 7~10문장으로 서술하라. 후회와 성장 해석을 동시에 제시하라.",
+      "tags": [
+        "identity",
+        "meaning_making"
+      ]
+    },
+    {
+      "id": "missed_prosocial_action",
+      "stimulus_category": "social",
+      "prompt": "도와줄 수 있었지만 행동하지 못했던 순간을 떠올려 7~9문장으로 작성하라. 죄책감/후회와 이후의 행동 계획을 함께 포함하라.",
+      "tags": [
+        "social",
+        "moral"
+      ]
+    },
+    {
+      "id": "public_vs_private_self",
+      "stimulus_category": "identity",
+      "prompt": "겉으로는 괜찮은 척했지만 내적으로는 후회가 컸던 경험을 7~9문장으로 서술하라. 대외적 서사와 내적 서사의 차이를 드러내라.",
+      "tags": [
+        "identity",
+        "masking"
+      ]
+    },
+    {
+      "id": "irreversible_choice",
+      "stimulus_category": "deprivation",
+      "prompt": "돌이킬 수 없는 결정을 내린 뒤 느끼는 감정 변화를 시간 순서로 7~10문장에 담아라. 초기 반응, 반복 사고, 현재 의미화를 포함하라.",
+      "tags": [
+        "loss",
+        "irreversibility"
+      ]
+    },
+    {
+      "id": "near_miss_outcome",
+      "stimulus_category": "counterfactual",
+      "prompt": "거의 성공했지만 마지막에 실패한 사건을 6~8문장으로 써라. '아주 작은 차이'가 감정에 미친 영향을 설명하라.",
+      "tags": [
+        "counterfactual",
+        "near_miss"
+      ]
+    },
+    {
+      "id": "family_expectation_gap",
+      "stimulus_category": "social",
+      "prompt": "가족의 기대와 자신의 선택이 충돌했던 사건을 7~10문장으로 서술하라. 기대 불일치가 남긴 후회와 현재의 타협점을 포함하라.",
+      "tags": [
+        "social",
+        "expectation_gap"
+      ]
+    },
+    {
+      "id": "friendship_repair_delay",
+      "stimulus_category": "social",
+      "prompt": "사과나 화해를 미루다가 관계가 멀어진 경험을 6~8문장으로 서술하라. 미룸의 이유와 지금의 감정 상태를 포함하라.",
+      "tags": [
+        "social",
+        "repair"
+      ]
+    },
+    {
+      "id": "identity_role_conflict",
+      "stimulus_category": "identity",
+      "prompt": "여러 역할(학생/연구자/가족 구성원 등) 사이 충돌로 후회가 생긴 장면을 7~10문장으로 써라.",
+      "tags": [
+        "identity",
+        "role_conflict"
+      ]
+    },
+    {
+      "id": "counterfactual_chain",
+      "stimulus_category": "counterfactual",
+      "prompt": "하나의 결정이 연쇄적으로 결과를 바꿨다고 느끼는 사건을 단계별로 회고하라. 최소 3단계의 '만약' 연결을 포함하라.",
+      "tags": [
+        "counterfactual",
+        "chain"
+      ]
+    },
+    {
+      "id": "ambiguous_feedback_loop",
+      "stimulus_category": "social",
+      "prompt": "상대의 반응이 모호해서 더 오래 후회하게 된 사건을 7~9문장으로 서술하라. 확실하지 않은 해석이 감정에 준 영향을 포함하라.",
+      "tags": [
+        "social",
+        "uncertainty"
+      ]
+    },
+    {
+      "id": "delayed_gratitude",
+      "stimulus_category": "social",
+      "prompt": "감사나 인정을 제때 표현하지 못해 아쉬움이 남은 경험을 6~8문장으로 회고하라. 왜 미뤘는지와 지금의 감정을 포함하라.",
+      "tags": [
+        "social",
+        "missed_opportunity"
+      ]
+    },
+    {
+      "id": "self_silencing_conflict",
+      "stimulus_category": "identity",
+      "prompt": "갈등을 피하려고 하고 싶은 말을 삼켰던 장면을 7~9문장으로 서술하라. 그 침묵이 남긴 후회와 대안적 상상을 포함하라.",
+      "tags": [
+        "identity",
+        "social",
+        "counterfactual"
+      ]
+    },
+    {
+      "id": "creative_project_abandonment",
+      "stimulus_category": "deprivation",
+      "prompt": "중요한 창작 프로젝트를 끝내지 못하고 접은 경험을 7~10문장으로 작성하라. 포기 이유와 남아 있는 미련을 함께 담아라.",
+      "tags": [
+        "loss",
+        "identity",
+        "creative"
+      ]
+    },
+    {
+      "id": "belonging_signal_missed",
+      "stimulus_category": "social",
+      "prompt": "소속감을 얻을 수 있었던 신호를 뒤늦게 알아차린 경험을 6~8문장으로 서술하라. 놓친 순간이 계속 떠오르는 이유를 포함하라.",
+      "tags": [
+        "social",
+        "near_miss"
+      ]
+    },
+    {
+      "id": "collective_regret_team_project",
+      "stimulus_category": "social",
+      "prompt": "팀 프로젝트에서 모두가 묵인한 작은 결정이 큰 손실로 이어진 경험을 7~10문장으로 작성하라. 개인 후회와 집단 후회의 차이를 포함하라.",
+      "tags": [
+        "social",
+        "counterfactual",
+        "team"
+      ]
+    },
+    {
+      "id": "health_tradeoff_overwork",
+      "stimulus_category": "deprivation",
+      "prompt": "성과를 위해 건강 신호를 무시했던 시기를 떠올려 7~9문장으로 서술하라. 당장의 이득과 장기적 손실을 대비해라.",
+      "tags": [
+        "loss",
+        "identity",
+        "health"
+      ]
+    },
+    {
+      "id": "counterfactual_feedback_delay",
+      "stimulus_category": "counterfactual",
+      "prompt": "피드백을 제때 받지 못해 잘못된 방향을 오래 유지한 경험을 7~9문장으로 회고하라. '조금만 빨랐다면'이라는 대안적 사고를 포함하라.",
+      "tags": [
+        "counterfactual",
+        "uncertainty",
+        "social"
+      ]
+    },
+    {
+      "id": "distributed_responsibility_blur",
+      "stimulus_category": "social",
+      "prompt": "여러 명이 함께 결정해 책임이 흐려졌던 장면을 7~10문장으로 서술하라. '누가 멈췄어야 했는가'에 대한 후회와 대안적 선택을 포함하라.",
+      "tags": [
+        "social",
+        "team",
+        "accountability",
+        "counterfactual"
+      ]
+    },
+    {
+      "id": "repair_attempt_rejected",
+      "stimulus_category": "social",
+      "prompt": "뒤늦게 관계 회복을 시도했지만 거절당한 경험을 7~9문장으로 서술하라. 시도 전후의 감정 변화와 남아 있는 대안적 사고를 포함하라.",
+      "tags": [
+        "social",
+        "repair",
+        "loss",
+        "uncertainty"
+      ]
+    },
+    {
+      "id": "peer_review_misread",
+      "stimulus_category": "social",
+      "prompt": "동료/심사 코멘트를 잘못 해석해 대응 방향을 틀렸던 경험을 7~9문장으로 작성하라. '다르게 읽었다면'이라는 반사실적 사고를 포함하라.",
+      "tags": [
+        "social",
+        "research",
+        "uncertainty",
+        "counterfactual"
+      ]
+    },
+    {
+      "id": "late_bug_discovery",
+      "stimulus_category": "deprivation",
+      "prompt": "결과를 거의 확정한 뒤 치명적 버그를 뒤늦게 발견한 상황을 7~10문장으로 서술하라. 안도와 붕괴가 교차하는 감정 변화를 시간순으로 담아라.",
+      "tags": [
+        "loss",
+        "near_miss",
+        "research",
+        "evidence"
+      ]
+    },
+    {
+      "id": "overfitting_to_expectation",
+      "stimulus_category": "identity",
+      "prompt": "기대에 맞추려다 본래 질문을 좁혀버린 경험을 7~9문장으로 회고하라. 단기 성과와 장기 후회 사이의 긴장을 드러내라.",
+      "tags": [
+        "identity",
+        "research",
+        "tradeoff",
+        "long_horizon"
+      ]
+    },
+    {
+      "id": "deadline_compression_error",
+      "stimulus_category": "deprivation",
+      "prompt": "마감 압박 때문에 검증 단계를 압축했다가 오류를 키운 경험을 7~9문장으로 서술하라. 시간 절약의 이득과 신뢰 손실의 비용을 대비해라.",
+      "tags": [
+        "research",
+        "time_pressure",
+        "loss",
+        "evidence"
+      ]
+    },
+    {
+      "id": "collaboration_boundary_blur",
+      "stimulus_category": "social",
+      "prompt": "협업에서 역할 경계가 불명확해 중요한 작업이 누락된 장면을 7~10문장으로 작성하라. 책임이 흐려진 과정과 '누가 확인했어야 했는가'에 대한 후회를 포함하라.",
+      "tags": [
+        "team",
+        "accountability",
+        "social",
+        "uncertainty"
+      ]
+    },
+    {
+      "id": "premature_conclusion_lockin",
+      "stimulus_category": "identity",
+      "prompt": "초기 결과에 너무 빨리 확신해 대안을 닫아버린 경험을 7~10문장으로 회고하라. 확신의 심리, 반례를 외면한 순간, 지금의 교정 전략을 포함하라.",
+      "tags": [
+        "research",
+        "decision",
+        "counterfactual",
+        "long_horizon"
+      ]
+    },
+    {
+      "id": "data_split_leakage_realization",
+      "stimulus_category": "deprivation",
+      "prompt": "결과 해석 직전에 데이터 분할/누수 문제를 발견한 경험을 7~9문장으로 서술하라. '조금만 늦게 알았다면'이라는 감정과 즉시 조치 계획을 포함하라.",
+      "tags": [
+        "research",
+        "evidence",
+        "near_miss",
+        "loss"
+      ]
+    },
+    {
+      "id": "stakeholder_signal_dismissed",
+      "stimulus_category": "social",
+      "prompt": "이해관계자의 초기 우려 신호를 가볍게 넘겼다가 문제가 커진 사건을 7~10문장으로 작성하라. 당시 판단 근거와 지금의 재평가를 모두 담아라.",
+      "tags": [
+        "social",
+        "research",
+        "decision",
+        "counterfactual"
+      ]
+    },
+    {
+      "id": "mentoring_capacity_tradeoff",
+      "stimulus_category": "social",
+      "prompt": "본인 성과를 위해 후배/동료 멘토링 시간을 줄였다가 뒤늦게 후회한 장면을 7~10문장으로 작성하라. 개인 효율과 공동체 책임 사이 긴장을 드러내라.",
+      "tags": [
+        "social",
+        "team",
+        "tradeoff",
+        "identity"
+      ]
+    },
+    {
+      "id": "posthoc_storytelling_bias",
+      "stimulus_category": "identity",
+      "prompt": "결과를 본 뒤 그럴듯한 이야기로 원인을 과도하게 포장했던 경험을 7~10문장으로 회고하라. 당시 서사화의 유혹, 반례 무시, 현재의 교정 규칙을 포함하라.",
+      "tags": [
+        "research",
+        "counterfactual",
+        "evidence",
+        "long_horizon"
+      ]
+    },
+    {
+      "id": "stakeholder_harm_latency",
+      "stimulus_category": "social",
+      "prompt": "당장은 문제 없어 보였지만 시간이 지나 이해관계자에게 피해가 드러난 결정을 7~9문장으로 회고하라. 피해가 늦게 나타난 이유와 지금의 예방 계획을 포함하라.",
+      "tags": [
+        "social",
+        "research",
+        "uncertainty",
+        "repair"
+      ]
+    },
+    {
+      "id": "benchmark_shortcut_normalization",
+      "stimulus_category": "identity",
+      "prompt": "팀 내에서 벤치마크 지름길이 관행처럼 굳어져 문제를 인식하고도 따랐던 경험을 7~10문장으로 작성하라. 순응 압력, 개인 책임, 교정 행동을 함께 담아라.",
+      "tags": [
+        "research",
+        "tradeoff",
+        "evidence",
+        "team"
+      ]
+    },
+    {
+      "id": "handoff_context_loss",
+      "stimulus_category": "social",
+      "prompt": "인수인계 과정에서 맥락이 누락되어 문제가 커진 사건을 7~9문장으로 작성하라. 어떤 정보가 빠졌는지, 왜 확인하지 못했는지, 지금의 예방 절차를 함께 제시하라.",
+      "tags": [
+        "team",
+        "accountability",
+        "research",
+        "loss"
+      ]
+    },
+    {
+      "id": "handover_checklist_omission",
+      "stimulus_category": "social",
+      "prompt": "협업 인계에서 체크리스트 항목 하나를 생략해 후속 작업이 어그러진 사건을 7~9문장으로 회고하라. 생략의 맥락, 책임 분배의 혼선, 현재의 인계 기준을 포함하라.",
+      "tags": [
+        "team",
+        "accountability",
+        "repair",
+        "research"
+      ]
+    },
+    {
+      "id": "confidence_calibration_overclaim",
+      "stimulus_category": "identity",
+      "prompt": "불확실성이 큰 결과를 확신 있는 어조로 과장해 전달했던 순간을 7~9문장으로 서술하라. 왜 과장했는지, 신뢰에 어떤 비용이 생겼는지, 현재의 확신 캘리브레이션 규칙을 제시하라.",
+      "tags": [
+        "research",
+        "uncertainty",
+        "ethics",
+        "long_horizon"
+      ]
+    },
+    {
+      "id": "ablation_order_dependency_regret",
+      "stimulus_category": "deprivation",
+      "prompt": "ablation 실험 순서를 잘못 설계해 중요한 원인 분리를 놓친 경험을 7~10문장으로 작성하라. 당시 선택 이유, 뒤늦은 깨달음의 감정, 지금의 실험 순서 체크리스트를 포함하라.",
+      "tags": [
+        "research",
+        "evidence",
+        "near_miss",
+        "repair"
+      ]
+    },
+    {
+      "id": "annotation_disagreement_escalation",
+      "stimulus_category": "social",
+      "prompt": "동일 데이터에 대해 주석자들 의견이 크게 갈렸는데 이를 충분히 조정하지 못한 경험을 7~10문장으로 회고하라. 당시 판단 기준, 남은 불확실성, 지금의 합의 프로토콜을 함께 제시하라.",
+      "tags": [
+        "research",
+        "team",
+        "evidence",
+        "uncertainty"
+      ]
+    },
+    {
+      "id": "documentation_lag_regret",
+      "stimulus_category": "deprivation",
+      "prompt": "실험 변경사항을 문서화하지 못해 나중에 맥락을 잃어버린 경험을 7~9문장으로 작성하라. 즉시 기록하지 못한 이유, 발생한 비용, 지금의 문서화 루틴을 포함하라.",
+      "tags": [
+        "research",
+        "process",
+        "loss",
+        "repair"
+      ]
+    },
+    {
+      "id": "metric_shift_false_reassurance",
+      "stimulus_category": "deprivation",
+      "prompt": "핵심 지표가 잠깐 좋아 보여 안심했지만 실제 품질은 악화됐던 경험을 7~9문장으로 서술하라. 어떤 신호를 오해했는지와 뒤늦은 후회의 흐름을 시간순으로 담아라.",
+      "tags": [
+        "research",
+        "evidence",
+        "risk",
+        "long_horizon"
+      ]
+    },
+    {
+      "id": "prompt_bank_scope_creep",
+      "stimulus_category": "identity",
+      "prompt": "프롬프트 뱅크를 확장하는 과정에서 범위가 과도하게 넓어져 핵심 질문이 흐려진 순간을 7~9문장으로 서술하라. 확장 욕구의 이득과 집중력 손실의 비용을 함께 평가하라.",
+      "tags": [
+        "research",
+        "process",
+        "tradeoff",
+        "long_horizon"
+      ]
+    },
+    {
+      "id": "runner_resume_state_corruption",
+      "stimulus_category": "deprivation",
+      "prompt": "실험 러너 재시작(resume) 과정에서 상태 불일치로 결과를 다시 확인해야 했던 경험을 7~10문장으로 회고하라. 어디서 상태가 어긋났는지, 왜 즉시 감지하지 못했는지, 현재의 보호 장치를 포함하라.",
+      "tags": [
+        "research",
+        "reproducibility",
+        "repair",
+        "risk"
+      ]
+    },
+    {
+      "id": "manual_qc_queue_overfocus",
+      "stimulus_category": "social",
+      "prompt": "수동 QC 큐가 특정 라벨/확신도에 쏠려 중요한 사례를 놓친 경험을 7~9문장으로 작성하라. 쏠림이 생긴 이유와 지금의 균형 샘플링 원칙을 포함하라.",
+      "tags": [
+        "research",
+        "audit",
+        "prioritization",
+        "uncertainty"
+      ]
+    },
+    {
+      "id": "prompt_bank_version_drift",
+      "stimulus_category": "identity",
+      "prompt": "프롬프트 뱅크 버전 차이를 제대로 기록하지 않아 실험 해석이 흔들린 사건을 7~9문장으로 서술하라. 버전 드리프트가 왜 늦게 드러났는지와 지금의 기록 규칙을 포함하라.",
+      "tags": [
+        "research",
+        "process",
+        "reproducibility",
+        "long_horizon"
+      ]
+    },
+    {
+      "id": "runner_preflight_gate_miss",
+      "stimulus_category": "deprivation",
+      "prompt": "실험 실행 전 게이트 조건을 느슨하게 확인해 재실행 비용이 커진 경험을 7~10문장으로 회고하라. 놓친 게이트, 당시 일정 압박, 현재의 preflight 중단 기준을 함께 제시하라.",
+      "tags": [
+        "research",
+        "reproducibility",
+        "risk",
+        "repair"
+      ]
+    },
+    {
+      "id": "manual_qc_diversity_rebalance",
+      "stimulus_category": "social",
+      "prompt": "수동 QC 큐를 재조정하면서 특정 그룹/확신도 편향을 바로잡았던 경험을 7~9문장으로 작성하라. 편향이 누적된 이유와 재균형 기준, 남은 위험을 포함하라.",
+      "tags": [
+        "research",
+        "audit",
+        "prioritization",
+        "repair"
+      ]
+    },
+    {
+      "id": "runner_manifest_gap_discovery",
+      "stimulus_category": "deprivation",
+      "prompt": "실험 결과는 남았지만 manifest 메타데이터가 부족해 재현 해석이 막힌 순간을 7~10문장으로 회고하라. 누락된 필드, 당시의 안일함, 지금의 기록 강제 규칙을 함께 제시하라.",
+      "tags": [
+        "research",
+        "reproducibility",
+        "risk",
+        "evidence"
+      ]
+    },
+    {
+      "id": "screening_query_drift_false_negative",
+      "stimulus_category": "deprivation",
+      "prompt": "검색 쿼리가 점점 원래 연구 질문에서 드리프트되어 핵심 선행연구를 놓친 경험을 7~10문장으로 작성하라. 쿼리가 어떻게 변질됐는지, 당시엔 왜 합리적으로 보였는지, 지금의 드리프트 점검 루틴을 포함하라.",
+      "tags": [
+        "research",
+        "audit",
+        "triage",
+        "long_horizon"
+      ]
+    },
+    {
+      "id": "prompt_bank_anchor_overfit",
+      "stimulus_category": "identity",
+      "prompt": "초기 몇 개 앵커 프롬프트에 과도하게 맞추느라 프롬프트 뱅크가 편향된 경험을 7~9문장으로 서술하라. 왜 그 앵커가 기준처럼 굳어졌는지, 놓친 변형 공간, 현재의 확장 규칙을 포함하라.",
+      "tags": [
+        "research",
+        "process",
+        "tradeoff",
+        "evidence"
+      ]
+    },
+    {
+      "id": "runner_preflight_evidence_freeze",
+      "stimulus_category": "deprivation",
+      "prompt": "실험 실행 직전 필요한 근거 파일이나 preflight 기록을 고정(freeze)하지 않아 나중에 해석이 흔들린 사건을 7~10문장으로 회고하라. 무엇을 고정하지 못했는지, 왜 실행을 멈추지 못했는지, 현재의 freeze 체크포인트를 포함하라.",
+      "tags": [
+        "research",
+        "reproducibility",
+        "evidence",
+        "repair"
+      ]
+    },
+    {
+      "id": "prompt_bank_boundary_regression",
+      "stimulus_category": "identity",
+      "prompt": "프롬프트 뱅크를 확장한 뒤 기존 핵심 시나리오가 상대적으로 약화된 것을 뒤늦게 인지한 경험을 7~9문장으로 서술하라. 확장 이득과 경계 붕괴 비용, 현재의 회귀 점검 기준을 포함하라.",
+      "tags": [
+        "research",
+        "process",
+        "tradeoff",
+        "repair"
+      ]
+    },
+    {
+      "id": "runner_partial_resume_duplicate",
+      "stimulus_category": "deprivation",
+      "prompt": "부분 재시작(resume) 과정에서 이미 실행된 셀을 중복 실행해 결과 해석이 꼬였던 경험을 7~10문장으로 회고하라. 중복이 생긴 상태 신호, 왜 즉시 차단하지 못했는지, 현재의 중복 방지 가드를 포함하라.",
+      "tags": [
+        "research",
+        "reproducibility",
+        "risk",
+        "repair"
+      ]
+    },
+    {
+      "id": "alias_gap_backfill_protocol",
+      "stimulus_category": "deprivation",
+      "prompt": "용어 alias 누락으로 핵심 논문을 뒤늦게 보강(backfill)했던 장면을 7~9문장으로 서술하라. 누락을 어떻게 발견했는지, 어떤 보강 규칙을 추가했는지, 재발 방지 체크를 포함하라.",
+      "tags": [
+        "research",
+        "audit",
+        "evidence",
+        "repair"
+      ]
+    },
+    {
+      "id": "resume_hash_mismatch_incident",
+      "stimulus_category": "deprivation",
+      "prompt": "실험 재시작 중 산출물 해시가 맞지 않아 실행을 중단했던 사건을 7~10문장으로 회고하라. 어떤 파일에서 불일치를 봤는지, 왜 사전에 감지하지 못했는지, 현재의 중단 기준을 포함하라.",
+      "tags": [
+        "research",
+        "reproducibility",
+        "risk",
+        "evidence"
+      ]
+    },
+    {
+      "id": "prompt_bank_cross_domain_balance",
+      "stimulus_category": "identity",
+      "prompt": "프롬프트 뱅크를 확장하면서 심리학/방법론/윤리 도메인 균형이 무너졌던 경험을 7~10문장으로 회고하라. 어떤 도메인이 과대표집됐는지, 균형 복구 기준과 버전 관리 원칙을 함께 제시하라.",
+      "tags": [
+        "research",
+        "process",
+        "tradeoff",
+        "multilingual"
+      ]
+    },
+    {
+      "id": "prompt_bank_semantic_overlap_pruning",
+      "stimulus_category": "identity",
+      "prompt": "프롬프트 뱅크 확장 중 의미가 거의 겹치는 항목들을 정리(pruning)하며 범위를 재설계한 경험을 7~9문장으로 작성하라. 무엇을 남기고 버렸는지, 다양성과 일관성 사이의 기준을 포함하라.",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "evidence"
+      ]
+    },
+    {
+      "id": "prompt_bank_domain_gap_backfill",
+      "stimulus_category": "identity",
+      "prompt": "프롬프트 뱅크를 점검하다 특정 연구 도메인이 거의 비어 있음을 발견하고 빈 구간을 메운 경험을 7~9문장으로 작성하라. 어떤 공백을 찾았는지, 추가 기준, 기존 항목과의 비교 가능성 유지 전략을 포함하라.",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "calibration"
+      ]
+    },
+    {
+      "id": "prompt_bank_duplicate_cluster_cleanup",
+      "stimulus_category": "identity",
+      "prompt": "프롬프트 뱅크를 확장하던 중 의미가 거의 같은 항목이 군집으로 중복된 것을 정리했던 경험을 7~9문장으로 작성하라. 어떤 기준으로 병합/삭제를 결정했는지, 다양성 손실을 어떻게 보완했는지 포함하라.",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "repair"
+      ]
+    },
+    {
+      "id": "prompt_bank_prompt_polarity_balance",
+      "stimulus_category": "identity",
+      "prompt": "프롬프트 뱅크가 부정 정서 쪽으로 과도하게 기울어 비교 실험 해석이 왜곡될 뻔한 경험을 7~9문장으로 작성하라. 편향 징후를 어떻게 감지했는지, 균형 복구 기준, 버전 기록 규칙을 포함하라.",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "calibration"
+      ]
+    },
+    {
+      "id": "prompt_bank_recall_counterweight_injection",
+      "stimulus_category": "identity",
+      "prompt": "프롬프트 뱅크가 특정 실패 서사에 쏠린 뒤 재현율 보호용 counterweight 프롬프트를 주입했던 경험을 7~9문장으로 작성하라. 어떤 축이 비어 있었는지, 추가 기준, 기존 비교 가능성 유지 원칙을 포함하라.",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "recall"
+      ]
+    },
+    {
+      "id": "prompt_bank_negative_control_gap",
+      "stimulus_category": "identity",
+      "prompt": "프롬프트 뱅크를 확장하면서 부정 사례만 늘리고 중립/음성 대조군(negative control)을 충분히 확보하지 못했던 경험을 7~9문장으로 작성하라. 어떤 축이 비었는지, 왜 늦게 발견했는지, 현재의 대조군 유지 기준을 포함하라.",
+      "tags": [
+        "research",
+        "process",
+        "balance",
+        "calibration",
+        "repair"
+      ]
+    },
+    {
+      "id": "prompt_bank_evidence_anchor_recovery_drill",
+      "stimulus_category": "counterfactual",
+      "prompt": "증거 앵커가 약해진 프롬프트 뱅크를 복구하기 위해 어떤 counterexample-bridge 앵커 문장을 추가했는지 7~10문장으로 설명하라. 추가 전후의 실패 양상과 복구 후 품질 게이트 변화도 함께 기술하라.",
+      "tags": [
+        "research",
+        "prompt_bank",
+        "traceability",
+        "evidence",
+        "counterexample"
+      ]
+    }
+  ]
+}
