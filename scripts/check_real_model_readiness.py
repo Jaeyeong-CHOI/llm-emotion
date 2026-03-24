@@ -72,22 +72,28 @@ def normalize_env_name(token: str) -> str:
     return candidate
 
 
+def split_env_var_tokens(raw: str) -> list[str]:
+    """Split env-var names while preserving the intended token boundaries."""
+    text = (raw or "").strip()
+    if not text:
+        return []
+
+    return [token.strip() for token in ENV_LIST_SPLIT_PATTERN.split(text) if token.strip()]
+
+
 def parse_env_var_list(raw: str, default: list[str]) -> list[str]:
     """Parse comma/space/semicolon-separated env-var names with stable de-duplication."""
-    raw_tokens = ENV_LIST_SPLIT_PATTERN.split((raw or "").strip()) if (raw or "").strip() else []
+    raw_tokens = split_env_var_tokens(raw)
 
     tokens: list[str] = []
     invalid: list[str] = []
 
     for raw_token in raw_tokens:
-        cleaned = raw_token.strip()
-        if not cleaned:
-            continue
-        normalized = normalize_env_name(cleaned)
+        normalized = normalize_env_name(raw_token)
         if normalized:
             tokens.append(normalized)
         else:
-            invalid.append(cleaned)
+            invalid.append(raw_token)
 
     if not tokens:
         tokens = dedupe_preserve_order(default)
