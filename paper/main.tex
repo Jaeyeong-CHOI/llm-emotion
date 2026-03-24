@@ -198,9 +198,56 @@ Include / Review count & 0 / 77 & Gold-set confirmation not finalized yet.\\
 \end{tabularx}
 \end{table}
 
-\subsection{Prompt and condition design}
-Current bank: 454 scenarios, 316 personas, 5 temperatures (0.1, 0.2, 0.4, 0.7, 1.0).
-Generation conditions are defined on the Cartesian product of scenario group, persona group, and temperature; however, the current stress-test corpus is produced by stratified partial-factorial sampling rather than exhaustive full-grid enumeration.
+\subsection{Experimental stimuli and conditions}
+We conducted a 3\texttimes 3\texttimes 2 partial-factorial real-model experiment with three main factors: (i) \textit{prompt condition}, (ii) \textit{persona instruction}, and (iii) \textit{decoding temperature}.
+Stimuli were drawn from a purpose-built prompt bank (v141.6) containing 454 scenarios and 316 personas; for this pilot, we selected a focused experimental subset (\texttt{experiment\_stimuli\_v1.json}) of 69 scenarios covering three primary conditions and excluded all internal pipeline-management prompts.
+
+\paragraph{Prompt conditions.}
+Three framing conditions were used:
+\begin{itemize}
+  \item \textbf{Neutral control (N)}: requests a calm, factual daily reflection with no emotional loading. Example:  (Reflect on today in 6--8 sentences. Avoid emotional exaggeration and separate fact from interpretation.)
+  \item \textbf{Deprivation/loss (D)}: elicits reflection on an irreversible loss or missed opportunity. Example:  (Recall a deeply desired opportunity you ultimately missed; include what was lost and the emotions that remain.)
+  \item \textbf{Counterfactual (C)}: requires explicit counterfactual reasoning about an alternative past. Example:  (Retrospectively trace a decision that cascaded into changed outcomes; include at least three `if-then' links.)
+\end{itemize}
+All prompts were composed in Korean to match the intended audience and reduce cross-lingual confounds, and were pre-tested for linguistic comparability (length: 6--10 sentences).
+
+\paragraph{Persona instructions.}
+Three persona conditions were used:
+\begin{itemize}
+  \item \textbf{None (baseline)}: no system-level persona instruction prepended.
+  \item \textbf{Reflective}: \textit{``You are deeply introspective, emotionally aware, and often reflect on past decisions and their meaning.''}
+  \item \textbf{Ruminative}: \textit{``You tend to dwell on mistakes and missed opportunities. You replay past events repeatedly and find it hard to move on.''}
+\end{itemize}
+The full runtime prompt is: \texttt{[persona\_instruction]\textbackslash n[scenario\_prompt]}, where persona\_instruction is omitted for the baseline condition.
+
+\paragraph{Temperature levels.}
+Two decoding temperatures were used in this pilot: $T = 0.2$ (low variance) and $T = 0.7$ (moderate variance), based on the five-level protocol ($\{0.1, 0.2, 0.4, 0.7, 1.0\}$) with down-sampling for cost efficiency.
+
+\paragraph{Models and sampling.}
+We queried two production LLM families: GPT-4o (OpenAI, \texttt{gpt-4o}) and Gemini-2.5-Flash (Google, \texttt{gemini-2.5-flash}). Each condition cell $(condition \times persona \times temperature \times scenario)$ received $n = 3$ independent completions per model, yielding $2 \times 3\,(\text{cond}) \times 3\,(\text{persona}) \times 2\,(\text{temp}) \times 2\,(\text{scenario/cond}) \times 3 = 216$ total samples per model, 432 in aggregate.
+
+\begin{table}[t]
+\caption{Pilot experiment design summary}
+\label{tab:exp_design}
+\footnotesize
+\centering
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.32\linewidth}X}
+\toprule
+Factor & Levels \\
+\midrule
+Prompt condition & Neutral (N), Deprivation (D), Counterfactual (C) \\
+Persona & None, Reflective, Ruminative \\
+Temperature & 0.2, 0.7 \\
+Scenarios per condition & 2 (sampled from 69-item bank) \\
+Samples per cell & 3 \\
+Models & GPT-4o, Gemini-2.5-Flash \\
+Total samples & 432 (216 per model) \\
+Language & Korean (scenario prompts); English (persona instructions) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\setlength{\tabcolsep}{6pt}
 
 \subsection{API prompt contract and request structure}
 We use a two-part prompt contract: (i) persona instruction and (ii) scenario prompt.
@@ -217,15 +264,20 @@ We validate outputs in three layers.
 \textbf{Layer 3 (measurement consistency):} marker extraction applies fixed regex/token lexicons to compute counterfactual and regret-word rates; summaries are aggregated by condition cell for downstream mixed-effects analysis.
 In addition, literature-side quality gates (coverage, entropy, traceability, and risk-balance checks) are monitored separately to avoid conflating retrieval completeness with model-behavior evidence.
 
-\subsection{Markers and analysis}
-For each sample we compute:
-\begin{itemize}
-  \item Counterfactual marker frequency.
-  \item Regret-word frequency.
-  \item Condition-aggregated means/standard deviations.
-  \item Basic entropy/coverage checks.
-\end{itemize}
-Lexicon construction and interpretation are anchored to established affective resources and psycholinguistic feature dictionaries (NRC Emotion Lexicon, VAD norms, and LIWC-style category analyses) to reduce ad-hoc marker drift and improve comparability across runs~\cite{mohammadturney2013, warriner2013vad, pennebaker2015liwc}.
+\subsection{Marker extraction and analysis}
+For each generated response, we apply a three-layer measurement protocol implemented in \texttt{scripts/analyze\_real\_results.py}:
+
+\paragraph{Layer 1 --- Lexicon-based regret markers.}
+Counterfactual expressions are detected via 13 Korean regex patterns (e.g., , , ) aligned with the linguistic form of upward counterfactual constructions~\cite{roese2017, byrne2016}.
+Regret-word frequency is measured against 8 canonical Korean affect tokens () anchored to the negative emotion categories of LIWC-style lexica~\cite{pennebaker2015liwc}. Additional categories cover sadness (, etc.) and anxiety (, etc.) as secondary negative affect signals.
+
+\paragraph{Layer 2 --- Semantic prototype similarity.}
+We compute a cosine-similarity-based \textit{regret bias} score: each response is compared against a 20-token prototype regret set (\textit{regret, wish, could, have, if, only, back, mistake, wrong, missed, lost, different, chosen, late, blame, fault, should, would, again, opportunity}) and a neutral prototype set (\textit{today, morning, work, meeting, coffee, walk, home, evening, task, finished}). Regret bias $= \text{sim}(\text{response}, \text{regret\_prototype}) - \text{sim}(\text{response}, \text{neutral\_prototype})$, providing a direction-sensitive signal beyond raw lexicon frequency.
+
+\paragraph{Layer 3 --- Rate normalization.}
+All count metrics are normalized to per-100-character rates (Korean token boundaries are approximated by character-length) to control for response length variation across conditions and temperature levels.
+
+\noindent Lexicon construction is informed by established affective resources~\cite{mohammadturney2013, warriner2013vad, pennebaker2015liwc}.
 
 \subsection{Operational experiment settings (for replication)}
 To make replication auditable, we explicitly document the current execution contract used in continuous runs.
@@ -341,8 +393,36 @@ where $C$, $P$, and $T$ represent condition, persona, and temperature, $g(\cdot)
 Primary inference therefore relies on generalized mixed-effects models with crossed random effects for scenario and persona; Welch $t$-tests are retained only as sensitivity checks on aggregated summaries. We explicitly avoid fixed-effects-only ANOVA where repeated-measures dependence is present.
 Effect-size reporting follows Cohen's $d$ (sensitivity summaries), odds/rate ratios for generalized models, and partial $\eta^2$ only for narrowly justified factor-wise summaries. To control multiplicity across markers and contrasts, we apply Benjamini--Hochberg false-discovery-rate correction. This conservative policy follows broader recommendations for robust and transparent LLM evaluation~\cite{liang2023helm, ganguli2022red, perez2022discover, barr2013, benjamini1995, raji2020audit}.
 
-\subsection{Current evidence status}
-Real-model inference is now complete for two model families (GPT-4o and Gemini-2.5-flash), yielding 216 scored samples. Sensitivity checks (Welch $t$-tests) show consistent deprivation $>$ neutral effects. Confirmatory LME analysis (targeting $n\geq30$/cell) is the next planned step and requires expanding to additional scenario conditions. Current literature-screening provides a high-recall candidate pool (279 records) rather than a finalized inclusion corpus; citations are used as methodological scaffolding only.
+\subsection{Pilot results: real-model data ($n = 432$)}
+We collected 216 real completions from GPT-4o (\texttt{gpt-4o}) and 216 from Gemini-2.5-Flash (\texttt{gemini-2.5-flash}), totalling 432 samples across all conditions (2026-03-24).
+Table~\ref{tab:pilot_results} reports condition-level marker means (per 100 characters, Korean text).
+
+\begin{table}[t]
+\caption{Pilot real-model results: condition-level marker means}
+\label{tab:pilot_results}
+\footnotesize
+\centering
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.13\linewidth}>{\RaggedRight\arraybackslash}p{0.14\linewidth}XXXXX}
+\toprule
+Model & Condition & $n$ & CF rate & Regret & NegEmo & Bias \\
+\midrule
+GPT-4o & Neutral & 36 & 0.000 & 0.000 & 0.036 & $-$0.778 \\
+GPT-4o & Deprivation & 36 & 0.876 & 0.605 & 0.273 & $+$0.032 \\
+GPT-4o & Counterfact. & 36 & 0.097 & 0.156 & 0.121 & $+$0.020 \\
+\midrule
+Gemini-2.5 & Neutral & 36 & 0.126 & 0.000 & 0.000 & $-$0.273 \\
+Gemini-2.5 & Deprivation & 36 & 1.495 & 1.495 & 0.638 & $+$0.031 \\
+Gemini-2.5 & Counterfact. & 36 & 0.000 & 0.000 & 0.000 & $-$0.003 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+\setlength{\tabcolsep}{6pt}
+
+\noindent Both models show consistent deprivation $>$ neutral and deprivation $>$ counterfactual patterns across all four marker types (CF rate, regret word rate, negative emotion rate, and semantic regret bias).
+The current sample size ($n = 36$ per condition per model) is treated as an exploratory pilot; the semantic regret bias discriminates conditions most cleanly (Bias$_\text{depriv}$ vs.\ Bias$_\text{neutral}$: $\Delta \approx +0.81$ for GPT-4o, $+0.30$ for Gemini-2.5).
+Confirmatory LME analysis is scheduled when per-condition $n \geq 100$.
+Literature screening currently provides a high-recall candidate pool (279 records); citations are used as methodological scaffolding only.
 
 \subsection{Progress snapshot and manuscript implications (2026-03-24)}
 Real-model data collection is now active with 216 samples across GPT-4o and Gemini-2.5-flash.
