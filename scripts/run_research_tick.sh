@@ -227,12 +227,6 @@ is_expected_tick_command() {
 
   [ -n "$command_line" ] || return 1
 
-  # Quick-path for common command wrappers: if the tick script path appears
-  # anywhere in the process command, treat it as owned by this loop.
-  if [[ "$command_line" == *"/run_research_tick.sh"* ]]; then
-    return 0
-  fi
-
   IFS=' ' read -r -a tokens <<< "$command_line" || true
   for token in "${tokens[@]}"; do
     candidate_resolves_to_tick_script "$(strip_surrounding_quotes "$token")" && return 0
