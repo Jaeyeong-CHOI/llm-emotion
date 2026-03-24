@@ -252,20 +252,6 @@ def _block_payload(block: EnvBlock, *, kind: str) -> dict:
         f"{kind}_available": block.available,
     }
 
-def _build_readiness_summary_payload(
-    required_payload: dict,
-    optional_payload: dict,
-    notes: list[str],
-) -> dict:
-    """Build the top-level readiness summary payload from required/optional summaries."""
-
-    return {
-        **required_payload,
-        **optional_payload,
-        "notes": notes,
-    }
-
-
 def _build_endpoint_payload(base_url: str, endpoint_scheme_ok: bool) -> dict:
     """Build endpoint inspection fields for readiness payload."""
 
@@ -311,7 +297,7 @@ def build_readiness_payload(
     endpoint_scheme_ok: bool,
     endpoint: str,
 ) -> dict:
-    """Build a unified payload dict to avoid duplicated serialization logic."""
+    """Build the readiness payload dict written to the output JSON file."""
 
     required_payload = _block_payload(required, kind="required")
     optional_payload = _block_payload(optional, kind="optional")
@@ -329,11 +315,6 @@ def build_readiness_payload(
     )
 
     suspicious_vars = sorted(set(suspicious))
-    payload_summary = _build_readiness_summary_payload(
-        required_payload=required_payload,
-        optional_payload=optional_payload,
-        notes=notes,
-    )
 
     readiness_ok = (
         not required_payload["required_missing"]
@@ -343,26 +324,23 @@ def build_readiness_payload(
     )
 
     return {
-        **payload_summary,
-        "payload": {
-            "ready": readiness_ok,
-            "required_vars": required.names,
-            "optional_vars": optional.names,
-            "available_vars": _merge_available_vars(
-                required_payload=required_payload,
-                optional_payload=optional_payload,
-            ),
-            **_build_env_payload_fields(
-                required_payload=required_payload,
-                optional_payload=optional_payload,
-            ),
-            "suspicious_vars": suspicious_vars,
-            "endpoint": _build_endpoint_payload(
-                base_url=endpoint,
-                endpoint_scheme_ok=endpoint_scheme_ok,
-            ),
-            "notes": notes,
-        },
+        "ready": readiness_ok,
+        "required_vars": required.names,
+        "optional_vars": optional.names,
+        "available_vars": _merge_available_vars(
+            required_payload=required_payload,
+            optional_payload=optional_payload,
+        ),
+        **_build_env_payload_fields(
+            required_payload=required_payload,
+            optional_payload=optional_payload,
+        ),
+        "suspicious_vars": suspicious_vars,
+        "endpoint": _build_endpoint_payload(
+            base_url=endpoint,
+            endpoint_scheme_ok=endpoint_scheme_ok,
+        ),
+        "notes": notes,
     }
 
 
@@ -416,10 +394,9 @@ def main():
         endpoint=endpoint,
     )
 
-    payload = readiness["payload"]
-    ready = payload["ready"]
+    ready = readiness["ready"]
 
-    write_json(Path(args.out), payload)
+    write_json(Path(args.out), readiness)
     print("ready=" + str(ready).lower())
 
 
