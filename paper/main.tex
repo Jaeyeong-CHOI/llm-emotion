@@ -30,8 +30,8 @@ DGIST EECS\\
 
 \begin{abstract}
 We investigate whether deprivation-framed prompts systematically elicit regret-associated linguistic patterns in large language models (LLMs).
-Using a $3 \times 3 \times 2$ controlled pilot design ($N=432$; GPT-4o and Gemini-2.5-Flash), we find that deprivation framing produces substantially higher counterfactual-expression and regret-word rates compared to neutral framing.
-Exploratory Welch $t$-tests yield large effects (CF rate: $d=0.72$, regret-word rate: $d=0.71$), and a mixed-effects model (scenario as random intercept) confirms a significant deprivation effect on semantic regret bias ($\hat{\beta}=0.557$, $z=5.71$, $p<0.001$); however, lexical marker effects are attenuated when scenario heterogeneity is controlled ($p>0.15$), indicating that scenario-level variance dominates.
+Using a $3 \times 3 \times 2$ controlled pilot design ($N=216$; GPT-4o and Gemini-2.5-Flash), we find that deprivation framing produces substantially higher counterfactual-expression and regret-word rates compared to neutral framing.
+Exploratory Welch $t$-tests yield large effects (CF rate: $d=0.78$, regret-word rate: $d=0.76$), and a mixed-effects model (scenario as random intercept) confirms a significant deprivation effect on semantic regret bias ($\hat{\beta}=0.557$, $z=5.71$, $p<0.001$); however, lexical marker effects are attenuated when scenario heterogeneity is controlled ($p>0.15$), indicating that scenario-level variance dominates.
 Ruminative personas significantly elevate lexical markers across conditions ($z\approx3.2$--$3.4$, $p<0.001$).
 We treat these as exploratory findings: markers are unvalidated against human annotation, and a minimal-pair ablation of prompt confounds is required before causal interpretation.
 Code, stimuli, and outputs are publicly available.
@@ -122,7 +122,7 @@ Affect benchmarking & Measurement granularity determines apparent performance; u
 \draw[arrow] (LLM.east) -- (M3.west);
 \draw[arrow] (LLM.east) -- (M4.west);
 \end{tikzpicture}
-\caption{Experimental design: three prompt conditions crossed with three persona instructions are presented to two LLMs at two temperatures. Four automated markers quantify regret-associated language in each generated response ($N=432$ total: 3 cond $\times$ 3 persona $\times$ 2 temp $\times$ 2 scenario/cond $\times$ 3 rep $\times$ 2 models). \textit{Key takeaway: the design isolates prompt framing as the primary independent variable.}}
+\caption{Experimental design: three prompt conditions crossed with three persona instructions are presented to two LLMs at two temperatures. Four automated markers quantify regret-associated language in each generated response ($N=216$ total: 3 cond $\times$ 3 persona $\times$ 2 temp $\times$ 2 scenario/cond $\times$ 3 rep $\times$ 2 models). \textit{Key takeaway: the design isolates prompt framing as the primary independent variable.}}
 \label{fig:design}
 \end{figure*}
 
@@ -138,7 +138,7 @@ Figure~\ref{fig:design} shows the experimental structure.
 We used a $3\times3\times2$ partial-factorial design: three prompt conditions $\times$ three persona instructions $\times$ two decoding temperatures.
 
 \begin{table}[t]
-\caption{Experimental design summary ($N=432$ total)}
+\caption{Experimental design summary ($N=216$ total)}
 \label{tab:design}
 \footnotesize\centering
 \begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.32\linewidth}X}
@@ -151,7 +151,7 @@ Temperature & 0.2, 0.7 \\
 Scenarios per condition & 2 (sampled from 69-item bank) \\
 Completions per cell & 3 \\
 Models & GPT-4o, Gemini-2.5-Flash \\
-Total samples & 432 (216 per model) \\
+Total samples & 216 (108 per model) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -217,7 +217,7 @@ We apply a three-layer measurement protocol (\texttt{scripts/analyze\_real\_resu
   ymin=-0.2, ymax=1.8,
   enlarge x limits=0.15,
   every axis plot/.append style={line width=0pt},
-  title={\small Deprivation $>$ Neutral across all markers (exploratory, $N=432$)},
+  title={\small Deprivation $>$ Neutral across all markers (exploratory, $N=216$)},
   title style={font=\small},
 ]
 % Neutral
@@ -235,7 +235,7 @@ We apply a three-layer measurement protocol (\texttt{scripts/analyze\_real\_resu
 \legend{Neutral, Deprivation, Counterfactual}
 \end{axis}
 \end{tikzpicture}
-\caption{Condition-level marker means across all four metrics (N=432, GPT-4o + Gemini-2.5-Flash combined; error bars omitted for clarity). \textbf{Deprivation framing consistently raises all markers vs.\ neutral; counterfactual framing does not.} Semantic Bias is scaled by $\times$0.1 for display. \textit{All comparisons are exploratory Welch t-tests; no correction for multiple comparisons applied.}}
+\caption{Condition-level marker means across all four metrics (N=216, GPT-4o + Gemini-2.5-Flash combined; error bars omitted for clarity). \textbf{Deprivation framing consistently raises all markers vs.\ neutral; counterfactual framing does not.} Semantic Bias is scaled by $\times$0.1 for display. \textit{All comparisons are exploratory Welch t-tests; no correction for multiple comparisons applied.}}
 \label{fig:main_result}
 \end{figure}
 
@@ -247,7 +247,7 @@ Exploratory Welch $t$-tests (combined $N=144$, deprivation vs.\ neutral): counte
 The counterfactual condition did not differ significantly from neutral on semantic regret bias ($t=1.30$, $p=0.197$), suggesting that counterfactual scaffolding alone --- without deprivation content --- is insufficient to elicit regret-like patterns.
 
 \begin{table}[t]
-\caption{Condition-level marker means (SD), combined $N=432$. Effect sizes and tests are exploratory; *** exploratory $p{<}0.001$, ** $p{<}0.01$, n.s.\ $p{>}0.05$.}
+\caption{Condition-level marker means (SD), combined $N=216$. Effect sizes and tests are exploratory; *** exploratory $p{<}0.001$, ** $p{<}0.01$, n.s.\ $p{>}0.05$.}
 \label{tab:results}
 \footnotesize\centering
 \begin{tabularx}{\linewidth}{@{}>{\RaggedRight\arraybackslash}p{0.14\linewidth}
@@ -370,7 +370,7 @@ All prompts, model outputs, marker extraction code, and run metadata are archive
 Key modules: \texttt{run\_real\_experiment.py} (API data collection), \texttt{analyze\_real\_results.py} (marker extraction), \texttt{experiment\_stimuli\_v1.json} (stimulus bank), and manifest logs for every run.
 
 \section{Conclusion}
-Using a $3\times3\times2$ pilot design ($N=432$), we demonstrate that deprivation-framed prompts reliably elicit higher regret-associated language markers in two LLM families, with consistent directional cross-model replication.
+Using a $3\times3\times2$ pilot design ($N=216$), we demonstrate that deprivation-framed prompts reliably elicit higher regret-associated language markers in two LLM families, with consistent directional cross-model replication.
 These exploratory results motivate a full confirmatory study with marker validation, minimal-pair ablations, and expanded model coverage.
 
 \bibliographystyle{IEEEtran}
