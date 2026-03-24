@@ -15,9 +15,11 @@
 \usepackage{amsmath}
 \usepackage{xcolor}
 \usepackage{tcolorbox}
-\setlength{\emergencystretch}{1.5em}
+\setlength{\emergencystretch}{2em}
 \setlength{\tabcolsep}{3pt}
 \sloppy
+\tolerance=9999
+\hbadness=9999
 \usepackage{cite}
 
 \title{Do LLMs Produce Regret-Like Language Under Deprivation Framing?\\ A Controlled Behavioral Study Across Two Model Families}
@@ -188,15 +190,7 @@ All outputs are publicly archived with run metadata (\texttt{manifest.json}, \te
 
 \subsection{Marker extraction}
 
-We apply a three-layer measurement protocol (\texttt{scripts/analyze\_real\_results.py}):
-
-\noindent\textbf{Layer 1 (lexicon):} Counterfactual expressions are detected via 13 Korean regex patterns (e.g., \textit{different choice}, \textit{if it had been so}, \textit{could go back}, \textit{should have done}), aligned with upward counterfactual constructions~\cite{roese2017, byrne2016}. Regret-word frequency uses 8 canonical Korean affect tokens (\textit{regret, pity, guilt, self-blame, remorse, etc.}), anchored to LIWC negative-emotion categories~\cite{pennebaker2015liwc}.
-
-\noindent\textbf{Layer 2 (semantic):} Regret bias $= \text{sim}(\text{output}, \mathcal{R}) - \text{sim}(\text{output}, \mathcal{N})$, where $\mathcal{R}$ is a 20-token prototype set (\textit{regret, wish, could, have, if, only, mistake, wrong, missed, lost,...}) and $\mathcal{N}$ is a neutral prototype (\textit{today, morning, work, meeting,...}). Similarity is bag-of-words cosine.
-
-\noindent\textbf{Layer 3 (normalization):} All counts are normalized per 100 characters to control for response length.
-
-\textit{Limitation}: no human-annotation validation has been performed; the markers are exploratory instruments.
+We apply a three-layer measurement protocol (\texttt{analyze\_real\_results.py}). \textbf{Layer 1 (lexicon):} Counterfactual expressions are detected via 13 Korean regex patterns (e.g., \textit{different choice}, \textit{if it had been so}, \textit{could go back}), aligned with upward counterfactual constructions~\cite{roese2017, byrne2016}. Regret-word frequency uses 8 Korean affect tokens (e.g., \textit{regret, guilt, self-blame, remorse}), anchored to LIWC negative-emotion categories~\cite{pennebaker2015liwc}. \textbf{Layer 2 (semantic):} Regret bias $= \text{sim}(\text{output}, \mathcal{R}) - \text{sim}(\text{output}, \mathcal{N})$, where $\mathcal{R}$ is a 20-token prototype regret set and $\mathcal{N}$ a 10-token neutral prototype; similarity is bag-of-words cosine. \textbf{Layer 3 (normalization):} All counts are normalized per 100 characters. \textit{Limitation: markers are unvalidated against human annotation.}
 
 \section{Results}
 
@@ -206,12 +200,12 @@ We apply a three-layer measurement protocol (\texttt{scripts/analyze\_real\_resu
 \begin{axis}[
   ybar,
   bar width=6pt,
-  width=\linewidth, height=5.5cm,
+  width=0.93\linewidth, height=5.5cm,
   xlabel={\small Marker},
-  ylabel={\small Mean rate (per 100 chars)},
-  symbolic x coords={CF rate, Regret rate, NegEmo rate, Sem.\ Bias (scaled)},
+  ylabel={\small Mean rate},
+  symbolic x coords={CF, Regret, NegEmo, Bias},
   xtick=data,
-  x tick label style={font=\tiny, rotate=0},
+  x tick label style={font=\tiny},
   legend style={font=\tiny, at={(0.99,0.99)}, anchor=north east},
   legend columns=3,
   ymin=-0.2, ymax=1.8,
@@ -222,20 +216,20 @@ We apply a three-layer measurement protocol (\texttt{scripts/analyze\_real\_resu
 ]
 % Neutral
 \addplot[fill=gray!50] coordinates {
-  (CF rate, 0.063) (Regret rate, 0.000) (NegEmo rate, 0.018) (Sem.\ Bias (scaled), -0.526)
+  (CF, 0.063) (Regret, 0.000) (NegEmo, 0.018) (Bias, -0.526)
 };
 % Deprivation
 \addplot[fill=orange!80] coordinates {
-  (CF rate, 1.185) (Regret rate, 1.050) (NegEmo rate, 0.455) (Sem.\ Bias (scaled), 0.032)
+  (CF, 1.185) (Regret, 1.050) (NegEmo, 0.455) (Bias, 0.032)
 };
 % Counterfactual
 \addplot[fill=blue!50] coordinates {
-  (CF rate, 0.048) (Regret rate, 0.078) (NegEmo rate, 0.061) (Sem.\ Bias (scaled), 0.008)
+  (CF, 0.048) (Regret, 0.078) (NegEmo, 0.061) (Bias, 0.008)
 };
 \legend{Neutral, Deprivation, Counterfactual}
 \end{axis}
 \end{tikzpicture}
-\caption{Condition-level marker means across all four metrics (N=216, GPT-4o + Gemini-2.5-Flash combined; error bars omitted for clarity). \textbf{Deprivation framing consistently raises all markers vs.\ neutral; counterfactual framing does not.} Semantic Bias is scaled by $\times$0.1 for display. \textit{All comparisons are exploratory Welch t-tests; no correction for multiple comparisons applied.}}
+\caption{Condition-level marker means ($N=432$). \textbf{D $>$ N on all markers; C $\approx$ N.} Bias $\times$0.1. Tests: exploratory.}
 \label{fig:main_result}
 \end{figure}
 
