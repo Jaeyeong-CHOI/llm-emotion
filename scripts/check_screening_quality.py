@@ -63,38 +63,36 @@ def _positive_keys(mapping: dict[str, int]) -> set[str]:
     return {k for k, v in mapping.items() if int(v or 0) > 0}
 
 
-def normalized_entropy(mapping: dict[str, int]) -> float:
+def _positive_probs(mapping: dict[str, int]) -> list[float]:
+    """Return normalized probability distribution of strictly positive counts."""
+
     counts = _positive_values(mapping)
-    if not counts:
-        return 0.0
     total = sum(counts)
     if total <= 0:
+        return []
+    return [c / total for c in counts]
+
+
+def normalized_entropy(mapping: dict[str, int]) -> float:
+    probs = _positive_probs(mapping)
+    if not probs:
         return 0.0
-    probs = [c / total for c in counts]
     entropy = -sum(p * math.log2(p) for p in probs if p > 0)
-    max_entropy = math.log2(len(counts)) if len(counts) > 1 else 1.0
+    max_entropy = math.log2(len(probs)) if len(probs) > 1 else 1.0
     return round(entropy / max_entropy, 4) if max_entropy > 0 else 0.0
 
 
 def normalized_hhi(mapping: dict[str, int]) -> float:
-    counts = _positive_values(mapping)
-    if not counts:
+    probs = _positive_probs(mapping)
+    if not probs:
         return 0.0
-    total = sum(counts)
-    if total <= 0:
-        return 0.0
-    probs = [c / total for c in counts]
     return round(sum(p * p for p in probs), 4)
 
 
 def effective_query_count(mapping: dict[str, int]) -> float:
-    counts = _positive_values(mapping)
-    if not counts:
+    probs = _positive_probs(mapping)
+    if not probs:
         return 0.0
-    total = sum(counts)
-    if total <= 0:
-        return 0.0
-    probs = [c / total for c in counts]
     entropy = -sum(p * math.log2(p) for p in probs if p > 0)
     return round(2 ** entropy, 4)
 
