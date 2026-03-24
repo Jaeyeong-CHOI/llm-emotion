@@ -240,6 +240,22 @@ def _block_payload(block: EnvBlock, *, kind: str) -> dict:
     }
 
 
+
+
+def _build_readiness_summary_payload(
+    required_payload: dict,
+    optional_payload: dict,
+    notes: list[str],
+) -> dict:
+    """Build the top-level readiness summary payload from required/optional summaries."""
+
+    return {
+        **required_payload,
+        **optional_payload,
+        "notes": notes,
+    }
+
+
 def build_readiness_payload(
     required: EnvBlock,
     optional: EnvBlock,
@@ -265,24 +281,29 @@ def build_readiness_payload(
     )
 
     suspicious_vars = sorted(set(suspicious))
+    payload_summary = _build_readiness_summary_payload(
+        required_payload=required_payload,
+        optional_payload=optional_payload,
+        notes=notes,
+    )
+
+    readiness_ok = (
+        not required_payload["required_missing"]
+        and not required_payload["required_placeholder"]
+        and not required_payload["required_unsafe"]
+        and not suspicious_vars
+    )
+
     return {
-        "required_missing": required_payload["required_missing"],
-        "required_placeholder": required_payload["required_placeholder"],
-        "required_unsafe": required_payload["required_unsafe"],
-        "optional_missing": optional_payload["optional_missing"],
-        "optional_placeholder": optional_payload["optional_placeholder"],
-        "optional_unsafe": optional_payload["optional_unsafe"],
-        "notes": notes,
+        **payload_summary,
         "payload": {
-            "ready": (
-                not required_payload["required_missing"]
-                and not required_payload["required_placeholder"]
-                and not required_payload["required_unsafe"]
-                and not suspicious_vars
-            ),
+            "ready": readiness_ok,
             "required_vars": required.names,
             "optional_vars": optional.names,
-            "available_vars": {**required_payload["required_available"], **optional_payload["optional_available"]},
+            "available_vars": {
+                **required_payload["required_available"],
+                **optional_payload["optional_available"],
+            },
             "missing_vars": required_payload["required_missing"],
             "optional_missing_vars": optional_payload["optional_missing"],
             "placeholder_vars": required_payload["required_placeholder"],
