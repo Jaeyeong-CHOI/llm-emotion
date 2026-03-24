@@ -162,11 +162,6 @@ coalesce_int_env() {
 
 LOCK_STALE_SECONDS="$(coalesce_int_env "${LLM_EMOTION_TICK_LOCK_STALE_SECONDS:-}" 900)"
 
-is_numeric_pid() {
-  local pid="$1"
-  is_nonnegative_integer "$pid"
-}
-
 is_safe_lock_file() {
   local file_path="$1"
 
@@ -307,7 +302,7 @@ lock_pid_uid_and_command() {
   local proc_info=""
   local IFS=$'\n'
 
-  is_numeric_pid "$pid" || return 1
+  is_nonnegative_integer "$pid" || return 1
 
   proc_info="$(read_proc_uid_and_command "$pid")" || return 1
   read -r owner_uid command <<< "$proc_info"
@@ -370,7 +365,7 @@ recover_stale_lock() {
 lock_pid_is_active_tick_owner() {
   local pid="$1"
 
-  is_numeric_pid "$pid" \
+  is_nonnegative_integer "$pid" \
     && kill -0 "$pid" 2>/dev/null \
     && lock_pid_uid_and_command "$pid"
 }
