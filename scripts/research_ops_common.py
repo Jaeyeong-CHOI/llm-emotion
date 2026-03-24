@@ -192,8 +192,11 @@ def safe_int(value: Any, default: int = 0) -> int:
     """Best-effort integer coercion for potentially dirty numeric inputs.
 
     This helper tolerates strings/None/float-like values and falls back to a
-    caller-provided default when coercion fails.
+    caller-provided default when coercion fails. Booleans are treated as
+    invalid values to avoid accidental True/False -> 1/0 coercion.
     """
+    if isinstance(value, bool) or value is None:
+        return default
     try:
         return int(value)
     except (TypeError, ValueError):
