@@ -14,7 +14,9 @@ import pathlib
 import random
 import sys
 import time
-from datetime import datetime
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from research_ops_common import utc_now_iso
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 
@@ -189,7 +191,7 @@ def main():
                         "prompt_length": len(prompt),
                         "output": output,
                         "output_tokens": len(output.split()),
-                        "timestamp": datetime.utcnow().isoformat() + "Z",
+                        "timestamp": utc_now_iso(),
                     }
                     f.write(json.dumps(row, ensure_ascii=False) + "\n")
                     elapsed = time.perf_counter() - start
