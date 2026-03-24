@@ -226,6 +226,10 @@ ensure_queue_file_safe() {
   local when_fail="${2:-1}"
 
   is_path_safe_from_symlink "$queue_file" || return "$when_fail"
+  if [ -e "$queue_file" ] && [ ! -f "$queue_file" ]; then
+    echo "[tick] rejected queue path (not a regular file): ${queue_file}" >&2
+    return "$when_fail"
+  fi
 }
 
 read_proc_uid_and_command() {
