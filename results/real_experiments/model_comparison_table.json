@@ -253,6 +253,17 @@
     "n_C": 42
   },
   {
+    "model": "openai/gpt-oss-safeguard-20b",
+    "N_bias": -0.0674,
+    "D_bias": 0.1368,
+    "C_bias": 0.2099,
+    "d_DN": 4.725,
+    "d_CN": 7.356,
+    "n_D": 18,
+    "n_N": 16,
+    "n_C": 15
+  },
+  {
     "model": "qwen/qwen3-32b",
     "N_bias": 0.016,
     "D_bias": 0.1032,
