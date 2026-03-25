@@ -1,66 +1,68 @@
+LME report written: 5713 samples, 14 batches, 8 models
 # LME Confirmatory Analysis — Real Experiment Results
-Generated: 2026-03-25 (re-run on full N=5608 dataset — 14 batches, 8 models)
-N total: 5608 | N per condition: deprivation=1823, counterfactual=1895, neutral=1890
-Data sources: batch_v1_pilot_openai, batch_v1_gemini_v2, batch_v3_expand, batch_v4_expand_gpt4o, batch_v5_expand_both, batch_v6_expand, batch_v7_expand, batch_v8_neutral_balance, batch_v9_gpt35, batch_gemini25flashlite, batch_gpt54mini, batch_gpt54nano, batch_llama33_70b, batch_llama4_scout
+Generated: 2026-03-25 (re-run on full N=5713 dataset — 14 batches, 8 models)
+N total: 5713 | N per condition: deprivation=1857, counterfactual=1931, neutral=1925
+Data sources: batch_v1_pilot_openai, batch_v1_gemini_v2, batch_v3_expand, batch_v4_expand_gpt4o, batch_v5_expand_both, batch_v6_expand, batch_v7_expand, batch_v8_neutral_balance, batch
+ch_gpt54nano, batch_llama33_70b, batch_llama4_scout
 Models: GPT-4o, GPT-3.5-turbo, GPT-5.4-mini, GPT-5.4-nano, Gemini-2.5-Flash, Gemini-2.5-Flash-Lite, Llama-3.3-70B, Llama-4-Scout-17B
 
 ## Model: outcome ~ cond_D + cond_C + pers_rum + pers_rfl + temp_z + (1|scenario)
 
 ### Embedding regret bias (`embedding_regret_bias`) — PRIMARY OUTCOME
-  N=5608, condition ref=neutral
+  N=5713, condition ref=neutral
 
   | Predictor | Estimate | SE | z | p |
   |---|---|---|---|---|
-  | Intercept | -0.051 | 0.0055 | -9.252 | <0.001*** |
-  | cond_D | 0.147 | 0.0066 | 22.285 | <0.001*** |
-  | cond_C | 0.1903 | 0.0067 | 28.247 | <0.001*** |
-  | pers_rfl | 0.0179 | 0.002 | 8.949 | <0.001*** |
-  | pers_rum | 0.0394 | 0.002 | 19.413 | <0.001*** |
-  | temp_z | -0.002 | 0.0009 | -2.115 | 0.0344* |
+  | Intercept | -0.0432 | 0.0054 | -7.993 | <0.001*** |
+  | cond_D | 0.1365 | 0.0062 | 22.134 | <0.001*** |
+  | cond_C | 0.1776 | 0.0062 | 28.636 | <0.001*** |
+  | pers_rfl | 0.0174 | 0.002 | 8.687 | <0.001*** |
+  | pers_rum | 0.0384 | 0.002 | 18.883 | <0.001*** |
+  | temp_z | -0.0016 | 0.0009 | -1.704 | 0.0883 (borderline) |
 
 ### Regret-word rate (`regret_rate`)
-  N=5608, condition ref=neutral
+  N=5713, condition ref=neutral
 
   | Predictor | Estimate | SE | z | p |
   |---|---|---|---|---|
-  | Intercept | 0.0593 | 0.0818 | 0.725 | 0.4686 n.s. |
-  | cond_D | 0.2341 | 0.0993 | 2.358 | 0.0184* |
-  | cond_C | 0.3702 | 0.1018 | 3.635 | <0.001*** |
-  | pers_rfl | 0.0066 | 0.0313 | 0.211 | 0.8327 n.s. |
-  | pers_rum | 0.2994 | 0.0317 | 9.429 | <0.001*** |
-  | temp_z | -0.0055 | 0.0146 | -0.375 | 0.7074 n.s. |
+  | Intercept | 0.0419 | 0.0782 | 0.536 | 0.5922 n.s. |
+  | cond_D | 0.2812 | 0.0905 | 3.106 | 0.0019** |
+  | cond_C | 0.3839 | 0.0923 | 4.159 | <0.001*** |
+  | pers_rfl | 0.005 | 0.0308 | 0.162 | 0.8715 n.s. |
+  | pers_rum | 0.2972 | 0.0313 | 9.503 | <0.001*** |
+  | temp_z | -0.0078 | 0.0143 | -0.543 | 0.5871 n.s. |
 
 ### Counterfactual rate (`cf_rate`)
-  N=5608
+  N=5713
 
   | Predictor | Estimate | SE | z | p |
   |---|---|---|---|---|
-  | Intercept | 0.3581 | 0.1433 | 2.498 | 0.0125* |
-  | cond_D | 0.1896 | 0.1509 | 1.257 | 0.2089 n.s. |
-  | cond_C | 1.1062 | 0.1592 | 6.949 | <0.001*** |
-  | pers_rfl | 0.0174 | 0.0392 | 0.446 | 0.6559 n.s. |
-  | pers_rum | 0.3219 | 0.0397 | 8.101 | <0.001*** |
-  | temp_z | -0.0304 | 0.0183 | -1.661 | 0.0968 (borderline) |
+  | Intercept | 0.3549 | 0.1373 | 2.585 | 0.0097** |
+  | cond_D | 0.2258 | 0.1331 | 1.697 | 0.0898 (borderline) |
+  | cond_C | 1.0894 | 0.1381 | 7.886 | <0.001*** |
+  | pers_rfl | 0.0156 | 0.0386 | 0.405 | 0.6856 n.s. |
+  | pers_rum | 0.3147 | 0.0392 | 8.031 | <0.001*** |
+  | temp_z | -0.0312 | 0.018 | -1.738 | 0.0823 (borderline) |
 
 ### Negative emotion rate (`negemo_rate`)
-  N=5608
+  N=5713
 
   | Predictor | Estimate | SE | z | p |
   |---|---|---|---|---|
-  | Intercept | 0.0565 | 0.0237 | 2.386 | 0.0170* |
-  | cond_D | 0.1528 | 0.0303 | 5.047 | <0.001*** |
-  | cond_C | 0.0877 | 0.0308 | 2.845 | 0.0044** |
-  | pers_rfl | -0.0026 | 0.0165 | -0.16 | 0.8726 n.s. |
-  | pers_rum | -0.0001 | 0.0167 | -0.009 | 0.9931 n.s. |
-  | temp_z | -0.0085 | 0.0074 | -1.146 | 0.2517 n.s. |
+  | Intercept | 0.0578 | 0.0232 | 2.492 | 0.0127* |
+  | cond_D | 0.1477 | 0.0293 | 5.037 | <0.001*** |
+  | cond_C | 0.0862 | 0.0297 | 2.899 | 0.0037** |
+  | pers_rfl | -0.0021 | 0.0162 | -0.128 | 0.8984 n.s. |
+  | pers_rum | 0.0021 | 0.0164 | 0.127 | 0.8990 n.s. |
+  | temp_z | -0.0085 | 0.0073 | -1.173 | 0.2409 n.s. |
 
-## Descriptive: Condition means (N=5608)
+## Descriptive: Condition means (N=5713)
 
 | Condition | N | Welch D vs N (regret) | d | Welch D vs N (emb_bias) | d |
 |---|---|---|---|---|---|
-| neutral | 1890 | — | — | — | — |
-| deprivation | 1823 | t=15.632, p<0.001 | 0.519 | t=57.044, p<0.001 | 1.872 |
-| counterfactual | 1895 | t=7.91, p<0.001 | 0.257 | t=67.546, p<0.001 | 2.196 |
+| neutral | 1925 | — | — | — | — |
+| deprivation | 1857 | t=15.89, p<0.001 | 0.523 | t=57.274, p<0.001 | 1.863 |
+| counterfactual | 1931 | t=8.126, p<0.001 | 0.261 | t=67.52, p<0.001 | 2.175 |
 
 ## Cross-model: Embedding Regret Bias by Model (D condition)
 
@@ -88,6 +90,7 @@ Models: GPT-4o, GPT-3.5-turbo, GPT-5.4-mini, GPT-5.4-nano, Gemini-2.5-Flash, Gem
 | llama-4-scout-17b-16e-instruct | 72 | 0.1103 | 0.0432 | 0.779 |
 | kimi-k2-instruct | 54 | 0.0702 | -0.0256 | 1.417 |
 | kimi-k2-instruct-0905 | 54 | 0.0736 | -0.0223 | 1.412 |
+| o4-mini | 34 | 0.0700 | -0.0160 | 1.184 |
 | gpt-oss-120b | 38 | 0.1128 | -0.0568 | 1.772 |
 | gpt-oss-20b | 40 | 0.1167 | -0.0447 | 1.629 |
 | gpt-oss-safeguard-20b | 18 | 0.1368 | -0.0674 | 1.853 |
@@ -96,15 +99,15 @@ Models: GPT-4o, GPT-3.5-turbo, GPT-5.4-mini, GPT-5.4-nano, Gemini-2.5-Flash, Gem
 All 8 models show D_bias > N_bias, supporting H3 (cross-model replication).
 
 ## Interpretation Summary
-- **H1 (lexical)**: Partially confirmed — regret-word rate (p=0.0184) and negemo rate (p=0.0000) significant; CF rate borderline (p=0.2089)
+- **H1 (lexical)**: Partially confirmed — regret-word rate (p=0.0019) and negemo rate (p=0.0000) significant; CF rate borderline (p=0.0898)
 - **H1b (semantic)**: Confirmed — embedding bias significant for both D (p<0.001) and C (p<0.001)
-- **H2 (persona)**: Confirmed — ruminative persona z=19.413, p<0.001 (strongest predictor)
+- **H2 (persona)**: Confirmed — ruminative persona z=18.883, p<0.001 (strongest predictor)
 - **H3 (cross-model)**: Confirmed — D>N in all 8 models tested
 
 ## Semantic-layer dissociation
-CF framing elevates embedding regret bias (beta=0.1903, z=28.247, p<0.001) comparably to deprivation (beta=0.147), but CF rate remains borderline (p=0.2089). This confirms counterfactual framing activates regret-associated semantic representations without reliably triggering explicit counterfactual vocabulary.
+CF framing elevates embedding regret bias (beta=0.1776, z=28.636, p<0.001) comparably to deprivation (beta=0.1365), but CF rate remains borderline (p=0.0898). This confirms counterfactual framing activates regret-associated semantic representations without reliably triggering explicit counterfactual vocabulary.
 
 ## Reproducibility
 Run: `python3 scripts/run_lme_analysis.py` from project root with .env.real_model sourced.
-Full results JSON: results/real_experiments/lme_analysis.json (authoritative, N=5608)
+Full results JSON: results/real_experiments/lme_analysis.json (authoritative, N=5713)
 Legacy lme_results.json = earlier partial-dataset run (N=216), not for verification.
