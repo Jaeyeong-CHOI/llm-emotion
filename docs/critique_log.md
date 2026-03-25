@@ -2,6 +2,109 @@
 
 ---
 
+## Critique [2026-03-25 13:39]
+### Scores: Soundness 3/5 | Significance 3/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 11:05 Critique
+
+The paper has undergone substantial revision since the 11:05 critique. Key resolved issues:
+- ✅ N expanded from N=1,336 to N=3,391 (21 batches, 15 model variants across 4 families: OpenAI, Google, Meta, Alibaba)
+- ✅ ICC values now reported for scenario random effect (ICC=0.66 for embedding bias, 0.71 for semantic regret bias, 0.27 for CF rate, 0.24 for regret-word rate)
+- ✅ Condition imbalance partially improved (D=1224, C=1268, N=899 — still unbalanced but larger)
+- ✅ Off-topic hallucination rate acknowledged (50% for CF condition in N=36 subsample)
+- ✅ Prototype sensitivity ablation added (d=1.26–1.72 across two alternative prototype sets)
+- ✅ Response-length confound addressed with binarized detection (P(regret): D=0.331 vs N=0.034)
+- ✅ Human annotation section expanded with EI rubric citation and inter-annotator κ=0.44
+- ✅ Hypothesis table (Table 5) added for H1a/H1b/H2/H3
+- ✅ Ablation-main corpus CF rate reversal now explicitly explained (design difference: matched-topic ablation vs. unmatched main corpus)
+- ✅ Cross-model table (Table 6) now covers all 15 models with per-model d values
+
+The 11:05 critique's **Borderline (leaning Reject)** reflected a version with only 2 models and unresolved ablation contradictions. The current version is substantially more ambitious in scope. This critique reassesses from scratch.
+
+---
+
+### Key Weaknesses
+
+#### Soundness (3/5)
+
+**Serious: Paper-internal inconsistency between abstract/body and lme_report.md data.**
+- The paper abstract and body report N=3,391 with 15 models, but the authoritative `lme_report.md` and `lme_analysis.json` report N=3,145 (14 batches, 8 models with the LME run). The N=3,391 figure with 15 models appears in the cross-model descriptive table (Table 6), but the *confirmatory LME* is presumably still run on N=3,145 (the report references 8 models, not 15). This is a meaningful inconsistency: the "confirmatory" statistics in the paper (β=0.171, z=4.79) match the lme_report (β=0.1721, z=4.806), confirming the LME is the N=3,145 run — but the paper claims "N=3,391, full 21-batch corpus, 15 models" for these same LME coefficients. This mislabeling of the confirmatory analysis is misleading and would not survive careful reviewer scrutiny.
+
+**Serious: The high ICC values (0.66–0.71) for embedding bias undermine the cross-model replication claim.**
+- The paper reports ICC=0.66 for embedding regret bias, meaning 66% of variance in the primary outcome is explained by between-scenario differences, not condition assignment. At this ICC level, a design with only 2 scenarios sampled per condition (as stated in the Methods) is severely underpowered for scenario generalization. The paper claims effects "replicate across 15 models" — but replication is on the same 2 scenarios per condition per batch. What is actually replicated is that the same scenarios produce consistent marker values; scenario generalization is not established. The effective N for scenario-level inference is ~2, not 3,391.
+
+**Serious: The deprivation prompt explicitly instructs emotional content — prompt confound remains unresolved at scale.**
+- The minimal-pair ablation (N=196) was the main response to the prompt-confound concern raised in prior critiques. The paper now claims "the ablation supports the interpretation that CF framing is a robust cross-model semantic activator." However: (a) the ablation uses N≈10/cell with only 3 topics — statistical power is minimal; (b) the model heterogeneity in the ablation (Gemini d=0.73 pooled vs. GPT-4o d=1.86 pooled) is unresolved; (c) the ablation shows deprivation elevation is "topic-dependent in Gemini" — a qualification that, if true for the main corpus, would partly explain why scenario variance dominates (ICC=0.27 for CF rate). The ablation does not establish that the prompt-condition effect is separable from the explicit emotion instruction. Without a condition that uses deprivation-frame language WITHOUT explicit emotion instruction, the confound is not controlled.
+
+**Serious: The "semantic-layer dissociation" remains scale-incommensurable and theoretically underspecified.**
+- The claim is that β_D (=0.171) ≈ β_C (=0.176) for embedding bias, while CF rate is non-significant (p=0.103). But the comparison is between: (1) a bounded cosine-similarity difference (embedding bias, mean range ~0.14 units) and (2) a per-100-character token frequency (CF rate, mean range ~0.70 units). The "dissociation" simply reflects that the two measures have different sensitivities. No psycholinguistic theory predicts that semantic activation should dissociate from lexical activation in this specific way for LLMs. The paper does not offer such a theory — it describes the pattern post-hoc. At a top venue, a dissociation claim requires either a mechanistic account or a preregistered prediction.
+
+**Moderate: GPT-5.4 model names are non-standard and may not be publicly released.**
+- The paper references "GPT-5.4-mini" and "GPT-5.4-nano" (Table 2, Table 6). As of the writing, "GPT-5.4" is not an OpenAI-released model designation (the public API uses gpt-4.1, gpt-4o, gpt-4.5, and pre-release model names). Using unreleased or internal model names without explanation would be flagged by reviewers as either fabricated or violating API terms of disclosure. If these are legitimate pre-release models, a disclosure note is required.
+
+**Moderate: Human annotation blinding not reported; single annotator experimenter bias risk.**
+- The N=36 annotation was conducted by the first author. No blinding to condition is reported. Given the first author has strong priors about condition ordering (D > C > N), unblinded annotation inflates convergent validity claims. The κ=0.44 is reported against a GPT-4o "rater" — not an independent human, which is non-standard for validity claims.
+
+**Moderate: Welch t-test statistics inconsistency between lme_report and paper.**
+- The paper (Table 3) cites d=0.55*** for D vs N on regret-word rate with d=0.60 for CF rate. The lme_report.md cites d=0.54 and d=0.35 for regret and embbias respectively (though the lme_report is on N=3,145 with 8 models vs paper's N=3,391 with 15). Small numerical differences are expected, but the d=0.35 for counterfactual in the report vs implied larger values in the paper are not reconciled.
+
+**Minor: Temperature effect persists as noise factor at enormous cost.**
+- temp_z: β=-0.0033, z=-2.984, p=0.0028 — this IS significant for embedding bias but the effect size is tiny (β=-0.003 vs β=0.171 for condition). Including temperature as a factor doubles the required number of API calls for minimal gain. The paper does not discuss whether this cost is justified.
+
+---
+
+#### Significance (3/5)
+
+**Improved from prior critiques — the 15-model cross-model replication is a genuine contribution.**
+- Spanning 4 organizations (OpenAI, Google, Meta, Alibaba) with 15 model variants is now beyond a simple 2-model pilot. The directional replication D>N across all 15 models for embedding bias (Table 6) is a meaningful empirical contribution if the N-consistency issues are resolved. The observation that newer frontier models (GPT-5.4-mini, Gemini-3-Flash) show dampened but non-zero effects (d=0.42–0.50) is genuinely interesting for alignment evaluation.
+
+**Still below top-venue threshold for the core behavioral finding:**
+- The primary confirmatory result (H1a not confirmed, H1b confirmed) means the main finding is still: "prompts with explicit emotional instruction produce semantic traces of that emotion in LLM outputs, but not always explicit lexical markers." This remains in the expected range without mechanistic insight.
+- The **ruminative persona as strongest predictor** (z=20.09) continues to be the most actionable and novel finding — it implies system prompts are a more reliable lever than user-turn framing for affective control, with direct implications for adversarial persona injection in safety contexts. The paper has improved its emphasis on this finding but still treats it as secondary to the condition effects.
+- The "semantic-layer dissociation" is now plausibly real (given the scale of replication), but the theoretical contribution is limited: it is essentially a measurement method finding (embedding metrics are more sensitive than lexical tallies for detecting semantic priming), not a finding about LLM cognition or behavior per se.
+- **Missing comparison:** The paper does not compare against instruction-following ability as a baseline. If you prompt any instruction-following model to "write about regret," it will produce regret-associated text. The question of whether deprivation *framing* (vs. explicit instruction) produces this effect is the interesting one — and H1a (not confirmed) is actually the answer: without explicit emotional instruction, framing alone does not reliably shift lexical markers. This negative finding is arguably more important than the confirmed embedding bias result, but the paper buries it.
+
+---
+
+#### Presentation (3/5)
+
+**The paper is substantially longer and more detailed, but this creates new problems:**
+- **N inconsistency is the leading presentation problem.** The abstract says N=3,391 and 15 models for the LME; the data files say N=3,145 and 8 models. This is visible to any careful reviewer who checks the data. Fix: clearly state that the LME was run on N=3,145 (8 models with full data at time of analysis) and the cross-model descriptive table covers N=3,391 (15 models including later-added models with smaller n per model).
+
+- **The abstract has improved but still mixes confirmatory and exploratory statistics.** "Lexical marker elevation under deprivation is not confirmed by the confirmatory LME (p>0.10 for CF rate; regret-word and negemo rates reach significance but are absorbed by scenario variance in exploratory contrasts)" — this sentence is confusing. The abstract should cleanly state: H1a not confirmed (lexical LME), H1b confirmed (embedding LME), H2 confirmed (persona), H3 confirmed (cross-model).
+
+- **IEEEtran format** still used for a claimed ACL/EMNLP target. This will be noticed on first glance by PC members.
+
+- **Figure 2 (bar chart) caption still says "exploratory, N_total=1,396"** but the main corpus is N=3,391. The N=1,396 in the figure caption is inconsistent with all other N reports. This appears to be a copy-paste error from a prior version.
+
+- **Table 6 (cross-model) references "Gemini-2.5-Pro" and "Gemini-3-Pro"** in the text (Discussion §cross-model robustness) but Table 2 (design summary) lists "Gemini-3-Flash" and "Gemini-3-Pro-Preview." Table 6 correctly uses the preview suffix. The text inconsistency should be fixed.
+
+- **The "ablation reversal" explanation** (§Limitations, item 2) is now present and reasonable but too long and defensive. At 300+ words in a limitations item, it reads like an author response to reviewers rather than a limitations section. Trim to ~75 words and move the detailed explanation to an appendix.
+
+- **Section 4.3 "Mixed-effects analysis"** states: "This cross-model replication across 15 models---including Gemini-2.5-Pro and Gemini-3-Pro alongside three open-weight models via Groq---provides the strongest evidence to date that both lexical and semantic regret-like markers are systematically elevated under deprivation framing." The phrase "strongest evidence to date" is an extraordinary claim that requires a citation comparison. What prior work is being surpassed? Without a specific prior benchmark, this is marketing language.
+
+- **The qualitative examples figure (Fig. 4)** is good and should be prominently featured. Currently it is placed after the long LME tables and may not be read by reviewers who skim.
+
+---
+
+### Actionable Directions
+
+1. **Resolve and disclose the N=3,145 vs N=3,391 inconsistency before any submission.** Run the confirmatory LME on the full N=3,391 corpus (all 15 models), or clearly label the LME as run on N=3,145 (8 models) and the cross-model descriptive section as covering all 15 models. Presenting N=3,391 as the LME sample when the data files show N=3,145 is the single highest-risk issue for reviewer trust. The fix is a one-paragraph clarification in §4.3 and an updated lme_report.
+
+2. **Add scenario generalization analysis to address the ICC=0.66 concern.** With ICC=0.66, the current design is effectively underpowered for scenario generalization despite large N. Run a Leave-One-Scenario-Out (LOSO) analysis: how stable are the condition effects when each scenario is held out in turn? Report the range of β estimates. If effects are stable across scenarios, the paper's claims of generalizability are supported. If highly variable, this is an honest limitation that substantially changes the framing. Either outcome is publishable with appropriate framing.
+
+3. **Reframe the "negative" H1a result as the primary contribution and build the narrative around it.** The confirmatory finding is: deprivation framing does NOT reliably produce explicit regret vocabulary once scenario variance is controlled (p=0.103 for CF rate in LME), but DOES produce semantic-level traces (embedding bias, p<0.001). This means natural deprivation framing in LLM prompts does not "leak" obvious affect markers in production use — a safety-relevant negative finding. This reframing, combined with the persona effect (system prompts are stronger levers), directly motivates an alignment concern: ruminative persona injection via system prompts is a reliable route to regret-laden output that user-turn framing alone does not achieve. This narrative is cleaner, more surprising, and more actionable than the current "we found deprivation raises markers" framing.
+
+---
+
+### Verdict: Borderline (leaning Weak Accept for ACL Findings / EMNLP Findings)
+
+**Rationale:** The paper has substantially improved across all three revision cycles. The 15-model cross-model replication (4 organizations, open- and closed-weight) is a genuine empirical contribution. The semantic-layer dissociation finding, while theoretically underspecified, is consistently replicated and has measurement-method implications for LLM behavioral evaluation. The ICC reporting, prototype sensitivity analysis, binarized length confound check, and hypothesis table are all meaningful additions. However, three issues remain blocking for main-track top-venue acceptance: (1) the N=3,391 vs N=3,145 LME inconsistency must be resolved, (2) scenario generalization is not established (ICC=0.66, only 2 scenarios/condition), (3) the "semantic-layer dissociation" needs theoretical grounding or a preregistered prediction to rise above a post-hoc observation. For **ACL/EMNLP main track**: Reject (would require resolving items 1–2 and adding a LOSO or scenario generalization analysis). For **ACL/EMNLP Findings or WASSA workshop**: Borderline / Weak Accept if N inconsistency and abstract/figure caption errors are corrected. The paper is on a trajectory toward acceptability with focused revision.
+
+---
+
 ## Critique [2026-03-25 11:05]
 ### Scores: Soundness 3/5 | Significance 2/5 | Presentation 3/5
 
