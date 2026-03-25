@@ -18,7 +18,7 @@
 \citation{mohammad2018semeval}
 \@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Prior-work streams and their linkage to the study hypotheses}}{2}{}\protected@file@percent }
 \newlabel{tab:litmap}{{I}{2}}
-\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Experimental design summary ($N_\text  {total}=4{,}539$; 30 batches total, 20 model variants; confirmatory LME uses 15-batch, 20-model full dataset)}}{2}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Experimental design summary ($N_\text  {total}=4{,}539$; 22 batches total, 20 model variants; confirmatory LME uses 14-batch, 8-model primary dataset)}}{2}{}\protected@file@percent }
 \newlabel{tab:design}{{II}{2}}
 \@writefile{toc}{\contentsline {section}{\numberline {III}Methods}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Hypotheses}{2}{}\protected@file@percent }
@@ -39,7 +39,7 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Embedding regret bias by condition across diverse model families. All models show D\,>\,N; CF and D produce comparable bias. Magnitude varies across families and generations.}}{4}{}\protected@file@percent }
 \newlabel{fig:model_comparison}{{4}{4}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Mixed-effects analysis}{4}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Confirmatory LME results ($N=4{,}539$, 15 batches, 20 model variants). Embedding bias uses sentence-transformer cosine similarity. Deprivation CF rate n.s.\ ($p=0.382$). Groq Compound/Compound-Mini (batch v17) included in full LME.}}{4}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Confirmatory LME results ($N=4{,}539$, 14 batches, 8 models; primary LME dataset). Embedding bias uses sentence-transformer cosine similarity. Deprivation CF rate n.s.\ ($p=0.382$). Cross-model descriptive results in Table\nobreakspace  {}VI\hbox {}.}}{4}{}\protected@file@percent }
 \newlabel{tab:lme_summary}{{IV}{4}}
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {IV-C}0a}Scenario generalizability (LOSO).}{4}{}\protected@file@percent }
 \citation{roese2017,zeelenberg1998}
@@ -53,13 +53,14 @@
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0a}Regret versus general negative affect.}{5}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0b}Ablation vs.\ main dataset CF rate reversal.}{6}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0c}Cross-model robustness as a major finding.}{6}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Cross-model replication: embedding regret bias by condition (all batches combined; 20 models shown). $d_\text  {DN}$/$d_\text  {CN}$: Cohen's $d$ vs.\ neutral (pooled within-condition SD). All 19 tabulated models show D$>$N. $^\dagger $Partial data (D$+$N only; CF condition not collected). $^\ddagger $Partial CF data ($n_\text  {CF}=7$). $^\S  $Unstable estimate: total $n<30$ per condition. $^\P  $D and C means both round to .221 at 3 decimal places (raw: D$=.2207$, C$=.2214$; $n_D=24$, $n_C=18$). Note: this table covers all collected batches for descriptive purposes; the confirmatory LME uses only the 15-batch, 20-model full dataset ($N=4{,}539$; Table\nobreakspace  {}IV\hbox {}).}}{6}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Cross-model replication: embedding regret bias by condition (all batches combined; 20 models shown). $d_\text  {DN}$/$d_\text  {CN}$: Cohen's $d$ vs.\ neutral (two-sample pooled-SD, computed from per-sample raw values). All tabulated models show D$>$N. $^\dagger $Partial data (D$+$N only; CF condition not collected). $^\ddagger $Partial CF data ($n_\text  {CF}=7$). $^\S  $Unstable estimate: total $n<30$ per condition. $^\P  $D and C means both round to .221 at 3 d.p.\ (raw: D$=.2207$, C$=.2214$; $n_D=24$, $n_C=18$). $^\#$CF $n=1$; $d_\text  {CN}$ not reportable. This table is descriptive; the confirmatory LME uses the 14-batch, 8-model primary dataset ($N=4{,}539$; Table\nobreakspace  {}IV\hbox {}).}}{6}{}\protected@file@percent }
 \newlabel{tab:multimodel}{{VI}{6}}
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0d}Scope of claims.}{6}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Limitations}{6}{}\protected@file@percent }
 \newlabel{sec:limitations}{{\mbox  {V-A}}{6}}
 \@writefile{lot}{\contentsline {table}{\numberline {VII}{\ignorespaces Minimal-pair ablation: semantic regret bias by topic ($N=196$). D=deprivation, CF=counterfactual, N=neutral; $d$ is Cohen's $d$ vs.\ neutral.}}{7}{}\protected@file@percent }
 \newlabel{tab:ablation_topic}{{VII}{7}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Reproducibility}{7}{}\protected@file@percent }
 \bibstyle{IEEEtran}
 \bibdata{references}
 \bibcite{roese2017}{1}
@@ -83,7 +84,6 @@
 \bibcite{fragileemotionreasoning2025}{19}
 \bibcite{pennebaker2015liwc}{20}
 \bibcite{mohammad2018semeval}{21}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Reproducibility}{8}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{8}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{References}{8}{}\protected@file@percent }
 \gdef \@abspage@last{8}
