@@ -2,6 +2,113 @@
 
 ---
 
+## Critique [2026-03-25 21:44]
+### Scores: Soundness 3/5 | Significance 3/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 18:50 Critique
+
+Sixth review cycle. Major changes in the current `main.tex` vs. the 18:50 version:
+- ✅ **Figure 2 N caption FINALLY fixed**: caption now correctly reads `N_\text{total}=4{,}381` — this has been flagged across all five prior cycles and is now resolved.
+- ✅ **LOSO (Leave-One-Scenario-Out) analysis ADDED**: the paper now includes a full LOSO analysis (42 scenarios, 8-model primary dataset, N=2,748), showing mean β=0.165 (SD=0.003) for deprivation and mean β=0.193 (SD=0.003) for counterfactual, stable across all 42 held-out scenarios. This directly addresses the ICC=0.66 generalizability concern raised in every prior cycle.
+- ✅ **LME coefficients match lme_report.md exactly**: β_D=0.143 z=17.14 (paper) vs. 0.1433 z=17.143 (lme_report); β_C=0.190 z=22.17 (paper) vs. 0.1898 z=22.166; CF rate p=0.429 (paper) vs. p=0.4286 (lme_report). Data integrity on primary coefficients is confirmed.
+- ✅ **Abstract now accurately scoped**: "counterfactual framing activates regret-associated semantic space without reliably increasing counterfactual expression rates (CF rate n.s., p=0.429)" — narrower and accurate, no longer overstating the lexical dissociation.
+- ✅ **Hypothesis table (Table 5) added** showing H1a partially confirmed, H1b confirmed, H2 confirmed, H3 partially confirmed.
+- ❌ **NEW CRITICAL: LME table header claims "29 batches, 18 models"** but lme_report.md authoritative source states "14 batches, 8 models." The LME coefficients match the 8-model/14-batch run — meaning the inflated scope claim is false.
+- ❌ **NEW CRITICAL: Cohen's d values in cross-model Table 5 are systematically ~2× higher than lme_report.** Example: GPT-4o shows D_bar=0.101, N_bar=−0.053 in both sources, but paper reports d=2.77 vs. lme_report d=1.662. This systematic inflation affects all models and undermines the headline effect-size claims.
+- ❌ **PERSISTING: GPT-3.5-turbo D=C=0.221** (identical to three decimal places for two conditions) — unresolved through six cycles.
+- ❌ **NEW: GPT-3.5-turbo and GPT-OSS-120B both show d_DN=3.37** in the paper's Table 5 (suspicious exact equality for different models with different sample sizes).
+
+---
+
+### Key Weaknesses
+
+#### Soundness (3/5)
+
+**CRITICAL (NEW): Cohen's d values in Table 5 are systematically inflated vs. the authoritative lme_report.**
+Cross-checking each model where lme_report provides d values:
+| Model | Paper d_DN | lme_report d | Ratio |
+|---|---|---|---|
+| GPT-3.5-turbo | 3.37 | 1.744 | 1.93× |
+| GPT-4o | 2.77 | 1.662 | 1.67× |
+| GPT-OSS-120B | 3.37 | 1.762 | 1.91× |
+The bias/mean values in both tables match (D_bar, N_bar consistent), so the inflation is in the denominator (pooled SD). The paper appears to be computing d with a pooled SD that is ~1.7–1.9× smaller than the lme_report's estimate. Likely cause: the paper's Table 5 d values use within-model per-condition SDs (smaller) while lme_report uses pooled within-condition SDs across all samples in the condition. This produces dramatically inflated d values. At a top venue, a reviewer who spot-checks one d value against the mean difference and raw SD will immediately notice this. The d=3.37 for GPT-3.5-turbo (n_D=24!) is implausibly large given the raw means (Δ=0.257) and should be verified.
+
+**CRITICAL (PERSISTING, sixth cycle): LME table header claims "29 batches, 18 model variants" but lme_report confirms 14 batches, 8 models.**
+- The paper now says: `\caption{Confirmatory LME results ($N=4{,}381$, 29 batches, 18 models).}` and in §4.3: "Results ($N=4{,}381$, 29 batches, 18 model variants across all families) show..."
+- The lme_report header says: "re-run on full N=4381 dataset — 14 batches, 8 models." The 14 batches are: batch_v1_pilot_openai, batch_v1_gemini_v2, batch_v3–v9, batch_gemini25flashlite, batch_gpt54mini/nano, batch_llama33_70b, batch_llama4_scout — 8 models only.
+- The LME coefficients match the 8-model run precisely, confirming the LME was NOT run on 18 models. The 29 batches/18 models appear in the cross-model descriptive table (Table 5) but the confirmatory LME covers only the 14-batch/8-model subset.
+- The fix remains a single sentence: "The confirmatory LME was run on the 14-batch, 8-model subset (N=4,381); the remaining batches contribute to descriptive Table 5 only." This has been requested in five consecutive critiques.
+
+**Serious (NEW): LOSO N=2,748 inconsistency with primary LME N=4,381.**
+- The LOSO analysis is conducted on "the 8-model primary dataset ($N=2{,}748$, 42 scenarios)." If the primary LME uses the same 8 models (per lme_report), why does the LOSO use N=2,748 while the LME uses N=4,381? A difference of 1,633 samples from the same 8-model dataset requires explanation. Either the LOSO excludes certain batches (which?), uses a temporal subset, or there is a data consistency issue. Additionally, the LOSO mean β=0.165 (deprivation) differs from the LME β_D=0.143 — a ~15% difference in coefficient magnitude that is not explained. LOSO estimates averaging over held-out scenarios should not systematically diverge from the full-sample LME by this margin unless scenarios are substantially unbalanced.
+
+**Serious (PERSISTING): Table 4 selectively omits CF-condition results for regret-rate and negemo.**
+- lme_report shows: Regret-word rate cond_C: β=0.2526, z=2.864, p=0.0042 (significant!); NegEmo rate cond_C: β=0.0402, p=0.4167 (n.s.).
+- Paper's Table 4 shows regret-word rate only for cond_D (β=0.233, p=0.008) and negemo only for cond_D (β=0.167, p<0.001). The CF condition regret-word effect (β=0.253, p=0.004) is statistically significant and comparable to the deprivation effect (β=0.233, p=0.008) — but it is absent from the LME summary table.
+- This omission distorts the "dissociation" story: the paper implies lexical regret markers are primarily a deprivation effect, but the data shows counterfactual framing is equally effective at raising regret-word rate. The Discussion §5 does acknowledge "regret-word rate is elevated under both deprivation (p=0.008) and counterfactual (p=0.004)," but the table omission means reviewers reading the table will not see this.
+
+**Serious (PERSISTING, sixth cycle): GPT-3.5-turbo and GPT-OSS-120B share d_DN=3.37 — suspicious exact equality.**
+- Paper Table 5: GPT-3.5-turbo d_DN=3.37; GPT-OSS-120B d_DN=3.37 (n_CF=7 per footnote). With GPT-3.5-turbo n_D=24 and GPT-OSS-120B n_D=12, an exact d match to two decimal places is implausible without a copy-paste error. The lme_report shows d=1.744 and d=1.762 for these models respectively — not equal. One of these two table entries appears to be incorrect.
+
+**Moderate: LOSO uses 42 scenarios but stimulus bank has 69 items.**
+- §2.2 states: "Stimuli were drawn from a purpose-built Korean prompt bank (69 scenarios)." The LOSO uses "42 scenarios." The gap (27 scenarios) is not explained. Which 42 of the 69 were used? Were the others excluded due to off-topic hallucinations, condition imbalance, or data quality? Without this explanation, the LOSO's scenario coverage claim is incomplete.
+
+**Moderate (PERSISTING): Human annotation single-annotator, no blinding, moderate κ=0.44.**
+- The 50% CF off-topic hallucination rate in the N=36 subsample remains unaddressed at scale. The paper now acknowledges this but does not report the CF off-topic rate for the full N=4,381 corpus. If 50% of CF responses across all 1,421 CF samples are off-topic, the CF condition effect sizes are substantially underestimated and comparisons between D and C conditions are confounded by content relevance.
+
+---
+
+#### Significance (3/5)
+
+**The LOSO addition substantially strengthens the generalizability case — the paper's most important improvement.**
+- 42-scenario LOSO with β range [0.156, 0.172] for deprivation (SD=0.003) demonstrates the effect is not scenario-specific. Combined with 18-model directional replication (D>N in all models, Table 5), this is now a genuinely robust behavioral observation across both scenario space and model space. The cross-modal consistency (3 open-weight + 14 proprietary variants, 5 organizations) is impressive and publishable.
+
+**The ruminative persona finding remains the headline contribution — still underemphasized.**
+- z=20.07 (pers_rum, embedding bias) vs. z=17.14 (cond_D) and z=22.17 (cond_C). Persona is the strongest or co-strongest predictor. The practical safety implication — that system-prompt persona injection is more reliable than user-prompt framing for generating regret-laden output — is direct, actionable, and relatively novel in the alignment-safety literature. The paper now calls it "the strongest cross-condition predictor" but the safety narrative remains underdeveloped.
+
+**The "alignment dampening" narrative (GPT-5.4-mini d=0.42 vs. GPT-3.5-turbo d=3.37) is interesting but confounded.**
+- The paper argues newer models show "alignment optimization progressively dampening overt affect-marker elevation." This is plausible but cannot be distinguished from model size, architecture, Korean language capability, or RLHF recipe differences without holding these covariates constant. The confound is acknowledged in Limitations §5 but not mitigated. For a top venue, this would need at least a capability-matched comparison (e.g., GPT-4o vs. GPT-4.1 vs. GPT-4.1-mini, which differ primarily in alignment tuning).
+
+---
+
+#### Presentation (3/5)
+
+**Figure 2 N caption: FIXED** — This was the most persistent single error across five cycles. It is now correct. This is the most impactful single presentation improvement in this version.
+
+**Table 4 (LME summary) scope label is still wrong.**
+- "N=4,381, 29 batches, 18 models" should be "N=4,381, 14 batches, 8 models (primary LME dataset)." The discrepancy between the LME sample and the cross-model descriptive table must be stated in the table caption.
+
+**Table 5 Cohen's d values cannot be reproduced from the lme_report means.**
+- Reviewers can compute d from the reported means (D_bar, N_bar) if they have the within-condition SD. The absence of SD from Table 5 makes it impossible to verify d from table data alone. At minimum, the table should note: "Cohen's d computed from per-sample within-condition SD (not pooled cross-model SD)." If the lme_report's d values (which use a different denominator) are the correct ones, the paper must use those.
+
+**The "LOSO Analysis" paragraph (§4.3) is a significant improvement** — clear, well-placed, directly addresses the ICC concern. The specific reporting format (mean β, SD, range) is appropriate. However, the N=2,748 vs. N=4,381 discrepancy needs one explanatory sentence.
+
+**IEEEtran format — seventh cycle, still unchanged.** If the venue target is ACL/EMNLP, this needs to change. If the venue target has changed to IEEE (e.g., IEEE TASLP, RA-L), the submission target should be stated.
+
+**The "strongest evidence to date" claim (§4.3) — still uncited.** Sixth cycle. Either add the specific prior work being surpassed or remove the superlative.
+
+---
+
+### Actionable Directions
+
+1. **Fix the Cohen's d calculation in Table 5 and cross-check against lme_report values.** The systematic ~2× inflation is the most critical new issue. Recompute all d values using pooled within-condition SD across all samples per model (matching the lme_report formula), verify that GPT-3.5-turbo and GPT-OSS-120B d values are not identical (likely a copy-paste error), and flag the n_CF=7 GPT-OSS-120B estimate as unreliable. This is a mechanical fix that dramatically affects the paper's credibility on effect-size claims.
+
+2. **Correct the LME table caption to "14 batches, 8 models" and add one sentence disambiguating LME scope from descriptive scope.** The pattern across six cycles: the paper expands its model coverage (from 2 → 8 → 15 → 18 → 20 models) but the LME remains at 8 models, while the LME caption is updated to claim the larger number. This is misleading. The fix: "The confirmatory LME was fit on the 14-batch, 8-model subset (N=4,381); the remaining 10 model families appear in the descriptive replication table (Table 5) only."
+
+3. **Add CF-condition rows for regret-rate and negemo to Table 4, and clarify the dissociation.** The paper's central finding is the marker-type dissociation (CF rate n.s. for deprivation, regret-word rate significant for both). Showing all outcomes × conditions in the LME table (including cond_C for regret-rate and negemo) gives reviewers the full picture. The dissociation then becomes clearly scoped: CF rate is the dissociating marker, not all lexical markers. This also resolves the concern that the current Table 4 selectively omits a significant effect (cond_C on regret-word rate, β=0.253, p=0.004).
+
+---
+
+### Verdict: Borderline (Weak Accept for ACL/EMNLP Findings; Reject for main track)
+
+**Rationale vs. prior cycle:** The LOSO addition and Figure 2 N fix are meaningful improvements — the two most persistent requested changes are now resolved. Data integrity on primary coefficients remains solid (lme_report and paper coefficients match exactly). However, this version introduces a new critical issue: the Cohen's d values in Table 5 are systematically ~2× higher than the lme_report's d calculations, affecting all models and constituting a potential systematic inflation of the paper's headline effect-size claims. Combined with the persisting LME scope mislabeling (29 batches/18 models claimed; 14 batches/8 models actual) and the GPT-3.5-turbo=GPT-OSS-120B d=3.37 suspicious equality, this is the same "data integrity" category of concern that earned Strong Reject in the 08:54 cycle. Assessment: the primary LME coefficients are correct; the d values in the cross-model table are likely a calculation methodology mismatch, not fabrication — but reviewers cannot distinguish these without access to raw SDs, and the values will trigger flags. Fix the d calculation, correct the LME caption, add the missing CF-condition rows to Table 4, and this version is ready for ACL/EMNLP Findings submission.
+
+
+
+---
+
 ## Critique [2026-03-25 18:50]
 ### Scores: Soundness 3/5 | Significance 3/5 | Presentation 3/5
 
