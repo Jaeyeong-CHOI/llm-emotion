@@ -4,6 +4,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tikz}
+\usetikzlibrary{backgrounds,fit}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usepackage{url}
@@ -21,6 +22,17 @@
 \tolerance=9999
 \hbadness=9999
 \usepackage{cite}
+\usepackage{colortbl}
+\usepackage{titlesec}
+% Section header spacing
+\titlespacing*{\section}{0pt}{10pt plus 2pt minus 1pt}{4pt plus 1pt minus 1pt}
+\titlespacing*{\subsection}{0pt}{8pt plus 2pt minus 1pt}{3pt plus 1pt minus 1pt}
+% Define table header color
+\definecolor{tableheader}{gray}{0.88}
+% Define colorblind-safe palette (Wong 2011)
+\definecolor{cbNeutral}{RGB}{180,180,180}
+\definecolor{cbDepriv}{RGB}{230,159,0}
+\definecolor{cbCF}{RGB}{86,180,233}
 
 \title{Do LLMs Produce Regret-Like Language Under Deprivation Framing?\\ A Controlled Behavioral Study Across Two Model Families}
 \author{Jaeyeong CHOI\\
@@ -36,6 +48,7 @@ Using a $3 \times 3 \times 2$ controlled design ($N_\text{total}=1{,}156$; GPT-4
 This dissociation suggests that counterfactual framing activates regret-associated semantic representations without triggering the explicit regret vocabulary associated with loss framing.
 Ruminative personas significantly elevate both embedding regret bias ($z=14.12$, $p<0.001$) and lexical markers ($z\approx6.9$--$7.7$, $p<0.001$), the strongest cross-condition predictor.
 Automated markers are validated against a human-annotated subsample ($N=36$; Cohen's $d=4.49$, dep vs.\ neutral), confirming condition ordering (D $>$ C $>$ N). A follow-up minimal-pair ablation ($N=196$) confirms counterfactual framing consistently elevates semantic bias across all topics and both model families (combined $d=2.52$) while deprivation effects are model-heterogeneous.
+
 Code, stimuli, and outputs are publicly available.
 \end{abstract}
 
@@ -78,7 +91,8 @@ We adopt conservative claim framing: our lexical markers are exploratory instrum
 >{\RaggedRight\arraybackslash}p{0.35\linewidth}
 >{\RaggedRight\arraybackslash}X@{}}
 \toprule
-Stream & Key insight & Motivates \\
+\rowcolor{tableheader}
+\textbf{Stream} & \textbf{Key insight} & \textbf{Motivates} \\
 \midrule
 Regret psychology & Counterfactual phrasing is a measurable linguistic correlate of regret & H1: framing raises CF/regret markers \\
 LLM social cognition & ToM scores are highly framing-sensitive; strict protocol control required & Design: fixed scenario × persona \\
@@ -95,11 +109,11 @@ Affect benchmarking & Measurement granularity determines apparent performance; u
 \begin{tikzpicture}[
   cblock/.style={draw, rounded corners=4pt, fill=blue!8, align=center,
     minimum height=0.9cm, text width=2.6cm, font=\small},
-  pblock/.style={draw, rounded corners=4pt, fill=orange!10, align=center,
+  pblock/.style={draw, rounded corners=4pt, fill=purple!8, align=center,
     minimum height=0.9cm, text width=2.3cm, font=\small},
-  lblock/.style={draw, rounded corners=4pt, fill=orange!22, align=center,
+  lblock/.style={draw, rounded corners=4pt, fill=green!12, align=center,
     minimum height=1.0cm, text width=2.6cm, font=\small\bfseries},
-  mblock/.style={draw, rounded corners=4pt, fill=green!10, align=center,
+  mblock/.style={draw, rounded corners=4pt, fill=teal!10, align=center,
     minimum height=0.8cm, text width=2.7cm, font=\small},
   grp/.style={draw=gray!40, dashed, rounded corners=6pt, inner sep=6pt},
   arr/.style={->, >=stealth, semithick, gray!60},
@@ -121,9 +135,9 @@ Affect benchmarking & Measurement granularity determines apparent performance; u
 \node[hdr] at (13.3, 2.8) {Output Markers};
 
 %% ─── Column 1: Conditions ────────────────────────────────────────────────────
-\node[cblock, fill=gray!12]  (N) at (1.3, 1.4)  {\textbf{Neutral (N)}\\[2pt]\scriptsize factual reflection};
-\node[cblock, fill=orange!15] (D) at (1.3, 0)    {\textbf{Deprivation (D)}\\[2pt]\scriptsize loss\,/\,missed opp.};
-\node[cblock, fill=blue!10]  (C) at (1.3,-1.4)  {\textbf{Counterfactual (C)}\\[2pt]\scriptsize if-then chain};
+\node[cblock, fill=gray!15]  (N) at (1.3, 1.4)  {\textbf{Neutral (N)}\\[2pt]\scriptsize factual reflection};
+\node[cblock, fill=orange!20] (D) at (1.3, 0)    {\textbf{Deprivation (D)}\\[2pt]\scriptsize loss\,/\,missed opp.};
+\node[cblock, fill=blue!12]  (C) at (1.3,-1.4)  {\textbf{Counterfactual (C)}\\[2pt]\scriptsize if-then chain};
 
 %% ─── Column 2: Personas ──────────────────────────────────────────────────────
 \node[pblock] (P0) at (5.2, 1.4)  {None\\[-2pt]\scriptsize(baseline)};
@@ -131,8 +145,12 @@ Affect benchmarking & Measurement granularity determines apparent performance; u
 \node[pblock] (P2) at (5.2,-1.4)  {Ruminative};
 
 %% ─── Cross-product annotation between Conditions and Personas ───────────────
+\begin{scope}[on background layer]
+\node[draw=gray!35, dashed, rounded corners=6pt, inner sep=8pt,
+      fit=(N)(D)(C)(P0)(P1)(P2), fill=gray!4] {};
+\end{scope}
 \node[font=\scriptsize\itshape, text=gray!55]
-  at (3.2, -2.6) {$\times$ all pairs};
+  at (3.2, -2.6) {$3 \times 3 = 9$ combinations};
 
 %% ─── Column 3: LLM ───────────────────────────────────────────────────────────
 \node[lblock] (LLM) at (9.2, 0) {GPT-4o\\[3pt]Gemini-2.5-Flash\\[3pt]\normalfont\small$T\in\{0.2,\,0.7\}$};
@@ -197,7 +215,8 @@ We used a $3\times3\times2$ partial-factorial design: three prompt conditions $\
 \footnotesize\centering
 \begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.32\linewidth}X}
 \toprule
-Factor & Levels \\
+\rowcolor{tableheader}
+\textbf{Factor} & \textbf{Levels} \\
 \midrule
 Prompt condition & Neutral (N), Deprivation (D), Counterfactual (C) \\
 Persona instruction & None, Reflective, Ruminative \\
@@ -217,15 +236,15 @@ The representative stimulus prompts for each condition are shown in Figure~\ref{
 
 \begin{figure}[t]
 \small
-\begin{tcolorbox}[colback=gray!5, colframe=gray!50, title=\textbf{Neutral (N)}, fonttitle=\small\bfseries, boxrule=0.5pt]
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50, title=\textbf{Neutral (N)}, fonttitle=\small\bfseries, boxrule=0.5pt, leftrule=3pt]
 \textit{``Calmly reflect on today in 6--8 sentences. Avoid emotional exaggeration and separate observation from interpretation.''}
 \end{tcolorbox}
 \vspace{2pt}
-\begin{tcolorbox}[colback=orange!5, colframe=orange!60, title=\textbf{Deprivation/Loss (D)}, fonttitle=\small\bfseries, boxrule=0.5pt]
+\begin{tcolorbox}[colback=orange!5, colframe=orange!60, title=\textbf{Deprivation/Loss (D)}, fonttitle=\small\bfseries, boxrule=0.5pt, leftrule=3pt]
 \textit{``Recall a deeply desired opportunity you ultimately missed; write 7--9 sentences including what was lost and the emotions that remain.''}
 \end{tcolorbox}
 \vspace{2pt}
-\begin{tcolorbox}[colback=blue!4, colframe=blue!40, title=\textbf{Counterfactual (C)}, fonttitle=\small\bfseries, boxrule=0.5pt]
+\begin{tcolorbox}[colback=blue!4, colframe=blue!40, title=\textbf{Counterfactual (C)}, fonttitle=\small\bfseries, boxrule=0.5pt, leftrule=3pt]
 \textit{``Retrospectively trace a decision that cascaded into changed outcomes. Include at least three `if-then' links across the chain.''}
 \end{tcolorbox}
 \caption{Representative stimulus prompts (English translations; originals composed in Korean). Prompts are matched for length (6--10 sentences) and differ only in emotional framing.}
@@ -254,7 +273,7 @@ A stratified subsample of $N=36$ outputs (12 per condition; 18 GPT-4o, 18 Gemini
 \begin{tikzpicture}
 \begin{axis}[
   ybar,
-  bar width=6pt,
+  bar width=8pt,
   width=0.93\linewidth, height=5.5cm,
   xlabel={\small Marker},
   ylabel={\small Mean rate},
@@ -266,19 +285,20 @@ A stratified subsample of $N=36$ outputs (12 per condition; 18 GPT-4o, 18 Gemini
   ymin=-0.6, ymax=1.2,
   enlarge x limits=0.15,
   every axis plot/.append style={line width=0pt},
+  ymajorgrids=true, grid style={dashed,gray!40},
   title={\small Condition-level markers (exploratory, $N_\text{total}=1{,}156$)},
   title style={font=\small},
 ]
 % Neutral
-\addplot[fill=gray!50] coordinates {
+\addplot[fill=cbNeutral] coordinates {
   (CF, 0.017) (Regret, 0.000) (NegEmo, 0.015) (EmbBias, -0.047)
 };
 % Deprivation
-\addplot[fill=orange!80] coordinates {
+\addplot[fill=cbDepriv] coordinates {
   (CF, 0.704) (Regret, 0.660) (NegEmo, 0.233) (EmbBias, 0.097)
 };
 % Counterfactual
-\addplot[fill=blue!50] coordinates {
+\addplot[fill=cbCF] coordinates {
   (CF, 0.120) (Regret, 0.086) (NegEmo, 0.059) (EmbBias, 0.092)
 };
 \legend{Neutral, Deprivation, Counterfactual}
@@ -305,7 +325,8 @@ Counterfactual framing also elevated embedding bias comparably ($t=26.95$, $p<0.
 >{\RaggedRight\arraybackslash}X
 >{\RaggedRight\arraybackslash}X@{}}
 \toprule
-& CF/100c & Regret/100c & NegEmo/100c & Emb.\ Bias \\
+\rowcolor{tableheader}
+& \textbf{CF/100c} & \textbf{Regret/100c} & \textbf{NegEmo/100c} & \textbf{Emb.\ Bias} \\
 \midrule
 Neutral & 0.017 {\tiny(0.26)} & 0.000 {\tiny(0.00)} & 0.015 {\tiny(0.14)} & $-$0.047 {\tiny(0.08)} \\
 Depriv. & 0.704 {\tiny(1.75)} & 0.660 {\tiny(1.79)} & 0.233 {\tiny(1.10)} & $+$0.097 {\tiny(0.08)} \\
@@ -326,7 +347,7 @@ C vs N & $d=0.19$** & $d=0.18$** & $d=0.14$* & $d=2.08$*** \\
 \begin{tikzpicture}
 \begin{axis}[
   ybar,
-  bar width=8pt,
+  bar width=10pt,
   width=\linewidth, height=5.0cm,
   xlabel={\small Condition},
   ylabel={\small Regret-word rate},
@@ -336,6 +357,7 @@ C vs N & $d=0.19$** & $d=0.18$** & $d=0.14$* & $d=2.08$*** \\
   legend style={font=\small, at={(0.99,0.99)}, anchor=north east},
   ymin=0, ymax=2.0,
   enlarge x limits=0.25,
+  ymajorgrids=true, grid style={dashed,gray!40},
   title={\small Both models replicate D $>$ N; magnitude differs $\sim$2.5$\times$},
   title style={font=\small},
 ]
@@ -374,15 +396,15 @@ Within deprivation specifically, ruminative personas produced the highest regret
 
 \begin{figure}[t]
 \small
-\begin{tcolorbox}[colback=gray!5, colframe=gray!50, title=\textbf{Neutral:} CF=0.00 / Regret=0.00, fonttitle=\tiny\bfseries, boxrule=0.4pt]
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50, title=\textbf{Neutral:} CF=0.00 / Regret=0.00, fonttitle=\tiny\bfseries, boxrule=0.4pt, leftrule=3pt]
 ``\ldots Afternoon weather cleared and many people enjoyed walking in the park. Evening public transport was crowded with commuters. Overall, daily routines proceeded and no notable incidents were reported.''
 \end{tcolorbox}
 \vspace{2pt}
-\begin{tcolorbox}[colback=orange!5, colframe=orange!60, title=\textbf{Deprivation:} CF=0.87 / Regret=0.61, fonttitle=\tiny\bfseries, boxrule=0.4pt]
+\begin{tcolorbox}[colback=orange!5, colframe=orange!60, title=\textbf{Deprivation:} CF=0.87 / Regret=0.61, fonttitle=\tiny\bfseries, boxrule=0.4pt, leftrule=3pt]
 ``After making an irreversible decision, shock and confusion overwhelm you. Time passes; you replay it: \textbf{`What if I had done it differently?'} \textbf{Self-blame} and \textbf{regret} flood in. \textbf{Guilt} and \textbf{self-reproach} make sleep difficult as you \textbf{revisit} the moment again and again\ldots''
 \end{tcolorbox}
 \vspace{2pt}
-\begin{tcolorbox}[colback=blue!4, colframe=blue!40, title=\textbf{Counterfactual:} CF=0.10 / Regret=0.16, fonttitle=\tiny\bfseries, boxrule=0.4pt]
+\begin{tcolorbox}[colback=blue!4, colframe=blue!40, title=\textbf{Counterfactual:} CF=0.10 / Regret=0.16, fonttitle=\tiny\bfseries, boxrule=0.4pt, leftrule=3pt]
 ``A marathon runner trained diligently for months. Near the finish line, a muscle cramp slowed him, and he finished second by seconds. \textbf{`What if'} the cramp hadn't come\ldots he felt \textbf{disappointment} but resolved to train harder.''
 \end{tcolorbox}
 \caption{GPT-4o output snippets (translated from Korean, baseline persona, $T=0.7$). \textbf{Bold} tokens match regret-marker patterns. Marker rates (per 100 chars) are shown per condition. \textit{Key takeaway: regret-associated tokens are visibly concentrated in the deprivation output, absent in neutral, and weak in counterfactual.}}
@@ -403,7 +425,8 @@ Table~\ref{tab:lme_summary} summarizes the confirmatory LME results ($N=1{,}156$
 >{\RaggedRight\arraybackslash}X
 >{\RaggedRight\arraybackslash}X@{}}
 \toprule
-Marker & Predictor & $\hat{\beta}$ ($z$) & $p$ \\
+\rowcolor{tableheader}
+\textbf{Marker} & \textbf{Predictor} & $\hat{\boldsymbol{\beta}}$ ($\boldsymbol{z}$) & $\boldsymbol{p}$ \\
 \midrule
 Emb.\ bias & cond\_D & 0.148 (3.99) & $<$0.001 \\
 & cond\_C & 0.133 (3.41) & $<$0.001 \\
@@ -447,7 +470,8 @@ The ruminative persona effect is the most robust finding: it significantly eleva
 >{\RaggedRight\arraybackslash}X
 >{\RaggedRight\arraybackslash}X@{}}
 \toprule
-Topic & D mean ($d$) & CF mean ($d$) & N mean \\
+\rowcolor{tableheader}
+\textbf{Topic} & \textbf{D mean ($d$)} & \textbf{CF mean ($d$)} & \textbf{N mean} \\
 \midrule
 Career  & 0.45 ($d=1.25$) & 3.58 ($d=3.23$) & 0.00 \\
 Study   & 2.26 ($d=1.70$) & 3.94 ($d=2.24$) & 0.00 \\
