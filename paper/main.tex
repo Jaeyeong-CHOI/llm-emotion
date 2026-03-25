@@ -4,7 +4,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{tikz}
-\usetikzlibrary{backgrounds,fit}
+\usetikzlibrary{backgrounds,fit,arrows.meta,positioning}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usepackage{url}
@@ -162,26 +162,27 @@ Affect benchmarking & Measurement granularity determines apparent performance; u
 \node[mblock] (M4) at (13.3,-1.5) {Semantic regret bias};
 
 %% ─── Merge coordinates ───────────────────────────────────────────────────────
-%% cond_merge: conditions bus (left of Persona column, x=3.2)
-%% cm:         final merge before LLM (right of Persona column, x=7.3)
-\coordinate (cond_merge) at (3.2, 0);
-\coordinate (cm)         at (7.3, 0);
+%% cond_merge: conditions fan-in  (x=3.0)
+%% pers_merge: personas fan-in    (x=6.8, y=0)
+%% cm:         final combine before LLM via junction at (7.8, 0)
+\coordinate (cond_merge) at (3.0, 0);
+\coordinate (pers_merge) at (6.8, 0);
+\coordinate (cm)         at (7.8, 0);
 
 %% ─── Arrows: Conditions → cond_merge ────────────────────────────────────────
-\draw[arr] (N.east) -- ++(0.2,0) |- (cond_merge);
+\draw[arr] (N.east) -- ++(0.15,0) |- (cond_merge);
 \draw[arr] (D.east) -- (cond_merge);
-\draw[arr] (C.east) -- ++(0.2,0) |- (cond_merge);
+\draw[arr] (C.east) -- ++(0.15,0) |- (cond_merge);
 
-%% ─── cond_merge → cm: route BELOW persona column (via y=-2.2, clear of P2) ──
-\draw[arr] (cond_merge) -- ++(0,-2.2) -- (7.3,-2.2) -- (cm);
+%% ─── cond_merge → cm: route BELOW persona column (y=-2.4, clear of P2@y=-1.4)
+%% Descend at x=3.0, travel right at y=-2.4 (below all Persona boxes),
+%% ascend at x=7.8 to cm — no crossing through any Persona box.
+\draw[arr] (cond_merge) -- ++(0,-2.4) -| (cm);
 
 %% ─── Arrows: Personas → pers_merge → cm ────────────────────────────────────
-%% Route P0/P2 to a shared merge node at x=6.5 so their vertical paths
-%% do NOT collide with the cond_merge bus descending at x=7.3
-\coordinate (pers_merge) at (6.5, 0);
-\draw[arr] (P0.east) -- (6.5, 1.4) -- (pers_merge);
+\draw[arr] (P0.east) -- (6.8, 1.4) -- (pers_merge);
 \draw[arr] (P1.east) -- (pers_merge);
-\draw[arr] (P2.east) -- (6.5,-1.4) -- (pers_merge);
+\draw[arr] (P2.east) -- (6.8,-1.4) -- (pers_merge);
 \draw[arr] (pers_merge) -- (cm);
 
 %% ─── cm → LLM ────────────────────────────────────────────────────────────────
