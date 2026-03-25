@@ -1,0 +1,60 @@
+{
+  "n_total": 5877,
+  "pearson_overall": {
+    "r": 0.2651,
+    "p": 4.382188794258344e-95
+  },
+  "pearson_by_condition": {
+    "deprivation": {
+      "r": 0.171,
+      "p": 4.0762080158602415e-14,
+      "n": 1928
+    },
+    "counterfactual": {
+      "r": 0.1415,
+      "p": 2.3669786662743817e-10,
+      "n": 1988
+    },
+    "neutral": {
+      "r": 0.1806,
+      "p": 7.783560862902825e-16,
+      "n": 1961
+    }
+  },
+  "lme_with_length_covariate": {
+    "is_dep": {
+      "beta": 0.1384,
+      "z": 26.01,
+      "p": 3.591494897071238e-149
+    },
+    "is_cf": {
+      "beta": 0.1897,
+      "z": 34.76,
+      "p": 9.687744372263057e-265
+    },
+    "log_len": {
+      "beta": 0.0192,
+      "z": 27.59,
+      "p": 1.4488181257938186e-167
+    }
+  },
+  "lme_baseline_dep_beta": 0.1497,
+  "lme_baseline_cf_beta": 0.2011,
+  "length_residualized_ttests": {
+    "dep_vs_neu": {
+      "t": 56.22,
+      "p": 0.0,
+      "d": 1.803,
+      "n_dep": 1928,
+      "n_neu": 1961
+    },
+    "cf_vs_neu": {
+      "t": 67.88,
+      "p": 0.0,
+      "d": 2.16,
+      "n_cf": 1988,
+      "n_neu": 1961
+    }
+  },
+  "interpretation": "Length is significantly correlated with embedding bias (r=0.2651, p<.001), but condition effects persist after controlling for log(length): dep beta=0.1384 (z=26.01), CF beta=0.1897 (z=34.76), both p<.001. Effect size reduction from baseline: dep 7.5%, CF 5.7%. Length-residualized d values: dep=1.803, CF=2.160 (vs 1.886, 2.208 unresid)."
+}
