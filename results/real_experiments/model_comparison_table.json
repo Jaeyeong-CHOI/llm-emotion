@@ -22,6 +22,17 @@
     "n_C": 72
   },
   {
+    "model": "gemini-2.5-pro",
+    "N_bias": 0.0141,
+    "D_bias": 0.1344,
+    "C_bias": null,
+    "d_DN": 2.534,
+    "d_CN": null,
+    "n_D": 31,
+    "n_N": 48,
+    "n_C": 0
+  },
+  {
     "model": "gemini-3-flash-preview",
     "N_bias": -0.0154,
     "D_bias": 0.1145,
@@ -31,6 +42,17 @@
     "n_D": 54,
     "n_N": 36,
     "n_C": 54
+  },
+  {
+    "model": "gemini-3-pro-preview",
+    "N_bias": -0.0321,
+    "D_bias": 0.0747,
+    "C_bias": null,
+    "d_DN": 1.798,
+    "d_CN": null,
+    "n_D": 25,
+    "n_N": 36,
+    "n_C": 0
   },
   {
     "model": "gpt-3.5-turbo",
