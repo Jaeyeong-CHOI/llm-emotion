@@ -23,7 +23,7 @@ def load_and_score(data_dir: pathlib.Path) -> pd.DataFrame:
     from analyze_real_results import analyze  # noqa
 
     rows = []
-    for fname in ["batch_v1_pilot_openai", "batch_v1_gemini_v2", "batch_v3_expand", "batch_v4_expand_gpt4o", "batch_v5_expand_both", "batch_v6_expand", "batch_v7_expand", "batch_v8_neutral_balance", "batch_v9_gpt35", "batch_gemini25flashlite", "batch_gpt54mini", "batch_gpt54nano", "batch_llama33_70b", "batch_llama4_scout"]:
+    for fname in ["batch_v1_pilot_openai", "batch_v1_gemini_v2", "batch_v3_expand", "batch_v4_expand_gpt4o", "batch_v5_expand_both", "batch_v6_expand", "batch_v7_expand", "batch_v8_neutral_balance", "batch_v9_gpt35", "batch_gemini25flashlite", "batch_gpt54mini", "batch_gpt54nano", "batch_llama33_70b", "batch_llama4_scout", "batch_qwen3_32b"]:
         # Prefer .emb.jsonl (has embedding_regret_bias), fall back to .jsonl
         emb_path = data_dir / f"{fname}.emb.jsonl"
         path = data_dir / f"{fname}.jsonl"

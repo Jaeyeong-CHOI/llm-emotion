@@ -107,9 +107,11 @@ def call_gemini(prompt: str, temperature: float, api_key: str, model: str = "gem
     req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"}, method="POST")
     with urllib.request.urlopen(req, timeout=120) as r:
         resp = json.loads(r.read())
-    # Extract text from the last text part (thinking models may have multiple parts)
-    parts = resp["candidates"][0]["content"]["parts"]
+    # Extract text from the last text part (thinking models may have multiple parts or empty content)
+    parts = resp.get("candidates", [{}])[0].get("content", {}).get("parts", [])
     text_parts = [p["text"] for p in parts if "text" in p]
+    if not text_parts:
+        raise ValueError(f"Gemini returned no text parts: {json.dumps(resp)[:300]}")
     return text_parts[-1].strip()
 
 

@@ -30,6 +30,8 @@ BATCH_FILES = [
     "batch_gpt54mini",
     "batch_gpt54nano",
     "batch_llama33_70b",
+    "batch_llama4_scout",
+    "batch_qwen3_32b",
 ]
 
 # Regret prototype sentences (Korean)
@@ -78,10 +80,13 @@ def compute_bias(model, text: str, regret_embs: np.ndarray, neutral_embs: np.nda
 
 
 def process_file(model, regret_embs, neutral_embs, in_path: pathlib.Path, out_path: pathlib.Path):
-    lines = [l for l in in_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    lines = [l for l in in_path.read_text(encoding="utf-8", errors="replace").splitlines() if l.strip()]
     results = []
     for line in lines:
-        row = json.loads(line)
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError:
+            continue
         text = row.get("output", "")
         bias = compute_bias(model, text, regret_embs, neutral_embs)
         row.update(bias)
