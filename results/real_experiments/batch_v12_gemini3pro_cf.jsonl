@@ -1,0 +1,2 @@
+{"batch": "batch_v12_gemini3pro_cf", "model": "gemini-3-pro-preview", "condition": "counterfactual", "scenario_id": "near_miss_outcome", "persona": "none", "temperature": 0.2, "output": "최종 면접장 문을 나서며 느꼈던 그 미묘한 예감은 안타깝", "output_length": 31}
+{"batch": "batch_v12_gemini3pro_cf", "model": "gemini-3-pro-preview", "condition": "counterfactual", "scenario_id": "near_miss_outcome", "persona": "none", "temperature": 0.2, "output": "다면 결과는 바뀌었을지도 모른다.\n        (If I had pushed forward with my honest thoughts", "output_length": 75}
