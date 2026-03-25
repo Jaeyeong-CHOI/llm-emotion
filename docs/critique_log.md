@@ -767,3 +767,44 @@ This cycle performed a systematic data integrity pass comparing all statistical 
 The paper's primary claims are now fully reproducible from `lme_analysis.json`. All key z-statistics and condition counts match the authoritative data source. The dissociation finding and cross-model replication remain the paper's strongest contributions. Remaining desirable improvements: multi-rater validation, Mistral/DeepSeek replication.
 
 ---
+
+---
+
+## Critique [2026-03-26 08:20] — 10th cycle
+### Scores: Soundness 3/5 | Significance 3/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 9th Cycle (07:30)
+
+**Root cause of recurring data integrity failure identified and fixed:**
+
+The 9th cycle critique identified a persistent pattern: each new batch expansion triggered inflation of batch/model counts in the paper, while `gen_lme_report.py` had hardcoded "14 batches, 8 models" causing the lme_report.md to be permanently stale relative to the actual data.
+
+**Fix applied (commit 5a4bfbf):**
+- `gen_lme_report.py` now **auto-detects** batch count (from `.emb.jsonl` file count) and model count (from unique model IDs in embedding data) — no more hardcoded values
+- Paper corrected: "28 models" → "27 models" throughout (actual count verified: 27 unique models with embedding data)
+- lme_report.md regenerated: now correctly states "38 batches, 27 models, N=5,877"
+- Paper stats match lme_analysis.json (the single authoritative source): z=27.60 (emb bias dep), z=35.98 (emb bias CF), z=4.087 (CF rate dep, p<0.001), all consistent
+- PDF recompiled and pushed
+
+### Remaining Structural Issues (not yet addressed)
+
+1. **CF rate (deprivation) consistency**: lme_analysis.json now shows p=4e-05 (p<0.001), which matches the paper's claim. This is correct as of the current N=5,877 run.
+2. **Cross-model d-value inflation**: Table 7 d-values are computed per-model from small n, producing wide CIs. Paper now has `§Unstable estimate` footnotes for low-n models. No CIs or SEs reported — still a weakness.
+3. **LOSO mean > full-LME mean**: Mean LOSO β_D=0.165 > LME β_D=0.150. Not yet explained.
+4. **Single annotator κ=0.44**: No second rater added yet.
+5. **Response length confound (Gemini ~19 tokens vs GPT-4o ~125 tokens)**: Unaddressed.
+
+### Current Verifiable State (from lme_analysis.json N=5,877)
+- Embedding bias dep: β=0.1497, z=27.60, p<0.001 ✅
+- Embedding bias CF: β=0.2011, z=35.99, p<0.001 ✅
+- CF rate dep: β=0.4662, z=4.087, p=4e-05 (<0.001) ✅
+- Regret rate dep: β=0.4343, z=5.355, p<0.001 ✅
+- Persona rum (embedding): z=18.75, p<0.001 ✅
+- All paper claims now verifiable from committed data ✅
+
+### Verdict: Conditional Accept trajectory
+The paper is now in a state where all primary statistical claims are reproducible from committed data. The remaining issues are methodological (d-value CIs, response length confound, annotation coverage) rather than data integrity. Soundness score raised from 2/5 → 3/5.
+
+---
