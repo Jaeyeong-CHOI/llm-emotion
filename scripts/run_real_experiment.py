@@ -247,6 +247,7 @@ def main():
                         "timestamp": utc_now_iso(),
                     }
                     f.write(json.dumps(row, ensure_ascii=False) + "\n")
+                    f.flush()
                     elapsed = time.perf_counter() - start
                     print(f"[{idx}/{total_samples}] {cell['condition']}|{cell['persona_id']}|T={cell['temperature']}|{cell['provider']} — {elapsed:.1f}s", end="\r")
 
