@@ -1,14 +1,14 @@
 [
   {
     "model": "gemini-2.5-flash",
-    "N_bias": -0.0451,
-    "D_bias": 0.0985,
-    "C_bias": 0.0773,
-    "d_DN": 1.591,
-    "d_CN": 1.564,
-    "n_D": 276,
-    "n_N": 216,
-    "n_C": 276
+    "N_bias": -0.0518,
+    "D_bias": 0.0941,
+    "C_bias": 0.0859,
+    "d_DN": 1.806,
+    "d_CN": 1.868,
+    "n_D": 351,
+    "n_N": 419,
+    "n_C": 315
   },
   {
     "model": "gemini-2.5-flash-lite",
@@ -47,12 +47,12 @@
     "model": "gemini-3-pro-preview",
     "N_bias": -0.0321,
     "D_bias": 0.0747,
-    "C_bias": null,
+    "C_bias": 0.1422,
     "d_DN": 1.798,
-    "d_CN": null,
+    "d_CN": 2.664,
     "n_D": 25,
     "n_N": 36,
-    "n_C": 0
+    "n_C": 2
   },
   {
     "model": "gemini-3.1-pro-preview",
@@ -78,47 +78,47 @@
   },
   {
     "model": "gpt-4.1",
-    "N_bias": -0.015,
+    "N_bias": -0.0243,
     "D_bias": 0.1263,
     "C_bias": 0.1399,
-    "d_DN": 1.637,
-    "d_CN": 2.374,
+    "d_DN": 1.773,
+    "d_CN": 2.378,
     "n_D": 72,
-    "n_N": 48,
+    "n_N": 84,
     "n_C": 72
   },
   {
     "model": "gpt-4.1-mini",
     "N_bias": -0.0122,
-    "D_bias": 0.1304,
-    "C_bias": 0.132,
-    "d_DN": 1.904,
-    "d_CN": 3.0,
-    "n_D": 54,
+    "D_bias": 0.143,
+    "C_bias": 0.14,
+    "d_DN": 2.05,
+    "d_CN": 2.871,
+    "n_D": 72,
     "n_N": 36,
-    "n_C": 91
+    "n_C": 109
   },
   {
     "model": "gpt-4o",
-    "N_bias": -0.0527,
+    "N_bias": -0.0525,
     "D_bias": 0.1008,
     "C_bias": 0.1108,
-    "d_DN": 2.817,
-    "d_CN": 4.008,
+    "d_DN": 2.772,
+    "d_CN": 3.816,
     "n_D": 198,
-    "n_N": 305,
+    "n_N": 341,
     "n_C": 227
   },
   {
     "model": "gpt-4o-mini",
-    "N_bias": 0.0226,
-    "D_bias": 0.132,
-    "C_bias": 0.1432,
-    "d_DN": 1.29,
-    "d_CN": 2.152,
-    "n_D": 54,
-    "n_N": 36,
-    "n_C": 95
+    "N_bias": -0.0065,
+    "D_bias": 0.1526,
+    "C_bias": 0.1535,
+    "d_DN": 2.211,
+    "d_CN": 2.564,
+    "n_D": 119,
+    "n_N": 108,
+    "n_C": 119
   },
   {
     "model": "gpt-5.4-mini",
@@ -163,6 +163,28 @@
     "n_D": 72,
     "n_N": 48,
     "n_C": 72
+  },
+  {
+    "model": "moonshotai/kimi-k2-instruct",
+    "N_bias": -0.0282,
+    "D_bias": 0.0706,
+    "C_bias": 0.1536,
+    "d_DN": 1.976,
+    "d_CN": 4.233,
+    "n_D": 27,
+    "n_N": 27,
+    "n_C": 27
+  },
+  {
+    "model": "openai/gpt-oss-120b",
+    "N_bias": -0.0628,
+    "D_bias": 0.1143,
+    "C_bias": 0.2099,
+    "d_DN": 3.37,
+    "d_CN": 6.936,
+    "n_D": 12,
+    "n_N": 18,
+    "n_C": 7
   },
   {
     "model": "qwen/qwen3-32b",
