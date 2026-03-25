@@ -44,6 +44,7 @@ BATCH_FILES = [
     "batch_v13_openai_balance",
     "batch_v14_balance",
     "batch_v15_new_models",
+    "batch_v16_oss_small",
 ]
 
 # Regret prototype sentences (Korean)
@@ -99,7 +100,7 @@ def process_file(model, regret_embs, neutral_embs, in_path: pathlib.Path, out_pa
             row = json.loads(line)
         except json.JSONDecodeError:
             continue
-        text = row.get("output", "")
+        text = row.get("output") or row.get("text", "")
         bias = compute_bias(model, text, regret_embs, neutral_embs)
         row.update(bias)
         results.append(row)

@@ -143,6 +143,17 @@
     "n_C": 54
   },
   {
+    "model": "llama-3.1-8b-instant",
+    "N_bias": -0.0234,
+    "D_bias": 0.1275,
+    "C_bias": 0.1555,
+    "d_DN": 3.032,
+    "d_CN": 3.88,
+    "n_D": 21,
+    "n_N": 33,
+    "n_C": 18
+  },
+  {
     "model": "llama-3.3-70b-versatile",
     "N_bias": 0.0661,
     "D_bias": 0.1675,
@@ -185,6 +196,17 @@
     "n_D": 12,
     "n_N": 18,
     "n_C": 7
+  },
+  {
+    "model": "openai/gpt-oss-20b",
+    "N_bias": -0.0465,
+    "D_bias": 0.102,
+    "C_bias": 0.1217,
+    "d_DN": 2.494,
+    "d_CN": 2.253,
+    "n_D": 16,
+    "n_N": 28,
+    "n_C": 17
   },
   {
     "model": "qwen/qwen3-32b",

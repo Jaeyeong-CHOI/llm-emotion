@@ -91,6 +91,7 @@ def call_groq(model: str, system_msg: str, user_msg: str, temperature: float, ap
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {api_key}",
+            "User-Agent": "llm-emotion-research/1.0",
         },
         method="POST",
     )

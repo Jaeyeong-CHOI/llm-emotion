@@ -1,11 +1,11 @@
 # 📡 실시간 연구 진행 현황 (llm-emotion)
 
-- 마지막 갱신: **2026-03-25 19:52:11 (Asia/Seoul 기준 로컬 실행 시각)**
-- 마지막 실행: **2026-03-25T10:52:11**
-- 마지막 성공: **2026-03-25T10:52:11**
-- 전체 샘플 수: **N=4,248** (neutral=1,439 / deprivation=1,423 / counterfactual=1,386)
+- 마지막 갱신: **2026-03-25 20:30:09 (Asia/Seoul 기준 로컬 실행 시각)**
+- 마지막 실행: **2026-03-25T20:30:09**
+- 마지막 성공: **2026-03-25T20:30:09**
+- 전체 샘플 수: **N=4,381** (neutral=1,500 / deprivation=1,460 / counterfactual=1,421) (neutral=1,439 / deprivation=1,423 / counterfactual=1,386)
 - 모델 수: **18 variants across 5 families**
-- LME N: **4,248 (28 batches)**
+- LME N: **4,381 (29 batches)**
 
 ## 자동화 상태
 - 연구 루프: **enabled**
