@@ -46,6 +46,8 @@ BATCH_FILES = [
     "batch_v15_new_models",
     "batch_v16_oss_small",
     "batch_v17_groq_compound",
+    "batch_v18_new_groq",
+    "batch_v19_groq_fill",
 ]
 
 # Regret prototype sentences (Korean)

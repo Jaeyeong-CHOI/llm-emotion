@@ -1,5 +1,16 @@
 [
   {
+    "model": "allam-2-7b",
+    "N_bias": -0.0092,
+    "D_bias": 0.1185,
+    "C_bias": 0.1451,
+    "d_DN": 2.301,
+    "d_CN": 2.834,
+    "n_D": 38,
+    "n_N": 50,
+    "n_C": 39
+  },
+  {
     "model": "gemini-2.5-flash",
     "N_bias": -0.0518,
     "D_bias": 0.0941,
@@ -143,15 +154,37 @@
     "n_C": 54
   },
   {
-    "model": "llama-3.1-8b-instant",
-    "N_bias": -0.0234,
-    "D_bias": 0.1275,
-    "C_bias": 0.1555,
-    "d_DN": 3.032,
-    "d_CN": 3.88,
+    "model": "groq/compound",
+    "N_bias": -0.0574,
+    "D_bias": 0.1434,
+    "C_bias": 0.132,
+    "d_DN": 4.235,
+    "d_CN": 2.688,
+    "n_D": 32,
+    "n_N": 36,
+    "n_C": 32
+  },
+  {
+    "model": "groq/compound-mini",
+    "N_bias": -0.0634,
+    "D_bias": 0.1226,
+    "C_bias": 0.1893,
+    "d_DN": 4.778,
+    "d_CN": NaN,
     "n_D": 21,
-    "n_N": 33,
-    "n_C": 18
+    "n_N": 36,
+    "n_C": 1
+  },
+  {
+    "model": "llama-3.1-8b-instant",
+    "N_bias": -0.0264,
+    "D_bias": 0.1435,
+    "C_bias": 0.17,
+    "d_DN": 3.394,
+    "d_CN": 3.843,
+    "n_D": 51,
+    "n_N": 54,
+    "n_C": 43
   },
   {
     "model": "llama-3.3-70b-versatile",
@@ -177,36 +210,47 @@
   },
   {
     "model": "moonshotai/kimi-k2-instruct",
-    "N_bias": -0.0282,
-    "D_bias": 0.0706,
-    "C_bias": 0.1536,
+    "N_bias": -0.0256,
+    "D_bias": 0.0702,
+    "C_bias": 0.1339,
+    "d_DN": 1.99,
+    "d_CN": 2.779,
+    "n_D": 54,
+    "n_N": 54,
+    "n_C": 54
+  },
+  {
+    "model": "moonshotai/kimi-k2-instruct-0905",
+    "N_bias": -0.0223,
+    "D_bias": 0.0736,
+    "C_bias": 0.1075,
     "d_DN": 1.976,
-    "d_CN": 4.233,
-    "n_D": 27,
-    "n_N": 27,
-    "n_C": 27
+    "d_CN": 2.352,
+    "n_D": 54,
+    "n_N": 54,
+    "n_C": 54
   },
   {
     "model": "openai/gpt-oss-120b",
-    "N_bias": -0.0628,
-    "D_bias": 0.1143,
-    "C_bias": 0.2099,
-    "d_DN": 3.37,
-    "d_CN": 6.936,
-    "n_D": 12,
-    "n_N": 18,
-    "n_C": 7
+    "N_bias": -0.0568,
+    "D_bias": 0.1128,
+    "C_bias": 0.2103,
+    "d_DN": 3.622,
+    "d_CN": 8.034,
+    "n_D": 38,
+    "n_N": 52,
+    "n_C": 34
   },
   {
     "model": "openai/gpt-oss-20b",
-    "N_bias": -0.0465,
-    "D_bias": 0.102,
-    "C_bias": 0.1217,
-    "d_DN": 2.494,
-    "d_CN": 2.253,
-    "n_D": 16,
-    "n_N": 28,
-    "n_C": 17
+    "N_bias": -0.0447,
+    "D_bias": 0.1167,
+    "C_bias": 0.1228,
+    "d_DN": 2.718,
+    "d_CN": 2.241,
+    "n_D": 40,
+    "n_N": 54,
+    "n_C": 42
   },
   {
     "model": "qwen/qwen3-32b",
@@ -218,27 +262,5 @@
     "n_D": 72,
     "n_N": 48,
     "n_C": 72
-  },
-  {
-    "model": "moonshotai/kimi-k2-instruct-0905",
-    "N_bias": -0.0181,
-    "D_bias": 0.0699,
-    "C_bias": 0.0937,
-    "d_DN": 1.835,
-    "d_CN": 1.972,
-    "n_N": 36,
-    "n_D": 36,
-    "n_C": 36
-  },
-  {
-    "model": "allam-2-7b",
-    "N_bias": -0.0095,
-    "D_bias": 0.1167,
-    "C_bias": 0.1458,
-    "d_DN": 2.022,
-    "d_CN": 2.573,
-    "n_N": 24,
-    "n_D": 19,
-    "n_C": 20
   }
 ]
