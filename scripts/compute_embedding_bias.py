@@ -51,6 +51,8 @@ BATCH_FILES = [
     "batch_v20_safeguard",
     "batch_v21_gemini_new",
     "batch_v22_cf_fill",
+    "batch_v23_new_openai",
+    "batch_v24_fill_cells",
 ]
 
 # Regret prototype sentences (Korean)
