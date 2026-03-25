@@ -15,46 +15,47 @@
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {II-}0c}Affective NLP and benchmarking.}{1}{}\protected@file@percent }
 \citation{roese2017,byrne2016}
 \citation{pennebaker2015liwc}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Experimental design. Three prompt conditions $\times $ three persona instructions (all 9 pairs combined) are queried to multiple LLMs at two temperatures. Four automated markers score each generated response. \textit  {Key takeaway: prompt framing is the primary independent variable.}}}{2}{}\protected@file@percent }
-\newlabel{fig:design}{{1}{2}}
+\citation{mohammad2018semeval}
 \@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Prior-work streams and their linkage to the study hypotheses}}{2}{}\protected@file@percent }
 \newlabel{tab:litmap}{{I}{2}}
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Experimental design summary ($N_\text  {total}=4{,}248$; 28 batches, 18 model variants)}}{2}{}\protected@file@percent }
+\newlabel{tab:design}{{II}{2}}
 \@writefile{toc}{\contentsline {section}{\numberline {III}Methods}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Hypotheses}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-B}}Stimuli and experimental design}{2}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Experimental design summary ($N_\text  {total}=4{,}248$; 33 batches, multiple model variants)}}{2}{}\protected@file@percent }
-\newlabel{tab:design}{{II}{2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-C}}Models and API contract}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-D}}Marker extraction}{2}{}\protected@file@percent }
-\citation{mohammad2018semeval}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Experimental design. Three prompt conditions $\times $ three persona instructions (all 9 pairs combined) are queried to multiple LLMs at two temperatures. Four automated markers score each generated response. \textit  {Key takeaway: prompt framing is the primary independent variable.}}}{3}{}\protected@file@percent }
+\newlabel{fig:design}{{1}{3}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Representative stimulus prompts (English translations; originals composed in Korean). Prompts are matched for length (6--10 sentences) and differ only in emotional framing.}}{3}{}\protected@file@percent }
 \newlabel{fig:prompts}{{2}{3}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Condition-level marker means ($N_\text  {total}=4{,}248$; multiple model variants). \textbf  {D $>$ N on regret/negemo lexical markers; C $\approx $ D on embedding bias; C $\gg $ D on CF rate.} EmbBias is sentence-transformer embedding cosine bias. Bars: condition means across 3 personas and 2 temperatures. Tests: exploratory; LME cf\_rate (deprivation) n.s.\ ($p=0.204$).}}{3}{}\protected@file@percent }
-\newlabel{fig:main_result}{{3}{3}}
 \@writefile{toc}{\contentsline {section}{\numberline {IV}Results}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Condition effect (H1)}{3}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Condition-level marker means ($N_\text  {total}=4{,}248$; multiple model variants). \textbf  {D $>$ N on regret/negemo lexical markers; C $\approx $ D on embedding bias; C $\gg $ D on CF rate.} EmbBias is sentence-transformer embedding cosine bias. Bars: condition means across 3 personas and 2 temperatures. Tests: exploratory; LME cf\_rate (deprivation) n.s.\ ($p=0.204$).}}{3}{}\protected@file@percent }
+\newlabel{fig:main_result}{{3}{3}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Cross-model replication (H3)}{3}{}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Condition-level marker means (SD), full dataset $N_\text  {total}=4{,}248$ (1423/1386/1439 per condition, D/C/N). Exploratory Welch $t$-tests: *** $p{<}0.001$, ** $p{<}0.01$, * $p{<}0.05$, n.s.\ $p{>}0.05$. LME note shows confirmatory status. Dep CF rate n.s. in LME ($p=0.204$); CF-condition CF rate sig. ($p<0.001$).}}{4}{}\protected@file@percent }
 \newlabel{tab:results}{{III}{4}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Embedding regret bias by condition across diverse model families. All models show D\,>\,N; CF and D produce comparable bias. Magnitude varies across families and generations.}}{4}{}\protected@file@percent }
 \newlabel{fig:model_comparison}{{4}{4}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Mixed-effects analysis}{4}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Confirmatory LME results ($N=4{,}248$, 14-batch 8-model subset). Embedding bias uses sentence-transformer cosine similarity. Deprivation CF rate n.s.\ ($p=0.204$); remaining 12 newer model variants in descriptive Table\nobreakspace  {}\G@refundefinedtrue \text  {\normalfont  \bfseries  ??}\GenericWarning  {               }{LaTeX Warning: Reference `tab:cross_model' on page 4 undefined} only.}}{4}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Confirmatory LME results ($N=4{,}248$, 28 batches, 18 models). Embedding bias uses sentence-transformer cosine similarity. Deprivation CF rate n.s.\ ($p=0.204$).}}{4}{}\protected@file@percent }
 \newlabel{tab:lme_summary}{{IV}{4}}
+\@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {IV-C}0a}Scenario generalizability (LOSO).}{4}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-D}}Persona effect (H2)}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-E}}Qualitative examples}{4}{}\protected@file@percent }
 \citation{roese2017,zeelenberg1998}
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces GPT-4o output snippets (translated from Korean, baseline persona, $T=0.7$). \textbf  {Bold} tokens match regret-marker patterns. Marker rates (per 100 chars) are shown per condition. \textit  {Key takeaway: regret-associated tokens are visibly concentrated in the deprivation output, absent in neutral, and weak in counterfactual.}}}{5}{}\protected@file@percent }
 \newlabel{fig:qualitative}{{5}{5}}
 \@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces Hypothesis confirmation summary. H1a and H1b are separated to distinguish lexical from semantic evidence.}}{5}{}\protected@file@percent }
 \newlabel{tab:hypothesis}{{V}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-E}}Qualitative examples}{5}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {V}Discussion}{5}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0a}Regret versus general negative affect.}{5}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0b}Ablation vs.\ main dataset CF rate reversal.}{5}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Cross-model replication: embedding regret bias by condition ($N=4{,}248$; 20 models). $d_\text  {DN}$/$d_\text  {CN}$: Cohen's $d$ vs.\ neutral. All 20 models show D$>$N. $^\dagger $Partial data (D$+$N only; CF condition not collected). $^\ddagger $Partial CF data ($n_\text  {CF}=7$).}}{6}{}\protected@file@percent }
-\newlabel{tab:multimodel}{{VI}{6}}
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0c}Cross-model robustness as a major finding.}{6}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0d}Scope of claims.}{6}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Cross-model replication: embedding regret bias by condition ($N=4{,}248$; 17 models). $d_\text  {DN}$/$d_\text  {CN}$: Cohen's $d$ vs.\ neutral. All 17 models show D$>$N. $^\dagger $Partial data (D$+$N only; CF condition not collected). $^\ddagger $Partial CF data ($n_\text  {CF}=7$). $^\S  $Unstable estimate: total $n<30$ per condition.}}{6}{}\protected@file@percent }
+\newlabel{tab:multimodel}{{VI}{6}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Limitations}{6}{}\protected@file@percent }
 \newlabel{sec:limitations}{{\mbox  {V-A}}{6}}
 \@writefile{lot}{\contentsline {table}{\numberline {VII}{\ignorespaces Minimal-pair ablation: semantic regret bias by topic ($N=196$). D=deprivation, CF=counterfactual, N=neutral; $d$ is Cohen's $d$ vs.\ neutral.}}{7}{}\protected@file@percent }
