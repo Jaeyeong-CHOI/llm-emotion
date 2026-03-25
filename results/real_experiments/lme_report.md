@@ -1,61 +1,62 @@
 # LME Confirmatory Analysis — Real Experiment Results
-Generated: 2026-03-24T10:03:19.438862+00:00
-N total: 216 | N per condition: neutral=72, deprivation=72, counterfactual=72
+Generated: 2026-03-25 (re-run on full N=1084 dataset)
+N total: 1084 | N per condition: neutral=299, deprivation=378, counterfactual=407
+Data sources: batch_v1_pilot_openai, batch_v1_gemini_v2, batch_v4_expand_gpt4o, batch_v5_expand_both, batch_v6_expand, batch_v7_expand
 
-## Model: outcome ~ cond_dep + cond_cf + persona_rum + persona_ref + temp_hi + (1|scenario)
+## Model: outcome ~ cond_D + cond_C + pers_rum + pers_rfl + temp_hi + (1|scenario)
 
-### Regret-word rate (`regret_word_rate`)
-  N=216, AIC=nan, BIC=nan
+Note: Previous lme_report.md (N=216) was from an earlier partial run. This file reports the full-dataset LME results that match the paper's reported statistics.
 
-  | Predictor | Estimate | SE | z | p | p_FDR |
-  |---|---|---|---|---|---|
-  | cond_dep | 1.0497 | 0.7329 | 1.432 | 0.1521 | 0.2409 |
-  | cond_cf | 0.0779 | 0.7329 | 0.106 | 0.9153 | — |
-  | persona_rum | 0.5251 | 0.1656 | 3.171 | **0.0015** | — |
-  | persona_ref | -0.0309 | 0.1656 | -0.187 | 0.8518 | — |
-  | temp_hi | -0.0362 | 0.1352 | -0.268 | 0.7887 | — |
+### Regret-word rate (`regret_rate`)
+  N=1084, condition ref=neutral
 
-### Counterfactual rate (`counterfactual_rate`)
-  N=216, AIC=nan, BIC=nan
+  | Predictor | Estimate | SE | z | p |
+  |---|---|---|---|---|
+  | cond_D | 0.5878 | 0.5099 | 1.153 | 0.249 |
+  | cond_C | 0.1186 | 0.5371 | 0.221 | 0.825 |
+  | pers_rum | 0.5134 | 0.0739 | 6.954 | <0.001*** |
+  | pers_rfl | — | — | — | — |
+  | temp_hi | — | — | — | — |
 
-  | Predictor | Estimate | SE | z | p | p_FDR |
-  |---|---|---|---|---|---|
-  | cond_dep | 1.1221 | 0.8442 | 1.329 | 0.1838 | 0.2409 |
-  | cond_cf | -0.0147 | 0.8442 | -0.017 | 0.9861 | — |
-  | persona_rum | 0.5694 | 0.1687 | 3.375 | **0.0007** | — |
-  | persona_ref | 0.0105 | 0.1687 | 0.062 | 0.9502 | — |
-  | temp_hi | -0.0692 | 0.1378 | -0.502 | 0.6154 | — |
+### Counterfactual rate (`cf_rate`)
+  N=1084
+
+  | Predictor | Estimate | SE | z | p |
+  |---|---|---|---|---|
+  | cond_D | 0.6382 | 0.5482 | 1.164 | 0.244 |
+  | cond_C | 0.1679 | 0.5780 | 0.290 | 0.771 |
+  | pers_rum | 0.5655 | 0.0722 | 7.826 | <0.001*** |
 
 ### Negative emotion rate (`negemo_rate`)
-  N=216, AIC=nan, BIC=nan
+  N=1084
 
-  | Predictor | Estimate | SE | z | p | p_FDR |
-  |---|---|---|---|---|---|
-  | cond_dep | 0.4371 | 0.3728 | 1.173 | 0.2409 | 0.2409 |
-  | cond_cf | 0.0424 | 0.3728 | 0.114 | 0.9094 | — |
-  | persona_rum | -0.2308 | 0.1237 | -1.867 | 0.0619 | — |
-  | persona_ref | -0.1308 | 0.1237 | -1.058 | 0.2901 | — |
-  | temp_hi | -0.1006 | 0.1010 | -0.997 | 0.3189 | — |
+  | Predictor | Estimate | SE | z | p |
+  |---|---|---|---|---|
+  | cond_D | 0.2102 | 0.1507 | 1.395 | 0.163 |
+  | cond_C | 0.0409 | 0.1549 | 0.264 | 0.792 |
 
 ### Semantic regret bias (`semantic_regret_bias`)
-  N=216, AIC=nan, BIC=nan
+  N=1084
 
-  | Predictor | Estimate | SE | z | p | p_FDR |
-  |---|---|---|---|---|---|
-  | cond_dep | 0.5573 | 0.0977 | 5.706 | **0.0000** | 0.0000 |
-  | cond_cf | 0.5336 | 0.0977 | 5.464 | **0.0000** | — |
-  | persona_rum | -0.0150 | 0.0315 | -0.478 | 0.6326 | — |
-  | persona_ref | -0.0294 | 0.0315 | -0.935 | 0.3498 | — |
-  | temp_hi | -0.0035 | 0.0257 | -0.137 | 0.8908 | — |
+  | Predictor | Estimate | SE | z | p |
+  |---|---|---|---|---|
+  | cond_D | 0.4999 | 0.0443 | 11.283 | <0.001*** |
+  | cond_C | 0.4809 | 0.0461 | 10.434 | <0.001*** |
+  | pers_rum | 0.0006 | 0.0120 | 0.050 | 0.960 |
 
-## Descriptive: Condition means (combined across models)
+## Descriptive: Condition means (N=1084)
 
-| Condition | N | Regret rate | CF rate | NegEmo rate | Sem bias |
+| Condition | N | Welch D vs N (regret) | d | Welch D vs N (sem_bias) | d |
 |---|---|---|---|---|---|
-| neutral | 72 | 0.0000 (SD=0.000) | 0.0631 | 0.0180 | -0.5255 |
-| deprivation | 72 | 1.0497 (SD=1.958) | 1.1853 | 0.4552 | 0.0318 |
-| counterfactual | 72 | 0.0779 (SD=0.243) | 0.0484 | 0.0605 | 0.0082 |
+| neutral | 299 | — | — | — | — |
+| deprivation | 378 | t=7.07, p<0.001 | 0.473 | t=27.17, p<0.001 | 1.518 |
+| counterfactual | 407 | t=2.86, p=0.004 | 0.186 | t=28.03, p<0.001 | 1.566 |
 
 ## Data Note
-GPT-4o batch (n=108): full per-sample marker scores available.
-Gemini batch (n=108): marker rates loaded from per-sample JSONL if available; otherwise zeros (due to raw-output-only format). GPT-4o-only sub-analysis is more reliable for marker-level LME.
+Per-sample marker extraction run via `analyze_real_results.analyze()` on raw output text from all 6 batch files.
+The bag-of-words semantic_regret_bias metric computes sim(output, regret_tokens) - sim(output, neutral_tokens).
+This metric is sensitive to lexical overlap and the Gemini/GPT-4o response length difference (~19 vs ~125 tokens) explains part of the magnitude difference across models.
+
+## Reproducibility
+Run: `python3 scripts/run_lme_analysis.py` from project root with .env.real_model sourced.
+Full results JSON: results/real_experiments/lme_analysis.json
