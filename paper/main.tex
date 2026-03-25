@@ -211,7 +211,7 @@ Figure~\ref{fig:design} shows the experimental structure.
 We used a $3\times3\times2$ partial-factorial design: three prompt conditions $\times$ three persona instructions $\times$ two decoding temperatures.
 
 \begin{table}[t]
-\caption{Experimental design summary ($N_\text{total}=1{,}156$; 7 batches, GPT-4o + Gemini-2.5-Flash)}
+\caption{Experimental design summary ($N_\text{total}=1{,}336$; 8 batches, GPT-4o + Gemini-2.5-Flash)}
 \label{tab:design}
 \footnotesize\centering
 \begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.32\linewidth}X}
@@ -225,7 +225,7 @@ Temperature & 0.2, 0.7 \\
 Scenarios per condition & 2 (sampled from 69-item bank) \\
 Completions per cell & 3 \\
 Models & GPT-4o, Gemini-2.5-Flash \\
-Total samples & 1{,}156 (expanded across 7 batches; 323/402/431 per condition) \\
+Total samples & 1{,}336 (expanded across 8 batches; 503/402/431 per condition) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -481,7 +481,7 @@ Relationship & 0.11 ($d=0.69$) & 3.48 ($d=2.34$) & 0.00 \\
 \bottomrule
 \end{tabularx}
 \end{table}
-  \item \textbf{Sample size:} The full dataset comprises $N_\text{total}=1{,}156$ across 7 batches (323/402/431 per condition). Condition group sizes are unbalanced; a balanced sub-cohort with crossed random effects for both scenario and persona template would increase sensitivity for interaction terms.
+  \item \textbf{Sample size:} The full dataset comprises $N_\text{total}=1{,}336$ across 8 batches (503/402/431 per condition). Confirmatory LME was fit on the first 7 batches ($N=1{,}156$); the 8th batch (180 neutral-only samples) was collected to improve condition balance. A balanced sub-cohort with crossed random effects for both scenario and persona template would increase sensitivity for interaction terms.
   \item \textbf{Response length confound:} Gemini-2.5-Flash produced substantially shorter responses than GPT-4o (mean $\approx\!19$ vs.\ $\approx\!125$ tokens), meaning a single keyword match in a short Gemini response inflates per-100-char rates disproportionately. Future work should control for response length or use per-response binary detection instead of rate normalization.
   \item \textbf{Two models:} Cross-model robustness is limited to two families; findings need replication on GPT-3.5, Llama-3, and Mistral to establish generality.
   \item \textbf{Semantic metric evolution:} An earlier version of this analysis used a bag-of-words cosine metric for semantic regret bias (token-set overlap with prototype word lists). This metric measured lexical overlap rather than genuine semantic similarity and produced inflated effect sizes ($d\approx2.3$--$2.5$). The results reported here use sentence-transformer embedding cosine similarity (\texttt{paraphrase-multilingual-MiniLM-L12-v2}), which measures actual semantic proximity and produces more conservative but reliable estimates ($d\approx1.8$--$2.1$). The dissociation finding is preserved under the embedding metric.
