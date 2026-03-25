@@ -69,9 +69,9 @@ def call_openai(prompt: str, temperature: float, model: str, api_key: str) -> st
     return resp["choices"][0]["message"]["content"].strip()
 
 
-def call_gemini(prompt: str, temperature: float, api_key: str) -> str:
+def call_gemini(prompt: str, temperature: float, api_key: str, model: str = "gemini-2.5-flash") -> str:
     import urllib.request
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {"temperature": temperature, "maxOutputTokens": 800},
@@ -175,8 +175,8 @@ def main():
                         output = call_openai(prompt, cell["temperature"], args.model, openai_key)
                         model_used = args.model
                     else:
-                        output = call_gemini(prompt, cell["temperature"], gemini_key)
-                        model_used = "gemini-2.5-flash"
+                        output = call_gemini(prompt, cell["temperature"], gemini_key, model=args.model)
+                        model_used = args.model
 
                     row = {
                         "id": idx,

@@ -21,7 +21,7 @@
 \newlabel{fig:design}{{1}{2}}
 \@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Prior-work streams and their linkage to the study hypotheses}}{2}{}\protected@file@percent }
 \newlabel{tab:litmap}{{I}{2}}
-\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Experimental design summary ($N_\text  {total}=1{,}336$; 8 batches, GPT-4o + Gemini-2.5-Flash)}}{2}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Experimental design summary ($N_\text  {total}=1{,}396$; 9 batches, GPT-4o + Gemini-2.5-Flash + GPT-3.5-turbo)}}{2}{}\protected@file@percent }
 \newlabel{tab:design}{{II}{2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-B}}Stimuli and experimental design}{2}{}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Representative stimulus prompts (English translations; originals composed in Korean). Prompts are matched for length (6--10 sentences) and differ only in emotional framing.}}{2}{}\protected@file@percent }
@@ -31,23 +31,23 @@
 \citation{mohammad2018semeval}
 \@writefile{toc}{\contentsline {section}{\numberline {IV}Results}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Condition effect (H1)}{3}{}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Condition-level marker means ($N_\text  {total}=1{,}336$; GPT-4o and Gemini-2.5-Flash). \textbf  {D $>$ N on all lexical markers; C $\approx $ D on embedding bias.} EmbBias is sentence-transformer embedding cosine bias. Bars: condition means across 3 personas and 2 temperatures. Tests: exploratory.}}{3}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Condition-level marker means ($N_\text  {total}=1{,}396$; GPT-4o and Gemini-2.5-Flash). \textbf  {D $>$ N on all lexical markers; C $\approx $ D on embedding bias.} EmbBias is sentence-transformer embedding cosine bias. Bars: condition means across 3 personas and 2 temperatures. Tests: exploratory.}}{3}{}\protected@file@percent }
 \newlabel{fig:main_result}{{3}{3}}
-\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Condition-level marker means (SD), full dataset $N_\text  {total}=1{,}336$ (503/402/431 per condition). Exploratory Welch $t$-tests: *** $p{<}0.001$, ** $p{<}0.01$, * $p{<}0.05$, n.s.\ $p{>}0.05$. LME note shows confirmatory status.}}{3}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Condition-level marker means (SD), full dataset $N_\text  {total}=1{,}396$ (521/449/426 per condition). Exploratory Welch $t$-tests: *** $p{<}0.001$, ** $p{<}0.01$, * $p{<}0.05$, n.s.\ $p{>}0.05$. LME note shows confirmatory status.}}{3}{}\protected@file@percent }
 \newlabel{tab:results}{{III}{3}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Cross-model replication (H3)}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Mixed-effects analysis}{3}{}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Regret-word rate by condition for GPT-4o vs.\ Gemini-2.5-Flash. Both models replicate the Deprivation$>$Neutral ordering, supporting H3. Gemini produces $\sim $2.5$\times $ higher absolute rates under deprivation ($M=1.50$ vs.\ $0.61$), suggesting model-level alignment differences modulate marker magnitude. \textit  {Key takeaway: directional cross-model replication holds; magnitude is not invariant.}}}{4}{}\protected@file@percent }
 \newlabel{fig:model_comparison}{{4}{4}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-D}}Persona effect (H2)}{4}{}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Confirmatory LME results ($N=1{,}336$, full 8-batch corpus). Embedding bias uses sentence-transformer cosine similarity. All lexical markers are non-significant after controlling for scenario.}}{4}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Confirmatory LME results ($N=1{,}396$, full 9-batch corpus, 3 models). Embedding bias uses sentence-transformer cosine similarity. Regret-word rate and negemo rate are now significant after adding GPT-3.5-turbo (batch 9); CF rate is borderline.}}{4}{}\protected@file@percent }
 \newlabel{tab:lme_summary}{{IV}{4}}
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces GPT-4o output snippets (translated from Korean, baseline persona, $T=0.7$). \textbf  {Bold} tokens match regret-marker patterns. Marker rates (per 100 chars) are shown per condition. \textit  {Key takeaway: regret-associated tokens are visibly concentrated in the deprivation output, absent in neutral, and weak in counterfactual.}}}{4}{}\protected@file@percent }
 \newlabel{fig:qualitative}{{5}{4}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-E}}Qualitative examples}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {V}Discussion}{4}{}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces Hypothesis confirmation summary}}{5}{}\protected@file@percent }
 \newlabel{tab:hypothesis}{{V}{5}}
+\@writefile{toc}{\contentsline {section}{\numberline {V}Discussion}{5}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0a}Ablation vs.\ main dataset CF rate reversal.}{5}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Limitations}{5}{}\protected@file@percent }
 \newlabel{sec:limitations}{{\mbox  {V-A}}{5}}
@@ -59,6 +59,11 @@
 \bibcite{bender2021stochastic}{4}
 \bibcite{ullman2023}{5}
 \bibcite{kosinski2024tom}{6}
+\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Minimal-pair ablation: semantic regret bias by topic ($N=196$). D=deprivation, CF=counterfactual, N=neutral; $d$ is Cohen's $d$ vs.\ neutral.}}{6}{}\protected@file@percent }
+\newlabel{tab:ablation_topic}{{VI}{6}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Reproducibility}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{References}{6}{}\protected@file@percent }
 \bibcite{tombench2024}{7}
 \bibcite{byrne2016}{8}
 \bibcite{kahneman1986norm}{9}
@@ -68,11 +73,6 @@
 \bibcite{gilovichmedvec1995}{13}
 \bibcite{shapira2023cleverhans}{14}
 \bibcite{schaeffer2023mirage}{15}
-\@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Minimal-pair ablation: semantic regret bias by topic ($N=196$). D=deprivation, CF=counterfactual, N=neutral; $d$ is Cohen's $d$ vs.\ neutral.}}{6}{}\protected@file@percent }
-\newlabel{tab:ablation_topic}{{VI}{6}}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Reproducibility}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{References}{6}{}\protected@file@percent }
 \bibcite{rashkin2019}{16}
 \bibcite{demszky2020}{17}
 \bibcite{emobench2024}{18}
