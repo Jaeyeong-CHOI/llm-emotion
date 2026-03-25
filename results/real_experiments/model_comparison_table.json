@@ -24,13 +24,13 @@
   {
     "model": "gemini-2.5-pro",
     "N_bias": 0.0141,
-    "D_bias": 0.1344,
-    "C_bias": null,
-    "d_DN": 2.534,
-    "d_CN": null,
-    "n_D": 31,
+    "D_bias": 0.0976,
+    "C_bias": 0.1087,
+    "d_DN": 1.568,
+    "d_CN": 2.584,
+    "n_D": 71,
     "n_N": 48,
-    "n_C": 0
+    "n_C": 66
   },
   {
     "model": "gemini-3-flash-preview",
@@ -53,6 +53,17 @@
     "n_D": 25,
     "n_N": 36,
     "n_C": 0
+  },
+  {
+    "model": "gemini-3.1-pro-preview",
+    "N_bias": -0.0226,
+    "D_bias": 0.1466,
+    "C_bias": 0.1797,
+    "d_DN": 6.529,
+    "d_CN": NaN,
+    "n_D": 2,
+    "n_N": 4,
+    "n_C": 1
   },
   {
     "model": "gpt-3.5-turbo",
@@ -89,13 +100,13 @@
   },
   {
     "model": "gpt-4o",
-    "N_bias": -0.0533,
+    "N_bias": -0.0527,
     "D_bias": 0.1008,
     "C_bias": 0.1108,
-    "d_DN": 2.665,
-    "d_CN": 4.203,
+    "d_DN": 2.817,
+    "d_CN": 4.008,
     "n_D": 198,
-    "n_N": 161,
+    "n_N": 305,
     "n_C": 227
   },
   {
