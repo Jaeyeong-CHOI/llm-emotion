@@ -441,6 +441,9 @@ Relationship & 0.11 ($d=0.69$) & 3.48 ($d=2.34$) & 0.00 \\
 \section{Reproducibility}
 All prompts, model outputs, marker extraction code, and run metadata are archived at the project repository.
 Key modules: \texttt{run\_real\_experiment.py} (API data collection), \texttt{analyze\_real\_results.py} (marker extraction), \texttt{experiment\_stimuli\_v1.json} (stimulus bank), and manifest logs for every run.
+Confirmatory LME is run via \texttt{run\_lme\_analysis.py}; authoritative output is \texttt{lme\_analysis.json} ($N=1084$, full corpus).
+The legacy \texttt{lme\_results.json} reflects an earlier partial-dataset run ($N=216$) and should not be used for result verification.
+All Cohen's $d$ values use the standard pooled-variance formula; Welch $t$-tests are two-tailed with no continuity correction.
 
 \section{Conclusion}
 Using a $3\times3\times2$ controlled design ($N_\text{total}=1084$; GPT-4o and Gemini-2.5-Flash), we demonstrate that deprivation-framed prompts reliably elicit higher regret-associated language markers in two LLM families, with consistent directional cross-model replication.

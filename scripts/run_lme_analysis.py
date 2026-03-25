@@ -5,6 +5,7 @@ Uses statsmodels MixedLM with scenario as random intercept.
 """
 
 import json
+import math
 import sys
 import pathlib
 import statistics
@@ -53,15 +54,20 @@ def run_welch_tests(df: pd.DataFrame) -> dict:
     neu = df[df["condition"] == "neutral"]
     cf = df[df["condition"] == "counterfactual"]
 
+    def _cohens_d(a, b):
+        """Standard pooled-variance Cohen's d."""
+        na, nb = len(a), len(b)
+        if na < 2 or nb < 2:
+            return float("nan")
+        va, vb = statistics.variance(list(a)), statistics.variance(list(b))
+        pooled_sd = math.sqrt(((na - 1) * va + (nb - 1) * vb) / (na + nb - 2))
+        return (np.mean(a) - np.mean(b)) / max(pooled_sd, 1e-9)
+
     for marker in ["cf_rate", "regret_rate", "negemo_rate", "semantic_regret_bias"]:
         t, p = stats.ttest_ind(dep[marker].values, neu[marker].values, equal_var=False)
-        d = (dep[marker].mean() - neu[marker].mean()) / max(
-            statistics.pstdev(list(dep[marker]) + list(neu[marker])), 1e-9
-        )
+        d = _cohens_d(dep[marker].values, neu[marker].values)
         tc, pc = stats.ttest_ind(cf[marker].values, neu[marker].values, equal_var=False)
-        dc = (cf[marker].mean() - neu[marker].mean()) / max(
-            statistics.pstdev(list(cf[marker]) + list(neu[marker])), 1e-9
-        )
+        dc = _cohens_d(cf[marker].values, neu[marker].values)
         results[marker] = {
             "D_vs_N": {"t": round(t, 3), "p": round(p, 5), "d": round(d, 3)},
             "C_vs_N": {"t": round(tc, 3), "p": round(pc, 5), "d": round(dc, 3)},

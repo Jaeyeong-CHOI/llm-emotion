@@ -49,8 +49,8 @@ Note: Previous lme_report.md (N=216) was from an earlier partial run. This file 
 | Condition | N | Welch D vs N (regret) | d | Welch D vs N (sem_bias) | d |
 |---|---|---|---|---|---|
 | neutral | 299 | — | — | — | — |
-| deprivation | 378 | t=7.07, p<0.001 | 0.473 | t=27.17, p<0.001 | 1.518 |
-| counterfactual | 407 | t=2.86, p=0.004 | 0.186 | t=28.03, p<0.001 | 1.566 |
+| deprivation | 378 | t=7.07, p<0.001 | 0.486 (pooled-SD Cohen's d) | t=27.17, p<0.001 | 2.306 |
+| counterfactual | 407 | t=2.86, p=0.004 | 0.187 | t=28.03, p<0.001 | 2.470 |
 
 ## Data Note
 Per-sample marker extraction run via `analyze_real_results.analyze()` on raw output text from all 6 batch files.
@@ -60,3 +60,13 @@ This metric is sensitive to lexical overlap and the Gemini/GPT-4o response lengt
 ## Reproducibility
 Run: `python3 scripts/run_lme_analysis.py` from project root with .env.real_model sourced.
 Full results JSON: results/real_experiments/lme_analysis.json
+
+**Note on lme_results.json vs lme_analysis.json:**
+`lme_results.json` is a legacy file from an earlier partial-dataset run (N=216, balanced 72/72/72).
+`lme_analysis.json` is the current authoritative file (N=1084, full 6-batch corpus).
+The paper's reported statistics (β=0.500, z=11.28 for semantic_regret_bias) are sourced from lme_analysis.json.
+The legacy lme_results.json should be treated as a historical artifact only.
+
+**Cohen's d computation:** All d-values in this report use the standard pooled-variance formula: 
+d = (mean_A − mean_B) / sqrt(((n_A−1)·var_A + (n_B−1)·var_B) / (n_A+n_B−2)).
+Earlier runs used population SD of the combined sample (pstdev), which underestimates d; the paper values use the correct pooled-SD formula.
