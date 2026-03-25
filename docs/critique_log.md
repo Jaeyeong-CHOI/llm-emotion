@@ -2,6 +2,160 @@
 
 ---
 
+## Critique [2026-03-26 07:30] — 9th cycle
+### Scores: Soundness 2/5 | Significance 3/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 23:04 Critique (8th cycle)
+
+The 8th cycle (23:04) confirmed data integrity on N=4,539 (lme_analysis.json as of that cycle). This 9th cycle uses the **current lme_report.md** which has been re-run on N=5,713 (14 batches, 8 models). The paper now claims N=5,836, 38 batches, 28 models for its confirmatory LME. This creates a new and critical divergence.
+
+**Summary of major changes visible in the current main.tex vs. 8th cycle:**
+- N in paper inflated from 4,539 → 5,836 (entire scope expansion)
+- LME now claims β_D=0.149 z=26.98 vs. lme_report's β_D=0.1365, z=22.134
+- CF rate (deprivation) is now claimed p<0.001 — but lme_report shows p=0.0898 (borderline, NOT significant)
+- All 28 models now included in the "confirmatory LME" — but lme_report.md says "14 batches, 8 models"
+- H1a now "fully confirmed" for all lexical markers including CF rate
+- Cohen's d values in Table 7 differ substantially from lme_report's per-model d values
+
+---
+
+### CRITICAL DATA INTEGRITY AUDIT
+
+**The authoritative lme_report.md (N=5,713, 14 batches, 8 models) vs. main.tex claims (N=5,836, 38 batches, 28 models):**
+
+| Statistic | Paper (main.tex) | lme_report.md | Match? |
+|---|---|---|---|
+| N total | 5,836 | 5,713 | ❌ Δ=123 |
+| Batches | 38 | 14 | ❌ |
+| Models | 28 | 8 | ❌ |
+| β_D (emb bias) | 0.149 | 0.1365 | ❌ Δ=0.013 |
+| z_D (emb bias) | 26.98 | 22.134 | ❌ Δ=4.85 |
+| β_C (emb bias) | 0.200 | 0.1776 | ❌ Δ=0.023 |
+| z_C (emb bias) | 34.89 | 28.636 | ❌ Δ=6.25 |
+| pers_rum z (emb) | 19.46 | 18.883 | ❌ Δ=0.58 |
+| CF rate cond_D p | p<0.001 | p=0.0898 (borderline) | ❌ CRITICAL |
+| CF rate cond_C β | 1.454, z=11.93 | β=1.0894, z=7.886 | ❌ |
+| Regret rate β_D | 0.438, z=5.29 | 0.2812, z=3.106 | ❌ |
+| Regret rate β_C | 0.501, z=? | 0.3839, z=4.159 | ❌ |
+| NegEmo β_D | 0.179, z=10.25 | 0.1477, z=5.037 | ❌ |
+
+**The CF rate (deprivation) discrepancy is the most critical:**
+- Paper abstract states: "Lexical marker elevation under deprivation is confirmed for all markers: negemo rate (p<0.001), regret-word rate (p<0.001), and CF rate (p<0.001)."
+- Paper §4.3: "all LME contrasts are now significant, including deprivation CF rate (p<0.001)"
+- lme_report.md (current authoritative): cond_D CF rate β=0.2258, z=1.697, **p=0.0898 (borderline, NOT significant)**
+- This is the same critical H1a issue that has recurred across multiple revision cycles — the paper is claiming full confirmation of H1a on CF rate when the authoritative LME output does NOT support this. The "batch v24 confirmed" note in the paper implies a newer LME run exists, but no lme_analysis.json matching N=5,836 and 28 models has been committed.
+
+**Per-model d-value comparison (lme_report vs. paper Table 7):**
+| Model | lme_report d(D-N) | Paper Table 7 d_DN | Match? |
+|---|---|---|---|
+| GPT-4o | 1.662 | 2.77 | ❌ inflated by ~1.67× |
+| GPT-3.5-turbo | 1.744 | 3.37 | ❌ inflated by ~1.93× |
+| Gemini-2.5-Flash | 1.344 | 1.81 | ❌ inflated by ~1.35× |
+| GPT-5.4-mini | 0.419 | 0.42 | ✅ near-match |
+| Llama-3.3-70B | 1.168 | 1.41 | ❌ inflated by ~1.21× |
+| GPT-4.1 | 1.333 | 1.77 | ❌ inflated |
+
+The paper's cross-model d values remain systematically inflated vs. the authoritative lme_report values. This is the same d-calculation methodology mismatch flagged in the 7th cycle (23:04 critique). GPT-5.4-mini is the only near-match. The systematic inflation affects the paper's headline effect-size claims for cross-model replication.
+
+---
+
+### Key Weaknesses
+
+#### Soundness (2/5)
+
+**CRITICAL (ninth cycle, same pattern as cycles 4, 5, 6): Paper's LME statistics do not match the committed lme_report.md — again.**
+- The paper now claims N=5,836, 38 batches, 28 models for the confirmatory LME. The lme_report.md is labeled "re-run on full N=5713 dataset — 14 batches, 8 models." The N discrepancy is 123 samples (5,836 vs. 5,713). The batch discrepancy is 38 vs. 14. The model discrepancy is 28 vs. 8.
+- The z-statistic for the primary outcome (embedding regret bias, deprivation) is z=26.98 in the paper vs. z=22.134 in the lme_report. These 22% difference in z-value is consistent with different model coverage (28-model LME vs. 8-model LME), not a rounding error.
+- The pattern over 9 cycles is now: each expansion of the descriptive cross-model table triggers a corresponding inflation of the LME scope claim in the paper text, but the actual LME code continues to run on only 8 models. The LME coefficients in the paper appear to be from a newer (uncommitted) LME run, not from the authoritative lme_report.md.
+
+**CRITICAL: CF rate (deprivation) p=0.0898 in lme_report but p<0.001 claimed in paper.**
+- The abstract and H1a confirmation ("fully confirmed") rest on this claim. The authoritative LME shows CF rate for deprivation is borderline (p=0.0898), not p<0.001. This is a binary difference in H1a confirmation status: if CF rate is p=0.0898, H1a is "partially confirmed" (as in the prior cycle); if p<0.001, it is "fully confirmed." The paper is claiming the stronger result without a committed, verifiable LME output to support it.
+- If the "batch v24 confirmed" claim is genuine (a new LME run on a larger N does show CF rate p<0.001 for deprivation), the updated lme_analysis.json must be committed and the lme_report.md must be regenerated before this claim is publishable.
+
+**CRITICAL: Cohen's d values in Table 7 are systematically inflated vs. lme_report by a consistent ~1.2–1.9× factor.**
+- As documented above, the inflation is systematic across all models where comparison is possible. The sole near-match is GPT-5.4-mini (d=0.42 in both). The inflation likely reflects a denominator mismatch: the paper may be using within-model, within-condition SD to compute d, while lme_report uses pooled SD across all samples per condition. This produces dramatically inflated per-model d values.
+- For GPT-3.5-turbo specifically: paper d=3.37, n_D=24. Cohen's d of 3.37 from means D=0.221 vs N=-0.036 (Δ=0.257) implies pooled SD ≈ 0.076. The lme_report d=1.744 implies pooled SD ≈ 0.148. With n_D=24 and n_N=18 (GPT-3.5 has tiny n), the true SD estimate is highly unreliable regardless. The point: d=3.37 at n=24 has a confidence interval so wide as to be essentially uninformative, but the paper presents it without a CI or SE.
+
+**Serious: Table 7 (cross-model) now shows Groq Compound-Mini d_CN=8.04 and d_DN=4.78 — implausible values for n<30.**
+- These extreme d values (and GPT-OSS-120B d_CN=8.03) are flagged as "§Unstable estimate" but still tabulated prominently. A d=8.04 at n_CF=50 is only possible if the within-group SD is nearly zero — which would mean all counterfactual outputs from Groq Compound-Mini have nearly identical embedding bias values. This is implausible and suggests either the d calculation is wrong or this model produces degenerate outputs. Without reporting the raw means ± SD, reviewers cannot assess these values.
+
+**Serious: H2 (persona effect) statistics in Table 4 vs. lme_report:**
+- Table 4 claims pers_rum CF rate β=0.321, z=9.24. lme_report: pers_rum CF rate β=0.3147, z=8.031. Different z-values indicate different LME runs.
+- Table 4 claims pers_rum regret rate β=0.296, z=9.38. lme_report: pers_rum regret rate β=0.2972, z=9.503. β matches, z doesn't exactly match.
+- These discrepancies confirm the paper is reporting from a newer, uncommitted LME run.
+
+**Serious (persistent): Scenario generalizability at ICC=0.66 is now addressed by LOSO, but the LOSO has a data consistency issue.**
+- LOSO reports mean β_D=0.165 from N=2,748 (42 scenarios), while the main LME reports β_D=0.149 (paper) / 0.1365 (lme_report) from N=5,713. With the 8-model primary dataset, a LOSO run on a subset of scenarios should produce β estimates LOWER than the full-sample LME if high-ICC scenarios are held out — not systematically higher (mean 0.165 > 0.1365). The LOSO means (0.165 for D, 0.193 for C) consistently exceed the LME means for both predictors, which is the opposite of what leave-one-out should produce relative to the full-dataset estimate. This requires explanation. The paper explains it as "the 42-scenario subsample has a slightly higher average deprivation effect than the full 14-batch corpus," but a 21% upward bias in the LOSO mean vs. the full-dataset LME is not "slight."
+
+**Moderate: The "marker-type dissociation" is now the wrong framing given regret_rate data.**
+- The paper frames the dissociation as: CF framing dominates CF rate (β=1.454) while deprivation dominates regret-word rate (β=0.438 vs CF β=0.501). But lme_report shows CF framing has a *larger* regret-word rate effect (β=0.3839, z=4.159) than deprivation (β=0.2812, z=3.106). The paper claims this as "comparable" with different magnitudes, but in the lme_report, counterfactual actually exceeds deprivation on regret-word rate. The "dissociation" story — deprivation = regret vocabulary, CF = counterfactual vocabulary — is not borne out by the lme_report data.
+
+**Moderate: Single-annotator human validation, κ=0.44, 50% CF off-topic rate unaddressed at scale.**
+- This has been flagged in every cycle. The 50% off-topic rate for CF responses in the N=36 subsample remains unchecked in the full corpus. If CF condition produces 50% irrelevant content at scale (LLMs generating prompt-engineering text instead of near-miss narratives), the CF condition effect sizes are severely underestimated and condition comparability is confounded. The paper acknowledges this for the subsample but never scales the check.
+
+---
+
+#### Significance (3/5)
+
+**The 28-model cross-model replication is the paper's strongest and most credible contribution — if the d values are corrected.**
+- Directional D>N across all 28 models, including models from 7 organizational families, 4 open-weight architectures, a reasoning model (o4-mini), and a cross-lingual Arabic model (Allam-2-7B) is a genuine empirical contribution. This scale of behavioral replication is unusual in LLM behavioral evaluation and is publishable on its own terms.
+- However, the headline d values (d=3.37 to d=8.04) are misleading. The lme_report's d values (range: 0.42–1.907 for the 8-model set it covers) are more credible. Correcting the d values would reduce the apparent magnitude of replication without eliminating the directional finding.
+
+**The persona > condition framing is the paper's most novel practical contribution.**
+- pers_rum z=18.883 (lme_report) is the strongest fixed-effect predictor, exceeding both cond_D (z=22.134) and cond_C (z=28.636) only in the embedding bias outcome (where cond_C's z=28.636 exceeds pers_rum). In lexical outcomes, pers_rum is the dominant predictor (z=8.031 for CF rate, z=9.503 for regret rate). This pattern — persona is a more reliable lexical predictor than condition framing — is the most actionable safety finding in the paper and should be the abstract's headline.
+
+**The "alignment dampening" interpretation remains confounded.**
+- The narrative that newer frontier models show smaller d (GPT-5.4 d≈0.42–0.50) while older models show larger d (GPT-3.5 d=1.744 per lme_report) is plausible but confounds model size, Korean capability, RLHF intensity, and training data composition. Without at least a capability-matched comparison (e.g., GPT-4o vs. GPT-4o-mini vs. GPT-4.1-mini, which share architecture but differ in scale), this remains speculation.
+
+**Research question remains below the novelty threshold for ACL/EMNLP main track.**
+- The core finding — emotionally-loaded prompts produce emotionally-loaded outputs in LLMs — is predictable. The three potentially non-trivial contributions are: (1) the semantic-lexical dissociation, (2) the persona > framing order, and (3) the 28-model cross-model consistency. Of these, (3) is the strongest and most novel. (1) and (2) need more theoretical grounding to be publishable at main track level.
+- The paper still lacks a comparison to an explicit-instruction baseline (e.g., "Please write about regret" vs. deprivation framing) that would distinguish framing effects from instruction-following effects. This would directly address the core confound and, if the framing-only condition shows reduced effects, would constitute a genuinely novel finding.
+
+---
+
+#### Presentation (3/5)
+
+**The abstract contains an internally broken sentence.**
+- Abstract line 4-5: "...revealing a marker-type dissociation---deprivation and counterfactual framings differ in lexical-layer signatures (CF rate both p<0.001$, suggesting counterfactual semantic priming does not require overt if-then linguistic structures." The sentence is syntactically broken — it opens a parenthesis "CF rate both p<0.001" that is never closed, and the subject of "suggesting" is unclear. This should have been caught before any submission version.
+
+**Table 3 (condition means) has inconsistent N vs. abstract.**
+- Table 3 caption: "N_total=5,836 (1908/1967/1961 per condition, D/C/N)." lme_report.md: N=5,713 (1857/1931/1925). The paper's condition counts differ from the lme_report's condition counts. This suggests the paper is using a different dataset than the lme_report.
+
+**LME Table 4 coefficients differ from lme_report in multiple dimensions.**
+- CF rate (counterfactual) β: paper says 0.910, lme_report says 1.0894.
+- CF rate (deprivation) β: paper says 0.463, z=3.96, p<0.001; lme_report says 0.2258, z=1.697, p=0.0898.
+- These are not rounding differences; they are substantively different estimates from different analyses.
+
+**d_CN for GPT-OSS-Safeguard-20B = 7.36 in Table 7 is implausible and unchecked.**
+- With n_CF estimated at <30 (§ footnote), d=7.36 would require near-zero within-group variance. Either this is a calculation error or this model produces degenerate outputs in the CF condition. This outlier should be investigated and reported with its raw means ± SD.
+
+**Abstract sentence fragment on marker dissociation (see above) should be the highest-priority editorial fix.**
+
+**The Reproducibility section states "authoritative output is lme_analysis.json (N=5,836, 38 batches, 28 model variants)" — but the committed lme_report.md was generated on N=5,713, 14 batches, 8 models.** If lme_analysis.json genuinely contains the N=5,836, 28-model run, it should be readable and the lme_report.md should be regenerated from it. The discrepancy between lme_analysis.json scope claims and lme_report.md content is unresolved.
+
+---
+
+### Actionable Directions
+
+1. **Commit the N=5,836, 28-model lme_analysis.json and regenerate lme_report.md from it — or correct the paper to match the existing lme_report.md (N=5,713, 8 models).**
+   - This is the ninth cycle in which the paper's LME statistics do not match the committed data files. The core divergence is: paper claims CF rate (deprivation) p<0.001, lme_report shows p=0.0898. H1a is either "fully confirmed" or "partially confirmed" depending on which is true. No submission should proceed until code output and paper statistics agree to three decimal places on all primary outcomes. The fix is to either: (a) run `python3 scripts/run_lme_analysis.py` on the full N=5,836 corpus, commit the output, regenerate lme_report.md, and verify CF rate (deprivation) p-value; or (b) revert all paper statistics to the currently committed lme_report.md values (β_D=0.1365, z=22.134; CF rate cond_D p=0.0898 borderline).
+
+2. **Recompute all per-model Cohen's d values in Table 7 using the same formula as lme_report (pooled within-condition SD), and add 95% CI for each estimate.**
+   - The systematic ~1.3–1.9× inflation vs. lme_report values will be caught immediately by any statistician-reviewer who cross-checks one entry. The fix: rerun the d computation using pooled SD across all samples per condition (not within-model-condition SD), verify against lme_report for the 8 models that appear in both, and flag all estimates with n<30 as unreliable with confidence intervals. Remove d_CN=8.04 and d_DN=4.78 (Groq Compound-Mini) from the main table or move to a footnote with a strong reliability caveat.
+
+3. **Add a direct comparison condition: "explicit instruction baseline" vs. deprivation framing.**
+   - The single experiment that would most strengthen this paper: add a condition that explicitly requests regret/emotion content using direct instruction ("Please write a passage expressing regret about a missed opportunity") and compare it against the deprivation framing condition. If deprivation framing produces comparable embedding bias to the explicit instruction, the framing effect is largely explained by instruction-following. If it produces lower bias, deprivation framing has a genuine additive effect beyond instruction. This experiment would either (a) confirm the framing effect as novel, or (b) honestly reframe the contribution as "explicit emotional instruction is sufficient; framing provides marginal additional activation." Either finding is more publishable than the current ambiguity.
+
+---
+
+### Verdict: Reject (revise and resubmit to ACL/EMNLP Findings)
+
+**Rationale:** The ninth review cycle finds the same recurring data integrity problem that has characterized cycles 4, 5, 6, and 7: the LME statistics in the paper do not match the committed authoritative lme_report.md. This cycle's critical divergence: CF rate (deprivation) is claimed p<0.001 in the paper but p=0.0898 in the lme_report — the same p-value that determined H1a's "partially confirmed" vs. "fully confirmed" status across multiple prior cycles. Additionally, the N expanded from 5,713 (lme_report) to 5,836 (paper) with unexplained batch additions. The z-statistics are consistently higher in the paper than the lme_report across all outcomes, consistent with a larger-N LME run that has not been committed. The per-model d values remain systematically inflated. The broken abstract sentence is a new editorial problem. **For ACL/EMNLP Findings**: Reject pending (1) LME data integrity fix, (2) d-value recomputation, and (3) abstract sentence correction. **For ACL/EMNLP main track**: Reject — additionally requires explicit-instruction baseline experiment and theoretical grounding for the dissociation claim. The directional findings are robust and the scale of cross-model replication is genuinely impressive; the paper is being held back entirely by data integrity and presentation issues that have been fixable across all nine cycles.
+
+---
+
 ## Critique [2026-03-25 21:44]
 ### Scores: Soundness 3/5 | Significance 3/5 | Presentation 3/5
 
