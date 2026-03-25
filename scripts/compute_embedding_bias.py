@@ -24,6 +24,12 @@ BATCH_FILES = [
     "batch_v5_expand_both",
     "batch_v6_expand",
     "batch_v7_expand",
+    "batch_v8_neutral_balance",
+    "batch_v9_gpt35",
+    "batch_gemini25flashlite",
+    "batch_gpt54mini",
+    "batch_gpt54nano",
+    "batch_llama33_70b",
 ]
 
 # Regret prototype sentences (Korean)

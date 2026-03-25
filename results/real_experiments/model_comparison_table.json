@@ -1,0 +1,79 @@
+[
+  {
+    "model": "gemini-2.5-flash",
+    "N_bias": -0.0451,
+    "D_bias": 0.0985,
+    "C_bias": 0.0773,
+    "d_DN": 1.591,
+    "d_CN": 1.564,
+    "n_D": 276,
+    "n_N": 216,
+    "n_C": 276
+  },
+  {
+    "model": "gemini-2.5-flash-lite",
+    "N_bias": 0.0229,
+    "D_bias": 0.1199,
+    "C_bias": null,
+    "d_DN": 1.291,
+    "d_CN": null,
+    "n_D": 59,
+    "n_N": 48,
+    "n_C": 0
+  },
+  {
+    "model": "gpt-3.5-turbo",
+    "N_bias": -0.0363,
+    "D_bias": 0.2207,
+    "C_bias": 0.2214,
+    "d_DN": 3.369,
+    "d_CN": 3.592,
+    "n_D": 24,
+    "n_N": 18,
+    "n_C": 18
+  },
+  {
+    "model": "gpt-4o",
+    "N_bias": -0.0533,
+    "D_bias": 0.1008,
+    "C_bias": 0.1108,
+    "d_DN": 2.665,
+    "d_CN": 4.203,
+    "n_D": 198,
+    "n_N": 161,
+    "n_C": 227
+  },
+  {
+    "model": "gpt-5.4-mini",
+    "N_bias": 0.0775,
+    "D_bias": 0.1075,
+    "C_bias": 0.0824,
+    "d_DN": 0.423,
+    "d_CN": 0.07,
+    "n_D": 54,
+    "n_N": 36,
+    "n_C": 54
+  },
+  {
+    "model": "gpt-5.4-nano",
+    "N_bias": 0.0372,
+    "D_bias": 0.071,
+    "C_bias": 0.1067,
+    "d_DN": 0.5,
+    "d_CN": 0.867,
+    "n_D": 54,
+    "n_N": 36,
+    "n_C": 54
+  },
+  {
+    "model": "llama-3.3-70b-versatile",
+    "N_bias": 0.0661,
+    "D_bias": 0.1675,
+    "C_bias": 0.1516,
+    "d_DN": 1.412,
+    "d_CN": 1.128,
+    "n_D": 72,
+    "n_N": 48,
+    "n_C": 45
+  }
+]
