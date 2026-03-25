@@ -210,7 +210,7 @@ Figure~\ref{fig:design} shows the experimental structure.
 We used a $3\times3\times2$ partial-factorial design: three prompt conditions $\times$ three persona instructions $\times$ two decoding temperatures.
 
 \begin{table}[t]
-\caption{Experimental design summary ($N_\text{total}=2{,}251$; 14 batches, 9 model variants)}
+\caption{Experimental design summary ($N_\text{total}=2{,}443$; 15 batches, 9 model variants)}
 \label{tab:design}
 \footnotesize\centering
 \begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.32\linewidth}X}
@@ -304,19 +304,19 @@ A stratified subsample of $N=36$ outputs (12 per condition; 18 GPT-4o, 18 Gemini
 \legend{Neutral, Deprivation, Counterfactual}
 \end{axis}
 \end{tikzpicture}
-\caption{Condition-level marker means ($N_\text{total}=2{,}251$; 9 model variants). \textbf{D $>$ N on all lexical markers; C $\approx$ D on embedding bias.} EmbBias is sentence-transformer embedding cosine bias. Bars: condition means across 3 personas and 2 temperatures. Tests: exploratory.}
+\caption{Condition-level marker means ($N_\text{total}=2{,}443$; 9 model variants). \textbf{D $>$ N on all lexical markers; C $\approx$ D on embedding bias.} EmbBias is sentence-transformer embedding cosine bias. Bars: condition means across 3 personas and 2 temperatures. Tests: exploratory.}
 \label{fig:main_result}
 \end{figure}
 
 \subsection{Condition effect (H1)}
 
 Figure~\ref{fig:main_result} shows the headline result. Deprivation framing produced higher marker rates on all outcomes (Table~\ref{tab:results}), but the confirmatory LME does not support H1 for lexical markers.
-Exploratory Welch $t$-tests ($N_\text{total}=2{,}251$, deprivation vs.\ neutral): CF rate $t=12.49$, $p<0.001$, $d=0.58$; regret-word rate $t=10.78$, $p<0.001$, $d=0.50$; negative emotion rate $t=7.20$, $p<0.001$, $d=0.34$; embedding regret bias $t=26.41$, $p<0.001$, $d=1.45$. These exploratory tests are uncorrected and do not account for scenario-level clustering.
+Exploratory Welch $t$-tests ($N_\text{total}=2{,}443$, deprivation vs.\ neutral): CF rate $t=12.36$, $p<0.001$, $d=0.55$; regret-word rate $t=11.11$, $p<0.001$, $d=0.50$; negative emotion rate $t=7.93$, $p<0.001$, $d=0.35$; embedding regret bias $t=27.61$, $p<0.001$, $d=1.45$. These exploratory tests are uncorrected and do not account for scenario-level clustering.
 
 Counterfactual framing also elevated embedding bias comparably ($t=34.60$, $p<0.001$, $d=2.23$ vs.\ neutral), and weakly elevated CF rate ($t=3.17$, $p=0.002$, $d=0.22$) and regret-word rate ($t=2.86$, $p=0.004$, $d=0.20$). Crucially, deprivation and counterfactual conditions produce \emph{comparable} embedding bias elevations ($d\approx2.0$--$2.2$ vs.\ neutral), while deprivation alone drives substantially larger lexical increases---a semantic-layer dissociation that is the primary finding of this study.
 
 \begin{table}[t]
-\caption{Condition-level marker means (SD), full dataset $N_\text{total}=2{,}251$ (822/818/611 per condition, D/C/N). Exploratory Welch $t$-tests: *** $p{<}0.001$, ** $p{<}0.01$, * $p{<}0.05$, n.s.\ $p{>}0.05$. LME note shows confirmatory status.}
+\caption{Condition-level marker means (SD), full dataset $N_\text{total}=2{,}443$ (894/890/659 per condition, D/C/N). Exploratory Welch $t$-tests: *** $p{<}0.001$, ** $p{<}0.01$, * $p{<}0.05$, n.s.\ $p{>}0.05$. LME note shows confirmatory status.}
 \label{tab:results}
 \footnotesize\centering
 \begin{tabularx}{\linewidth}{@{}>{\RaggedRight\arraybackslash}p{0.14\linewidth}
@@ -402,17 +402,17 @@ Table~\ref{tab:lme_summary} summarizes the full LME coefficient estimates.
 \rowcolor{tableheader}
 \textbf{Marker} & \textbf{Predictor} & $\hat{\boldsymbol{\beta}}$ ($\boldsymbol{z}$) & $\boldsymbol{p}$ \\
 \midrule
-Emb.\ bias & cond\_D & 0.175 (4.80) & $<$0.001 \\
-& cond\_C & 0.172 (4.44) & $<$0.001 \\
-& pers\_rum & 0.057 (16.15) & $<$0.001 \\
+Emb.\ bias & cond\_D & 0.171 (4.73) & $<$0.001 \\
+& cond\_C & 0.172 (4.46) & $<$0.001 \\
+& pers\_rum & 0.054 (16.81) & $<$0.001 \\
 \midrule
-CF rate & cond\_D & 0.949 (1.67) & 0.096 \\
-& pers\_rum & 0.468 (9.45) & $<$0.001 \\
+CF rate & cond\_D & 0.914 (1.62) & 0.105 \\
+& pers\_rum & 0.468 (10.61) & $<$0.001 \\
 \midrule
-Regret rate & cond\_D & 0.741 (2.84) & 0.004 \\
-& pers\_rum & 0.416 (9.09) & $<$0.001 \\
+Regret rate & cond\_D & 0.722 (2.41) & 0.016 \\
+& pers\_rum & 0.416 (9.83) & $<$0.001 \\
 \midrule
-NegEmo rate & cond\_D & 0.296 (2.26) & 0.024 \\
+NegEmo rate & cond\_D & 0.301 (2.28) & 0.023 \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -522,7 +522,7 @@ All Cohen's $d$ values use the standard pooled-variance formula; Welch $t$-tests
 \section{Conclusion}
 Using a $3\times3\times2$ controlled design ($N_\text{total}=2{,}443$; 9 model variants across GPT, Gemini, Llama, and Qwen families), we identify a semantic-layer dissociation in LLM regret-like language: both deprivation and counterfactual framing elevate regret-associated semantic content measured via sentence-transformer embedding cosine bias (deprivation: $\hat{\beta}=0.171$, $z=4.73$; counterfactual: $\hat{\beta}=0.172$, $z=4.46$; both $p<0.001$). Deprivation also significantly elevates lexical regret markers (regret-word rate $z=2.41$, $p=0.016$; negemo rate $z=2.28$, $p=0.023$), while CF rate remains borderline ($p=0.105$).
 This dissociation indicates that counterfactual framing activates regret-associated semantic representations without reliably triggering explicit regret vocabulary.
-The ruminative persona instruction is the strongest cross-condition predictor ($z=16.15$, $p<0.001$ for embedding bias; $z\approx9.1$--$10.7$ for lexical markers), suggesting persona-level instructions have stronger effects than prompt framing on regret-like language production.
+The ruminative persona instruction is the strongest cross-condition predictor ($z=16.81$, $p<0.001$ for embedding bias; $z\approx9.8$--$10.6$ for lexical markers), suggesting persona-level instructions have stronger effects than prompt framing on regret-like language production.
 Cross-model replication holds robustly (H3) across all 9 model variants tested, including three open-weight models (Llama-3.3-70B, Llama-4-Scout, Qwen3-32B), with magnitude heterogeneity: Qwen3-32B shows the highest effect size ($d=1.94$), while GPT-5.4 variants show the smallest ($d\approx0.42$--$0.49$), consistent with alignment optimization in newer proprietary generations dampening affect-marker elevation.
 Future work should address multi-rater validation, balanced condition sampling, and replication on additional model families.
 
