@@ -32,6 +32,8 @@ BATCH_FILES = [
     "batch_llama33_70b",
     "batch_llama4_scout",
     "batch_qwen3_32b",
+    "batch_gemini25pro",
+    "batch_gemini3pro",
 ]
 
 # Regret prototype sentences (Korean)
