@@ -42,6 +42,7 @@ BATCH_FILES = [
     "batch_v11_neutral_balance2",
     "batch_v12_gemini3pro_cf",
     "batch_v13_openai_balance",
+    "batch_v14_balance",
 ]
 
 # Regret prototype sentences (Korean)
