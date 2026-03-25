@@ -2,6 +2,92 @@
 
 ---
 
+## Critique [2026-03-25 11:05]
+### Scores: Soundness 3/5 | Significance 2/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 08:54 Critique
+
+The paper has been substantially revised. The following issues raised in the prior critique are now resolved or improved:
+- ✅ Data integrity: The N=1,336 full-dataset LME is now the authoritative analysis (`lme_analysis.json`); `lme_results.json` correctly flagged as legacy.
+- ✅ Metric revised: Bag-of-words "semantic bias" replaced by sentence-transformer embedding cosine bias (`paraphrase-multilingual-MiniLM-L12-v2`). Paper explicitly acknowledges the legacy metric's limitation.
+- ✅ N and condition counts now consistent: 503/402/431 for N/D/C in N=1,336.
+- ✅ Limitations section substantially expanded (response length confound, two-model limitation, single annotator).
+- ✅ H1 now explicitly declared as NOT confirmed by LME — framing is honest.
+- ✅ Inter-rater reliability reported (κ=0.44, moderate).
+
+The 08:54 critique's **Strong Reject** was appropriate for the prior state. The current version is meaningfully improved. This critique reassesses from scratch.
+
+---
+
+### Key Weaknesses
+
+#### Soundness (3/5)
+
+**Serious: The "semantic-layer dissociation" is the headline contribution but rests on a scale-incommensurable comparison.**
+- The embedding regret bias (LME cond_D: β=0.150, z=4.12; cond_C: β=0.135, z=3.53) reflects a cosine-space difference, while the lexical markers are per-100-character token rates. These two measurement families are not on commensurable scales. The paper claims they "dissociate," but the non-significance of lexical LME coefficients is explicitly explained by between-scenario variance absorption — not by any principled psycholinguistic model. The claim that "counterfactual framing activates regret-associated semantic representations without triggering explicit regret vocabulary" is a theoretical interpretation imposed on what may simply be a measurement sensitivity difference (embedding features average over continuous distributional space; lexical counts are sparse discrete events with huge inter-scenario variance).
+- The dissociation would be far more credible if both measurement layers were subject to the same random effects structure AND if the scenario variance absorption for lexical markers was specifically tested (e.g., what proportion of variance does the random intercept explain? An ICC should be reported).
+
+**Serious: The ablation data exposes a critical inconsistency that weakens the main framing.**
+- In the minimal-pair ablation (N=196), `cf_rate` (counterfactual expression rate) for the counterfactual condition is M=3.18 per 100 chars — far higher than deprivation (M=0.00, cf_rate_sd=0.00). Yet in the main dataset (N=1,336), counterfactual condition CF rate is M=0.12 vs deprivation M=0.70. These are directionally reversed. The paper frames the main result as "deprivation drives larger lexical increases," but the ablation shows CF framing dramatically outperforms deprivation on CF rate. This contradicts the framing of deprivation as the lexical-heavy condition. The paper does not resolve or even flag this reversal.
+- The ablation's `semantic_regret_bias` values are in a completely different numeric range (0–5 range) than the main dataset embedding bias (−0.05 to +0.10 range), suggesting these are different metrics or parameterizations. The paper implies they measure the same construct. This is not explained.
+
+**Serious: Prompt confound is incompletely controlled.**
+- The deprivation prompt contains an explicit emotional instruction ("write... including what was lost and the emotions that remain"). The minimal-pair ablation was intended to address this, but: (a) the ablation uses only 3 topics with n≈10/cell — far too small for robust causal inference; (b) the ablation results show model heterogeneity (Gemini: d=0.73 pooled, GPT-4o: d=1.86 pooled) — a 2.5× difference that could reflect the response-length confound already identified. The ablation result does not cleanly isolate framing from content instruction.
+
+**Moderate: Emotion/regret prototype set is not independently validated.**
+- The embedding bias uses 3 Korean regret prototype sentences and 3 neutral prototype sentences chosen by the first author. These were not independently validated for prototypicality, breadth of regret expression, or orthogonality. With only 3 prototypes per pole, the metric is sensitive to the specific choice of prototypes. No ablation on prototype sensitivity is reported.
+
+**Moderate: The "semantic-layer dissociation" N=36 human annotation appears insufficient for the claims made.**
+- The annotation N=36 (12/condition) is too small to establish convergent validity for a metric claiming to detect subtle semantic-layer differences. The single-annotator design (first author) with κ=0.44 against a GPT-4o rater introduces experimenter bias risk. The paper reports d=4.49 for dep vs. neutral on human annotation — but this is trivially expected given the explicit emotion instruction and the annotator is aware of the condition (no blinding reported).
+
+**Minor: Condition imbalance in N=1,336 dataset.**
+- Neutral: 503, Deprivation: 402, Counterfactual: 431. The neutral condition has 25% more samples than deprivation. This imbalance is not addressed in the LME discussion and may affect random intercept estimation for scenario-level variance.
+
+**Minor: Temperature effect null but included.**
+- temp_z: β=0.0003, z=0.196, p=0.845 — the temperature factor adds no variance explained and inflates model complexity. Null is fine, but it should be dropped from the confirmatory model with a note.
+
+---
+
+#### Significance (2/5)
+
+- **The core finding — that prompts instructing emotional content elicit emotional content — is trivially expected.** The paper's primary H1 is explicitly not confirmed by the confirmatory LME. The "dissociation" finding is the claimed contribution, but its novelty is limited: it essentially shows that a more sensitive (continuous embedding) measure detects what a sparse (discrete lexical) measure misses, which is a measurement methods observation rather than a substantive behavioral finding about LLMs.
+- **The ruminative persona effect (z=14.61) is actually the most robust finding**, yet it receives less narrative emphasis than the condition effects. The actionable implication — that persona-level instructions are more reliable levers for affect-laden generation than prompt framing — is genuinely useful for alignment and safety, but is underemphasized.
+- **The research question is framed as novel** ("few have examined whether affect-laden framing reliably shifts lexical distribution in a controlled cross-model fashion"), but this claim ignores a substantial body of work on persona-conditioned generation, tone adaptation, and sycophancy in RLHF-aligned models. The related work section is thin and does not engage with closest-neighbor work (e.g., Perez et al. on sycophancy, work on emotional tone injection in ChatGPT-style models).
+- The safety motivation cited in the intro (emotionally sensitive applications) is never operationalized. What specific safety risk is quantified or mitigated by knowing that deprivation prompts produce regret-like language? Without this, the intro motivation is handwaving.
+- Two LLM families is insufficient for "behavioral benchmarking" claims. With GPT-4o and Gemini only, the findings cannot be attributed to LLMs as a class.
+
+---
+
+#### Presentation (3/5)
+
+- **Abstract is improved but contains statistical artifacts.** The abstract cites "exploratory Welch d≈2.0–2.2" alongside "confirmatory LME" results. Mixing exploratory and confirmatory statistics in the abstract, even with labels, sends a muddled signal. The abstract should foreground the LME results only.
+- **The "semantic-layer dissociation" framing is repeated ~6 times.** By the conclusion, it reads like a rhetorical device rather than an empirically established finding. One clear statement in the abstract and one in the discussion is sufficient.
+- **Figure 2 (bar chart) inconsistency.** The figure caption says "Condition-level marker means (N_total=1,156; GPT-4o and Gemini-2.5-Flash)." But the main dataset is N=1,336. The figure appears to use a subset; this is not explained. Also the EmbBias bar in Figure 2 shows values in the range −0.5 to +0.10, while the LME reports β=0.150 and Table 3 reports Emb. Bias means of +0.097 (D) and +0.092 (C). The Figure 2 bar for "Neutral" appears to be −0.047, consistent with Table 3's −0.049. The figure's N=1,156 vs paper's N=1,336 is unexplained discrepancy.
+- **Table 4 (LME summary) omits the Intercept.** Reviewers cannot assess the baseline level of each marker without the intercept. This is non-standard.
+- **The IEEEtran format** is inappropriate for an ACL/EMNLP/NeurIPS/ICLR submission. This suggests the target venue is unclear or the manuscript is not yet venue-formatted, which reviewers at top venues notice immediately.
+- **The "8 batches" structure is never clearly explained.** The Methods section says N=1,336 across 8 batches, but the batch structure and what varied between batches is not described. The Reproducibility section lists batch names but no schema.
+- **Hypothesis confirmation summary is missing.** A clear table showing H1/H2/H3 × confirmatory result (supported/not supported) would improve clarity. Currently the reader must infer from scattered subsections.
+
+---
+
+### Actionable Directions
+
+1. **Resolve the ablation-main dataset inconsistency before resubmission (critical).** The reversal in CF rate ordering (CF > D in ablation; D > C in main corpus) is a direct contradiction that undermines the paper's causal story. Either the ablation uses different markers (explanation needed) or the main corpus CF condition responses are systematically off-topic (50% hallucination rate acknowledged for N=36 subsample — is this rate representative?). Measure and report the off-topic rate for the full CF condition in the main corpus. If it's high, the CF condition data is corrupted and should be re-collected with on-topic filtering.
+
+2. **Report ICC for scenario random effect and add persona as crossed random effect.** The central claim that "lexical effects are absorbed by scenario variance" needs quantification: report the ICC for scenario in each lexical LME. If ICC > 0.3–0.4, the scenario-level design is underpowered for scenario generalization and this should be clearly stated as a limitation. Adding persona as a crossed random effect would also allow testing whether the ruminative persona effect is scenario-specific.
+
+3. **Reframe the contribution around persona > framing and expand to 4+ models.** The most reproducible, non-trivial finding is that ruminative persona instructions outperform prompt framing as a regret-marker predictor (z=14.61 vs z=4.12). This has clear implications for LLM safety (jailbreak via persona), alignment evaluation, and persona-conditioned generation. Reframe the paper around this, add open-weight models (Llama-3-8B, Mistral-7B) with the same protocol, and the contribution becomes publication-worthy at a workshop or findings venue. Adding a 4th finding about what makes personas vs. framing differentially effective (hypothesis about RLHF fine-tuning depth) would elevate to main track consideration.
+
+---
+
+### Verdict: Borderline (leaning Reject)
+
+**Rationale:** The revised paper has resolved the critical data integrity and metric validity issues identified in the prior critique. The confirmatory LME is now run on the correct N=1,336, the metric is upgraded from bag-of-words to sentence-transformer embedding similarity, and limitations are honestly stated. However, several new issues emerge on close reading: (a) the ablation-main corpus CF rate contradiction is unaddressed; (b) the "dissociation" framing is theoretically underspecified; (c) the significance bar for a top venue is not met — the strongest finding (persona effect) is underemphasized, and the main finding (condition framing) is primarily negative (H1 not confirmed). For ACL/EMNLP main track: Reject. For ACL Findings or a targeted workshop (e.g., WASSA, EmotionX): Borderline / Weak Accept with the ablation inconsistency resolved.
+
+---
+
 ## Critique [2026-03-25 08:54]
 ### Scores: Soundness 2/5 | Significance 2/5 | Presentation 3/5
 
