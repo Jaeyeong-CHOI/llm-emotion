@@ -23,15 +23,19 @@ def load_and_score(data_dir: pathlib.Path) -> pd.DataFrame:
     from analyze_real_results import analyze  # noqa
 
     rows = []
-    for fname in ["batch_v1_pilot_openai", "batch_v1_gemini_v2", "batch_v4_expand_gpt4o", "batch_v5_expand_both", "batch_v6_expand", "batch_v7_expand"]:
+    for fname in ["batch_v1_pilot_openai", "batch_v1_gemini_v2", "batch_v3_expand", "batch_v4_expand_gpt4o", "batch_v5_expand_both", "batch_v6_expand", "batch_v7_expand"]:
+        # Prefer .emb.jsonl (has embedding_regret_bias), fall back to .jsonl
+        emb_path = data_dir / f"{fname}.emb.jsonl"
         path = data_dir / f"{fname}.jsonl"
-        if not path.exists():
+        use_emb = emb_path.exists()
+        src = emb_path if use_emb else path
+        if not src.exists():
             continue
-        for line in path.read_text(encoding="utf-8").splitlines():
+        for line in src.read_text(encoding="utf-8").splitlines():
             if line.strip():
                 r = json.loads(line)
                 m = analyze(r.get("output", ""))
-                rows.append({
+                row = {
                     "condition": r.get("condition", "unknown"),
                     "persona": r.get("persona", "none"),
                     "temperature": float(r.get("temperature", 0.2)),
@@ -42,7 +46,11 @@ def load_and_score(data_dir: pathlib.Path) -> pd.DataFrame:
                     "regret_rate": m["regret_rate"],
                     "negemo_rate": m["negemo_rate"],
                     "semantic_regret_bias": m["semantic_regret_bias"],
-                })
+                }
+                # Add embedding-based metric if available
+                if "embedding_regret_bias" in r:
+                    row["embedding_regret_bias"] = float(r["embedding_regret_bias"])
+                rows.append(row)
 
     return pd.DataFrame(rows)
 
@@ -63,7 +71,10 @@ def run_welch_tests(df: pd.DataFrame) -> dict:
         pooled_sd = math.sqrt(((na - 1) * va + (nb - 1) * vb) / (na + nb - 2))
         return (np.mean(a) - np.mean(b)) / max(pooled_sd, 1e-9)
 
-    for marker in ["cf_rate", "regret_rate", "negemo_rate", "semantic_regret_bias"]:
+    markers = ["cf_rate", "regret_rate", "negemo_rate", "semantic_regret_bias"]
+    if "embedding_regret_bias" in df.columns:
+        markers.append("embedding_regret_bias")
+    for marker in markers:
         t, p = stats.ttest_ind(dep[marker].values, neu[marker].values, equal_var=False)
         d = _cohens_d(dep[marker].values, neu[marker].values)
         tc, pc = stats.ttest_ind(cf[marker].values, neu[marker].values, equal_var=False)
@@ -91,7 +102,10 @@ def run_lme(df: pd.DataFrame) -> dict:
     df2["temp_z"] = (df2["temperature"] - df2["temperature"].mean()) / df2["temperature"].std()
 
     results = {}
-    for marker in ["cf_rate", "regret_rate", "negemo_rate", "semantic_regret_bias"]:
+    markers = ["cf_rate", "regret_rate", "negemo_rate", "semantic_regret_bias"]
+    if "embedding_regret_bias" in df2.columns:
+        markers.append("embedding_regret_bias")
+    for marker in markers:
         try:
             model = smf.mixedlm(
                 f"{marker} ~ cond_D + cond_C + pers_rfl + pers_rum + temp_z",
