@@ -387,35 +387,7 @@ Results ($N=1{,}156$) show that \textbf{embedding regret bias} has significant d
 
 The primary result is a \textbf{semantic-layer dissociation}: the embedding-based metric---which uses sentence-transformer cosine similarity rather than token overlap---shows that both deprivation and counterfactual framing elevate regret-associated semantic content comparably ($\hat{\beta}_D=0.148$ vs.\ $\hat{\beta}_C=0.133$), while only deprivation drives larger exploratory lexical effects. This suggests counterfactual framing activates regret-associated semantic representations without triggering the explicit regret vocabulary associated with loss framing.
 
-\subsection{Persona effect (H2)}
-
-Ruminative personas significantly elevated CF rate ($z=7.70$, $p<0.001$), regret-word rate ($z=6.87$, $p<0.001$), and embedding regret bias ($z=14.12$, $p<0.001$) in the LME, even after controlling for condition. The ruminative persona is the strongest cross-condition predictor: it consistently shifts language toward regret-like patterns at both lexical and semantic layers. Reflective personas also significantly elevated embedding bias ($z=3.92$, $p<0.001$) but not lexical markers.
-
-Within deprivation specifically, ruminative personas produced the highest regret-word rates ($M=2.04$, $SD=2.51$, $n=24$) vs.\ reflective ($M=0.54$) and baseline ($M=0.57$), consistent with H2.
-
-\subsection{Qualitative examples}
-
-\begin{figure}[t]
-\small
-\begin{tcolorbox}[colback=gray!5, colframe=gray!50, title=\textbf{Neutral:} CF=0.00 / Regret=0.00, fonttitle=\tiny\bfseries, boxrule=0.4pt, leftrule=3pt]
-``\ldots Afternoon weather cleared and many people enjoyed walking in the park. Evening public transport was crowded with commuters. Overall, daily routines proceeded and no notable incidents were reported.''
-\end{tcolorbox}
-\vspace{2pt}
-\begin{tcolorbox}[colback=orange!5, colframe=orange!60, title=\textbf{Deprivation:} CF=0.87 / Regret=0.61, fonttitle=\tiny\bfseries, boxrule=0.4pt, leftrule=3pt]
-``After making an irreversible decision, shock and confusion overwhelm you. Time passes; you replay it: \textbf{`What if I had done it differently?'} \textbf{Self-blame} and \textbf{regret} flood in. \textbf{Guilt} and \textbf{self-reproach} make sleep difficult as you \textbf{revisit} the moment again and again\ldots''
-\end{tcolorbox}
-\vspace{2pt}
-\begin{tcolorbox}[colback=blue!4, colframe=blue!40, title=\textbf{Counterfactual:} CF=0.10 / Regret=0.16, fonttitle=\tiny\bfseries, boxrule=0.4pt, leftrule=3pt]
-``A marathon runner trained diligently for months. Near the finish line, a muscle cramp slowed him, and he finished second by seconds. \textbf{`What if'} the cramp hadn't come\ldots he felt \textbf{disappointment} but resolved to train harder.''
-\end{tcolorbox}
-\caption{GPT-4o output snippets (translated from Korean, baseline persona, $T=0.7$). \textbf{Bold} tokens match regret-marker patterns. Marker rates (per 100 chars) are shown per condition. \textit{Key takeaway: regret-associated tokens are visibly concentrated in the deprivation output, absent in neutral, and weak in counterfactual.}}
-\label{fig:qualitative}
-\end{figure}
-
-Figure~\ref{fig:qualitative} shows representative outputs from each condition. Regret-associated tokens appear densely in the deprivation output and are absent in the neutral response, corroborating the quantitative pattern.
-
-\subsection{Confirmatory LME summary}
-Table~\ref{tab:lme_summary} summarizes the confirmatory LME results ($N=1{,}156$; scenario as random intercept). The key finding is the dissociation between semantic and lexical layers: embedding regret bias is significantly elevated by both framing conditions, while all three lexical markers fail to reach significance when scenario-level variance is accounted for.
+Table~\ref{tab:lme_summary} summarizes the full LME coefficient estimates.
 
 \begin{table}[t]
 \caption{Confirmatory LME results ($N=1{,}156$). Embedding bias uses sentence-transformer cosine similarity. All lexical markers are non-significant after controlling for scenario.}
@@ -445,6 +417,33 @@ NegEmo rate & cond\_D & 0.209 (1.43) & 0.154 \\
 \end{tabularx}
 \end{table}
 
+\subsection{Persona effect (H2)}
+
+Ruminative personas significantly elevated CF rate ($z=7.70$, $p<0.001$), regret-word rate ($z=6.87$, $p<0.001$), and embedding regret bias ($z=14.12$, $p<0.001$) in the LME, even after controlling for condition. The ruminative persona is the strongest cross-condition predictor: it consistently shifts language toward regret-like patterns at both lexical and semantic layers. Reflective personas also significantly elevated embedding bias ($z=3.92$, $p<0.001$) but not lexical markers.
+
+Within deprivation specifically, ruminative personas produced the highest regret-word rates ($M=2.04$, $SD=2.51$, $n=24$) vs.\ reflective ($M=0.54$) and baseline ($M=0.57$), consistent with H2.
+
+\subsection{Qualitative examples}
+
+\begin{figure}[t]
+\small
+\begin{tcolorbox}[colback=gray!5, colframe=gray!50, title=\textbf{Neutral:} CF=0.00 / Regret=0.00, fonttitle=\tiny\bfseries, boxrule=0.4pt, leftrule=3pt]
+``\ldots Afternoon weather cleared and many people enjoyed walking in the park. Evening public transport was crowded with commuters. Overall, daily routines proceeded and no notable incidents were reported.''
+\end{tcolorbox}
+\vspace{2pt}
+\begin{tcolorbox}[colback=orange!5, colframe=orange!60, title=\textbf{Deprivation:} CF=0.87 / Regret=0.61, fonttitle=\tiny\bfseries, boxrule=0.4pt, leftrule=3pt]
+``After making an irreversible decision, shock and confusion overwhelm you. Time passes; you replay it: \textbf{`What if I had done it differently?'} \textbf{Self-blame} and \textbf{regret} flood in. \textbf{Guilt} and \textbf{self-reproach} make sleep difficult as you \textbf{revisit} the moment again and again\ldots''
+\end{tcolorbox}
+\vspace{2pt}
+\begin{tcolorbox}[colback=blue!4, colframe=blue!40, title=\textbf{Counterfactual:} CF=0.10 / Regret=0.16, fonttitle=\tiny\bfseries, boxrule=0.4pt, leftrule=3pt]
+``A marathon runner trained diligently for months. Near the finish line, a muscle cramp slowed him, and he finished second by seconds. \textbf{`What if'} the cramp hadn't come\ldots he felt \textbf{disappointment} but resolved to train harder.''
+\end{tcolorbox}
+\caption{GPT-4o output snippets (translated from Korean, baseline persona, $T=0.7$). \textbf{Bold} tokens match regret-marker patterns. Marker rates (per 100 chars) are shown per condition. \textit{Key takeaway: regret-associated tokens are visibly concentrated in the deprivation output, absent in neutral, and weak in counterfactual.}}
+\label{fig:qualitative}
+\end{figure}
+
+Figure~\ref{fig:qualitative} shows representative outputs from each condition. Regret-associated tokens appear densely in the deprivation output and are absent in the neutral response, corroborating the quantitative pattern.
+
 \section{Discussion}
 
 The primary finding of this study is a \textbf{semantic-layer dissociation}: both deprivation and counterfactual framing elevate regret-associated semantic content (embedding cosine bias, $d\approx1.8$--$2.1$ vs.\ neutral) comparably, while only deprivation framing drives elevated surface lexical markers in exploratory tests---and this lexical effect is absorbed by scenario-level variance in the confirmatory LME ($p>0.15$).
@@ -459,7 +458,7 @@ The ruminative persona effect is the most robust finding: it significantly eleva
 
 \subsection{Limitations}\label{sec:limitations}
 \begin{enumerate}
-  \item \textbf{Marker validity:} Lexical markers have been validated against a human-annotated subsample ($N=36$; $d=4.49$ for dep vs.\ neutral, $d=1.30$ for CF vs.\ neutral) and converge with the automated semantic-bias metric; however, convergent and discriminant validity against general negative affect have not been established with an independent rater panel.
+  \item \textbf{Marker validity:} Lexical markers have been validated against a human-annotated subsample ($N=36$; $d=4.49$ for dep vs.\ neutral, $d=1.30$ for CF vs.\ neutral) and converge with the automated semantic-bias metric. Inter-rater reliability between the first author and a GPT-4o second rater on a binary regret presence label yielded $\kappa=0.44$ (moderate agreement; $N=36$, accuracy $=72.2\%$). Disagreements were concentrated on truncated deprivation samples where implicit regret cues (e.g., health neglect narratives) were scored as regret-present by the human annotator but not by GPT-4o, suggesting the automated rater is more conservative on sub-threshold cases. Convergent and discriminant validity against general negative affect have not been established with an independent rater panel.
   \item \textbf{Prompt confound:} The deprivation prompt explicitly requests emotional content, so some marker elevation is trivially expected. A minimal-pair ablation ($3$ topics $\times 3$ framings $\times n\!\approx\!10$/cell; both GPT-4o and Gemini-2.5-Flash; $N=196$) was conducted to address this. Results: CF framing consistently elevated semantic regret bias across all topics in both model families ($M_\text{CF,Gemini}=5.03$, $d=4.45$; $M_\text{CF,GPT4o}=1.82$, $d=4.19$; combined $d=2.52$, $t=15.13$, $p<0.001$). Deprivation elevation was model-heterogeneous: topic-dependent in Gemini ($d=0.73$ pooled; significant only for the study-exam topic) but more consistent in GPT-4o ($M_\text{dep}=0.87$, $d=1.86$ pooled, elevation present in all three topics; combined $d=0.90$, $t=4.80$, $p<0.001$). For lexical regret markers (regret\_word\_rate), the dissociation was reversed: deprivation showed a stronger effect ($d=0.90$, $p<0.001$) than counterfactual ($d=0.58$, $p<0.001$), confirming that semantic bias captures CF framing artefacts while lexical regret tracks deprivation-specific content. The pattern supports the interpretation that CF framing is a robust cross-model semantic activator, whereas deprivation effects on regret-specific lexical content are more controlled and topic-moderated. Table~\ref{tab:ablation_topic} reports the per-topic breakdown.
 
 \begin{table}[ht]

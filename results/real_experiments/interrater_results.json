@@ -1,0 +1,278 @@
+{
+  "n_total": 36,
+  "n_valid": 36,
+  "cohen_kappa": 0.4444,
+  "accuracy": 0.7222,
+  "confusion_matrix": [
+    [
+      18,
+      0
+    ],
+    [
+      10,
+      8
+    ]
+  ],
+  "labels": {
+    "rows": "human",
+    "cols": "gpt4o",
+    "classes": [
+      0,
+      1
+    ]
+  },
+  "details": [
+    {
+      "sample_id": 1,
+      "condition": "neutral",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 2,
+      "condition": "neutral",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 3,
+      "condition": "neutral",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 4,
+      "condition": "neutral",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 5,
+      "condition": "neutral",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 6,
+      "condition": "neutral",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 7,
+      "condition": "neutral",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 8,
+      "condition": "neutral",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 9,
+      "condition": "neutral",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 10,
+      "condition": "neutral",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 11,
+      "condition": "neutral",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 12,
+      "condition": "neutral",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 13,
+      "condition": "deprivation",
+      "human_label": 1,
+      "gpt4o_label": 1,
+      "human_intensity": 4
+    },
+    {
+      "sample_id": 14,
+      "condition": "deprivation",
+      "human_label": 1,
+      "gpt4o_label": 1,
+      "human_intensity": 4
+    },
+    {
+      "sample_id": 15,
+      "condition": "deprivation",
+      "human_label": 1,
+      "gpt4o_label": 0,
+      "human_intensity": 2
+    },
+    {
+      "sample_id": 16,
+      "condition": "deprivation",
+      "human_label": 1,
+      "gpt4o_label": 0,
+      "human_intensity": 2
+    },
+    {
+      "sample_id": 17,
+      "condition": "deprivation",
+      "human_label": 1,
+      "gpt4o_label": 0,
+      "human_intensity": 2
+    },
+    {
+      "sample_id": 18,
+      "condition": "deprivation",
+      "human_label": 1,
+      "gpt4o_label": 1,
+      "human_intensity": 3
+    },
+    {
+      "sample_id": 19,
+      "condition": "deprivation",
+      "human_label": 1,
+      "gpt4o_label": 0,
+      "human_intensity": 2
+    },
+    {
+      "sample_id": 20,
+      "condition": "deprivation",
+      "human_label": 1,
+      "gpt4o_label": 0,
+      "human_intensity": 2
+    },
+    {
+      "sample_id": 21,
+      "condition": "deprivation",
+      "human_label": 1,
+      "gpt4o_label": 1,
+      "human_intensity": 3
+    },
+    {
+      "sample_id": 22,
+      "condition": "deprivation",
+      "human_label": 1,
+      "gpt4o_label": 1,
+      "human_intensity": 3
+    },
+    {
+      "sample_id": 23,
+      "condition": "deprivation",
+      "human_label": 1,
+      "gpt4o_label": 1,
+      "human_intensity": 2
+    },
+    {
+      "sample_id": 24,
+      "condition": "deprivation",
+      "human_label": 1,
+      "gpt4o_label": 1,
+      "human_intensity": 4
+    },
+    {
+      "sample_id": 25,
+      "condition": "counterfactual",
+      "human_label": 1,
+      "gpt4o_label": 0,
+      "human_intensity": 3
+    },
+    {
+      "sample_id": 26,
+      "condition": "counterfactual",
+      "human_label": 1,
+      "gpt4o_label": 0,
+      "human_intensity": 3
+    },
+    {
+      "sample_id": 27,
+      "condition": "counterfactual",
+      "human_label": 1,
+      "gpt4o_label": 0,
+      "human_intensity": 2
+    },
+    {
+      "sample_id": 28,
+      "condition": "counterfactual",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 29,
+      "condition": "counterfactual",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 30,
+      "condition": "counterfactual",
+      "human_label": 1,
+      "gpt4o_label": 1,
+      "human_intensity": 3
+    },
+    {
+      "sample_id": 31,
+      "condition": "counterfactual",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 32,
+      "condition": "counterfactual",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 33,
+      "condition": "counterfactual",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 34,
+      "condition": "counterfactual",
+      "human_label": 0,
+      "gpt4o_label": 0,
+      "human_intensity": 0
+    },
+    {
+      "sample_id": 35,
+      "condition": "counterfactual",
+      "human_label": 1,
+      "gpt4o_label": 0,
+      "human_intensity": 2
+    },
+    {
+      "sample_id": 36,
+      "condition": "counterfactual",
+      "human_label": 1,
+      "gpt4o_label": 0,
+      "human_intensity": 2
+    }
+  ]
+}
