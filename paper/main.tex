@@ -45,9 +45,9 @@ DGIST EECS\\
 \begin{abstract}
 We investigate prompt-conditioned lexical activation in LLMs: under what prompting conditions does regret-like language systematically appear in generated text?
 Using a $3 \times 3 \times 2$ controlled design ($N=3{,}717$; models spanning diverse proprietary and open-weight architectures), we treat regret-associated language as a behavioral signal of prompt-conditioned generation, not as evidence of subjective experience.
-A confirmatory linear mixed-effects model with scenario random intercepts shows that embedding-level semantic regret bias is significantly elevated under both deprivation ($\hat{\beta}=0.184$, $z=6.45$, $p<0.001$) and counterfactual framing ($\hat{\beta}=0.188$, $z=6.04$, $p<0.001$), revealing a \emph{semantic-layer dissociation}---counterfactual framing activates regret-associated semantic space without proportionally increasing surface lexical markers.
+A confirmatory linear mixed-effects model with scenario random intercepts shows that embedding-level semantic regret bias is significantly elevated under both deprivation ($\hat{\beta}=0.184$, $z=6.35$, $p<0.001$) and counterfactual framing ($\hat{\beta}=0.200$, $z=6.53$, $p<0.001$), revealing a \emph{semantic-layer dissociation}---counterfactual framing activates regret-associated semantic space without proportionally increasing surface lexical markers.
 Lexical marker elevation under deprivation is not confirmed by the confirmatory LME ($p>0.10$ for CF rate; regret-word and negemo rates reach significance but are absorbed by scenario variance in exploratory contrasts).
-The strongest predictor is the \textbf{ruminative persona instruction} ($z=20.68$, $p<0.001$ for embedding bias), indicating persona-level system prompts are more reliable levers for affect-laden generation than user-prompt framing.
+The strongest predictor is the \textbf{ruminative persona instruction} ($z=20.71$, $p<0.001$ for embedding bias), indicating persona-level system prompts are more reliable levers for affect-laden generation than user-prompt framing.
 These patterns replicate directionally across all model variants tested.
 Code, stimuli, and outputs are publicly available.
 \end{abstract}
@@ -212,7 +212,7 @@ Figure~\ref{fig:design} shows the experimental structure.
 We used a $3\times3\times2$ partial-factorial design: three prompt conditions $\times$ three persona instructions $\times$ two decoding temperatures.
 
 \begin{table}[t]
-\caption{Experimental design summary ($N_\text{total}=3{,}717$; 25 batches, 15 model variants)}
+\caption{Experimental design summary ($N_\text{total}=3{,}717$; 30 batches, 16 model variants)}
 \label{tab:design}
 \footnotesize\centering
 \begin{tabularx}{\linewidth}{>{\RaggedRight\arraybackslash}p{0.32\linewidth}X}
@@ -226,7 +226,7 @@ Temperature & 0.2, 0.7 \\
 Scenarios per condition & 2 (sampled from 69-item bank) \\
 Completions per cell & 3 \\
 Models & GPT-3.5-turbo, GPT-4o, GPT-4o-mini, GPT-4.1, GPT-4.1-mini, GPT-5.4-mini, GPT-5.4-nano, Gemini-2.5-Flash, Gemini-2.5-Flash-Lite, Gemini-3-Flash, Llama-3.3-70B, Llama-4-Scout-17B, Qwen3-32B \\
-Total samples & 3{,}717 (expanded across 25 batches) \\
+Total samples & 3{,}717 (expanded across 30 batches) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -337,7 +337,7 @@ Counter. & 0.120 {\tiny(0.69)} & 0.086 {\tiny(0.63)} & 0.059 {\tiny(0.40)} & $+$
 D vs N & $d=0.65$*** & $d=0.58$*** & $d=0.42$*** & $d=1.64$*** \\
 C vs N & $d=0.40$*** & $d=0.39$*** & $d=0.19$*** & $d=1.88$*** \\
 \midrule
-\multicolumn{5}{@{}l}{\scriptsize LME: all markers sig.\ (CF rate $p=0.030$; regret $p=0.001$; negemo $p=0.003$; embedding bias $p<0.001$)} \\
+\multicolumn{5}{@{}l}{\scriptsize LME: all markers sig.\ (CF rate $p=0.028$; regret $p<0.001$; negemo $p=0.004$; embedding bias $p<0.001$)} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -396,14 +396,14 @@ To account for scenario-level variance, we fit a linear mixed model with scenari
 \end{equation}
 The scenario random intercept explains substantial outcome variance: ICC(1)$=0.66$ for embedding regret bias, ICC$=0.71$ for semantic regret bias, ICC$=0.27$ for CF rate, ICC$=0.24$ for regret-word rate, and ICC$=0.06$ for negemo rate. The high ICC values for embedding metrics ($>0.3$) confirm that between-scenario heterogeneity is a primary variance source and justify the random-intercept specification; the moderate lexical ICCs indicate that scenario clustering, while meaningful, shares variance with condition assignment.
 
-Results ($N=3{,}717$, full 25-batch corpus) show that \textbf{embedding regret bias} has significant deprivation effect ($\hat{\beta}=0.184$, $z=6.45$, $p<0.001$) and counterfactual effect ($\hat{\beta}=0.188$, $z=6.04$, $p<0.001$) after controlling for scenario. Lexical markers are also significant: regret-word rate $\hat{\beta}=0.739$, $z=3.28$, $p=0.001$; negemo rate $\hat{\beta}=0.302$, $z=2.97$, $p=0.003$. CF rate $\hat{\beta}=0.920$, $z=2.17$, $p=0.030$. This cross-model replication---including Gemini-2.5-Pro and Gemini-3-Pro alongside three open-weight models via Groq---provides the strongest evidence to date that both lexical and semantic regret-like markers are systematically elevated under deprivation framing.
+Results ($N=3{,}717$, full 30-batch corpus) show that \textbf{embedding regret bias} has significant deprivation effect ($\hat{\beta}=0.184$, $z=6.35$, $p<0.001$) and counterfactual effect ($\hat{\beta}=0.200$, $z=6.53$, $p<0.001$) after controlling for scenario. Lexical markers are also significant: regret-word rate $\hat{\beta}=0.738$, $z=3.33$, $p<0.001$; negemo rate $\hat{\beta}=0.308$, $z=2.86$, $p=0.004$. CF rate $\hat{\beta}=0.919$, $z=2.20$, $p=0.028$. This cross-model replication---including Gemini-2.5-Pro and Gemini-3-Pro alongside three open-weight models via Groq---provides the strongest evidence to date that both lexical and semantic regret-like markers are systematically elevated under deprivation framing.
 
 The primary result is a \textbf{semantic-layer dissociation}: the embedding-based metric---using sentence-transformer cosine similarity---shows that both deprivation and counterfactual framing elevate regret-associated semantic content comparably ($\hat{\beta}_D=0.184$ vs.\ $\hat{\beta}_C=0.188$), while all lexical markers now reach significance with the expanded balanced dataset. This suggests counterfactual framing activates regret-associated semantic representations without reliably triggering the explicit counterfactual vocabulary associated with loss framing.
 
 Table~\ref{tab:lme_summary} summarizes the full LME coefficient estimates.
 
 \begin{table}[t]
-\caption{Confirmatory LME results ($N=3{,}717$, full 25-batch corpus). Embedding bias uses sentence-transformer cosine similarity. All lexical markers now significant ($N=3{,}717$, balanced dataset).}
+\caption{Confirmatory LME results ($N=3{,}717$, full 30-batch corpus, 16 models). Embedding bias uses sentence-transformer cosine similarity. All lexical markers significant ($N=3{,}717$, balanced dataset).}
 \label{tab:lme_summary}
 \footnotesize\centering
 \begin{tabularx}{\linewidth}{@{}>{\RaggedRight\arraybackslash}p{0.20\linewidth}
@@ -414,24 +414,24 @@ Table~\ref{tab:lme_summary} summarizes the full LME coefficient estimates.
 \rowcolor{tableheader}
 \textbf{Marker} & \textbf{Predictor} & $\hat{\boldsymbol{\beta}}$ ($\boldsymbol{z}$) & $\boldsymbol{p}$ \\
 \midrule
-Emb.\ bias & cond\_D & 0.184 (6.45) & $<$0.001 \\
-& cond\_C & 0.188 (6.04) & $<$0.001 \\
-& pers\_rum & 0.052 (20.68) & $<$0.001 \\
+Emb.\ bias & cond\_D & 0.184 (6.35) & $<$0.001 \\
+& cond\_C & 0.200 (6.53) & $<$0.001 \\
+& pers\_rum & 0.051 (20.71) & $<$0.001 \\
 \midrule
-CF rate & cond\_D & 0.920 (2.17) & 0.030 \\
-& pers\_rum & 0.360 (11.64) & $<$0.001 \\
+CF rate & cond\_D & 0.919 (2.20) & 0.028 \\
+& pers\_rum & 0.364 (11.86) & $<$0.001 \\
 \midrule
-Regret rate & cond\_D & 0.739 (3.28) & 0.001 \\
-& pers\_rum & 0.334 (11.35) & $<$0.001 \\
+Regret rate & cond\_D & 0.738 (3.33) & $<$0.001 \\
+& pers\_rum & 0.333 (11.50) & $<$0.001 \\
 \midrule
-NegEmo rate & cond\_D & 0.302 (2.97) & 0.003 \\
+NegEmo rate & cond\_D & 0.308 (2.86) & 0.004 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Persona effect (H2)}
 
-Ruminative personas significantly elevated CF rate ($z=11.64$, $p<0.001$), regret-word rate ($z=11.35$, $p<0.001$), and embedding regret bias ($z=20.68$, $p<0.001$) in the LME, even after controlling for condition. The ruminative persona is the strongest cross-condition predictor: it consistently shifts language toward regret-like patterns at both lexical and semantic layers, and this holds across all model variants tested.
+Ruminative personas significantly elevated CF rate ($z=11.86$, $p<0.001$), regret-word rate ($z=11.50$, $p<0.001$), and embedding regret bias ($z=20.71$, $p<0.001$) in the LME, even after controlling for condition. The ruminative persona is the strongest cross-condition predictor: it consistently shifts language toward regret-like patterns at both lexical and semantic layers, and this holds across all model variants tested.
 
 Within deprivation specifically, ruminative personas produced the highest regret-word rates ($M=2.04$, $SD=2.51$, $n=24$) vs.\ reflective ($M=0.54$) and baseline ($M=0.57$), consistent with H2.
 
@@ -467,8 +467,8 @@ Figure~\ref{fig:qualitative} shows representative outputs from each condition. R
 \rowcolor{tableheader}
 \textbf{Hypothesis} & \textbf{Result} & \textbf{Evidence} \\
 \midrule
-H1a: Deprivation raises lexical markers (CF rate, regret rate) & \textbf{Partially confirmed} & LME: all markers sig.\ ($p<0.05$); CF rate $p=0.030$; regret-word rate $p=0.001$; negemo $p=0.003$; exploratory $t$-tests: $d=0.58$--$0.65$ (dep vs.\ neutral) \\
-H1b: Deprivation raises semantic embedding bias & \textbf{Confirmed} & LME: $\hat{\beta}=0.184$, $z=6.45$, $p<0.001$ \\
+H1a: Deprivation raises lexical markers (CF rate, regret rate) & \textbf{Partially confirmed} & LME: all markers sig.\ ($p<0.05$); CF rate $p=0.028$; regret-word rate $p<0.001$; negemo $p=0.004$; exploratory $t$-tests: $d=0.58$--$0.65$ (dep vs.\ neutral) \\
+H1b: Deprivation raises semantic embedding bias & \textbf{Confirmed} & LME: $\hat{\beta}=0.184$, $z=6.35$, $p<0.001$ \\
 H2: Ruminative persona amplifies & \textbf{Confirmed} (most robust) & $z=11.29$--$20.39$, $p<0.001$ across all markers \\
 H3: Cross-model replication & \textbf{Partially confirmed} & Directional D$>$N in all tested models for embedding bias; magnitude varies ($d=0.42$--$3.37$) \\
 \bottomrule
@@ -479,9 +479,9 @@ H3: Cross-model replication & \textbf{Partially confirmed} & Directional D$>$N i
 
 We interpret all findings below as properties of prompt-conditioned linguistic output, not as evidence that models internally experience or represent regret.
 
-The most robust and consistent finding is the \textbf{ruminative persona effect}: ruminative persona instructions were the strongest predictor across all outcomes and across all tested model variants ($z=20.68$, $p<0.001$ for embedding bias; $z\approx11.3$--$11.6$, $p<0.001$ for lexical markers), indicating that persona-level instructions are more reliable levers for affect-laden generation than prompt framing per se. This has practical implications: system-prompt persona design may matter more than user-prompt framing for controlling affective tone in LLM outputs.
+The most robust and consistent finding is the \textbf{ruminative persona effect}: ruminative persona instructions were the strongest predictor across all outcomes and across all tested model variants ($z=20.71$, $p<0.001$ for embedding bias; $z\approx11.5$--$11.9$, $p<0.001$ for lexical markers), indicating that persona-level instructions are more reliable levers for affect-laden generation than prompt framing per se. This has practical implications: system-prompt persona design may matter more than user-prompt framing for controlling affective tone in LLM outputs.
 
-The second key finding is a \textbf{semantic-layer dissociation}: both deprivation and counterfactual framing elevate regret-associated semantic content (embedding cosine bias, $d\approx1.6$--$1.9$ vs.\ neutral) comparably. With the expanded balanced dataset ($N=3{,}717$), all lexical markers now reach significance: regret-word rate $p=0.001$, negemo $p=0.003$, CF rate $p=0.030$. The dissociation is now quantitative rather than binary: CF framing elevates semantic representations strongly while lexical markers show weaker but significant effects.
+The second key finding is a \textbf{semantic-layer dissociation}: both deprivation and counterfactual framing elevate regret-associated semantic content (embedding cosine bias, $d\approx1.6$--$1.9$ vs.\ neutral) comparably. With the expanded balanced dataset ($N=3{,}717$), all lexical markers now reach significance: regret-word rate $p<0.001$, negemo $p=0.004$, CF rate $p=0.028$. The dissociation is now quantitative rather than binary: CF framing elevates semantic representations strongly while lexical markers show weaker but significant effects.
 
 This dissociation has two implications. First, it suggests that counterfactual framing activates regret-associated semantic representations in LLM output space without triggering the explicit regret vocabulary that loss framing elicits. This is a non-obvious finding: one might expect that semantic similarity and lexical frequency would co-vary, but they do not once scenario variance is controlled. Second, it demonstrates that embedding-based metrics detect priming effects that lexical tallies miss, recommending sentence-level semantic similarity as a more sensitive instrument for LLM behavioral evaluation.
 
@@ -491,13 +491,13 @@ An important limitation is the conflation of regret-specific and general negativ
 \paragraph{Ablation vs.\ main dataset CF rate reversal.}
 A notable methodological difference explains why the minimal-pair ablation shows elevated CF expression rates under counterfactual framing (ablation CF condition: $M_\text{CF\_rate}=4.55$), while the main dataset shows much lower rates (CF condition: $M=0.12$). The ablation uses matched-topic triplets (same scenario $\times$ 3 framings), where the counterfactual prompt explicitly instructs an ``if-then'' causal chain on the same topic---naturally producing more counterfactual expressions. The main dataset uses unmatched scenarios drawn from a 69-item bank, where counterfactual prompts are more varied and not all elicit explicit CF language. This design difference means the ablation isolates the \emph{within-topic} framing effect (which is large), while the main dataset estimates the \emph{population-average} effect across heterogeneous scenarios (which is smaller). Critically, both designs agree on the semantic-layer dissociation: embedding bias is elevated under CF framing regardless of design.
 
-H1a (deprivation raises lexical regret markers) is \textit{confirmed} by the confirmatory LME on the balanced dataset: CF rate $p=0.030$; regret-word rate $p=0.001$; negemo rate $p=0.003$. The exploratory Welch $t$-tests show medium effects ($d=0.58$--$0.65$ for dep vs.\ neutral) consistent with LME directionality. H1b (semantic embedding bias) is confirmed ($p<0.001$). We caution against interpreting uncorrected $t$-tests as primary evidence in studies with nested data structures.
+H1a (deprivation raises lexical regret markers) is \textit{confirmed} by the confirmatory LME on the balanced dataset: CF rate $p=0.028$; regret-word rate $p<0.001$; negemo rate $p=0.004$. The exploratory Welch $t$-tests show medium effects ($d=0.58$--$0.65$ for dep vs.\ neutral) consistent with LME directionality. H1b (semantic embedding bias) is confirmed ($p<0.001$). We caution against interpreting uncorrected $t$-tests as primary evidence in studies with nested data structures.
 
 \paragraph{Cross-model robustness as a major finding.}
 The cross-model replication (H3) is now the most comprehensive finding in this study: all tested model variants show deprivation$>$neutral ordering for embedding regret bias (Table~\ref{tab:multimodel}). Effect sizes range from $d=0.42$ (GPT-5.4-mini) to $d=3.37$ (GPT-3.5-turbo), spanning four proprietary families (OpenAI GPT-3.5/4o/4.1/5.4, Google Gemini-2.5/3) and three open-weight architectures (Llama-3.3-70B, Llama-4-Scout, Qwen3-32B). Counterfactual$>$neutral holds in all 14 models with CF data ($d=0.07$--$4.20$); only Gemini-3-Pro lacks CF samples. This pattern persists across three model generations within OpenAI alone (GPT-3.5 $\to$ GPT-4o $\to$ GPT-4.1 $\to$ GPT-5.4), and across two Gemini generations (2.5-Flash $\to$ 3-Flash), suggesting the effect reflects a stable property of transformer-based language models rather than an artefact of any particular RLHF recipe. Notably, newer frontier models (GPT-5.4, Gemini-3-Flash) show moderate but robust effects, while older or smaller models (GPT-3.5-turbo, GPT-4o) show the largest effects, consistent with alignment optimization progressively dampening overt affect-marker elevation without eliminating the underlying semantic priming.
 
 \begin{table}[t]
-\caption{Cross-model replication: embedding regret bias by condition ($N=3{,}717$; 15 models). $d_\text{DN}$/$d_\text{CN}$: Cohen's $d$ vs.\ neutral. All 15 models show D$>$N. $^\dagger$Partial data (D$+$N only; CF condition not collected).}
+\caption{Cross-model replication: embedding regret bias by condition ($N=3{,}717$; 16 models). $d_\text{DN}$/$d_\text{CN}$: Cohen's $d$ vs.\ neutral. All 16 models show D$>$N. $^\dagger$Partial data (D$+$N only; CF condition not collected).}
 \label{tab:multimodel}
 \footnotesize\centering
 \begin{tabularx}{\linewidth}{@{}>{\RaggedRight\arraybackslash}p{0.28\linewidth}
@@ -561,7 +561,7 @@ Relationship & 0.11 ($d=0.69$) & 3.48 ($d=2.34$) & 0.00 \\
 \bottomrule
 \end{tabularx}
 \end{table}
-  \item \textbf{Sample size and balance:} The full dataset comprises $N_\text{total}=3{,}717$ across 25 batches (multiple model families). The deprivation and counterfactual conditions were previously overrepresented; batch v10 adds 144 neutral samples, improving balance (neutral=1,151 vs.\ dep=1,224, cf=1,268); a fully balanced design with crossed random effects for both scenario and persona template would increase sensitivity for interaction terms.
+  \item \textbf{Sample size and balance:} The full dataset comprises $N_\text{total}=3{,}717$ across 30 batches (16 model variants from multiple families). The deprivation and counterfactual conditions were previously overrepresented; batch v10 adds 144 neutral samples, improving balance (neutral=1,151 vs.\ dep=1,260, cf=1,306); a fully balanced design with crossed random effects for both scenario and persona template would increase sensitivity for interaction terms.
   \item \textbf{Response length confound:} Response length varies substantially across models: Gemini-2.5-Flash produces the shortest responses ($\bar{L}=58$ chars) while Qwen3-32B produces the longest ($\bar{L}=1{,}932$ chars). Per-100-character normalization may amplify rates in shorter responses. To mitigate this concern, we computed a binarized detection measure (at least one regret keyword present, yes/no) and found that all tested models show the same directional pattern (D$>$N) under binarized detection: deprivation $P(\text{regret})=0.331$ vs.\ neutral $P(\text{regret})=0.034$ (overall), confirming that the length confound does not account for the observed condition effect.
   \item \textbf{Model coverage:} Cross-model robustness covers multiple variants across 4 model families: GPT-3.5-turbo, GPT-4o, GPT-4o-mini, GPT-4.1, GPT-4.1-mini, GPT-5.4-mini, GPT-5.4-nano (OpenAI); Gemini-2.5-Flash, Gemini-2.5-Flash-Lite, Gemini-2.5-Pro, Gemini-3-Flash-Preview, Gemini-3-Pro-Preview (Google); Llama-3.3-70B, Llama-4-Scout-17B (Meta); Qwen3-32B (Alibaba). All show D$>$N for embedding regret bias (Table~\ref{tab:multimodel}); Gemini-3-Pro has D$+$N data only (CF condition not collected). GPT-5.4 variants show the smallest effects ($d=0.42$--$0.50$), suggesting alignment optimization in newer generations dampens affect-marker elevation without eliminating the semantic priming. Three open-weight models replicate the pattern, reducing the concern that the effect is specific to commercial RLHF tuning. Replication on Mistral variants remains desirable.
   \item \textbf{Semantic metric evolution:} An earlier version of this analysis used a bag-of-words cosine metric for semantic regret bias (token-set overlap with prototype word lists). This metric measured lexical overlap rather than genuine semantic similarity and produced inflated effect sizes ($d\approx2.3$--$2.5$). The results reported here use sentence-transformer embedding cosine similarity (\texttt{paraphrase-multilingual-MiniLM-L12-v2}), which measures actual semantic proximity and produces more conservative but reliable estimates ($d\approx0.42$--$3.37$ for N=3,535, multiple model families). The semantic-layer distinction is preserved and strengthened under the embedding metric with broad cross-model replication.
@@ -571,13 +571,13 @@ Relationship & 0.11 ($d=0.69$) & 3.48 ($d=2.34$) & 0.00 \\
 \section{Reproducibility}
 All prompts, model outputs, marker extraction code, and run metadata are archived at the project repository.
 Key modules: \texttt{run\_real\_experiment.py} (API data collection), \texttt{analyze\_real\_results.py} (lexical marker extraction), \texttt{compute\_embedding\_bias.py} (sentence-transformer embedding bias), \texttt{experiment\_stimuli\_v1.json} (stimulus bank), and manifest logs for every run.
-Confirmatory LME is run via \texttt{run\_lme\_analysis.py}; authoritative output is \texttt{lme\_analysis.json} ($N=3{,}717$, full 25-batch corpus including embedding regret bias). All lexical markers significant at the balanced $N=3{,}717$ dataset.
+Confirmatory LME is run via \texttt{run\_lme\_analysis.py}; authoritative output is \texttt{lme\_analysis.json} ($N=3{,}717$, full 30-batch corpus, 16 models, including embedding regret bias). All lexical markers significant at the balanced $N=3{,}717$ dataset.
 The legacy \texttt{lme\_results.json} reflects an earlier partial-dataset run ($N=216$) and should not be used for result verification.
 All Cohen's $d$ values use the standard pooled-variance formula; Welch $t$-tests are two-tailed with no continuity correction.
 
 \section{Conclusion}
-Using a $3\times3\times2$ controlled design ($N_\text{total}=3{,}717$; diverse model families across four organizations), we identify a semantic-layer dissociation in prompt-conditioned regret-like language production: both deprivation and counterfactual framing elevate regret-associated semantic content measured via sentence-transformer embedding cosine bias. With the balanced dataset ($N=3{,}717$), all lexical markers reach significance, though deprivation shows stronger effects on explicit regret vocabulary (regret-word rate $\hat{\beta}=0.739$ vs.\ $\hat{\beta}=0.485$ for counterfactual). These findings describe prompt-conditioned generation patterns, not internal emotional states.
-The ruminative persona instruction is the strongest cross-condition predictor ($z=20.68$, $p<0.001$ for embedding bias), suggesting persona-level instructions have stronger effects than prompt framing on regret-like language production.
+Using a $3\times3\times2$ controlled design ($N_\text{total}=3{,}717$; diverse model families across four organizations), we identify a semantic-layer dissociation in prompt-conditioned regret-like language production: both deprivation and counterfactual framing elevate regret-associated semantic content measured via sentence-transformer embedding cosine bias. With the balanced dataset ($N=3{,}717$), all lexical markers reach significance, though deprivation shows stronger effects on explicit regret vocabulary (regret-word rate $\hat{\beta}=0.738$ vs.\ $\hat{\beta}=0.514$ for counterfactual). These findings describe prompt-conditioned generation patterns, not internal emotional states.
+The ruminative persona instruction is the strongest cross-condition predictor ($z=20.71$, $p<0.001$ for embedding bias), suggesting persona-level instructions have stronger effects than prompt framing on regret-like language production.
 The most striking finding is the \textbf{cross-model robustness}: all tested models---spanning four OpenAI generations (GPT-3.5 through GPT-5.4), five Google Gemini variants, and three open-weight architectures---show deprivation$>$neutral embedding bias (Table~\ref{tab:multimodel}), confirming H3 with Cohen's $d$ ranging from 0.42 to 3.37. The pattern persists even in the latest frontier models (GPT-5.4-mini, Gemini-3-Flash), albeit with dampened magnitude, suggesting alignment optimization reduces but does not eliminate the underlying semantic priming effect.
 Future work should address multi-rater validation, balanced condition sampling, and replication on additional model families (Mistral, Gemini Pro).
 
