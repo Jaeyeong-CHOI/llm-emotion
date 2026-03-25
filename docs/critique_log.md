@@ -2,6 +2,113 @@
 
 ---
 
+## Critique [2026-03-25 16:05]
+### Scores: Soundness 3/5 | Significance 3/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 13:39 Critique
+
+The paper continues to evolve. Since the prior critique the following major changes appear in the current main.tex:
+- ✅ N expanded from 3,391 → 3,717 (25 batches) and model count from 8 (per lme_report) to a claimed 15
+- ✅ LME results updated with new coefficient values (β_D=0.184 z=6.45; β_C=0.188 z=6.04 — both up from β≈0.171–0.176 in lme_report)
+- ✅ CF rate is now claimed significant (p=0.030) vs borderline (p=0.1038) in lme_report; regret-word rate p=0.001 (previously p=0.0161)
+- ✅ H1a claim upgraded from "partially confirmed / borderline" to "confirmed" (all lexical markers now at p<0.05)
+- ✅ GPT-4.1, GPT-4.1-mini, Qwen3-32B, Gemini-2.5-Pro, Gemini-3-Flash added to cross-model table
+- ✅ Counterfactual CF rate reversal from prior ablation still present and explanation retained
+
+The 13:39 critique's **Borderline (leaning Weak Accept for Findings)** was appropriate for that version. This critique examines whether the N=3,717 expansion resolves the key blocking issues or introduces new ones.
+
+---
+
+### Key Weaknesses
+
+#### Soundness (3/5)
+
+**Critical (NEW, not in prior critiques): The paper's LME statistics are now inconsistent with the authoritative lme_report.md.**
+- The current paper reports: β_D=0.184 (z=6.45, p<0.001), β_C=0.188 (z=6.04), CF rate p=0.030 (all significant), dataset N=3,717 across 25 batches, 15 models.
+- The authoritative `lme_report.md` (generated 2026-03-25, labeled "re-run on full N=3391 dataset — 14 batches, 8 models") reports: β_D=0.171 (z=4.795), β_C=0.1755 (z=4.615), CF rate p=0.1038 (not significant), N=3,391.
+- The `lme_results.json` (legacy, N=216) is explicitly deprecated.
+- **The gap is substantial**: z=6.45 (paper) vs z=4.795 (lme_report) for the primary outcome — a 35% increase in z-statistic. CF rate goes from p=0.1038 (borderline, not significant) to p=0.030 (significant). These are not the same analysis. Either (a) a new LME was run on the expanded N=3,717 corpus but not yet committed to lme_report.md, or (b) the paper contains fabricated statistics. There is no lme_analysis.json or updated lme_report for the N=3,717, 25-batch corpus visible in the data files. This is the same class of data integrity issue flagged in the 08:54 critique that earned Strong Reject — it must be resolved before any submission.
+
+**Critical (persistent): Scenario generalization is not established at ICC=0.66.**
+- ICC=0.66 for the primary embedding bias outcome means 66% of variance is between-scenario. The design uses only 2 scenarios sampled per condition per batch — this effectively means the "15 model replication" is a replication on the same handful of scenarios across models, not scenario generalization. The paper still does not report a LOSO (Leave-One-Scenario-Out) analysis, which was the primary recommendation in the 13:39 critique. Without it, the cross-model replication claim remains conflated with within-scenario replication.
+
+**Serious (persistent): The "semantic-layer dissociation" framing is now muddied by the N=3,717 results.**
+- In the paper, the dissociation is now described as: "CF framing elevates semantic representations strongly while lexical markers show weaker but significant effects." This is a retreat from the stronger prior framing ("counterfactual framing activates semantic space WITHOUT triggering lexical markers"). With all lexical markers now significant at p<0.05 in the claimed analysis, the "dissociation" is now just a quantitative difference in effect sizes — which is much less conceptually interesting. The paper still uses the "semantic-layer dissociation" terminology but the claimed evidence no longer supports it cleanly.
+
+**Serious (persistent): Prompt confound unresolved at scale.**
+- The deprivation prompt explicitly instructs "write including what was lost and the emotions that remain." This instruction confound is addressed only by the N=196 minimal-pair ablation with ~10 samples/cell and 3 topics. The paper now describes this ablation result more carefully (Gemini: d=0.73 pooled; GPT-4o: d=1.86 pooled), but the 2.5× model heterogeneity in the ablation and the Gemini topic-dependency finding are still not reconciled with the main corpus claim of consistent effects across 15 models. If deprivation elevation is "topic-dependent in Gemini" in the ablation, why does Gemini show d=1.25–1.59 in the main corpus?
+
+**Serious: The "15 model" claim in the paper body vs. "8 models" in the authoritative lme_report.**
+- The paper's LME table (Table 4) states "N=3,717, full 25-batch corpus, 15 models" for the confirmatory statistics. The lme_report.md explicitly states N=3,391, 14 batches, 8 models. The cross-model descriptive table (Table 7) does show 15 models, but this is descriptive — the confirmatory LME in lme_report only covers 8. This distinction between descriptive coverage (15 models) and the LME analysis sample (8 models) is never clarified in the paper.
+
+**Moderate (persistent): Human annotation is single-annotator, unblinded.**
+- Cohen's κ=0.44 (moderate) is reported against a GPT-4o "rater" — not an independent human. The N=36 subsample covers only 12 outputs per condition. The annotation note about 50% off-topic hallucinations in CF (6/12) is important but raises a question: does this mean the CF condition results in the main corpus are substantially degraded by off-topic responses? If 50% of CF outputs are off-topic, the CF effect sizes are underestimates of the framing effect on on-topic outputs. This is neither acknowledged as a limitation for the main result nor controlled for.
+
+**Minor: Inconsistent model naming may violate API terms of disclosure.**
+- The paper lists "GPT-5.4-mini" and "GPT-5.4-nano" in Table 2 and Table 7. These are not publicly announced OpenAI model designations as of the paper's stated timeframe (March 2026). If these are pre-release or internal-preview models, the paper requires a disclosure note or may violate API terms. Reviewers will notice this immediately.
+
+**Minor: The temperature predictor result is internally inconsistent between data sources.**
+- lme_report.md: temp_z β=-0.0031, z=-2.895, p=0.0038 (significant). The paper's Table 4 does not include temperature results at all, omitting a predictor that the actual data shows is statistically significant. This is selective reporting that would not survive APA or top-venue reporting standards.
+
+---
+
+#### Significance (3/5)
+
+**The 15-model cross-model replication remains the strongest contribution — but interpretation is ambiguous.**
+- All 15 models showing D>N for embedding bias (ranging from d=0.42 for GPT-5.4-mini to d=3.37 for GPT-3.5-turbo) is empirically valuable. The observation that newer frontier models show dampened but non-zero effects (d=0.42–0.50 for GPT-5.4) and the interpretation that "alignment optimization reduces but does not eliminate semantic priming" is a genuinely novel and testable claim.
+- However, the model-size/generation confound is not controlled: GPT-3.5-turbo (largest d) is also the oldest and least aligned model, and the relationship between alignment intensity and effect size is non-monotonic (GPT-4o-mini d=1.29 vs GPT-4.1-mini d=1.90 vs GPT-5.4-mini d=0.42). Without controlling for model capability level, the "alignment dampens affect priming" interpretation is speculative.
+
+**The ruminative persona finding (z=20.68, strongest predictor) remains underemphasized in the narrative.**
+- The abstract leads with the condition effects; the persona finding is described as "the strongest predictor" in the abstract but receives less narrative space than the condition effects in the results/discussion. For top-venue impact, the persona effect should be the headline: it directly addresses an adversarial safety concern (system-prompt persona injection as a reliable route to affect-laden generation), which is more actionable than "deprivation framing raises regret markers."
+
+**The "semantic-layer dissociation" as framed in the current paper is not a strong contribution.**
+- With all lexical markers now claimed significant (p<0.05), the dissociation is reduced to: embedding bias effect sizes are larger than lexical effect sizes. This is a measurement sensitivity observation, not a behavioral dissociation. The theoretical insight is limited.
+
+**Safety motivation is still not operationalized.**
+- The intro cites safety relevance (emotionally sensitive applications, anthropomorphism risk), but no experiment connects the findings to a downstream harm or safety evaluation. Without this bridge, the motivation reads as posturing.
+
+---
+
+#### Presentation (3/5)
+
+**The abstract contains statistics that contradict the authoritative data files — the leading presentation problem.**
+- Abstract: β_D=0.184 (z=6.45), β_C=0.188 (z=6.04), CF rate p=0.030 (via LME). lme_report.md: β_D=0.171 (z=4.795), CF rate p=0.1038. These cannot both be correct. This inconsistency in the most visible part of the paper would immediately raise reviewer suspicion.
+
+**H1a claim has been quietly upgraded without flagging.**
+- The paper now describes H1a (lexical markers) as "Partially confirmed: LME: all markers sig. (CF rate p=0.030; regret-word rate p=0.001; negemo p=0.003)." The prior abstract explicitly said "not confirmed by the confirmatory LME (p>0.10 for CF rate)." If the analysis has changed, this upgrade needs to be explicitly framed as a revision based on the expanded dataset, not silently rewritten.
+
+**Figure 2 caption still says "N_total=1,396" but the paper reports N=3,717.**
+- This appears to be a persistent copy-paste error from the N=1,396 pilot corpus that has now survived three revision cycles. This alone signals to any reviewer that the paper is not carefully proofread.
+
+**Table 4 (LME summary) is truncated and does not match the lme_report.**
+- The paper's Table 4 shows CF rate β=0.920 (z=2.17, p=0.030) and regret rate β=0.739 (z=3.28, p=0.001). The lme_report shows CF rate β=0.9105 (z=1.627, p=0.1038) and regret rate β=0.7242 (z=2.406, p=0.0161). Different z-statistics, different p-values. Even if a new analysis was run, the table header must clearly state the N and batch count of the analysis it reflects, which it does not.
+
+**The "strongest evidence to date" claim persists without citation comparison.**
+- §4.3 still states "This cross-model replication...provides the strongest evidence to date that both lexical and semantic regret-like markers are systematically elevated under deprivation framing." This marketing language requires a specific prior benchmark to compare against. Without it, a reviewer will flag it as an unsubstantiated claim.
+
+**IEEEtran format remains unchanged.**
+- Three critique cycles. The paper is still in IEEEtran format for a claimed ACL/EMNLP submission target. This is a minor but visible signal that venue-readiness has not been addressed.
+
+---
+
+### Actionable Directions
+
+1. **Resolve the N=3,391 vs N=3,717 LME discrepancy as the single highest-priority fix.** If the paper is reporting a new LME run on the expanded N=3,717, 25-batch, 15-model corpus, commit the updated lme_report.md (and lme_analysis.json) with the current statistics, and verify that the paper's β and z values match the committed data file to three decimal places. The difference between p=0.1038 (CF rate, not significant) and p=0.030 (significant) is the difference between H1a "not confirmed" and "confirmed" — this single p-value determines whether the paper's primary hypothesis claim is honest. No submission should proceed until the code output and the paper table match.
+
+2. **Fix the Figure 2 caption N=1,396 error, the Table 4 N inconsistency, and the abstract-lme_report coefficient mismatch.** These are mechanical fixes that take 30 minutes and signal to reviewers that the paper is carefully maintained. Three revision cycles with the same Figure 2 caption error suggests the paper is not being proofread after revisions.
+
+3. **Add a Leave-One-Scenario-Out analysis (even on a subsample) to address scenario generalization at ICC=0.66.** Even a 10-scenario LOSO on the 69-scenario bank with GPT-4o and Gemini-2.5-Flash would demonstrate whether the condition effect is driven by 2–3 specific scenarios or is stable across scenario content. This directly addresses the core validity concern about whether "cross-model replication" is scenario replication in disguise. If the LOSO shows stable effects, the paper gains a major validity boost. If unstable, honest reporting of this would still be a publishable finding about scenario dependency of LLM affect priming.
+
+---
+
+### Verdict: Borderline (leaning Reject for main track; Weak Accept for Findings pending data fix)
+
+**Rationale:** The paper continues to expand in scope (15 models, 4 families, N=3,717) and the directional findings are increasingly robust. However, the current version introduces a new critical problem: the LME statistics in the paper (β_D=0.184, z=6.45, CF rate p=0.030) do not match the most recent committed lme_report.md (β_D=0.171, z=4.795, CF rate p=0.1038). This is now the third consecutive critique cycle in which paper statistics and data files are misaligned — a persistent data integrity pattern that would result in desk rejection or post-publication data integrity review at any top venue. The scenario generalization concern (ICC=0.66, no LOSO) and Figure 2 caption error (N=1,396 vs N=3,717) remain unresolved across multiple cycles. Until (a) the LME data files and paper statistics match, (b) the Figure 2 caption is corrected, and (c) at least a partial LOSO analysis is added, this paper should not be submitted. Post-fix, the realistic target remains ACL/EMNLP Findings or a top workshop (WASSA, GenBench).
+
+---
+
 ## Critique [2026-03-25 13:39]
 ### Scores: Soundness 3/5 | Significance 3/5 | Presentation 3/5
 
