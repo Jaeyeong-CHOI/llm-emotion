@@ -34,6 +34,12 @@ BATCH_FILES = [
     "batch_qwen3_32b",
     "batch_gemini25pro",
     "batch_gemini3pro",
+    "batch_gpt41",
+    "batch_gpt41mini",
+    "batch_gpt4omini",
+    "batch_gemini3flash",
+    "batch_v10_neutral_expand",
+    "batch_v11_neutral_balance2",
 ]
 
 # Regret prototype sentences (Korean)

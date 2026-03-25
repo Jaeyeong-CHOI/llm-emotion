@@ -1,5 +1,5 @@
 {
-  "ready": true,
+  "ready": false,
   "required_vars": [
     "OPENAI_API_KEY",
     "LLM_EMOTION_REAL_MODEL",
@@ -11,12 +11,15 @@
   ],
   "available_vars": {
     "OPENAI_API_KEY": true,
-    "LLM_EMOTION_REAL_MODEL": true,
-    "LLM_EMOTION_REAL_MODEL_REGION": true,
+    "LLM_EMOTION_REAL_MODEL": false,
+    "LLM_EMOTION_REAL_MODEL_REGION": false,
     "OPENAI_ORG_ID": false,
     "OPENAI_PROJECT": false
   },
-  "missing_vars": [],
+  "missing_vars": [
+    "LLM_EMOTION_REAL_MODEL",
+    "LLM_EMOTION_REAL_MODEL_REGION"
+  ],
   "optional_missing_vars": [
     "OPENAI_ORG_ID",
     "OPENAI_PROJECT"
@@ -31,6 +34,7 @@
     "scheme_ok": true
   },
   "notes": [
+    "필수 환경변수 누락",
     "선택 환경변수 미설정(권장): OPENAI_ORG_ID, OPENAI_PROJECT"
   ]
 }
