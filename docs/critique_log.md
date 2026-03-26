@@ -2647,3 +2647,40 @@ This inverse dissociation strengthens the paper's core claim:
 ### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
 Cycle 34 item #3 (Gemini EI lexical baseline) resolved.
 Next priority: Cycle 34 item #2 (generalizability scoping in Abstract/Conclusion).
+
+---
+
+## Critique Cycle 37 [2026-03-27 00:09] — Generalizability Scoping
+
+### Issue Addressed
+Cycle 34 item #2 (marked pending for 2 hours): scope generalizability claims to distinguish pre-expansion vs. post-expansion data.
+
+### Changes Made
+
+**Abstract:** Added sentence after the "replicate directionally" line:
+> "Scenario-level generalizability is confirmed for post-expansion batches (v27+; 42-scenario bank; LOSO mean β_D=0.165, SD=0.003 across held-out iterations); pre-expansion effects (batches v1–v26) are directionally consistent but are partially generated from 2–4 repeated templates, limiting between-scenario inference for that subset."
+
+**Conclusion §7:** Added paragraph before "Future work":
+> "Scenario generalizability is confirmed for post-expansion batches (v27+; 42-scenario bank, LOSO mean β_D=0.165, SD=0.003); pre-expansion effects (batches v1–v26, N≈5,700, 2–4 repeated templates per condition) are directionally consistent but should be interpreted as template-specific rather than scenario-general."
+
+### Rationale
+The ICC=0.66 for scenario random intercepts is the most likely Reviewer 3 target at top venues. The LOSO analysis (42 scenarios, SD=0.003) already provides strong evidence — the abstract and conclusion just needed to frame the scope precisely. This framing is honest (pre-expansion effects are real; they're just template-driven, not scenario-diverse) and directly answers the reviewer question.
+
+### Method
+- Surgical LaTeX edits to abstract and §7 Conclusion
+- PDF recompiled: 148.28 KiB, same cosmetic warnings, no new errors
+- Committed (791aa63) and pushed to GitHub
+
+### Remaining Issues
+
+1. **Single human annotator, unblinded** (κ=0.44, N=36) — structural limitation (acknowledged)
+2. **IEEEtran format vs. ACL/EMNLP target** — cosmetic/venue alignment
+3. **Mistral/DeepSeek replication** — unavailable; noted as future work
+
+### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
+All three Cycle 34 items now resolved:
+- Item 1 (ablation in Results): done in Cycle 35
+- Item 2 (generalizability scoping): done in Cycle 37 ← this cycle
+- Item 3 (Gemini EI lexical baseline): done in Cycle 36
+
+Paper is at the strongest state it has been. No outstanding substantive blockers for Findings track submission.
