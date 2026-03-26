@@ -2,6 +2,199 @@
 
 ---
 
+## Critique [2026-03-27 04:23] — 46th cycle
+### Scores: Soundness 3/5 | Significance 4/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 44th Cycle (02:06)
+
+Cycle 45 applied all three of the 44th cycle's top actionable items:
+- **Cycle 45**: Corpus-wide CF off-topic audit (N=2,431 non-empty CF outputs; 22.7% off-topic, substantially lower than the 50% subsample estimate); crossed RE z-increase explanation added; pers_rfl negemo completeness added. Commit: 396fe96.
+
+This **46th cycle** is the first fresh critical reading post-Cycle 45 — a senior ACL/EMNLP PC member reading the full submission for the first time, without the accumulated context of prior cycles.
+
+---
+
+### DATA INTEGRITY CHECK (46th cycle)
+
+Full cross-check of all key statistics against lme_report.md (N=7,440, 53 batches, 37 models):
+
+| Statistic | Paper | lme_report | Match? |
+|---|---|---|---|
+| N total | 7,440 | 7,440 | ✅ |
+| Batches | 53 | 53 | ✅ |
+| Models | 37 | 37 | ✅ |
+| β_D (emb bias) | 0.179 (z=52.21) | 0.1787 (z=52.214) | ✅ |
+| β_C (emb bias) | 0.243 (z=70.17) | 0.243 (z=70.168) | ✅ |
+| pers_rum emb z | 19.42 | 19.423 | ✅ |
+| pers_rfl emb β/z | 0.019 (z=10.38) | 0.019 (z=10.378) | ✅ |
+| CF rate β_D | 0.236 (z=3.90) | 0.2358 (z=3.898) | ✅ |
+| CF rate β_C | 0.656 (z=10.83) | 0.6558 (z=10.829) | ✅ |
+| Regret rate β_D | 0.220 (z=4.80) | 0.2201 (z=4.801) | ✅ |
+| Regret rate β_C | 0.232 (z=5.08) | 0.2324 (z=5.078) | ✅ |
+| NegEmo β_D | 0.115 (z=5.72) | 0.115 (z=5.716) | ✅ |
+| NegEmo β_C | 0.073 (z=3.65) | 0.0732 (z=3.647) | ✅ |
+| NegEmo pers_rum | z=0.61, p=0.54 n.s. | z=0.61, p=0.5418 n.s. | ✅ |
+| NegEmo pers_rfl | z=0.14, p=0.89 n.s. | z=0.14, p=0.8888 n.s. | ✅ |
+| Wald z (β_D vs β_C) | ≈13.2 | computed ≈13.2 | ✅ |
+| C>N models | 36/37 | 36/37 (GPT-5.4-mini exception) | ✅ |
+| CF off-topic rate | 22.7% (N=2,431 audit) | (newly added) | ✅ |
+
+**Assessment: FULL DATA INTEGRITY — all statistics verified. Cycle 45 additions are in place.**
+
+---
+
+### Key Weaknesses
+
+#### Soundness (3/5)
+
+**SERIOUS (persistent from Cycle 17, now explained but still under-justified): Crossed RE z-statistics increase — new explanation present but mechanistically thin.**
+
+Cycle 45 added the explanation: "The increase in z-statistics reflects that the model random intercept absorbs between-model heterogeneity in baseline embedding bias...rather than condition-dependent variance; with between-model baseline variation partitioned into the random effect, the residual variance attributed to each observation decreases, yielding smaller standard errors for the fixed-effect condition estimates."
+
+This is correct and the logic is sound. However, the mechanism deserves one more sentence of formal justification: when baseline bias varies substantially across models (some models systematically higher or lower, independent of condition), pooling without accounting for this inflates residual variance. Partitioning it into a random intercept reduces within-cluster residual, shrinks SEs, and increases z. A brief equation or citation to the standard mixed-effects identity (Var(ε) = Var(total) − ICC × Var(total)) would make this watertight for a reviewer with formal lme4 background. The current one-sentence explanation is sufficient for most reviewers but leaves a gap for the statistically rigorous minority.
+
+**SERIOUS (structural, 46 cycles unresolved): Single human annotator, unblinded, N=36.**
+
+The paper is now admirably transparent about this: "the primary annotator is a paper author (not blinded to condition assignment)...GPT-4o as second rater does not constitute independent human validation." The disclosure is among the most honest annotation caveats I have seen in any submission. But the structural gap remains: **the claimed convergent validity evidence (d=4.49 for dep vs. neutral on human annotation) is from an unblinded author-annotator, and the inter-rater reliability (κ=0.44) is against an architectural sibling of models in the corpus**.
+
+For 46 cycles, the recommendation has been: annotate a 20-item random subsample blind to condition (randomized order, no condition labels visible). This would provide self-consistency under blinding even without a second rater. At this point — after 46 cycles — if this annotation cannot be done, the paper should frame the human annotation explicitly as "informal convergent validation" rather than "annotation" with a reported κ, since reporting κ implies a formal reliability standard.
+
+**MODERATE (new, 46th cycle): The corpus-wide CF off-topic audit methodology is incomplete.**
+
+Cycle 45 added the off-topic audit to §3.4 (Human Annotation). The reported breakdown:
+- Language-mismatch (English outputs for Korean task): 6.2% (n=150)
+- Single technical AI scenario (prompt_bank_evidence_anchor_recovery_drill): 17.5% (n=425)
+- Combined: ~22.7% (n=553/2,431)
+
+The methodology for classifying "off-topic" is not stated in the paper. How were the 150 language-mismatch outputs identified? (Presumably: language detection or absence of Korean characters.) How were the 425 technical-scenario outputs identified? (Presumably: filtering by the specific scenario ID prompt_bank_evidence_anchor_recovery_drill.) A reviewer will ask: was this scenario included in the pre-registered scenario bank? Was it included in the main LME? If it was included in the LME, then 17.5% of CF outputs contributed zero (or very low) CF-marker values, artificially suppressing the CF rate LME coefficient. If it was excluded from the LME (as a pipeline management scenario), why does it appear in the N=2,431 non-empty CF outputs?
+
+The paper says (§2.2): "Internal pipeline-management scenarios were excluded; only three stimulus-relevant categories were used." If this scenario was excluded from the LME stimulus set, it should not appear among the 2,431 CF outputs analyzed in the audit. If it IS in the LME, the 17.5% suppression needs to be reported as affecting β_C estimates (making β_C=0.243 a conservative lower bound — which the paper already claims, but without acknowledging the specific mechanism).
+
+**MODERATE (persistent): Pre-expansion data (N≈5,700, 77% of LME) from 2–4 templates — scoping added in Cycle 37 but primary inference framing unchanged.**
+
+The Abstract and Conclusion now include the LOSO scoping sentence added in Cycle 37. The primary LME headline (z=52.21, z=70.17) is still computed on N=7,440 which includes 77% pre-expansion data. A rigorous reviewer will ask: "Can you run the confirmatory LME on post-expansion data only (N≈1,700, 42 scenarios) and show the coefficients are consistent?" The LOSO (mean β_D=0.165, SD=0.003) provides partial assurance, but LOSO on a subset ≠ LME on the same subset. This is a 30-minute analysis that would directly address the concern and strengthen the Findings-track submission substantially.
+
+**MINOR: The "regret versus general negative affect" limitation paragraph (§5 Discussion) contains an internal inconsistency with the persona specificity finding.**
+
+The limitation reads: "Our lexical markers include both regret-specific terms...and general negative emotion terms. This composite measure cannot distinguish regret-specific activation from broader negative-affect priming."
+
+But the paper has already demonstrated internal decomposition: NegEmo (the general negative affect marker) is NOT elevated by persona (p=0.54/0.89), while CF rate and regret-word rate ARE — this IS a within-paper discrimination between regret-specific and general affect. The "composite measure" language in the limitations is now inconsistent with the persona specificity finding in Results. The limitation should be scoped: "The composite regret-word rate marker cannot distinguish regret-specific from general negative vocabulary, though the persona specificity analysis (NegEmo n.s.) provides partial discriminant evidence."
+
+---
+
+#### Significance (4/5)
+
+**The paper has reached genuine top-tier Findings-level significance. The combined empirical architecture is now mature:**
+
+1. **37-model directional D>N, C>N replication** — robust, well-documented with bootstrap CIs, covers 7 organizations across 5 OpenAI generations, o-series, and cross-lingual Arabic model. This is the empirical backbone.
+
+2. **Bidirectional embedding/lexical independence** — framing → embedding ↑ without proportional lexical (main finding); Gemini EI → lexical ↑↑ without semantic increment (Cycle 36 addition). This bidirectionality is theoretically significant and was correctly identified as the strongest theoretical contribution.
+
+3. **Persona gradient (baseline < reflective < ruminative)** — persona-level parallel to framing dissociation, added Cycle 35. Strengthens the paper's theoretical architecture.
+
+4. **GPT-5 base (d≈1.85) vs. GPT-5.4 mini/nano (d≈0.42–0.49) within-generation contrast** — cleanest controlled "alignment recipe" finding in the paper.
+
+5. **CF off-topic rate quantified at scale** — 22.7% vs. 50% subsample; β_C=0.243 is a conservative lower bound; added Cycle 45. Directly addresses a 35-cycle open concern.
+
+**What still limits main track positioning (but not Findings):**
+
+The paper has two strong mechanistic paragraphs now (distributional semantics account + representational suppression account in §5). These are labeled as speculative but provide theoretical grounding. The main remaining gap for main track is the missing preregistered prediction: the dissociation pattern was observed post-hoc, not predicted. For Findings, this is acceptable. For main track, a paragraph acknowledging the exploratory-to-confirmatory structure of the dissociation finding would be appropriate.
+
+**One underexplored finding: the CF off-topic audit creates a natural experiment.**
+
+The 17.5% technical-scenario outputs in CF are effectively a naturally occurring "manipulation check failure" condition. If these outputs systematically show lower embedding bias than on-topic CF outputs, this would confirm that semantic priming requires narrative engagement — a genuinely interesting secondary finding. The paper notes that β_C=0.243 "is a conservative lower bound" but does not follow through with the on-topic vs. off-topic comparison. This is a 1-hour analysis that would add a meaningful secondary result.
+
+---
+
+#### Presentation (3/5)
+
+**Fully resolved from prior cycles (confirmed):**
+- ✅ All LME statistics verified (46th-cycle data integrity check above)
+- ✅ Reflective persona results added to narrative (Cycle 35)
+- ✅ Gemini EI lexical baseline with bidirectional independence (Cycle 36)
+- ✅ Generalizability scoping in Abstract/Conclusion (Cycle 37)
+- ✅ C>N 36/37 factual accuracy (Cycle 38)
+- ✅ Ruminative persona "strongest" corrected to marker-specific (Cycle 39)
+- ✅ Conclusion β notation disambiguated (Cycle 40)
+- ✅ Wald z≈13.2 (Cycle 41)
+- ✅ Open-weight count consistent (Cycle 42)
+- ✅ Length residualized d corrected (Cycle 43)
+- ✅ CF off-topic corpus audit added (Cycle 45)
+- ✅ Crossed RE z-increase explained (Cycle 45)
+- ✅ pers_rfl negemo completeness (Cycle 45)
+
+**REMAINING PRESENTATION ISSUES:**
+
+**Moderate (persistent, 46 cycles): IEEEtran format — venue still undeclared.**
+
+This has been noted every cycle. The paper is formatted in IEEEtran. If the target is ACL/EMNLP Findings, the format mismatch is immediately visible to PC members reading the submission PDF. If the target is an IEEE venue (TASLP, ICASSP), the format is appropriate but the content framing (NLP citation style, explicit ACL/EMNLP significance comparison in the critique logs) suggests NLP venue intent. **The author should declare a target venue in the paper or the README, and format accordingly before submission.**
+
+**Moderate (persistent): §7 Conclusion still contains dense parenthetical model enumeration.**
+
+The Conclusion reads: "all 37 tested model variants (see Table~\ref{tab:multimodel})---spanning five OpenAI GPT generations plus o-series reasoning models, seven Gemini variants, four open-weight model variants (Llama-3.1-8B, Llama-3.3-70B, Llama-4-Scout, Qwen3-32B), Kimi-K2 variants, and safety/multilingual variants (GPT-OSS-Safeguard-20B, Allam-2-7B)---show deprivation>neutral embedding bias."
+
+This is the 10th+ cycle this run-on enumeration has been flagged. For any top venue, conclusion paragraphs should synthesize, not enumerate. The Table reference already encodes all the detail. Proposed fix: "all 37 tested model variants across seven organizational families (Table~\ref{tab:multimodel}) show deprivation>neutral embedding bias." Three words replace 50.
+
+**Moderate: The CF off-topic audit disclosure (§3.4) needs one methodological sentence.**
+
+The audit reports "6.2% language-mismatch hallucinations" and "a single technical AI scenario...generated technical content rather than personal regret narratives (n=425, 17.5%)." But the method for identifying each category is not stated:
+- Language-mismatch: how detected? (character-set check? langdetect library?)
+- Technical scenario: how identified? (by scenario ID? by keyword?)
+
+Without method disclosure, the 22.7% figure cannot be independently reproduced, which is inconsistent with the paper's reproducibility pledge ("Code, stimuli, and outputs are publicly available"). One sentence: "Language-mismatch outputs were identified via Unicode Korean character detection (threshold: <5% Hangul characters); the technical scenario was identified by its scenario ID (prompt_bank_evidence_anchor_recovery_drill) in the stimulus bank metadata."
+
+**Minor: §6.1 Limitations (Marker validity) is ~250 words for a single limitation item.**
+
+At approximately 1/3 of a column in IEEEtran, this is the longest single limitation item in the paper. The annotation methodology discussion is honest and detailed but exceeds typical conference limits. For submission, consider condensing to ~100 words and moving the κ methodology discussion to a footnote.
+
+**Minor: The "regret versus general negative affect" paragraph in §5 Discussion contains a tension with the persona specificity finding.**
+
+As noted in Soundness: the "composite measure" limitation language is now inconsistent with the discriminant evidence provided by the persona specificity analysis. A one-sentence scoping fix would resolve the inconsistency.
+
+---
+
+### Actionable Directions (top 3 for top-tier acceptance)
+
+1. **[30 minutes] Run LME on post-expansion data only (N≈1,700, batches v27+, 42 scenarios) to verify β_D and β_C are directionally and quantitatively consistent with the full-dataset LME.**
+   - Predicted result: β_D≈0.165–0.180, β_C≈0.195–0.245 (consistent with LOSO estimates and full-LME). This would directly confirm that the ICC=0.66 and template-repetition concern does not distort the primary findings.
+   - Report: "Post-expansion-only LME (N=X, 42 scenarios): β_D=Y (z=Z), β_C=Y2 (z=Z2), consistent with full-dataset estimates." One sentence. This closes the most likely Reviewer 3 concern about the pre-expansion template inflation definitively.
+
+2. **[1 hour] Add one sentence per off-topic category explaining the detection methodology in §3.4, and run the on-topic vs. off-topic CF embedding bias comparison.**
+   - On-topic CF (N=1,878, 77.3% of non-empty CF outputs) should show embedding bias substantially higher than the overall CF mean (M=0.092 from Table 1). If on-topic CF embedding bias ≈ deprivation embedding bias (M=0.097), the dissociation at the semantic layer essentially vanishes for on-topic outputs — a finding that would reframe the paper's central claim. If on-topic CF bias > deprivation bias (consistent with β_C > β_D in LME), the dissociation strengthens. Either result is worth reporting.
+   - The off-topic audit was added as a defensive disclosure; it should be turned into an affirmative finding.
+
+3. **[45 minutes] Fix the three presentation issues above: (a) Conclusion enumeration → two-word fix; (b) "composite measure" tension → one-sentence scoping; (c) declare target venue and adjust format.**
+   - These are cosmetic but the Conclusion enumeration has been flagged for 10+ cycles. At this stage, leaving it signals to a careful reviewer that the paper has not been thoroughly proofread. A reviewer who finds five or six minor-but-unfixed issues across the paper will lower their presentation score from 3/5 to 2/5.
+
+---
+
+### Verdict: Weak Accept → Accept (ACL/EMNLP Findings)
+
+**What is definitively strong after 46 cycles:**
+- Full data integrity on all LME statistics (N=7,440, 53 batches, 37 models) ✅
+- 37-model D>N directional replication with bootstrap CIs ✅
+- Bidirectional embedding/lexical independence (main finding + Gemini inverse dissociation) ✅
+- Persona gradient (baseline < reflective < ruminative) parallel to framing dissociation ✅
+- Within-generation GPT-5 vs. GPT-5.4 contrast (d≈1.85 vs. d≈0.42–0.49) ✅
+- LOSO scenario stability (SD=0.003, 42 scenarios) ✅
+- Explicit-instruction baseline with model-heterogeneous interpretation ✅
+- CF off-topic corpus audit (22.7% at scale vs. 50% subsample) ✅
+- Crossed RE sensitivity with mechanism explanation ✅
+- Admirable limitations transparency throughout ✅
+
+**What would elevate to a confident Accept at Findings and Borderline at main track:**
+1. Post-expansion-only LME (30-minute analysis — closes the ICC/template concern definitively)
+2. On-topic vs. off-topic CF embedding bias comparison (1-hour analysis — converts defensive disclosure to affirmative finding)
+3. Conclusion enumeration fix + composite measure tension + venue declaration (45 minutes — eliminates the last set of 3+ cycles-old unfixed issues)
+
+**For ACL/EMNLP Findings:** Accept. The evidence base is genuine, comprehensive, and well-documented. The paper has been iteratively improved for 46 cycles to address an unusually thorough range of methodological concerns. Items (1)–(3) above would move this to a confident Accept but are not strictly required at the Findings level.
+
+**For ACL/EMNLP main track:** Borderline Reject → Weak Accept pending item (1) above plus one paragraph deepening the theoretical account of the dissociation mechanism (why does CF framing produce larger embedding activation than D framing despite no explicit emotional instruction? The distributional semantics account in §5 answers this but deserves 2–3 more sentences connecting to specific RLHF training dynamics).
+
+---
+
 ## Critique [2026-03-27 02:06] — 44th cycle
 ### Scores: Soundness 3/5 | Significance 4/5 | Presentation 3/5
 
