@@ -2567,3 +2567,42 @@ EI section now has correct n-counts, means, and t-statistics. All known internal
 
 ### Verdict: Submission-ready (confirmed, internal consistency improved)
 Length-sensitivity section now has correct r, β, z, % reduction, and d values. All known internal inconsistencies resolved. Paper is free of arithmetic errors.
+
+---
+
+## Critique Cycle 35 — 2026-03-26 23:50 (Asia/Seoul)
+
+### Issues Fixed
+
+1. **Reflective persona (pers_rfl) β=0.019 (z=10.38) completely unreported in narrative — MISSING FINDING**
+   - pers_rfl for embedding_regret_bias: β=0.019, z=10.38, p<0.001 (significant)
+   - pers_rfl for CF rate: β=0.042, z=1.35, p=0.18 (n.s.)
+   - pers_rfl for regret_rate: β=0.010, z=0.42, p=0.68 (n.s.)
+   - This was identified in Cycle 34 as "the paper's missing finding" — 34 cycles focused on ruminative while reflective persona's significant embedding effect went entirely unremarked.
+   - Fix (§4.4 Persona Effect): Added paragraph reporting pers_rfl embedding bias result, characterizing the persona gradient (baseline < reflective < ruminative), and drawing the explicit parallel to the framing-layer dissociation.
+   - Fix (§5 Discussion): Added paragraph connecting reflective persona to the broader semantic-without-lexical dissociation pattern.
+   - Fix (§2 Related Work): Updated persona contribution list from (1),(2) to (1),(2),(3) to include the reflective persona gradient.
+
+### Method
+- Verified pers_rfl values from lme_analysis.json (embedding_regret_bias: β=0.019, z=10.378, p=0.0; cf_rate: z=1.348 n.s.; regret_rate: z=0.417 n.s.)
+- Surgical LaTeX edits to §4.4, §5 Discussion, §2 Related Work
+- PDF recompiled successfully (145.93 KiB, same cosmetic warnings, no new errors)
+- Committed (ec51198) and pushed to GitHub
+
+### Theoretical Value Added
+The reflective persona creates a persona-level analog of the framing dissociation:
+- reflective pers + CF framing: semantic access without lexical elevation
+- ruminative pers + deprivation framing: both semantic and lexical elevation
+This parallel strengthens the paper's core dissociation claim by showing it operates at multiple levels of the experimental design.
+
+### Remaining Issues
+
+1. **Single human annotator, unblinded** (κ=0.44, N=36) — structural limitation (acknowledged in paper)
+2. **IEEEtran format vs. ACL/EMNLP target** — cosmetic/venue alignment
+3. **Mistral/DeepSeek replication** — unavailable; noted as future work
+4. **Generalizability scoping** — Cycle 34 item #2: explicitly scope pre-expansion vs. post-expansion in Abstract/Conclusion (2-hour task)
+5. **EI baseline Gemini lexical markers** — Cycle 34 item #3: report Gemini-2.5-Flash lexical marker comparison for batch v38 (1-hour task)
+
+### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
+Item 4 (pers_rfl) from Cycle 34 resolved. One of the five blocking items (for ACL/EMNLP Findings) addressed.
+Next priority: Cycle 34 item #2 (generalizability scoping in Abstract/Conclusion — 2-hour task) or item #3 (Gemini EI lexical baseline — 1-hour task).
