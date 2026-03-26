@@ -90,3 +90,20 @@ Both accounts agree on the empirical conclusion and practical implications. Para
 2. Overfull hboxes (3 lines) — minor layout warnings, acceptable for submission
 
 **Verdict: ACL format conversion complete. Paper ready for submission.**
+
+## Critique Cycle 50 [2026-03-27 03:47] — Korean Font Warning Elimination
+
+**Issue:** Both `main.tex` and `acl_main.tex` contained a raw Korean string in the EI-baseline section (line 464/479 respectively): ``후회하는 감정을 표현하는 7~9문장을 한국어로 써라''. The Times/ptmr8t font bundled with tectonic lacks CJK glyph coverage, causing `Missing character` warnings at compile time.
+
+**Fix:**
+- Replaced Korean string with romanized transliteration: `\textit{huhoe-haneun gamjeong-eul pyohyeon-haneun 7\textasciitilde{}9 munjang-eul hangugeo-ro sseo-ra}`
+- Added parenthetical translation clarification in main.tex: `(write 7--9 sentences expressing regret in Korean)`
+- Recompiled both PDFs: main.pdf=155.24 KiB, acl_main.pdf=152.83 KiB
+
+**Result:** Zero `Missing character` font warnings. Both PDFs compile cleanly.
+
+**Commit:** 2ebbcaf
+
+**Remaining issues (non-blocking):**
+- Overfull \hbox warnings (3–5 lines) — cosmetic layout only
+- BibTeX minor warnings — non-blocking for content
