@@ -53,3 +53,23 @@ Both accounts agree on the empirical conclusion and practical implications. Para
 **Verdict: PAPER IS COMPLETE AND INTERNALLY CONSISTENT. Ready for venue-specific reformatting.**
 
 **Commit:** 94aef6d (PDF recompile only; no content change)
+
+## Critique Cycle 48 [2026-03-27 03:05] — ACL/EMNLP Format Conversion (f24358e)
+
+**Issue (persistent from Cycle 44+):** IEEEtran format mismatch — paper targets ACL/EMNLP Findings but was formatted for IEEE, immediately visible to PC members.
+
+**Fix:** Created `paper/acl_main.tex` — full ACL/EMNLP-compatible conversion:
+- `\documentclass[11pt]{article}` replacing `IEEEtran`
+- `natbib` package + `\citep{}` replacing `\cite{}` (IEEEtran-style)
+- `\bibliographystyle{plainnat}` as fallback (swap to `acl_natbib` when `.bst` is available)
+- `geometry` package: 1-inch margins matching ACL 2023 template
+- `\title` + `\author` + `\date{}` inside `\begin{document}` (ACL convention)
+- Color definitions preserved from IEEEtran version
+- 23 references resolved in BBL (plainnat style)
+
+**Result:** `acl_main.pdf` — 152KB, compiles cleanly with tectonic
+- Korean character warnings: expected (Times font, non-critical; full CJK support requires CJK package)
+- All content identical to `main.pdf` (IEEEtran version)
+- Remaining step: replace `plainnat` → `acl_natbib` after downloading from acl-style-files repo
+
+**Commit:** f24358e
