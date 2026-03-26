@@ -284,25 +284,23 @@
     },
     {
       "model": "gpt-5",
-      "n_deprivation": 29,
+      "n_deprivation": 30,
       "n_neutral": 33,
-      "n_counterfactual": 27,
-      "n_total": 89,
-      "mean_D": 0.10032100000000001,
+      "n_counterfactual": 30,
+      "n_total": 93,
+      "mean_D": 0.09697696666666668,
       "mean_N": -0.026831636363636363,
-      "mean_C": 0.19334840740740736,
-      "d_DN": 3.217,
+      "mean_C": 0.17401356666666662,
+      "d_DN": 3.006,
       "d_DN_CI95": [
-        2.447,
-        4.434
+        2.285,
+        4.228
       ],
-      "d_DN_flag": "unstable (n<30)",
-      "d_CN": 5.136,
+      "d_CN": 3.443,
       "d_CN_CI95": [
-        4.2,
-        6.545
-      ],
-      "d_CN_flag": "unstable (n<30)"
+        2.564,
+        5.177
+      ]
     },
     {
       "model": "gpt-5-mini",
@@ -328,66 +326,61 @@
       "model": "gpt-5-nano",
       "n_deprivation": 36,
       "n_neutral": 34,
-      "n_counterfactual": 29,
-      "n_total": 99,
+      "n_counterfactual": 30,
+      "n_total": 100,
       "mean_D": 0.14430527777777774,
       "mean_N": -0.06256814705882352,
-      "mean_C": 0.21816351724137933,
+      "mean_C": 0.2108914,
       "d_DN": 4.853,
       "d_DN_CI95": [
         4.02,
         6.239
       ],
-      "d_CN": 7.207,
+      "d_CN": 5.784,
       "d_CN_CI95": [
-        6.177,
-        9.088
-      ],
-      "d_CN_flag": "unstable (n<30)"
+        4.182,
+        8.516
+      ]
     },
     {
       "model": "gpt-5.1",
-      "n_deprivation": 27,
-      "n_neutral": 27,
-      "n_counterfactual": 27,
-      "n_total": 81,
-      "mean_D": 0.1315214074074074,
-      "mean_N": -0.02944140740740741,
-      "mean_C": 0.20165159259259258,
-      "d_DN": 5.061,
+      "n_deprivation": 30,
+      "n_neutral": 30,
+      "n_counterfactual": 30,
+      "n_total": 90,
+      "mean_D": 0.11836926666666667,
+      "mean_N": -0.02649726666666667,
+      "mean_C": 0.1814864333333333,
+      "d_DN": 3.461,
       "d_DN_CI95": [
-        4.048,
-        6.775
+        2.512,
+        4.997
       ],
-      "d_DN_flag": "unstable (n<30)",
-      "d_CN": 5.863,
+      "d_CN": 3.606,
       "d_CN_CI95": [
-        4.915,
-        7.466
-      ],
-      "d_CN_flag": "unstable (n<30)"
+        2.592,
+        5.622
+      ]
     },
     {
       "model": "gpt-5.2",
-      "n_deprivation": 27,
-      "n_neutral": 27,
-      "n_counterfactual": 27,
-      "n_total": 81,
-      "mean_D": 0.15955588888888886,
-      "mean_N": -0.015134740740740742,
-      "mean_C": 0.2079264814814815,
-      "d_DN": 3.303,
+      "n_deprivation": 30,
+      "n_neutral": 30,
+      "n_counterfactual": 30,
+      "n_total": 90,
+      "mean_D": 0.1436003,
+      "mean_N": -0.013621266666666668,
+      "mean_C": 0.18713383333333333,
+      "d_DN": 2.584,
       "d_DN_CI95": [
-        2.733,
-        4.306
+        1.916,
+        3.546
       ],
-      "d_DN_flag": "unstable (n<30)",
-      "d_CN": 4.424,
+      "d_CN": 3.06,
       "d_CN_CI95": [
-        3.797,
-        5.646
-      ],
-      "d_CN_flag": "unstable (n<30)"
+        2.223,
+        4.523
+      ]
     },
     {
       "model": "gpt-5.4",
