@@ -1320,3 +1320,47 @@ All primary statistical claims are now consistent with the N=6,709 authoritative
 - [ ] Mistral/DeepSeek replication (desirable future work — acknowledged)
 
 ### Current paper state: **Submission-ready**
+
+---
+
+## Critique Cycle 15 [2026-03-26 15:40] — stat sync: Welch C_vs_N + figure labels
+
+### Issues Found
+
+1. **Figure 1 box "(4 families)"**: Should be "(7 families)" — 7 org families are now covered. CRITICAL (visible in rendered PDF figure).
+2. **Figure 2 pgfplot title "N_total=4,539"**: Stale exploratory-phase count. Should be "N_total=6,709". CRITICAL.
+3. **Table 2 (tab:results) D vs N d-values**: Stale values from earlier dataset version.
+   - CF: d=0.66 → **d=0.61** (lme_analysis N=6,709)
+   - Regret: d=0.59 → **d=0.51**
+   - NegEmo: d=0.42 → **d=0.35**
+   - EmbBias: d=1.74 → **d=1.94**
+4. **Table 2 C vs N d-values**: Same issue.
+   - CF: d=0.48 → **d=0.61**
+   - Regret: d=0.44 → **d=0.27**
+   - NegEmo: d=0.17 → **d=0.20** (minor)
+5. **§4.1 text CF C_vs_N**: t=12.55, d=0.48 → **t=20.44, d=0.61**
+6. **§4.1 text regret C_vs_N**: t=11.67, d=0.44 → **t=9.19, d=0.27**
+7. **§4.1 embedding bias range**: d≈1.78–2.05 → **d≈1.94–2.28**
+8. **§4.1 D vs N Welch inline text**: CF t=20.59 → 20.55; NegEmo d=0.36 → 0.35 (minor rounding)
+
+### Fixes Applied (commit 377c47e)
+
+- `paper/main.tex`: 6 targeted edits
+- Figure 1 LLM box: "(4 families)" → "(7 families)" ✅
+- Figure 2 title: "N_total=4,539" → "N_total=6,709" ✅
+- Table 2 D vs N: CF d=0.61, Regret d=0.51, NegEmo d=0.35, Emb d=1.94 ✅
+- Table 2 C vs N: CF d=0.61, Regret d=0.27, NegEmo d=0.20, Emb d=2.28 ✅
+- §4.1 C_vs_N text: t=20.44, d=0.61 (CF); t=9.19, d=0.27 (regret) ✅
+- §4.1 emb range: d≈1.94–2.28 ✅
+- §4.1 D vs N Welch: CF t=20.55, d=0.61; NegEmo d=0.35 ✅
+- Recompiled: 127 KB PDF, warnings only (hbox/vbox), TeX rerun internal warning only
+
+### Remaining Issues
+
+1. **Single human annotator** (κ=0.44, N=36) — structural limitation, acknowledged
+2. **Mistral/DeepSeek replication** — desirable future work, acknowledged  
+3. **Stimulus bank imbalance (v1.0)** — disclosed in Limitations
+4. **hbox/vbox overfull warnings** — cosmetic only, no content error
+
+### Verdict: Submission-ready (confirmed)
+All 8 stat-sync issues resolved. No content errors remain; paper matches lme_analysis.json N=6,709 on all reported values.
