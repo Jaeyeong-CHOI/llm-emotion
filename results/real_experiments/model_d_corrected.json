@@ -283,6 +283,26 @@
       ]
     },
     {
+      "model": "gpt-5.4",
+      "n_deprivation": 30,
+      "n_neutral": 30,
+      "n_counterfactual": 30,
+      "n_total": 90,
+      "mean_D": 0.14984276666666665,
+      "mean_N": -0.09792823333333334,
+      "mean_C": 0.17406136666666666,
+      "d_DN": 4.964,
+      "d_DN_CI95": [
+        4.258,
+        6.387
+      ],
+      "d_CN": 8.768,
+      "d_CN_CI95": [
+        7.402,
+        10.96
+      ]
+    },
+    {
       "model": "gpt-5.4-mini",
       "n_deprivation": 54,
       "n_neutral": 36,

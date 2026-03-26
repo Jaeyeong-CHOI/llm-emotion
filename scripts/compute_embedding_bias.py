@@ -59,6 +59,7 @@ BATCH_FILES = [
     "batch_v28_new_openai",
     "batch_v29_stability_fill",
     "batch_v30_stability_fill2",
+    "batch_v31_gpt54full",
 ]
 
 # Regret prototype sentences (Korean)
