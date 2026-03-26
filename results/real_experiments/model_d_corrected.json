@@ -223,6 +223,28 @@
       ]
     },
     {
+      "model": "gpt-4.1-nano",
+      "n_deprivation": 18,
+      "n_neutral": 18,
+      "n_counterfactual": 18,
+      "n_total": 54,
+      "mean_D": 0.2364222777777778,
+      "mean_N": -0.0517125,
+      "mean_C": 0.24552033333333334,
+      "d_DN": 8.001,
+      "d_DN_CI95": [
+        6.513,
+        11.183
+      ],
+      "d_DN_flag": "unstable (n<30)",
+      "d_CN": 11.4,
+      "d_CN_CI95": [
+        9.78,
+        14.976
+      ],
+      "d_CN_flag": "unstable (n<30)"
+    },
+    {
       "model": "gpt-4o",
       "n_deprivation": 198,
       "n_neutral": 341,

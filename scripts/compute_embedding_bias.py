@@ -56,6 +56,7 @@ BATCH_FILES = [
     "batch_v25_groq_compound_balance",
     "batch_v26_lowcount_fill",
     "batch_v27_o3mini",
+    "batch_v28_new_openai",
 ]
 
 # Regret prototype sentences (Korean)
