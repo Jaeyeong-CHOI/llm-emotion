@@ -2,6 +2,37 @@
 
 ---
 
+## Fix [2026-03-26 20:30] — 19th cycle fixes applied (commit 806e534)
+
+### Changes Made
+
+1. **"Comparable" embedding activation overclaim — RESOLVED**
+   - §1 Introduction (finding #2): replaced "comparable embedding semantic activation" with quantified language ($\hat{\beta}_C=0.243$, 36% larger than $\hat{\beta}_D=0.179$, Wald $z\approx11.6$, $p<0.001$)
+   - §4.1 Results (condition effect paragraph): replaced "comparably" + "comparable embedding bias elevations" with "substantially" + "CF effect is 36% larger in the LME (Wald $H_0:\beta_D=\beta_C$ rejected at $z\approx11.6$, $p<0.001$)"
+   - §5 Discussion (second key finding): replaced "comparably" with full quantification including Wald test
+   - Figure caption (tab:multimodel): replaced "CF and D produce comparable bias" with "CF produces a 36% larger LME coefficient ($\hat{\beta}_C=0.243$ vs $\hat{\beta}_D=0.179$)"
+
+2. **Verbose Conclusion model list — RESOLVED**
+   - Replaced ~120-word parenthetical model enumeration with "see Table X" + brief category summary (~60 words)
+
+3. **Abstract regret-word rate "comparable" — retained**
+   - Abstract line: "regret-word rate is comparable across both conditions ($\hat{\beta}_D=0.220$, $\hat{\beta}_C=0.232$)" — this refers to regret-word rate (lexical marker), NOT embedding bias. Both values are nearly identical (0.220 vs 0.232), so "comparable" is accurate here. Retained.
+
+### Remaining Issues (carried from 18th cycle)
+
+1. **Model-as-random-effect omission** — `(1|scenario) + (1|model_id)` not implemented; z=52.21/70.17 may include within-model correlation inflation. 2–4h fix.
+2. **GPT-3.5-turbo D=C=0.221** in Table 7 — 13th cycle unresolved (likely copy-paste error; C-condition mean not separately confirmed from lme_report)
+3. **Single human annotator** (κ=0.44, N=36) — structural limitation, acknowledged in §5
+4. **"Progressive alignment dampening" narrative** — GPT-5.4 full (d=1.86) > GPT-3.5 (d=1.76) contradicts monotone pattern; GPT-5.4 within-family contrast (d≈1.85 vs d≈0.45) is the real story
+5. **Temperature distribution counts** in §5 item 4 don't sum to 7,440 — minor audit needed
+6. **Figure 2 title** still shows N=6,709 — needs update to 7,440
+7. **IEEEtran format** — venue not declared in paper
+
+### Verdict (post-fix): Borderline → Weak Accept for ACL/EMNLP Findings
+Items 1 (N=7,440 LME committed ✅) and 3 (comparable overclaim ✅) from 18th cycle are now resolved. Model random effects (item 2 from 18th) remains the primary remaining structural concern for top-venue acceptance.
+
+---
+
 ## Critique [2026-03-26 19:20] — 18th cycle
 ### Scores: Soundness 3/5 | Significance 4/5 | Presentation 3/5
 
