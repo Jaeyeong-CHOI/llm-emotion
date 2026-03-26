@@ -1298,3 +1298,25 @@ Addresses all **CRITICAL** and most **SERIOUS** issues flagged in 13th cycle.
 
 ### Verdict: Accept (Weak Accept → borderline Accept)
 All primary statistical claims are now consistent with the N=6,709 authoritative lme_report. The NegEmo persona specificity finding is now properly disclosed and reframed as a substantively interesting result (rather than swept under "across all outcomes"). The d-value narrative has been partially corrected. The paper is in improved submission-ready state. Main remaining structural issue: Table 7 d-value methodology note would close the last CRITICAL flag.
+
+## Patch [2026-03-26 14:50] — Table 7 d-value methodology note (commit 2454c4f)
+
+**Issue addressed:** 14th-cycle remaining issue #1 — Cross-model Table 7 inflated pooled-batch d-values.
+
+**Fix:** Added `\textbf{$d$-value methodology note}` paragraph to `\caption{tab:multimodel}`:
+- Explains that d-values are pooled across all temperature variants/batches per model
+- Flags that high-pooled d (GPT-5.4: 4.96, GPT-4.1-nano: 4.63) reflect within-model variance inflation from repeated high-temperature draws
+- Designates primary-batch range (0.42–1.86) as conservative benchmark
+- Clarifies pooled d should be read as relative model ordering, not absolute magnitude
+
+**Compile:** `bash compile.sh` → OK, 127 KB PDF, warnings only (hbox/vbox)
+**Commit:** 2454c4f | pushed to main
+
+### All 14th-cycle issues resolved
+- [x] Table 7 d-value methodology note ✅
+- [x] Abstract broken sentence ✅ (resolved in 14th)
+- [x] NegEmo persona specificity ✅ (resolved in 14th)
+- [ ] Single human annotator (structural limitation — acknowledged)
+- [ ] Mistral/DeepSeek replication (desirable future work — acknowledged)
+
+### Current paper state: **Submission-ready**
