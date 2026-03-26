@@ -409,7 +409,7 @@ Results ($N=7{,}440$, 53 batches, 34 instruction-following generative LLM varian
 
 With $N=7{,}440$, this study has statistical power to detect effects as small as $d\approx0.10$ ($\alpha=0.05$, 80\% power). Statistical significance at this sample size should be distinguished from practical significance. The deprivation CF rate coefficient ($\hat{\beta}_D=0.236$) corresponds to approximately 0.24 additional counterfactual expressions per 100 characters; readers should interpret effect magnitudes ($\hat{\beta}$ values and Welch $d$) rather than $p$-values as primary indicators of practical significance.
 
-The primary result is a \textbf{marker-type dissociation}: the embedding-based metric---using sentence-transformer cosine similarity---shows that both deprivation and counterfactual framing significantly elevate regret-associated semantic content ($\hat{\beta}_D=0.179$ vs.\ $\hat{\beta}_C=0.243$; the CF coefficient is 36\% larger, Wald $z\approx11.6$, $p<0.001$ for $H_0\!:\beta_D=\beta_C$), while the lexical layer shows marker-specific divergence. The dissociation is in \emph{effect magnitude across marker types}: CF rate shows a larger counterfactual effect ($\hat{\beta}=0.656$, $p<0.001$) vs.\ deprivation ($\hat{\beta}=0.236$, $p<0.001$), while regret-word rate shows comparable effects under both conditions ($\hat{\beta}_D=0.220$ vs.\ $\hat{\beta}_C=0.232$, both $p<0.001$). Negemo rate is elevated under deprivation ($\hat{\beta}=0.115$, $p<0.001$) and counterfactual ($\hat{\beta}=0.073$, $p<0.01$). This pattern suggests that the two framing conditions activate overlapping semantic regret representations but produce distinct counterfactual expression signatures.
+The primary result is a \textbf{marker-type dissociation}: the embedding-based metric---using sentence-transformer cosine similarity---shows that both deprivation and counterfactual framing significantly elevate regret-associated semantic content ($\hat{\beta}_D=0.179$ vs.\ $\hat{\beta}_C=0.243$; the CF coefficient is 36\% larger, Wald $z\approx11.6$, $p<0.001$ for $H_0\!:\beta_D=\beta_C$), while the lexical layer shows marker-specific divergence. The dissociation is in \emph{effect magnitude across marker types}: CF rate shows a larger counterfactual effect ($\hat{\beta}=0.656$, $p<0.001$) vs.\ deprivation ($\hat{\beta}=0.236$, $p<0.001$), while regret-word rate shows comparable effects under both conditions ($\hat{\beta}_D=0.220$ vs.\ $\hat{\beta}_C=0.232$, both $p<0.001$). Negemo rate is elevated under deprivation ($\hat{\beta}=0.115$, $p<0.001$) and counterfactual ($\hat{\beta}=0.073$, $p<0.001$). This pattern suggests that the two framing conditions activate overlapping semantic regret representations but produce distinct counterfactual expression signatures.
 
 Table~\ref{tab:lme_summary} summarizes the full LME coefficient estimates.
 
@@ -438,7 +438,7 @@ Regret rate & cond\_D & 0.220 (4.80) & $<$0.001 \\
 & pers\_rum & 0.262 (10.45) & $<$0.001 \\
 \midrule
 NegEmo rate & cond\_D & 0.115 (5.72) & $<$0.001 \\
-& cond\_C & 0.073 (3.65) & $<$0.01 \\
+& cond\_C & 0.073 (3.65) & $<$0.001 \\
 \bottomrule
 \end{tabularx}
 \end{table}
