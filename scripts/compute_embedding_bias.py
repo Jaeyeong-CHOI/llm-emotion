@@ -64,6 +64,11 @@ BATCH_FILES = [
     "batch_v32_o1_o3",
     "batch_v33_o1_o3_neutral_fill",
     "batch_v34_gpt5_family",
+    "batch_v35_gpt51_gpt52",
+    "batch_v36_stability_fill",
+    "batch_v36b_final_fill",
+    "batch_v36c_gpt5_dep",
+    "batch_v37_groq_balance",
 ]
 
 # Regret prototype sentences (Korean)
