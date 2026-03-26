@@ -1916,3 +1916,33 @@ Cycle 22 fixes one orphan stat value (β=0.188→0.236). All other stats verifie
 
 ### Verdict: Submission-ready (confirmed)
 Cycle 23 fixes stale pers_rum z-values and stale Welch t-test/d values throughout paper. All stats now synchronized with authoritative lme_analysis.json (N=7,440).
+
+---
+
+## Critique Cycle 24 — 2026-03-26 21:32 (Asia/Seoul)
+
+### Issues Found & Fixed
+
+1. **Stale per-condition counts in Table 3 caption (line 330)** — CRITICAL
+   - Caption had `(2393/2448/2388 per condition, D/C/N)` from an older dataset version
+   - Authoritative JSON: D=2436, C=2514, N=2490
+   - Fixed to `(2436/2514/2490 per condition, D/C/N)`
+
+2. **Stale full-dataset LME reference in LOSO paragraph (line 448)** — MINOR
+   - Text said "full-dataset LME estimate of $0.177$" but JSON shows `cond_D beta=0.1787` → rounds to `0.179`
+   - Fixed to `0.179` for consistency with all other occurrences of this value throughout paper
+
+### Method
+- Manual scan of paper vs. lme_analysis.json condition counts and beta values
+- Recompiled PDF successfully (138K, no new errors)
+- Committed and pushed to GitHub
+
+### Remaining Issues
+
+1. **Model-as-random-effect omission** — addressed via crossed RE sensitivity (§6.4)
+2. **Single human annotator** (κ=0.44, N=36) — acknowledged structural limitation
+3. **IEEEtran venue not declared** — cosmetic
+4. **hbox/vbox overfull** — cosmetic only
+
+### Verdict: Submission-ready (confirmed)
+Cycle 24 fixes stale Table 3 per-condition counts and LOSO beta reference. All stats now synchronized with authoritative lme_analysis.json (N=7,440).
