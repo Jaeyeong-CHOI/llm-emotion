@@ -1,60 +1,60 @@
 {
-  "n_total": 6072,
+  "n_total": 7440,
   "pearson_overall": {
-    "r": 0.2354,
-    "p": 3.2538997198972914e-77
+    "r": 0.1709,
+    "p": 6.776302552771918e-50
   },
   "pearson_by_condition": {
     "deprivation": {
-      "r": 0.1256,
-      "p": 1.5595729923624835e-08,
-      "n": 2014
+      "r": 0.1063,
+      "p": 1.46595057153846e-07,
+      "n": 2436
     },
     "counterfactual": {
-      "r": 0.0987,
-      "p": 7.820243585513455e-06,
-      "n": 2044
+      "r": -0.0062,
+      "p": 0.7568920982530019,
+      "n": 2514
     },
     "neutral": {
-      "r": 0.1806,
-      "p": 3.128979256953858e-16,
-      "n": 2014
+      "r": 0.1698,
+      "p": 1.4623251787554286e-17,
+      "n": 2490
     }
   },
   "lme_with_length_covariate": {
     "is_dep": {
-      "beta": 0.1575,
-      "z": 32.44,
-      "p": 7.907424462388022e-231
+      "beta": 0.1759,
+      "z": 51.8,
+      "p": 0.0
     },
     "is_cf": {
-      "beta": 0.2033,
-      "z": 39.77,
+      "beta": 0.2407,
+      "z": 70.03,
       "p": 0.0
     },
     "log_len": {
-      "beta": 0.0151,
-      "z": 22.4,
-      "p": 4.010471854449965e-111
+      "beta": 0.0138,
+      "z": 23.43,
+      "p": 2.130400385229517e-121
     }
   },
   "lme_baseline_dep_beta": 0.1497,
   "lme_baseline_cf_beta": 0.2011,
   "length_residualized_ttests": {
     "dep_vs_neu": {
-      "t": 58.93,
+      "t": 71.35,
       "p": 0.0,
-      "d": 1.857,
-      "n_dep": 2014,
-      "n_neu": 2014
+      "d": 2.033,
+      "n_dep": 2436,
+      "n_neu": 2490
     },
     "cf_vs_neu": {
-      "t": 69.94,
+      "t": 84.39,
       "p": 0.0,
-      "d": 2.196,
-      "n_cf": 2044,
-      "n_neu": 2014
+      "d": 2.386,
+      "n_cf": 2514,
+      "n_neu": 2490
     }
   },
-  "interpretation": "Length is significantly correlated with embedding bias (r=0.2354, p<.001), but condition effects persist after controlling for log(length): dep beta=0.1575 (z=32.44), CF beta=0.2033 (z=39.77), both p<.001. Effect size reduction from baseline: dep -5.2%, CF -1.1%. Length-residualized d values: dep=1.857, CF=2.196 (vs 1.886, 2.208 unresid)."
+  "interpretation": "Length is significantly correlated with embedding bias (r=0.1709, p<.001), but condition effects persist after controlling for log(length): dep beta=0.1759 (z=51.80), CF beta=0.2407 (z=70.03), both p<.001. Effect size reduction from baseline: dep -17.5%, CF -19.7%. Length-residualized d values: dep=2.033, CF=2.386 (vs 1.886, 2.208 unresid)."
 }

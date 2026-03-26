@@ -2684,3 +2684,29 @@ All three Cycle 34 items now resolved:
 - Item 3 (Gemini EI lexical baseline): done in Cycle 36
 
 Paper is at the strongest state it has been. No outstanding substantive blockers for Findings track submission.
+
+---
+
+## Critique Cycle 38 [2026-03-27 00:16] — C>N Factual Error Fix
+
+### Issue Found
+**Critical factual error**: Table caption and Discussion §5 (H3 cross-model section) claimed "All 37 models show C>N" and "Counterfactual>neutral holds in all 37 models."
+
+This is **wrong**: GPT-5.4-mini has $d_\text{CN}=0.07$ [−0.34, 0.47] — 95% CI **includes zero**, meaning the C>N result is not statistically supported for this model. The claim should be 36/37.
+
+### Changes Made
+
+1. **Table caption (Tab. 2):** Changed to "36/37 show C>N with 95% CI excluding zero ($d_\text{CN}=0.07$–2.10; exception: GPT-5.4-mini $d_\text{CN}=0.07$ [−0.34, 0.47])."
+
+2. **§5 Discussion (H3 paragraph):** Changed "Counterfactual>neutral holds in all 37 models" → "Counterfactual>neutral holds in 36/37 models with 95% CI excluding zero; the exception is GPT-5.4-mini ($d_\text{CN}=0.07$ [−0.34, 0.47]), consistent with its overall dampened effects (smallest $d_\text{DN}=0.42$ among all models)."
+
+3. **Fig. 3 caption:** Added clarification "36/37 show CF>N (exception: GPT-5.4-mini, $d_\text{CN}=0.07$, 95% CI crossing zero)."
+
+### Method
+- Manual audit of all C>N claims across the paper
+- D>N claim (all 37) remains correct — all 37 bootstrap CIs exclude zero for DN direction
+- Recompiled PDF: 148.83 KiB, 12 pages, no new errors
+
+### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
+Factual accuracy improved. D>N all-37 claim correct; C>N now correctly reported as 36/37.
+Paper is in the best state achieved.
