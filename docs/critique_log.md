@@ -1792,3 +1792,26 @@ All 8 stat-sync issues resolved. No content errors remain; paper matches lme_ana
 
 ### Verdict: Submission-ready (confirmed)
 All 6 Cycle 16 stat-sync issues resolved. Paper fully matches actual N=90 data for o1/o3 (batch v32–v33 combined).
+
+---
+
+## Cycle 20 — 2026-03-26
+
+### Issues Found
+1. **Table 7 (tab:multimodel) stale n/d values** — batch v37 (Groq/Llama/Allam/OSS balance fill) not reflected. CRITICAL.
+   - GPT-OSS-120B: n=126→156, d_DN=3.62→3.83
+   - GPT-OSS-20B: n=136→162, d_DN=2.72→2.81
+   - Gemini-2.5-Flash: n=1085→1193, d_DN=1.81→1.70
+   - Llama-3.3-70B: n=165→216, d_DN=1.41→1.76
+   - Llama-4-Scout: n=192→216, d_DN=0.83→1.21
+   - Qwen3-32B: n=192→216, d_DN=1.96→2.26
+   - Groq Compound: n=141→158, d_DN=3.78→4.02
+   - Groq Comp-Mini: n=122→150, d_DN=4.80→4.92
+   - Allam-2-7B: n=127→150, d_DN=2.30→2.27
+
+### Fixes Applied
+- `paper/main.tex`: Table 7 rows + inline §4.3/§6.4/Conclusion references updated
+- Recompiled: 137 KB PDF, warnings only
+
+### Verdict: Submission-ready (confirmed)
+All Cycle 20 stat-sync issues resolved. Table 7 fully matches model_d_corrected.json (37 models).
