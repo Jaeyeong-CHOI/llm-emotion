@@ -2,6 +2,169 @@
 
 ---
 
+## Critique [2026-03-26 16:47] — 17th cycle
+### Scores: Soundness 3/5 | Significance 4/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 16th Cycle
+
+The 16th cycle (Critique Cycle 16, commit that fixed o1/o3 n values, §3.3, and Table 1) resolved all CRITICAL and SERIOUS issues outstanding as of cycle 16. The current `main.tex` now reflects a substantially mature and internally consistent paper. This 17th cycle begins with a clean-slate audit focused on identifying **residual issues and genuinely new weaknesses** in the current submission-ready version.
+
+---
+
+### DATA INTEGRITY AUDIT (17th cycle)
+
+**Paper main.tex vs. lme_report.md (N=6,709, authoritative):**
+
+| Statistic | Paper | lme_report | Match? |
+|---|---|---|---|
+| N total | 6,709 | 6,709 | ✅ |
+| Batches | 47 | 47 | ✅ |
+| Models | 32 | 32 | ✅ |
+| β_D (emb bias) | 0.181 (z=42.98) | 0.1811 (42.975) | ✅ |
+| β_C (emb bias) | 0.233 (z=52.81) | 0.2328 (52.811) | ✅ |
+| pers_rum z (emb) | 19.52 | 19.517 | ✅ |
+| CF rate β_C | 0.779 (z=9.62) | 0.779 (9.622) | ✅ |
+| CF rate β_D | 0.262 (z=3.38) | 0.2621 (3.38) | ✅ |
+| Regret rate β_D | 0.273 (z=4.71) | 0.2728 (4.71) | ✅ |
+| Regret rate β_C | 0.299 (z=4.99) | 0.2985 (4.989) | ✅ |
+| NegEmo β_D | 0.130 (z=5.53) | 0.13 (5.534) | ✅ |
+| NegEmo β_C | 0.080 (z=3.34) | 0.08 (3.339) | ✅ |
+| NegEmo pers_rum | p=0.45 n.s. | p=0.4494 n.s. | ✅ |
+| Condition N (dep/CF/neu) | 2234/2250/2225 | 2234/2250/2225 | ✅ |
+
+**Assessment: FULL DATA INTEGRITY ACHIEVED.** All LME statistics in the paper match lme_report.md to 3 decimal places. This is the first critique cycle to achieve complete Table 4 ↔ lme_report consistency. This resolves the recurring data integrity concern that has characterized 16 cycles. The abstract broken sentence is also fixed (syntax is now grammatically complete).
+
+**Cross-model Table 7 d-values vs. lme_report:**
+
+| Model | Paper d_DN | lme_report d_DN | Ratio |
+|---|---|---|---|
+| GPT-3.5-turbo | 3.62 | 1.755 | 2.06× |
+| GPT-4o | 2.77 | 1.662 | 1.67× |
+| GPT-4.1-nano | 4.63 | 1.841 | 2.51× |
+| GPT-5.4 (full) | 4.96 | 1.859 | 2.67× |
+| o1 | 4.13 | 1.806 | 2.29× |
+| o3 | 4.94 | 1.858 | 2.66× |
+| GPT-5.4-mini | 0.42 | 0.419 | ~1.00× ✅ |
+| Allam-2-7B | 2.30 | 1.525 | 1.51× |
+
+The cross-model d-value inflation (1.25–2.67×) persists. The 14th-cycle patch added a methodology note: *"Some models... show inflated d relative to primary-batch estimates (d=0.42–1.86) due to low within-model condition variance when pooling across repeated high-temperature draws."* This note is present and honest. However, the headline numbers (d=4.96, d=4.94, d=4.63) still dominate the table and the CI intervals look credible but are computed from inflated d values. This remains a **presentation credibility issue** even if it is now disclosed.
+
+---
+
+### Key Weaknesses
+
+#### Soundness (3/5)
+
+**SERIOUS (new, cycle 17): Model is not included as a random effect — pseudo-replication across 32 models.**
+- The confirmatory LME (Eq. 1 in the paper) is: `marker = β₀ + β₁C_D + β₂C_C + β₃P_rfl + β₄P_rum + β₅T + u_scenario`
+- All 6,709 observations are pooled under a single fixed-effects structure with only `scenario` as a random intercept. The 32 models are not modeled as a random grouping factor. This means that observations from the same model are treated as independent conditional on condition, persona, and temperature — which they are not. A Gemini-2.5-Flash output and a Groq Compound-Mini output under identical conditions are not exchangeable; they share model-level dependencies.
+- Consequence: Standard errors for fixed effects are underestimated because the model does not account for within-model correlation. With ICC for scenario already at 0.66 (reflecting the scenario random intercept doing substantial work), the residual within-scenario variance is further structured by model family, which the random intercept cannot absorb. The extremely large z-statistics (z=42.98, z=52.81) may partly reflect this pseudo-replication — the effective sample size is smaller than N=6,709.
+- A correct specification would add `(1|model)` as a crossed random intercept alongside `(1|scenario)`. With 32 model groups, this is entirely feasible. The paper should either: (a) re-run the LME with crossed random intercepts (scenario + model), or (b) explicitly acknowledge that pooling across models without model-level random effects inflates z-statistics and treats model-family heterogeneity as pure residual noise.
+- This is a structural modeling choice that has been silently assumed throughout all 17 cycles. It is **not a data integrity issue** but a fundamental validity concern for the confirmatory statistics.
+
+**SERIOUS (new, cycle 17): The "comparable" semantic embedding elevation claim overstates similarity between D and C conditions.**
+- The paper's central framing is: "both deprivation and counterfactual framing elevate regret-associated semantic content comparably." The actual LME estimates are β_D=0.181 vs. β_C=0.233 — a 29% difference. The z-statistics are z=42.98 (D) vs. z=52.81 (C). The counterfactual condition's embedding elevation is substantially and detectably larger than deprivation's, not merely different in lexical surface markers.
+- A proper test of equality between β_D and β_C (Wald test: H₀: β_D = β_C) would be: z = (0.233 - 0.181) / √(SE_D² + SE_C²) ≈ 0.052 / √(0.0042² + 0.0044²) ≈ 0.052 / 0.0061 ≈ 8.5 (p<<0.001). The two conditions are statistically distinguishable on embedding bias. Calling them "comparable" is a qualitative rhetorical judgment that is not supported by formal testing.
+- The correct framing is: "Both deprivation and counterfactual framing significantly elevated embedding regret bias (both p<0.001), with counterfactual framing showing a larger effect (β_C=0.233 vs β_D=0.181, both p<0.001)." The paper's "marker-type dissociation" framing — that the two conditions activate embedding space similarly but diverge on surface lexical markers — is partially undermined by this 29% difference in the primary semantic measure.
+
+**PERSISTENT (cycle 17, flagged since cycle 6): GPT-3.5-turbo D=C=0.221 (identical to 3 decimal places).**
+- In Table 7, GPT-3.5-turbo shows D_bias_mean = 0.221 and C_bias_mean = 0.221 — the exact same value to three decimal places. lme_report shows gpt-3.5-turbo D_bias=0.2278 (with n_D=72). The counterfactual mean is not reported in lme_report, but exact equality to 3 decimal places at n=204 total would require essentially the same sample distribution for two independent prompting conditions — implausible at p<<0.001 under the null hypothesis of independence. This is either: (a) a copy-paste error in the table (C column value copied from D column), or (b) a genuine data quality issue where GPT-3.5-turbo's CF outputs have the same embedding distribution as its deprivation outputs. Neither is adequately explained after 12 cycles of flagging. The paper's methodology note says "d values reflect relative ordering" but doesn't address why D=C in the means.
+
+**SERIOUS (new, cycle 17): The "progressive alignment dampening" narrative is broken by GPT-5.4 full.**
+- The paper argues: "newer frontier models (GPT-5.4-mini, Gemini-3-Flash) show moderate but robust effects consistent with progressive alignment dampening." This narrative implies monotonically decreasing effect sizes across model generations.
+- Per lme_report d(D-N): GPT-3.5-turbo d=1.755 → GPT-4o d=1.662 → GPT-4.1 d=1.440 → GPT-5.4 full d=**1.859**. GPT-5.4 full's d=1.859 is LARGER than GPT-4.1 (d=1.440) and GPT-4o (d=1.662), directly contradicting the "progressive dampening" trend. The paper explains GPT-5.4 full's anomalously large table d-value (d=4.96) as a pooling artifact, but even the lme_report's more accurate d=1.859 exceeds GPT-4.1's d=1.440.
+- The paper notes (§Discussion): "newer frontier models... albeit with dampened magnitude" — but only references GPT-5.4-mini (d=0.42) and Gemini-3-Flash (d=1.516 per lme_report, not especially small) as evidence. GPT-5.4 full (d=1.859) is not discussed in relation to the dampening claim. The paper glosses over this anomaly with "Notably, newer frontier models (GPT-5.4-mini, Gemini-3-Flash) show moderate but robust effects" — selectively citing the mini/nano variants while GPT-5.4 full shows the highest lme_report d among all GPT variants.
+- The within-family size effect (GPT-5.4 full d=1.859 >> GPT-5.4-mini d=0.419) is a real and interesting finding. But the across-generation narrative ("alignment dampening") is not supported by the lme_report d-values; it is only supported by the inflated Table 7 d-values when selectively cherry-picking the mini variants.
+
+**MODERATE (persistent): CF prompt explicitly instructs if-then chains — CF rate elevation is partially compliance, not priming.**
+- The CF prompt says: "Retrospectively trace a decision that cascaded into changed outcomes. Include at least three `if-then' links across the chain." This is a direct instruction to produce counterfactual expressions. The CF condition's elevated CF rate (β_C=0.779 vs β_D=0.262) is therefore partly explained by instruction-following, not semantic priming. The paper acknowledges the prompt confound generally (Limitation §5.2) but does not specifically address that the CF rate marker — the most distinctive marker for the CF condition — is directly demanded by the CF prompt.
+- The "marker-type dissociation" claim would be stronger if it showed that CF embedding bias is elevated even when CF expressions are not present in the output (i.e., semantic priming without surface compliance). No such analysis is reported.
+
+**MODERATE (persistent): Single-annotator human validation (κ=0.44) over N=36 — structurally unresolved.**
+- 17th cycle with no second human rater. For a paper submitted to a top venue, the inter-rater reliability section with κ=0.44 (moderate, between a human and GPT-4o) on N=36 is a weak foundation for marker validity claims. The paper now explicitly discloses this as a limitation.
+
+---
+
+#### Significance (4/5)
+
+**The paper has reached genuine publishable significance — the 32-model replication is the strongest asset.**
+- All 32 models spanning 7 organizations, 4 open-weight architectures, reasoning models (o1/o3), and a cross-lingual Arabic model (Allam-2-7B) showing D>N directional consistency on embedding regret bias is an empirically unusual and valuable finding. The LOSO scenario stability analysis (42 scenarios, mean β_D=0.165±0.003) further strengthens this. This contribution is genuinely novel in the LLM behavioral evaluation literature.
+
+**The persona specificity finding (NegEmo p=0.45) is now properly framed — this is the paper's most theoretically interesting contribution.**
+- The finding that ruminative personas activate CF rate, regret-word rate, and embedding bias — but NOT NegEmo — is a genuine specificity result that has psycholinguistic implications. It suggests persona-level system-prompt injection selectively activates regret-schema-specific representations rather than broad negative affect. This is now correctly framed in the Discussion ("persona activation is specific to regret-associated representations rather than general affective negativity"). This is worth emphasizing more strongly as a headline finding.
+
+**The within-GPT-5.4 family scale effect (full d=1.86 vs mini d=0.42) is the most compelling "alignment" finding.**
+- A 4.4× within-family effect size difference between GPT-5.4-full and GPT-5.4-mini is the kind of controlled comparison that the broader "alignment dampening" narrative should be built around. Unlike across-generation comparisons (which confound many factors), within-family scale comparisons hold training data, RLHF recipe, and organizational context approximately constant. The paper mentions this in §Discussion ("contrasting with the dampened effects of GPT-5.4-mini ($d=0.42$)") but should make it the centerpiece of the alignment interpretation, not GPT-3.5-turbo vs. frontier models.
+
+**Missing: explicit-instruction baseline (requested every cycle, still absent).**
+- The single experiment that would most strengthen this paper for ACL/EMNLP main track submission remains absent. Without it, reviewers cannot distinguish "deprivation framing activates regret-like language" from "any emotionally salient instruction activates regret-like language." The research question is at least partially answered by the persona specificity finding (personas are more reliable than framing), but the absolute baseline is never established.
+
+---
+
+#### Presentation (3/5)
+
+**RESOLVED from prior cycles:**
+- ✅ Abstract broken sentence: now syntactically complete
+- ✅ All Table 4 coefficients match lme_report
+- ✅ NegEmo persona non-significance explicitly stated
+- ✅ N=6,709, 47 batches, 32 models: consistent throughout
+- ✅ §3.3 model scope: accurately describes 32-model study
+- ✅ Table 1 model list: complete (32 entries)
+- ✅ o1/o3 n values: corrected to N=90
+
+**REMAINING PRESENTATION ISSUES:**
+
+**Moderate: Table 7 d-values remain 1.25–2.67× lme_report values despite the methodology note.**
+- The methodology note explains the inflation correctly: "pooling across all temperature variants and batches for that model" produces lower within-model variance and thus larger d. However, presenting d=4.96 for GPT-5.4 and d=4.94 for o3 in a table titled "Cross-model replication" implies these are credible effect-size estimates. The CI [4.26, 6.39] for GPT-5.4 and [4.12, 6.46] for o3 look precise and large. A reviewer who computes d from D_bar−N_bar and any reasonable within-condition SD estimate will get d≈1.86 (as lme_report confirms).
+- **Recommended fix**: Replace Table 7 d-values with lme_report d-values (reproducible, consistent formula) and note them as "primary-batch estimates." This would require updating ~30 values in the table and revising the narrative about d ranges, but would eliminate the credibility problem. The methodology note is an improvement but is not sufficient for a top-venue submission.
+
+**Moderate: The "comparable" semantic embedding claim needs a Wald test for equality.**
+- The paper repeatedly describes β_D=0.181 and β_C=0.233 as showing "comparable" or "overlapping" semantic activation. As noted in the Soundness section, these are statistically distinguishable (estimated Wald z≈8.5 for H₀: β_D=β_C). The paper should either (a) report this Wald test and describe the two conditions as "comparable in magnitude but statistically different" or (b) replace "comparable" with "both substantially elevated" throughout.
+
+**Minor: GPT-3.5-turbo D=C=0.221 in Table 7 — still unexplained after 12 cycles.**
+- Either the data has a copy-paste error (D value duplicated into C column) or the model genuinely produces nearly identical embedding distributions across conditions. Either requires a note.
+
+**Minor: Conclusion section has several run-on sentences listing model names.**
+- The final paragraph of Conclusion (starting "The most striking finding is the cross-model robustness") lists all 32 model variants parenthetically, creating a sentence that runs approximately 200 words. This is not publishable prose at top-tier venues. A Table reference and a brief summary would be cleaner.
+
+**Minor: IEEEtran format** — 17th cycle, still in IEEEtran. If the target is ACL/EMNLP, the format should be acl_natbib or similar. If IEEE conference (ICDM, BigData, TASLP), IEEEtran is appropriate. The target venue should be declared somewhere in the paper or README.
+
+---
+
+### Actionable Directions
+
+1. **[1-2 hour fix] Re-run LME with crossed random effects for model: `marker ~ cond_D + cond_C + pers_rum + pers_rfl + temp_z + (1|scenario) + (1|model_id)`.**
+   - With 32 model groups and N=6,709, this is computationally feasible. Adding model as a random intercept will: (a) correctly account for within-model correlation of observations, (b) likely reduce z-statistics (currently potentially inflated by pseudo-replication), (c) provide a more credible confirmatory analysis. If z-statistics remain large after this correction (which is likely given the magnitude of the effects), the finding is substantially strengthened. Report the model random-effect ICC alongside the scenario ICC. If this ICC is substantial (>0.1), the current model has been underestimating uncertainty throughout all analyses.
+
+2. **[2-3 hour fix] Replace Table 7 d-values with lme_report per-model d(D-N) values, and revise the "alignment dampening" narrative to focus on within-family scale effects.**
+   - The lme_report provides exact per-model d values for all 32 models. Using these: (a) GPT-3.5-turbo d=1.755, GPT-4o d=1.662, GPT-4.1 d=1.440, GPT-5.4-full d=1.859, GPT-5.4-mini d=0.419 — the key finding becomes the within-GPT-5.4 family scale effect (full vs mini, 4.4× difference) rather than the cross-generation trend. (b) The headline range becomes d=0.42–1.86 (not 0.42–4.97), which is more defensible and directly matches the lme_report. (c) The CI intervals would be recomputed from the correct pooled-SD denominators. This change also resolves the GPT-3.5-turbo D=C=0.221 issue if the C values are re-extracted from the data.
+
+3. **[30-minute fix] Replace "comparable" with "both substantially elevated, with counterfactual showing larger embedding bias (β_C=0.233 > β_D=0.181)"** in all instances in Abstract, Results, Discussion, and Conclusion.
+   - The semantic dissociation framing can be preserved: CF and D both activate regret-associated semantic space (both p<0.001), while differing in lexical surface signatures. But calling β_D=0.181 and β_C=0.233 "comparable" when they are formally distinguishable (z_diff≈8.5) is a qualitative overstatement. The correct framing: "Both conditions activate regret-associated semantic space significantly above neutral, with counterfactual framing showing a larger embedding bias effect (β_C=0.233 vs β_D=0.181). Despite this semantic difference, the conditions produce divergent lexical signatures..."
+
+---
+
+### Verdict: Borderline → Weak Accept (ACL/EMNLP Findings); Reject for main track
+
+**Rationale (17th cycle):**
+
+**What has been resolved:** Full data integrity (Table 4 ↔ lme_report exact match), abstract syntax, NegEmo persona specificity framing, o1/o3 n values, §3.3 model scope, and the persistent N-mismatch issue. The paper is now in the best state it has been across all 17 cycles.
+
+**What remains blocking for top-tier submission:**
+1. **Model-as-random-effect omission** — the most substantively new concern this cycle. With 32 heterogeneous models pooled under a shared fixed-effects structure, the pseudo-replication problem is real and the z-statistics may be inflated. A reviewer familiar with mixed-effects modeling will flag this immediately.
+2. **Table 7 d-value inflation** — persists despite the methodology note. d=4.94 for o3 and d=4.96 for GPT-5.4 full are inconsistent with the paper's own caption statement that "primary-batch range should be treated as the conservative benchmark." If the conservative benchmark (d=0.42–1.86) is the right range, it should be in the table.
+3. **"Comparable" semantic elevation overclaim** — the 29% difference (β_C=0.233 vs β_D=0.181) is formally testable and the claim of "comparable" activation would not survive a Wald test.
+
+**For ACL/EMNLP Findings**: Weak Accept pending items 2 and 3 above (d-value correction + "comparable" → "both elevated but counterfactual larger"). Item 1 (model random effect) is recommended but may not be required for Findings-level acceptance.
+
+**For ACL/EMNLP main track**: Reject — additionally requires model-as-random-effect re-analysis, explicit-instruction baseline, and second human rater.
+
+**Positive assessment**: The 32-model directional replication, persona specificity result, LOSO stability analysis, and length-sensitivity analysis together constitute a genuine and publishable empirical contribution. The paper is 2–3 focused fixes away from Findings-level acceptance.
+
+---
+
 ## Critique [2026-03-26 14:21] — 13th cycle
 ### Scores: Soundness 3/5 | Significance 3/5 | Presentation 2/5
 
