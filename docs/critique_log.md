@@ -2,6 +2,201 @@
 
 ---
 
+## Critique [2026-03-27 02:06] — 44th cycle
+### Scores: Soundness 3/5 | Significance 4/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 34th Cycle (2026-03-26 23:40)
+
+Cycles 35–43 applied a focused set of fixes following the 34th cycle's fresh critical read:
+- **Cycle 35**: Reflective persona (pers_rfl) β=0.019 (z=10.38) added to §4.4 Results, §5 Discussion, §2 Related Work — the "missing finding" from 34 cycles.
+- **Cycle 36**: Gemini-2.5-Flash lexical marker comparison for EI baseline (batch v38) added to §4.5; bidirectional independence argument strengthened (EI → lexical ↑↑ but embedding unchanged = inverse dissociation).
+- **Cycle 37**: Generalizability scoping added to Abstract and Conclusion — pre-expansion (N≈5,700, 2–4 templates) vs. post-expansion (42 scenarios, LOSO SD=0.003) explicitly distinguished.
+- **Cycle 38**: C>N factual error corrected — "all 37 models" → "36/37 models" (GPT-5.4-mini d_CN=0.07 [−0.34, 0.47] CI includes zero).
+- **Cycle 39**: Ruminative persona "strongest" overclaim corrected — now correctly stated as "strongest for regret-word rate specifically"; persona and framing described as complementary, marker-specific levers.
+- **Cycle 40**: Conclusion β notation disambiguated (CF-rate vs. embedding subscripts).
+- **Cycle 41**: Stale Wald z≈11.6 corrected to z≈13.2 (4 occurrences).
+- **Cycle 42**: Conclusion "four open-weight architectures (Llama, Qwen3, Kimi-K2)" fixed to "four open-weight model variants (Llama-3.1-8B, Llama-3.3-70B, Llama-4-Scout, Qwen3-32B), Kimi-K2 variants".
+- **Cycle 43**: Stale unresidualised d values corrected (1.89/2.21 → 2.03/2.40; delta < 0.02).
+
+This 44th cycle is the **first fresh critical reading after cycles 35–43** — a post-fix audit from the perspective of a senior ACL/EMNLP program committee member reading the submission for the first time.
+
+---
+
+### DATA INTEGRITY CHECK (44th cycle)
+
+Full cross-check of paper statistics against lme_report.md (N=7,440, 53 batches, 37 models):
+
+| Statistic | Paper | lme_report | Match? |
+|---|---|---|---|
+| N total | 7,440 | 7,440 | ✅ |
+| Batches | 53 | 53 | ✅ |
+| Models | 37 | 37 | ✅ |
+| β_D (emb bias) | 0.179 (z=52.21) | 0.1787 (z=52.214) | ✅ |
+| β_C (emb bias) | 0.243 (z=70.17) | 0.243 (z=70.168) | ✅ |
+| pers_rum emb z | 19.42 | 19.423 | ✅ |
+| pers_rfl emb β/z | 0.019 (z=10.38) | 0.019 (z=10.378) | ✅ |
+| CF rate β_D | 0.236 (z=3.90) | 0.2358 (z=3.898) | ✅ |
+| CF rate β_C | 0.656 (z=10.83) | 0.6558 (z=10.829) | ✅ |
+| Regret rate β_D | 0.220 (z=4.80) | 0.2201 (z=4.801) | ✅ |
+| Regret rate β_C | 0.232 (z=5.08) | 0.2324 (z=5.078) | ✅ |
+| NegEmo β_D | 0.115 (z=5.72) | 0.115 (z=5.716) | ✅ |
+| NegEmo β_C | 0.073 (z=3.65) | 0.0732 (z=3.647) | ✅ |
+| NegEmo pers_rum | z=0.61, p=0.54 n.s. | z=0.61, p=0.5418 n.s. | ✅ |
+| pers_rfl cf_rate | z=1.348, p=0.18 n.s. | z=1.348, p=0.1778 n.s. | ✅ |
+| Length sensitivity r | 0.171 | 0.171 | ✅ |
+| Wald z (β_D vs β_C) | ≈13.2 | computed ≈13.2 | ✅ |
+| C>N models | 36/37 | 36/37 (GPT-5.4-mini exception) | ✅ |
+
+**Assessment: FULL DATA INTEGRITY — all LME statistics verified. Cycles 35–43 fixes are all in place.**
+
+---
+
+### Key Weaknesses
+
+#### Soundness (3/5)
+
+**SERIOUS (persistent, first raised Cycle 17): Crossed RE z-statistics increase after adding model random effect — unexplained.**
+
+The paper reports: "A sensitivity analysis with crossed random effects...yields β_D=0.172 (z=58.6, p<0.001) and β_C=0.228 (z=77.1, p<0.001) — Δβ<0.016, z-statistics increasing." The z-statistics increased from 52.21 → 58.6 (D) and 70.17 → 77.1 (C) after adding model as a random intercept. This is counterintuitive: adding a grouping factor normally *reduces* fixed-effect z-statistics by absorbing between-group variance. That z increases suggests the model random intercept is either: (a) capturing negative between-model covariance that, when modeled, allows tighter within-cell estimation, or (b) the model random effect is explaining variance that was previously confounded with residual, not with the fixed effects. The paper does not explain this. A senior reviewer with mixed-effects expertise will flag "z increases when random effect is added" as suspicious. One sentence is needed: "The z-statistic increase under crossed RE reflects [mechanism] — consistent with [interpretation]." Without this, the sensitivity result that is meant to reassure reviewers will instead raise a red flag.
+
+**SERIOUS (persistent): Pre-expansion data (N≈5,700, 77% of dataset) from 2–4 templates — Conclusion and Abstract scoping improved but still insufficient.**
+
+Cycle 37 added explicit scoping to Abstract and Conclusion. The Abstract now reads: "Scenario-level generalizability is confirmed for post-expansion batches (v27+; 42-scenario bank; LOSO mean β̂_D=0.165, SD=0.003 across held-out iterations); pre-expansion effects (batches v1–v26) are directionally consistent but are partially generated from 2–4 repeated templates, limiting between-scenario inference for that subset."
+
+This is a meaningful improvement. However, the paper's primary LME N=7,440 headline in the abstract still implicitly benefits from the full dataset's statistical power (z=52.21 is computed on N=7,440 including pre-expansion data). A careful reviewer will ask: "If 77% of your data has no scenario generalizability, why is your LME N=7,440 and not N≈1,700?" The answer is that the LME estimates directional effects that hold even in template-heavy data — but this is a logical step the paper does not explicitly walk through. The paper needs one sentence in §4.3 (LME section) directly addressing why N=7,440 is valid for the confirmatory analysis despite the pre-expansion imbalance.
+
+**MODERATE (persistent, 44 cycles): Single human annotator, unblinded (κ=0.44, N=36).**
+
+The annotation section is now very explicitly honest about its limitations: "the primary annotator is a paper author (not blinded)...GPT-4o as second rater does not constitute independent human validation." The paper is admirably transparent. But structural transparency doesn't fix the structural problem. The proposed fix remains: annotate a random 20-item subsample with no condition labels visible (blinded self-comparison). This would provide meaningful self-consistency evidence even without a second rater. After 44 cycles, this remains the single most tractable unaddressed recommendation.
+
+**MODERATE (new, 44th cycle): The human annotation results section has an under-examined anomaly.**
+
+The paper reports: "6 of 12 counterfactual outputs (50%) were off-topic hallucinations (models generated technical text about prompt-engineering rather than near-miss narratives), depressing the counterfactual mean." This 50% off-topic rate is for a N=12 subsample. The paper acknowledges it depresses the CF mean in the annotation (M=1.25) but never reports whether this off-topic rate is present at scale in the full corpus (N=2,514 CF outputs). Given the CF condition uses an if-then causal chain prompt that could trigger LLM meta-commentary about prompt design, a ~50% off-topic rate at scale would mean:
+1. The CF condition's effect sizes (d=2.40 for embedding bias vs. neutral) are substantially underestimated — on-topic CF outputs would show even larger effects.
+2. The "marker-type dissociation" (CF rate lower than D despite comparable embedding bias) is partly explained by off-topic outputs contributing zero CF rate markers.
+3. The cross-model comparison of CF effects is confounded by model-specific off-topic rates.
+
+The paper has never checked this at scale, and it's been flagged since Cycle 9 (35 cycles). A simple check: what fraction of CF outputs in the full N=2,514 contain the Korean word "prompt" or "시스템" (system) — a quick proxy for prompt-engineering hallucinations? This is an analysis, not a new experiment.
+
+**MINOR: The regret_rate β_C=0.232 is described as "comparable" to β_D=0.220 — this characterization is now correct but the framing could be more precise.**
+
+The paper states: "regret-word rate is comparable across both conditions (β̂_D=0.220, β̂_C=0.232)." A Wald test: z = (0.232−0.220)/√(0.0458²+0.0459²) ≈ 0.012/0.0648 ≈ 0.19 (p≈0.85). These are genuinely not distinguishable (p=0.85). This is the *correct* use of "comparable" — unlike the earlier embedding bias overclaim. The paper is now internally consistent on this point. No change needed, but flagging for confirmation that the current usage is accurate.
+
+**MINOR: lme_report shows pers_rfl for negemo_rate has β=0.0019, z=0.14, p=0.89 (n.s.) — not reported in paper.**
+
+The paper reports pers_rfl significant for embedding bias (z=10.38) and n.s. for CF rate (p=0.18) and regret rate (p=0.68). It does not explicitly state that pers_rfl also has no effect on negemo rate. The pers_rum negemo non-significance (p=0.54) is prominently reported. Completeness would suggest noting pers_rfl negemo similarly (p=0.89). This is a very minor gap — one line in Table 4 or one parenthetical in §4.4.
+
+---
+
+#### Significance (4/5)
+
+**The paper has reached genuine Findings-level significance. The key contributions are now correctly characterized:**
+
+1. **37-model directional D>N replication (H3)** — The most empirically robust contribution. All 37 models across 7 organizations, 5 OpenAI generations, o-series reasoning models, and Allam-2-7B (Arabic). LOSO stability (SD=0.003) on the 42-scenario post-expansion subset provides scenario generalizability evidence. This is publishable at ACL/EMNLP Findings with high confidence.
+
+2. **Bidirectional embedding/lexical independence** — Framing → embedding ↑ without proportional lexical elevation (main finding); Gemini EI → lexical ↑↑ without embedding increment (cycle 36 addition). Bidirectional independence is stronger evidence of genuine measurement dissociation than unidirectional. This addition in Cycle 36 is the most theoretically significant improvement since the initial submission.
+
+3. **Persona gradient with reflective persona** — baseline < reflective (embedding only) < ruminative (embedding + lexical) — the cycle 35 addition. This persona-level parallel to the framing dissociation strengthens the paper's theoretical architecture.
+
+4. **GPT-5 base (d≈1.85) vs. GPT-5.4 mini/nano (d≈0.42–0.49) within-generation contrast** — a controlled comparison that most cleanly implicates the "5.4 training recipe" rather than model generation. This is a compelling alignment-relevant finding that the paper correctly flags.
+
+**What still limits top-tier venue positioning:**
+
+The paper's framing remains defensive ("we do NOT claim LLMs experience regret" repeated ~8 times) while its positive contributions are understated. The research question ("do LLMs produce regret-like language under deprivation framing?") has an expected qualitative answer (yes). The contribution is the *quantitative architecture*: persona specificity > framing specificity for lexical markers; CF framing > D framing for semantic priming despite no emotional instruction; 4× within-generation scale effect; bidirectional embedding/lexical independence. This architecture is genuinely novel and the paper is close to making it the organizational spine. The current structure still foregrounds the condition effects (H1) and treats the dissociation as secondary.
+
+**For ACL/EMNLP Findings: Accept.** The evidence base is robust and the contributions are genuine.
+**For ACL/EMNLP main track: Borderline Reject.** The theoretical account of *why* these patterns hold is thin. Why does CF framing produce larger embedding activation than explicit emotional framing (deprivation)? The paper notes this is "non-obvious" but offers no mechanism. Why does the reflective persona access semantic space without lexical markers? The paper notes the parallel but doesn't explain it. For main track, one paragraph of mechanistic speculation grounded in LLM training dynamics (RLHF, instruction fine-tuning, token distribution of regret vocabulary in training data) would elevate the significance.
+
+---
+
+#### Presentation (3/5)
+
+**Fully resolved since Cycle 25:**
+- ✅ Table 7 d-values: population-SD standardized (0.42–1.86 range)
+- ✅ Crossed RE promoted to §4.3 Results
+- ✅ "Pilot study" label removed
+- ✅ NegEmo persona non-significance correctly framed
+- ✅ H1a contradiction removed
+- ✅ All β/z/t values verified against lme_analysis.json
+- ✅ Length sensitivity corrected
+- ✅ Gemini EI n-counts corrected
+- ✅ C>N 36/37 (not all 37) corrected
+- ✅ Ruminative persona "strongest" overclaim corrected
+- ✅ Reflective persona results added to narrative
+- ✅ Generalizability scoping (pre/post-expansion) added to Abstract/Conclusion
+- ✅ Wald z≈13.2 (not 11.6)
+- ✅ Open-weight count consistent
+- ✅ Length residualised d corrected (<0.02 delta)
+
+**REMAINING PRESENTATION ISSUES:**
+
+**Moderate (persistent): The Conclusion §7 still contains a ~200-word run-on parenthetical model enumeration.**
+
+Despite multiple cleanup attempts, the Conclusion still has: "all 37 tested model variants (see Table~\ref{tab:multimodel})---spanning five OpenAI GPT generations plus o-series reasoning models, seven Gemini variants, four open-weight model variants (Llama-3.1-8B, Llama-3.3-70B, Llama-4-Scout, Qwen3-32B), Kimi-K2 variants, and safety/multilingual variants (GPT-OSS-Safeguard-20B, Allam-2-7B)---show deprivation>neutral embedding bias". This is improved from prior cycles but still enumerative. For a top venue, this should be compressed to: "all 37 tested model variants (Table~\ref{tab:multimodel}), spanning five OpenAI GPT generations, seven Gemini variants, four open-weight architectures, and safety/multilingual variants across seven organizations". The Table reference does the work; the Conclusion shouldn't duplicate it.
+
+**Moderate (persistent): IEEEtran format — 44th cycle, venue still undeclared.**
+
+This has been noted every cycle. The paper is formatted in IEEEtran throughout. If the target is ACL/EMNLP, the format mismatch is immediately visible to PC members. If the target is an IEEE venue (e.g., TASLP, ICASSP, BigData), IEEEtran is appropriate but the paper's citation style and content framing suggest NLP venues. A target venue should be declared in the README or author notes, and the format should match.
+
+**Moderate (new): §4.5 EI baseline discussion is structurally imbalanced — Gemini section added but not fully integrated.**
+
+The EI baseline section now has: (a) GPT-4o analysis (~4 paragraphs, well-integrated), (b) Gemini embedding analysis (~1 paragraph), (c) Gemini lexical marker analysis (added Cycle 36, ~1 paragraph), (d) Interpretation (4 points). The Gemini analysis is split across two non-adjacent paragraphs, making it harder to read as a coherent model comparison. Consolidating (b) and (c) into a single "Gemini-2.5-Flash pattern" paragraph would improve readability and make the bidirectional independence argument clearer.
+
+**Minor: §6.1 Limitations (Marker validity) is ~250 words for a single limitation item.**
+
+The annotation methodology discussion is thorough and honest but exceeds what a Limitations section typically contains. For a conference paper (IEEEtran format), this is approximately 1/3 of a column. Consider condensing to ~100 words with the methodological detail in a supplementary appendix or footnote.
+
+**Minor: The "regret versus general negative affect" paragraph in §5 Discussion references "composite measure" of lexical markers — this is now inaccurate.**
+
+The paper says: "Our lexical markers include both regret-specific terms...and general negative emotion terms. This composite measure cannot distinguish regret-specific activation from broader negative-affect priming." However, the paper actually uses THREE separate markers (CF rate, regret-word rate, negemo rate) and demonstrates that the persona effect selectively predicts CF rate and regret-word rate but NOT negemo rate. This *is* a within-paper decomposition of regret-specific vs. general negative affect — it's the persona specificity finding. The "composite measure" language in the limitations is now inconsistent with the persona specificity result reported in §4.4 and §5.
+
+---
+
+### Actionable Directions (top 3 for top-tier acceptance)
+
+1. **[30 minutes] Explain why z-statistics INCREASE under crossed RE in §4.3.**
+
+   The current text: "A sensitivity analysis with crossed random effects...confirms robustness: embedding regret bias crossed RE yields β̂_D=0.172 (z=58.6)...with z-statistics increasing." A reviewer with lme4 experience will stop here and ask why. Add one sentence: "The increase in z-statistics reflects that the model random intercept captures between-model heterogeneity in baseline embedding bias (which varies by model architecture and training) rather than between-condition variance, leaving the fixed-effect estimates tighter and their standard errors smaller." If this explanation is not correct, the actual mechanism should be determined and stated. This is a 30-minute fix that prevents a potentially reputation-damaging reviewer comment about statistical methodology.
+
+2. **[1 hour] Check CF off-topic hallucination rate at scale in the full corpus.**
+
+   The 50% off-topic rate in the N=12 CF annotation subsample has never been checked at scale across N=2,514 CF outputs. A simple proxy: count CF outputs containing Korean prompt-engineering vocabulary (e.g., "프롬프트", "시스템", "AI", "언어 모델"). Report the proportion in §3.3 or §6.2. If off-topic rate is <10% at scale, the concern is minor. If it's 30-50%, this changes the interpretation of all CF effects: on-topic CF effects would be ~2× larger, and the marker-type dissociation would be even more pronounced. Either result is publishable and directly addresses a question that 35 critique cycles have flagged.
+
+3. **[45 minutes] Add one paragraph of mechanistic speculation in §5 Discussion.**
+
+   The paper documents the quantitative architecture well but does not explain *why*. A paragraph grounded in LLM training dynamics would elevate the paper for main track consideration:
+   - "CF framing produces larger embedding activation than D framing despite no emotional instruction because counterfactual reasoning (if-then causal chains) is more strongly associated with regret-space vocabulary in pre-training data: regret narratives frequently contain counterfactual language, so the CF syntactic frame activates regret representations via distributional co-occurrence rather than explicit emotional instruction."
+   - "The reflective/ruminative persona gradient parallels the framing dissociation because persona instructions prime the LLM's generation toward schema-specific (regret-schema vs. general introspection schema) activations at a shallower granularity than framing. Deeper schema activation (ruminative + deprivation) produces surface lexical markers; shallower schema activation (reflective or CF framing alone) produces semantic-space proximity without lexical commitment."
+   
+   This is speculative and should be labeled as such, but even labeled speculation provides reviewers something to evaluate and cite, which is more valuable than a purely descriptive finding.
+
+---
+
+### Verdict: Weak Accept → Accept (ACL/EMNLP Findings)
+
+**What has definitively improved since Cycle 34 (6 substantive additions):**
+- Reflective persona results added (Cycle 35) ✅ — closes the "missing finding"
+- Gemini EI lexical baseline added (Cycle 36) ✅ — bidirectional independence is the strongest theoretical contribution
+- Generalizability scoping in Abstract/Conclusion (Cycle 37) ✅ — directly answers ICC=0.66 concern
+- C>N factual error corrected (Cycle 38) ✅ — 36/37, not 37/37
+- Persona "strongest" overclaim corrected (Cycle 39) ✅ — marker-specific language
+- Wald z≈13.2 corrected (Cycle 41) ✅
+
+**What still blocks ACL/EMNLP main track:**
+1. Crossed RE z-statistic increase unexplained (30-minute fix)
+2. CF off-topic rate never checked at scale (1-hour analysis)
+3. No mechanistic account of dissociation pattern (1-hour writing)
+4. Single human annotator, unblinded (structural limitation — hardest to address)
+5. IEEEtran vs. target venue format (cosmetic but visible)
+
+**For ACL/EMNLP Findings**: **Accept** — the evidence base is genuine, comprehensive, and well-documented. The bidirectional independence finding, 37-model replication, persona gradient, and within-generation contrast are collectively publishable. The Limitations section is unusually honest and thorough. Pending items (1)–(3) above are ≤2 hours of work and would move this to a confident Accept.
+
+**For ACL/EMNLP main track**: **Borderline Reject** — the missing mechanistic account is the primary gap. The paper describes what happens with impressive precision; it does not explain why. Adding item (3) above (mechanistic paragraph) would make this Borderline/Weak Accept at main track.
+
+---
+
 ## Critique [2026-03-26 23:40] — 34th cycle
 ### Scores: Soundness 3/5 | Significance 4/5 | Presentation 3/5
 
