@@ -18,6 +18,7 @@ DATA_DIR = ROOT / "results" / "real_experiments"
 
 BATCH_FILES = [
     "batch_v1_pilot_openai",
+    "batch_v1_gemini",
     "batch_v1_gemini_v2",
     "batch_v3_expand",
     "batch_v4_expand_gpt4o",
@@ -60,6 +61,7 @@ BATCH_FILES = [
     "batch_v29_stability_fill",
     "batch_v30_stability_fill2",
     "batch_v31_gpt54full",
+    "batch_v32_o1_o3",
 ]
 
 # Regret prototype sentences (Korean)
