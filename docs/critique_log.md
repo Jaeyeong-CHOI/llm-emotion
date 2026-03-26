@@ -2325,3 +2325,36 @@ All three internal contradictions resolved. Paper is now free of known H1a confi
 
 ### Verdict: Submission-ready (confirmed, internal consistency improved)
 EI section now has correct n-counts, means, and t-statistics. All known internal inconsistencies resolved.
+## Critique Cycle 33 — 2026-03-26 23:39 (Asia/Seoul)
+
+### Issues Fixed
+
+1. **Stale length-sensitivity statistics in §7 Limitations — INTERNAL INCONSISTENCY**
+   - `r(len, emb)` corrected: 0.235 → 0.171 (actual Pearson r from `run_length_sensitivity.py` on N=7,440)
+   - Length-covariate LME dep β: 0.158 (z=32.44) → 0.176 (z=51.80)
+   - Length-covariate LME CF β: 0.203 (z=39.77) → 0.241 (z=70.03)
+   - % reduction corrected: "2.5% dep, 3.3% CF" → "1.6% dep, 1.0% CF" (recalculated vs. updated betas; also consistent with baseline β 0.179/0.243)
+   - Length covariate β: 0.015 (z=22.40) → 0.014 (z=23.43)
+   - Length-residualized d-values: dep 1.86→2.03, CF 2.20→2.39
+   - Root cause: the length confound section was written using an earlier partial-dataset run (different N/model subset) and never refreshed when the dataset grew from ~1,300 to 7,440.
+   - Additional error: the old % reductions (2.5%/3.3%) were arithmetically impossible given the stated β values — (0.180−0.158)/0.180 = 12.2%, not 2.5%. This would have been caught by any careful reviewer.
+
+### Method
+- Ran `run_length_sensitivity.py` to get fresh N=7,440 values
+- Recomputed % reductions from actual β_base (0.179/0.243) and β_len (0.176/0.241)
+- Surgical LaTeX edits to §7 Limitations paragraph 6 (response length confound)
+- PDF recompiled (143K, same cosmetic warnings, no new errors)
+- Committed (9f60baf) and pushed to GitHub
+
+### Key finding unchanged
+- Qualitative conclusion holds: length attenuation is minimal (<2%), condition effects robust
+- Corrected values actually strengthen the claim (1.6%/1.0% < old 2.5%/3.3%)
+
+### Remaining Issues
+
+1. **Single human annotator, unblinded** (κ=0.44, N=36) — structural limitation (acknowledged in paper)
+2. **IEEEtran format vs. ACL/EMNLP target** — cosmetic/venue alignment
+3. **Mistral/DeepSeek replication** — unavailable; noted as future work
+
+### Verdict: Submission-ready (confirmed, internal consistency improved)
+Length-sensitivity section now has correct r, β, z, % reduction, and d values. All known internal inconsistencies resolved. Paper is free of arithmetic errors.
