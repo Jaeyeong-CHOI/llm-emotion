@@ -2175,3 +2175,30 @@ Table 7 d-values are now credible (max d=1.86 vs. prior max d=9.38). The "implau
 
 ### Verdict: Submission-ready (confirmed, corrected)
 NegEmo cond_C p-value corrected. All LME stats now verified against lme_analysis.json.
+
+---
+
+## Critique Cycle 28 — 2026-03-26 22:05 (Asia/Seoul)
+
+### Issues Fixed
+
+1. **Crossed RE promoted from Limitations to co-primary in Results — CRITICAL (Critique 25/27 open item #1)**
+   - Previously: crossed RE results were only in §6.8 (Limitations), forcing readers to find them buried in a limitations list
+   - Fix: added a summary paragraph inline in §4.3 (Mixed-effects analysis / `\label{sec:lme}`) immediately after primary LME narrative, reporting crossed RE estimates ($\hat{\beta}_D=0.172$, $z=58.6$; $\hat{\beta}_C=0.228$, $z=77.1$; both $p<0.001$, $\Delta\hat{\beta}<0.016$, $z$ increases)
+   - Table caption for tab:lme_summary updated with parenthetical crossed-RE reference
+   - §6.8 (Limitations) updated to "(addressed)" status with cross-reference to §4.3 via `\ref{sec:lme}`
+   - `\label{sec:lme}` added to the Mixed-effects analysis subsection heading
+
+### Method
+- Surgical LaTeX edits to §4.3 and §6.8
+- PDF recompiled successfully (137K, same cosmetic hbox/vbox warnings, no new errors)
+- Committed (fd00318) and pushed to GitHub
+
+### Remaining Issues
+
+1. **Explicit-instruction baseline** — missing, requires 1-2 days API work
+2. **Single human annotator, unblinded** (κ=0.44, N=36) — structural limitation (acknowledged)
+3. **IEEEtran format vs. ACL/EMNLP target** — cosmetic/venue alignment
+
+### Verdict: Submission-ready (confirmed, strengthened)
+The top reviewer concern (crossed RE buried in Limitations) is resolved. Crossed RE evidence is now visible in the Results section with explicit reference. Paper is stronger for ACL/EMNLP Findings submission.
