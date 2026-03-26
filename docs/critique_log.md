@@ -2,6 +2,203 @@
 
 ---
 
+## Critique [2026-03-26 19:20] — 18th cycle
+### Scores: Soundness 3/5 | Significance 4/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 17th Cycle (16:47)
+
+The 17th cycle identified three new blocking issues: (1) model-as-random-effect omission, (2) "comparable" semantic embedding overclaim (β_C=0.233 vs β_D=0.181, 29% difference, formally distinguishable), and (3) GPT-3.5-turbo D=C=0.221 unexplained equality. Additionally, the paper was in its "best state yet" with all Table 4 ↔ lme_report matches confirmed at N=6,709.
+
+Since the 17th cycle, the paper has expanded substantially: N=7,440 (53 batches, 37 models) versus the prior N=6,709 (47 batches, 32 models). Batch v35 adds GPT-5.1/GPT-5.2; batches v36–v53 fill stability gaps and add condition balance for Groq/Llama/Allam/OSS. The paper now lists GPT-5.1 (n=90, d=3.46), GPT-5.2 (n=90, d=2.58) in Table 7, and all models are declared "fully stable."
+
+**The authoritative lme_report.md reflects N=7,029 (48 batches, 35 models) — not N=7,440.**
+
+---
+
+### DATA INTEGRITY AUDIT (18th cycle)
+
+**Paper main.tex (N=7,440) vs. lme_report.md (N=7,029, current authoritative):**
+
+| Statistic | Paper | lme_report | Match? |
+|---|---|---|---|
+| N total | 7,440 | 7,029 | ❌ Δ=+411 |
+| Batches | 53 | 48 | ❌ Δ=+5 |
+| Models | 37 | 35 | ❌ Δ=+2 (GPT-5.1, GPT-5.2 missing) |
+| β_D (emb bias) | 0.179 (z=52.21) | 0.1808 (z=46.988) | ❌ z Δ=+5.2 |
+| β_C (emb bias) | 0.243 (z=70.17) | 0.2449 (z=61.807) | ❌ z Δ=+8.4 |
+| pers_rum z (emb) | 19.51 | 19.442 | ~✅ (minor) |
+| CF rate β_D | 0.236 (z=3.90) | 0.211 (z=3.052) | ❌ |
+| CF rate β_C | 0.656 (z=10.83) | 0.5838 (z=8.289) | ❌ |
+| Regret rate β_D | 0.204 (z=4.16–4.80) | 0.2264 (z=4.329) | ❌ |
+| Regret rate β_C | 0.208 (z=4.20) | 0.2326 (z=4.392) | ❌ |
+| NegEmo β_D | 0.109 (z=5.11) | 0.1165 (z=5.268) | ❌ |
+| NegEmo β_C | 0.065 (z=3.05) | 0.0699 (z=3.143) | ❌ minor |
+| NegEmo pers_rum | p=0.45 n.s. | p=0.4975 n.s. | ❌ (minor; both n.s.) |
+| Condition N (dep) | 2,436 | 2,332 | ❌ Δ=104 |
+| Condition N (CF) | 2,514 | 2,384 | ❌ Δ=130 |
+| Condition N (neu) | 2,490 | 2,313 | ❌ Δ=177 |
+
+**Assessment: Paper N=7,440 LME has NOT been committed to lme_report.md.**
+
+This is now the **18th consecutive critique cycle** to identify a paper ↔ lme_report discrepancy. The direction is the same as cycles 9, 13, 16: the paper claims a larger N (7,440) than the committed authoritative file (7,029). The z-statistic inflation pattern is consistent with this: the paper's z_D=52.21 > lme_report's z_D=46.988, matching what we would expect when adding ~411 additional samples. The LME has been run on the full N=7,440 corpus but the output has not been committed.
+
+**Cross-model Table 7: GPT-5.1 and GPT-5.2 present in paper but absent from lme_report.**
+
+The paper lists GPT-5.1 (n=90, d_DN=3.46 [2.51, 5.00]) and GPT-5.2 (n=90, d_DN=2.58 [1.92, 3.55]) as fully stable models. The lme_report covers 35 models and does not include gpt-5.1 or gpt-5.2. The paper also lists kimi-k2-instruct-0905 as a separate model — this IS in the lme_report (d=1.412). Groq Compound/Compound-Mini appear in lme_report as "compound"/"compound-mini" and do correspond to the paper's entries. The 35 in lme_report = 37 paper models minus gpt-5.1 and gpt-5.2 = 35 ✓.
+
+**Cross-model d-value audit (paper Table 7 vs. lme_report):**
+
+The 17th cycle established the systematic inflation pattern. Re-checking key entries with new lme_report values (N=7,029):
+
+| Model | Paper d_DN | lme_report d_DN | Ratio |
+|---|---|---|---|
+| GPT-3.5-turbo | 3.62 | 1.755 | 2.06× ❌ |
+| GPT-4o | 2.77 | 1.662 | 1.67× ❌ |
+| GPT-4.1 | 2.05 | 1.440 | 1.42× ❌ |
+| GPT-5.4 | 4.96 | 1.859 | 2.67× ❌ |
+| GPT-5.4-mini | 0.42 | 0.419 | ~1.00× ✅ |
+| o1 | 4.13 | 1.806 | 2.29× ❌ |
+| o3 | 4.94 | 1.858 | 2.66× ❌ |
+| Groq Compound-Mini | 4.80 | 1.856 | 2.59× ❌ |
+| Allam-2-7B | 2.30 | 1.525 | 1.51× ❌ |
+
+**The d-value inflation pattern is structurally identical to cycles 13–17. The methodology note in the table caption persists but does not resolve the credibility problem of displaying d=4.96 and d=4.94 as headline numbers.**
+
+**GPT-3.5-turbo D=C=0.221: STILL UNRESOLVED (13th cycle of flagging)**
+
+The lme_report now shows gpt-3.5-turbo D_bias=0.2278, n_D=72. No C_bias is shown separately in the new lme_report (it only shows D_bias and N_bias). The paper's Table 7 entry GPT-3.5 D=0.221, C=0.221 remains at exact three-decimal equality. With n=204 total samples (D+N+C), exact equality to three decimal places for D_bias and C_bias is implausible under any realistic generative process. This is almost certainly a copy-paste error (D value duplicated into the C column) that has persisted for 13 cycles.
+
+**NEW: Condition counts in paper Table 3 vs lme_report:**
+
+Paper condition Ns: dep=2,436, CF=2,514, neu=2,490. lme_report: dep=2,332, CF=2,384, neu=2,313. The differences (Δ≈104–177 per condition) are exactly the samples added in the un-committed batches v48–v53. This confirms the paper's condition statistics have been updated from the new analysis, but lme_report.md has not been regenerated.
+
+---
+
+### Key Weaknesses
+
+#### Soundness (3/5)
+
+**CRITICAL (18th cycle — recurring, same pattern as cycles 9, 13, 16): Paper N=7,440 LME statistics are not committed to lme_report.md.**
+- The authoritative lme_report.md shows N=7,029 (48 batches, 35 models). The paper claims N=7,440 (53 batches, 37 models) for all LME inference. Every z-statistic in the paper is from an uncommitted analysis run. The z-statistic differences (e.g., z_D: paper 52.21 vs lme_report 46.988; z_C: paper 70.17 vs lme_report 61.807) are directionally consistent with the larger N, not random rounding — confirming a real re-run exists but has not been committed.
+- **This is a reproducibility crisis by the paper's own standard**: "Code, stimuli, and outputs are publicly available" and "authoritative output is lme_analysis.json (N=7,440, 53 batches, 37 models)" — but lme_analysis.json/lme_report.md reflect only N=7,029. Any reviewer who clones the repo and runs `python3 scripts/run_lme_analysis.py` will get N=7,029 outputs, not the paper's z=52.21 result.
+- Fix: run `python3 scripts/run_lme_analysis.py` on the full N=7,440 dataset, commit lme_analysis.json, regenerate lme_report.md. This is the same 30-minute fix requested in cycles 9, 13, 16.
+
+**CRITICAL (persistent, cycles 17–18): Model-as-random-effect omission.**
+- The LME spec (Eq. 1 in paper): `marker = β₀ + β₁C_D + β₂C_C + β₃P_rfl + β₄P_rum + β₅T + u_scenario`. Model family is NOT included as a random grouping factor.
+- With 37 heterogeneous models pooled, observations from the same model are not exchangeable — yet the LME treats them as conditionally independent given condition, persona, and temperature. This induces within-model correlation of residuals that inflates z-statistics.
+- The paper now reports z_D=52.21 and z_C=70.17. These are enormous z-values. Even granting the large N=7,440, values of this magnitude are consistent with pseudo-replication from not accounting for model-level clustering. A reviewer familiar with lme4/nlme will request the crossed random effects model immediately.
+- With GPT-4o contributing n=766 samples and Gemini-2.5-Flash contributing n=1,085 samples, these two models alone account for ~24% of the dataset. Their systematic behavioral profiles are not modeled as random effects — instead they contribute directly to fixed-effect estimation via their raw observations.
+- **Recommended spec**: `marker ~ cond_D + cond_C + pers_rum + pers_rfl + temp_z + (1|scenario) + (1|model_id)`. Computationally feasible with 37 groups. Report model-level ICC alongside scenario-level ICC.
+
+**CRITICAL (persistent, cycles 17–18): "Comparable" embedding activation overclaim remains unaddressed.**
+- Paper: both D (β=0.179) and C (β=0.243) "elevate regret-associated semantic content comparably." lme_report: β_D=0.1808, β_C=0.2449 — a 35% difference.
+- Wald test for H₀: β_D = β_C: z_diff = (0.2449 - 0.1808) / √(SE_D² + SE_C²) = 0.0641 / √(0.0038² + 0.004²) ≈ 0.0641 / 0.0055 ≈ 11.6 (p<<0.001). The two conditions are formally distinguishable at z≈11.6 — not "comparable."
+- The paper's "marker-type dissociation" framing rests on this claim of semantic comparability. With β_C/β_D ≈ 1.35 and a Wald z≈11.6 difference, the correct framing is: "both conditions significantly activate regret-associated semantic space above neutral, with CF framing showing a 35% larger embedding effect." The semantic-layer finding is still real and interesting; calling it "comparable" is the overstatement.
+
+**SERIOUS (persistent): GPT-3.5-turbo D=C=0.221 in Table 7 — 13th cycle unresolved.**
+- A copy-paste error (D value duplicated in C column) or genuine empirical degeneracy — either requires resolution. The lme_report confirms D_bias=0.2278 for GPT-3.5-turbo but the C-condition mean is not separately reported. The paper should explicitly report raw means ± SD for this model or note the anomaly.
+
+**SERIOUS (persistent): The "progressive alignment dampening" narrative is contradicted by GPT-5.4 full.**
+- Per lme_report: GPT-3.5-turbo d=1.755 → GPT-4o d=1.662 → GPT-4.1 d=1.440 → GPT-5.4 d=1.859. GPT-5.4 full's lme_report d=1.859 is the LARGEST among all GPT models, exceeding GPT-3.5-turbo (d=1.755). The paper's "progressive alignment dampening" interpretation requires monotonically decreasing d across generations, which is not observed.
+- **The GPT-5 base family further complicates this**: lme_report shows GPT-5 d=1.705, GPT-5-mini d=1.835, GPT-5-nano d=1.854. These are LARGER than GPT-4.1 (d=1.440) and comparable to GPT-5.4 full (d=1.859). If "alignment dampens effects," newer models should show smaller d — but GPT-5-nano d=1.854 is among the highest in the dataset.
+- **New finding in this cycle's lme_report**: The actual compelling "alignment" story is the WITHIN-FAMILY comparison: GPT-5.4-mini (d=0.419) and GPT-5.4-nano (d=0.491) are dramatically lower than GPT-5.4-full (d=1.859). This 4.4× within-family effect is real and interesting. But the across-generation narrative (GPT-3.5 → GPT-5 "progressive dampening") is not supported by lme_report values and should be abandoned.
+
+**MODERATE (persistent): Single-annotator human validation (κ=0.44) — 18 cycles unaddressed.**
+- No second human rater has been added. The annotation (N=36, first author, unblinded) remains the sole human validation. For a paper claiming strong convergent validity with the automated metrics, this is structurally insufficient at any top venue.
+
+**MODERATE: Temperature distribution in Limitations (§5 item 4) is internally inconsistent.**
+- The paper states temperature distribution counts that include T=0.7 (n=2,946), T=0.2 (n=1,475), T=0.4 (n=1,092), etc. But these counts were set at the 12th cycle and likely need updating for the N=7,440 corpus. The sum of listed temperature counts does not equal 7,440 (this was flagged in cycle 12 as well).
+
+---
+
+#### Significance (4/5)
+
+**The 37-model directional replication is the paper's core publishable contribution — and it is robust.**
+- All 35 models in the lme_report (the authoritative source) show D_bias > N_bias. When the N=7,440 lme_report is regenerated, it will cover 37 models. D>N directional consistency across 7 organizations, 4 open-weight architectures, reasoning models, and an Arabic-focused architecture (Allam-2-7B) is empirically unusual and valuable. lme_report d-values range from 0.419 (GPT-5.4-mini) to 1.859 (GPT-5.4-full) — a real, modest 4.4× spread.
+
+**The persona specificity result (NegEmo n.s.) is now properly framed — remains the most theoretically interesting finding.**
+- lme_report confirms: NegEmo pers_rum p=0.4975 n.s. while CF rate (p=0.00), regret-word rate (p<0.001), and embedding bias (z=19.442) are all predicted by pers_rum. This dissociation — ruminative personas selectively activate regret-schema representations without elevating general negative affect — has genuine psycholinguistic implications and is now correctly stated in the paper. This is the strongest novel contribution.
+
+**New finding in this cycle: GPT-5 base family (d≈1.7–1.85) vs GPT-5.4-mini/nano (d≈0.42–0.49).**
+- The lme_report now provides stable estimates for GPT-5 (d=1.705), GPT-5-mini (d=1.835), GPT-5-nano (d=1.854), GPT-5.4-mini (d=0.419), GPT-5.4-nano (d=0.491). The within-generation contrast (GPT-5-nano d=1.854 vs GPT-5.4-nano d=0.491) is a 3.8× effect from the same model size tier, suggesting the "5.4" training recipe substantially changes affect-marker behavior in ways that the "5" base recipe does not. This is a more controlled and compelling "alignment" finding than any cross-generation comparison.
+
+**LOSO stability is now the strongest validity argument for generalizability.**
+- Mean β_D=0.165 (SD=0.003) across 42 LOSO iterations provides tight evidence that no single scenario drives the finding. Combined with 37-model directional replication, this two-axis stability (scenario axis + model axis) is what makes this publishable.
+
+**Missing: explicit-instruction baseline (18th cycle of requesting).**
+- The single most impactful experiment for ACL/EMNLP main track remains absent. Without it, "deprivation framing activates regret-like language" cannot be distinguished from "emotionally-instructed generation activates regret-like language." The persona specificity finding (personas are stronger predictors than framing) partially addresses this, but the absolute baseline is never established.
+
+---
+
+#### Presentation (3/5)
+
+**RESOLVED from prior cycles (confirmed):**
+- ✅ Abstract broken sentence: syntactically complete
+- ✅ NegEmo persona non-significance: explicitly stated
+- ✅ Table 4 ↔ lme_report: matched (at N=6,709; now stale vs N=7,440)
+- ✅ Figure 2 N: updated to 6,709 (still behind current N=7,440)
+- ✅ Table 7 d-value methodology note: present in caption
+
+**REMAINING PRESENTATION ISSUES:**
+
+**Critical: Paper N=7,440 is not the committed authoritative N.**
+- The Reproducibility section says "authoritative output is lme_analysis.json (N=7,440, 53 batches, 37 model variants)." But lme_analysis.json (and lme_report.md) contain the N=7,029 run. The reproducibility claim is false as currently stated — any external party running the analysis will get N=7,029 results, not the paper's z=52.21 result. This is the same self-contradicting reproducibility claim that has characterized cycles 9, 13, 16.
+
+**Moderate: Figure 2 title still shows "N_total=6,709" (or prior value) — needs update to 7,440.**
+- Cycle 15 fixed Figure 2 from N=4,539 to N=6,709. With the new N=7,440 expansion, Figure 2 needs another update. The figure title should reflect the actual dataset used for the visualization.
+
+**Moderate: Table 7 d-value methodology note is present but insufficient.**
+- d=4.96 (GPT-5.4) and d=4.94 (o3) are still the headline numbers in the table. A reviewer who computes d from D_bias and N_bias using lme_report's values (D_bias=0.1498, N_bias=-0.0979, SD≈0.082 pooled) will get d≈1.86. The gap between d=4.96 (paper) and d=1.86 (lme_report) cannot be fully explained by a brief methodology note. The note is better than nothing but will not prevent reviewer skepticism.
+
+**Moderate: Welch t-statistics in §4.1 are now stale relative to N=7,029 lme_report.**
+- Paper: "embedding regret bias t=64.88, p<0.001, d=1.94." lme_report descriptives: t=67.615, d=1.984 (D vs N). Paper: d=2.28 for C vs N. lme_report: d=2.34 for C vs N. These are small differences (Δd≈0.04–0.06) reflecting the new N=7,029 run. They will be further displaced when the N=7,440 run is committed.
+
+**Minor: The Conclusion paragraph listing all model variants is ~200 words of model names.**
+- Still present, still unpublishable prose for a top venue. The parenthetical list should be replaced with "see Table 7" and a brief summary (e.g., "spanning six OpenAI generations, two Gemini generations, four open-weight architectures, and three cross-organizational models").
+
+**Minor: IEEEtran format — 18th cycle, still unchanged.** If target is ACL/EMNLP, format should be acl_natbib. If IEEE conference, this is appropriate. The venue should be declared.
+
+---
+
+### Actionable Directions
+
+1. **[30-minute fix — HIGHEST PRIORITY] Commit the N=7,440 lme_analysis.json by running `python3 scripts/run_lme_analysis.py` on the full dataset, then regenerate lme_report.md.**
+   - This resolves the reproducibility contradiction. After this, verify all paper β/z values match lme_analysis.json to 3 decimal places. Given the pattern across 18 cycles, a validation script that auto-checks paper statistics against lme_analysis.json (key-value pairs) would prevent this from recurring.
+   - Expected changes after full re-run: pers_rum z may shift slightly; all condition counts will update; the paper's existing β values (β_D=0.179, β_C=0.243, z_D=52.21, z_C=70.17) are likely closer to the N=7,440 truth than lme_report's N=7,029 values, since the paper seems to have been written from the new run.
+
+2. **[2-4 hour fix] Re-run the LME with crossed random effects: `(1|scenario) + (1|model_id)`.**
+   - This is the most substantively important unresolved concern from cycle 17. With 37 model groups and N=7,440, this is computationally feasible. Reported results should include: (a) model-level ICC alongside scenario-level ICC (0.66); (b) updated fixed-effect z-statistics accounting for within-model correlation; (c) whether z_D and z_C decrease substantially (suggesting pseudo-replication in the current model) or remain large (confirming genuine robustness). If z-statistics remain large after adding model random effects, the finding is substantially strengthened. If they decrease by 30-50%, the paper's current confidence intervals are inflated and the finding becomes "Weak Accept" territory.
+
+3. **[1-hour fix] Replace Table 7 d-values with lme_report authoritative per-model d-values.**
+   - The lme_report provides per-model d(D-N) for all 35 models. Replacing Table 7 with these values: (a) makes d values reproducible from committed data; (b) changes the headline range to d=0.42–1.86; (c) forces an honest revision of the "alignment dampening" narrative to focus on the within-family GPT-5.4 vs GPT-5-base contrast (which IS real and compelling at d≈1.85 vs d≈0.45) rather than implausible cross-model d=4.96 claims. As a bonus, this also resolves the GPT-3.5-turbo D=C=0.221 anomaly if the C-condition means are re-extracted from the same data.
+
+---
+
+### Verdict: Borderline (same as cycles 16–17) → Weak Accept for ACL/EMNLP Findings
+
+**Rationale (18th cycle):**
+
+**What is genuinely good about this paper:**
+- 37-model directional D>N replication is real and robust (all 35 models in lme_report confirm it)
+- Persona specificity (NegEmo n.s.) is now correctly framed and is the most theoretically interesting finding
+- LOSO stability analysis (mean β=0.165, SD=0.003, 42 scenarios) provides strong scenario-generalizability evidence
+- Length sensitivity analysis (β attenuated <4% after length control) is well-executed
+- Stimulus bank imbalance disclosure is honest and thorough
+
+**What blocks top-tier acceptance:**
+1. **N=7,440 LME not committed** — the reproducibility section makes a false claim about what the committed data files contain (18th consecutive cycle)
+2. **Model-as-random-effect omission** — z=52.21 and z=70.17 may be inflated by pseudo-replication; no reviewer at ACL/EMNLP who knows lme4 will miss this
+3. **"Comparable" β_D=0.179 vs β_C=0.243** — Wald z≈11.6 for H₀: β_D=β_C; calling this "comparable" is formally incorrect
+4. **Table 7 d-value inflation (1.4–2.7×)** — persists despite methodology note; d=4.96 and d=4.94 will be caught
+
+**For ACL/EMNLP Findings**: Weak Accept if items 1 and 3 are fixed (commit lme_report + replace "comparable" with "both substantially elevated, CF effect larger") and item 4 has a stronger disclaimer. Item 2 (model random effects) is recommended but may not be required for Findings-level acceptance.
+
+**For ACL/EMNLP main track**: Reject — requires model-as-random-effect analysis, Table 7 d-value correction, explicit-instruction baseline, and second human rater.
+
+---
+
 ## Critique [2026-03-26 16:47] — 17th cycle
 ### Scores: Soundness 3/5 | Significance 4/5 | Presentation 3/5
 
