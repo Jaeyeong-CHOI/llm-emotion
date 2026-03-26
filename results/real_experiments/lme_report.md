@@ -1,13 +1,13 @@
 # LME Confirmatory Analysis — Real Experiment Results
-Generated: 2026-03-26 (authoritative run on full N=6522 dataset — 45 batches, 32 models)
-N total: 6522 | N per condition: deprivation=2181, counterfactual=2188, neutral=2153
-Data sources (45 batches): batch_gemini25flashlite.emb, batch_gemini25pro.emb, batch_gemini31pro.emb, batch_gemini3flash.emb, batch_gemini3pro.emb, batch_gpt41.emb, batch_gpt41mini.emb, batch_gpt4omini.emb, batch_gpt54mini.emb, batch_gpt54nano.emb, batch_llama33_70b.emb, batch_llama4_scout.emb, batch_qwen3_32b.emb, batch_v10_neutral_expand.emb, batch_v11_neutral_balance2.emb, batch_v12_gemini3pro_cf.emb, batch_v13_openai_balance.emb, batch_v14_balance.emb, batch_v15_new_models.emb, batch_v16_oss_small.emb, batch_v17_groq_compound.emb, batch_v18_new_groq.emb, batch_v19_groq_fill.emb, batch_v1_gemini_v2.emb, batch_v1_pilot_openai.emb, batch_v20_safeguard.emb, batch_v21_gemini_new.emb, batch_v22_cf_fill.emb, batch_v23_new_openai.emb, batch_v24_fill_cells.emb, batch_v25_groq_compound_balance.emb, batch_v26_lowcount_fill.emb, batch_v27_o3mini.emb, batch_v28_new_openai.emb, batch_v29_stability_fill.emb, batch_v30_stability_fill2.emb, batch_v31_gpt54full.emb, batch_v32_o1_o3.emb, batch_v3_expand.emb, batch_v4_expand_gpt4o.emb, batch_v5_expand_both.emb, batch_v6_expand.emb, batch_v7_expand.emb, batch_v8_neutral_balance.emb, batch_v9_gpt35.emb
+Generated: 2026-03-26 (authoritative run on full N=6,636 dataset — 46 batches, 32 models)
+N total: 6,636 | N per condition: deprivation=2,217, counterfactual=2,230, neutral=2,189
+Data sources (46 batches): batch_gemini25flashlite.emb, batch_gemini25pro.emb, batch_gemini31pro.emb, batch_gemini3flash.emb, batch_gemini3pro.emb, batch_gpt41.emb, batch_gpt41mini.emb, batch_gpt4omini.emb, batch_gpt54mini.emb, batch_gpt54nano.emb, batch_llama33_70b.emb, batch_llama4_scout.emb, batch_qwen3_32b.emb, batch_v10_neutral_expand.emb, batch_v11_neutral_balance2.emb, batch_v12_gemini3pro_cf.emb, batch_v13_openai_balance.emb, batch_v14_balance.emb, batch_v15_new_models.emb, batch_v16_oss_small.emb, batch_v17_groq_compound.emb, batch_v18_new_groq.emb, batch_v19_groq_fill.emb, batch_v1_gemini.emb, batch_v1_gemini_v2.emb, batch_v1_pilot_openai.emb, batch_v20_safeguard.emb, batch_v21_gemini_new.emb, batch_v22_cf_fill.emb, batch_v23_new_openai.emb, batch_v24_fill_cells.emb, batch_v25_groq_compound_balance.emb, batch_v26_lowcount_fill.emb, batch_v27_o3mini.emb, batch_v28_new_openai.emb, batch_v29_stability_fill.emb, batch_v30_stability_fill2.emb, batch_v31_gpt54full.emb, batch_v32_o1_o3.emb, batch_v3_expand.emb, batch_v4_expand_gpt4o.emb, batch_v5_expand_both.emb, batch_v6_expand.emb, batch_v7_expand.emb, batch_v8_neutral_balance.emb, batch_v9_gpt35.emb
 Models (32): allam-2-7b, gemini-2.5-flash, gemini-2.5-flash-lite, gemini-2.5-pro, gemini-3-flash-preview, gemini-3-pro-preview, gemini-3.1-flash-lite-preview, gemini-3.1-pro-preview, gpt-3.5-turbo, gpt-4.1, gpt-4.1-mini, gpt-4.1-nano, gpt-4o, gpt-4o-mini, gpt-5.4, gpt-5.4-mini, gpt-5.4-nano, groq/compound, groq/compound-mini, llama-3.1-8b-instant, llama-3.3-70b-versatile, meta-llama/llama-4-scout-17b-16e-instruct, moonshotai/kimi-k2-instruct, moonshotai/kimi-k2-instruct-0905, o1, o3, o3-mini, o4-mini, openai/gpt-oss-120b, openai/gpt-oss-20b, openai/gpt-oss-safeguard-20b, qwen/qwen3-32b
 
 ## Model: outcome ~ cond_D + cond_C + pers_rum + pers_rfl + temp_z + (1|scenario)
 
 ### Embedding regret bias (`embedding_regret_bias`) — PRIMARY OUTCOME
-  N=6522, condition ref=neutral
+  N=6,636, condition ref=neutral
 
   | Predictor | Estimate | SE | z | p |
   |---|---|---|---|---|
@@ -19,7 +19,7 @@ Models (32): allam-2-7b, gemini-2.5-flash, gemini-2.5-flash-lite, gemini-2.5-pro
   | temp_z | -0.002 | 0.0009 | -2.249 | 0.0245* |
 
 ### Regret-word rate (`regret_rate`)
-  N=6522, condition ref=neutral
+  N=6,636, condition ref=neutral
 
   | Predictor | Estimate | SE | z | p |
   |---|---|---|---|---|
@@ -31,7 +31,7 @@ Models (32): allam-2-7b, gemini-2.5-flash, gemini-2.5-flash-lite, gemini-2.5-pro
   | temp_z | -0.0078 | 0.0126 | -0.621 | 0.5349 n.s. |
 
 ### Counterfactual rate (`cf_rate`)
-  N=6522
+  N=6,636
 
   | Predictor | Estimate | SE | z | p |
   |---|---|---|---|---|
@@ -43,7 +43,7 @@ Models (32): allam-2-7b, gemini-2.5-flash, gemini-2.5-flash-lite, gemini-2.5-pro
   | temp_z | -0.0287 | 0.0159 | -1.804 | 0.0713 (borderline) |
 
 ### Negative emotion rate (`negemo_rate`)
-  N=6522
+  N=6,636
 
   | Predictor | Estimate | SE | z | p |
   |---|---|---|---|---|
@@ -54,7 +54,7 @@ Models (32): allam-2-7b, gemini-2.5-flash, gemini-2.5-flash-lite, gemini-2.5-pro
   | pers_rum | 0.0102 | 0.0152 | 0.669 | 0.5032 n.s. |
   | temp_z | -0.0075 | 0.0067 | -1.127 | 0.2597 n.s. |
 
-## Descriptive: Condition means (N=6522)
+## Descriptive: Condition means (N=6,636)
 
 | Condition | N | Welch D vs N (regret) | d | Welch D vs N (emb_bias) | d |
 |---|---|---|---|---|---|
@@ -112,5 +112,5 @@ CF framing elevates embedding regret bias (beta=0.2298, z=51.408, p<0.001) compa
 
 ## Reproducibility
 Run: `python3 scripts/run_lme_analysis.py` from project root with .env.real_model sourced.
-Full results JSON: results/real_experiments/lme_analysis.json (authoritative, N=6522)
+Full results JSON: results/real_experiments/lme_analysis.json (authoritative, N=6,636)
 Legacy lme_results.json = earlier partial-dataset run (N=216), not for verification.
