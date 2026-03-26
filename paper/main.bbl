@@ -113,6 +113,15 @@ Y.~Niu, S.~Shen, H.~Zhang, M.~Wu, H.~Lu, and L.~Cui, ``Large language models
   show fragile cognitive reasoning about human emotions,'' \emph{PLOS One},
   vol.~20, no.~6, p. e0322398, 2025.
 
+\bibitem{shanahan2023roleplay}
+M.~Shanahan, K.~McDonell, and L.~Reynolds, ``Role play with large language
+  models,'' \emph{Nature}, vol. 623, pp. 493--498, 2023.
+
+\bibitem{salewski2024impersonation}
+L.~Salewski, S.~Alaniz, I.~Rio-Torto, E.~Schulz, and Z.~Akata, ``In-context
+  impersonation reveals large language models strengths and biases,'' in
+  \emph{NeurIPS}, 2024.
+
 \bibitem{pennebaker2015liwc}
 J.~W. Pennebaker, R.~L. Boyd, K.~Jordan, and K.~Blackburn, \emph{The
   Development and Psychometric Properties of LIWC2015}.\hskip 1em plus 0.5em
