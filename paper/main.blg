@@ -1,56 +1,15 @@
-This is BibTeX, Version 0.99e (TeX Live 2026/Homebrew)
-Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+This is BibTeX, Version 0.99d
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: main.aux
 The style file: IEEEtran.bst
-Reallocated singl_function (elt_size=4) to 100 items from 50.
-Reallocated singl_function (elt_size=4) to 100 items from 50.
-Reallocated singl_function (elt_size=4) to 100 items from 50.
-Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
-Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: references.bib
+Repeated entry---line 863 of file references.bib
+ : @article{shanahan2023roleplay
+ :                              ,
+I'm skipping whatever remains of this entry
 -- IEEEtran.bst version 1.14 (2015/08/26) by Michael Shell.
 -- http://www.michaelshell.org/tex/ieeetran/bibtex/
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
 
 Done.
-You've used 21 entries,
-            4087 wiz_defined-function locations,
-            944 strings with 11009 characters,
-and the built_in function-call counts, 15849 in all, are:
-= -- 1309
-> -- 358
-< -- 131
-+ -- 197
-- -- 61
-* -- 736
-:= -- 2351
-add.period$ -- 42
-call.type$ -- 21
-change.case$ -- 20
-chr.to.int$ -- 297
-cite$ -- 21
-duplicate$ -- 1156
-empty$ -- 1276
-format.name$ -- 80
-if$ -- 3717
-int.to.chr$ -- 0
-int.to.str$ -- 21
-missing$ -- 189
-newline$ -- 86
-num.names$ -- 21
-pop$ -- 434
-preamble$ -- 1
-purify$ -- 0
-quote$ -- 2
-skip$ -- 1266
-stack$ -- 0
-substring$ -- 751
-swap$ -- 932
-text.length$ -- 32
-text.prefix$ -- 0
-top$ -- 5
-type$ -- 21
-warning$ -- 0
-while$ -- 71
-width$ -- 23
-write$ -- 221
+(There was 1 error message)
