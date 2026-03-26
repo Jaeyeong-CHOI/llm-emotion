@@ -2228,3 +2228,29 @@ The top reviewer concern (crossed RE buried in Limitations) is resolved. Crossed
 
 ### Verdict: Submission-ready (confirmed, refined)
 "Pilot study" label removed. Paper now correctly describes itself as a controlled behavioral study with full dataset scope throughout.
+
+---
+
+## Critique Cycle 30 — 2026-03-26 22:22 (Asia/Seoul)
+
+### Issues Fixed
+
+1. **Model-count inconsistency in Conclusion — "six OpenAI generations" / "eight Gemini variants"**
+   - Conclusion (§7, line 633) claimed "six OpenAI GPT generations plus o-series" but §4.3 (line 518) and Introduction (line 67) consistently enumerate five generations: GPT-3.5 → GPT-4o → GPT-4.1 → GPT-5.4 → GPT-5. "Six" is incorrect; GPT-5.1/GPT-5.2 are training variants of GPT-5, not separate generations.
+   - Conclusion also claimed "eight Gemini variants" but the LME table (lme_report.md) lists exactly seven: gemini-2.5-flash, gemini-2.5-flash-lite, gemini-2.5-pro, gemini-3-flash-preview, gemini-3-pro-preview, gemini-3.1-flash-lite-preview, gemini-3.1-pro-preview.
+   - Fix: §7 Conclusion updated to "five OpenAI GPT generations" and "seven Gemini variants" — now internally consistent across all three sites.
+
+### Method
+- Surgical LaTeX edit to §7 Conclusion (1 line)
+- PDF recompiled successfully (138K, same cosmetic hbox/vbox warnings, no new errors)
+- Committed (1aaf092) and pushed to GitHub
+
+### Remaining Issues
+
+1. **Explicit-instruction baseline** — missing, requires 1-2 days API work
+2. **Single human annotator, unblinded** (κ=0.44, N=36) — structural limitation (acknowledged)
+3. **IEEEtran format vs. ACL/EMNLP target** — cosmetic/venue alignment
+4. **Mistral/DeepSeek replication** — desirable for Conclusion "future work"
+
+### Verdict: Submission-ready (confirmed, internally consistent)
+All model-count claims now consistent across Abstract, Introduction, §4.3, and §7 Conclusion.
