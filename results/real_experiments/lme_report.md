@@ -1,73 +1,73 @@
 # LME Confirmatory Analysis — Real Experiment Results
-Generated: 2026-03-26 (authoritative run on full N=6,636 dataset — 46 batches, 32 models)
-N total: 6,636 | N per condition: deprivation=2,217, counterfactual=2,230, neutral=2,189
-Data sources (46 batches): batch_gemini25flashlite.emb, batch_gemini25pro.emb, batch_gemini31pro.emb, batch_gemini3flash.emb, batch_gemini3pro.emb, batch_gpt41.emb, batch_gpt41mini.emb, batch_gpt4omini.emb, batch_gpt54mini.emb, batch_gpt54nano.emb, batch_llama33_70b.emb, batch_llama4_scout.emb, batch_qwen3_32b.emb, batch_v10_neutral_expand.emb, batch_v11_neutral_balance2.emb, batch_v12_gemini3pro_cf.emb, batch_v13_openai_balance.emb, batch_v14_balance.emb, batch_v15_new_models.emb, batch_v16_oss_small.emb, batch_v17_groq_compound.emb, batch_v18_new_groq.emb, batch_v19_groq_fill.emb, batch_v1_gemini.emb, batch_v1_gemini_v2.emb, batch_v1_pilot_openai.emb, batch_v20_safeguard.emb, batch_v21_gemini_new.emb, batch_v22_cf_fill.emb, batch_v23_new_openai.emb, batch_v24_fill_cells.emb, batch_v25_groq_compound_balance.emb, batch_v26_lowcount_fill.emb, batch_v27_o3mini.emb, batch_v28_new_openai.emb, batch_v29_stability_fill.emb, batch_v30_stability_fill2.emb, batch_v31_gpt54full.emb, batch_v32_o1_o3.emb, batch_v3_expand.emb, batch_v4_expand_gpt4o.emb, batch_v5_expand_both.emb, batch_v6_expand.emb, batch_v7_expand.emb, batch_v8_neutral_balance.emb, batch_v9_gpt35.emb
+Generated: 2026-03-26 (authoritative run on full N=6709 dataset — 47 batches, 32 models)
+N total: 6709 | N per condition: deprivation=2234, counterfactual=2250, neutral=2225
+Data sources (47 batches): batch_gemini25flashlite.emb, batch_gemini25pro.emb, batch_gemini31pro.emb, batch_gemini3flash.emb, batch_gemini3pro.emb, batch_gpt41.emb, batch_gpt41mini.emb, batch_gpt4omini.emb, batch_gpt54mini.emb, batch_gpt54nano.emb, batch_llama33_70b.emb, batch_llama4_scout.emb, batch_qwen3_32b.emb, batch_v10_neutral_expand.emb, batch_v11_neutral_balance2.emb, batch_v12_gemini3pro_cf.emb, batch_v13_openai_balance.emb, batch_v14_balance.emb, batch_v15_new_models.emb, batch_v16_oss_small.emb, batch_v17_groq_compound.emb, batch_v18_new_groq.emb, batch_v19_groq_fill.emb, batch_v1_gemini.emb, batch_v1_gemini_v2.emb, batch_v1_pilot_openai.emb, batch_v20_safeguard.emb, batch_v21_gemini_new.emb, batch_v22_cf_fill.emb, batch_v23_new_openai.emb, batch_v24_fill_cells.emb, batch_v25_groq_compound_balance.emb, batch_v26_lowcount_fill.emb, batch_v27_o3mini.emb, batch_v28_new_openai.emb, batch_v29_stability_fill.emb, batch_v30_stability_fill2.emb, batch_v31_gpt54full.emb, batch_v32_o1_o3.emb, batch_v33_o1_o3_neutral_fill.emb, batch_v3_expand.emb, batch_v4_expand_gpt4o.emb, batch_v5_expand_both.emb, batch_v6_expand.emb, batch_v7_expand.emb, batch_v8_neutral_balance.emb, batch_v9_gpt35.emb
 Models (32): allam-2-7b, gemini-2.5-flash, gemini-2.5-flash-lite, gemini-2.5-pro, gemini-3-flash-preview, gemini-3-pro-preview, gemini-3.1-flash-lite-preview, gemini-3.1-pro-preview, gpt-3.5-turbo, gpt-4.1, gpt-4.1-mini, gpt-4.1-nano, gpt-4o, gpt-4o-mini, gpt-5.4, gpt-5.4-mini, gpt-5.4-nano, groq/compound, groq/compound-mini, llama-3.1-8b-instant, llama-3.3-70b-versatile, meta-llama/llama-4-scout-17b-16e-instruct, moonshotai/kimi-k2-instruct, moonshotai/kimi-k2-instruct-0905, o1, o3, o3-mini, o4-mini, openai/gpt-oss-120b, openai/gpt-oss-20b, openai/gpt-oss-safeguard-20b, qwen/qwen3-32b
 
 ## Model: outcome ~ cond_D + cond_C + pers_rum + pers_rfl + temp_z + (1|scenario)
 
 ### Embedding regret bias (`embedding_regret_bias`) — PRIMARY OUTCOME
-  N=6,636, condition ref=neutral
+  N=6709, condition ref=neutral
 
   | Predictor | Estimate | SE | z | p |
   |---|---|---|---|---|
-  | Intercept | -0.0729 | 0.0049 | -14.992 | <0.001*** |
-  | cond_D | 0.1785 | 0.0043 | 41.971 | <0.001*** |
-  | cond_C | 0.2298 | 0.0045 | 51.408 | <0.001*** |
-  | pers_rfl | 0.0187 | 0.0019 | 9.771 | <0.001*** |
-  | pers_rum | 0.0376 | 0.0019 | 19.305 | <0.001*** |
-  | temp_z | -0.002 | 0.0009 | -2.249 | 0.0245* |
+  | Intercept | -0.0758 | 0.0049 | -15.538 | <0.001*** |
+  | cond_D | 0.1811 | 0.0042 | 42.975 | <0.001*** |
+  | cond_C | 0.2328 | 0.0044 | 52.811 | <0.001*** |
+  | pers_rfl | 0.0192 | 0.0019 | 9.906 | <0.001*** |
+  | pers_rum | 0.0383 | 0.002 | 19.517 | <0.001*** |
+  | temp_z | -0.0012 | 0.0009 | -1.425 | 0.1542 n.s. |
 
 ### Regret-word rate (`regret_rate`)
-  N=6,636, condition ref=neutral
+  N=6709, condition ref=neutral
 
   | Predictor | Estimate | SE | z | p |
   |---|---|---|---|---|
-  | Intercept | 0.072 | 0.0666 | 1.081 | 0.2795 n.s. |
-  | cond_D | 0.2866 | 0.0601 | 4.767 | <0.001*** |
-  | cond_C | 0.3192 | 0.0624 | 5.113 | <0.001*** |
-  | pers_rfl | 0.0157 | 0.0277 | 0.567 | 0.5705 n.s. |
-  | pers_rum | 0.2927 | 0.0281 | 10.407 | <0.001*** |
-  | temp_z | -0.0078 | 0.0126 | -0.621 | 0.5349 n.s. |
+  | Intercept | 0.0822 | 0.0658 | 1.25 | 0.2113 n.s. |
+  | cond_D | 0.2728 | 0.0579 | 4.71 | <0.001*** |
+  | cond_C | 0.2985 | 0.0598 | 4.989 | <0.001*** |
+  | pers_rfl | 0.0175 | 0.0271 | 0.647 | 0.5175 n.s. |
+  | pers_rum | 0.2896 | 0.0275 | 10.546 | <0.001*** |
+  | temp_z | -0.0057 | 0.0122 | -0.465 | 0.6420 n.s. |
 
 ### Counterfactual rate (`cf_rate`)
-  N=6,636
+  N=6709
 
   | Predictor | Estimate | SE | z | p |
   |---|---|---|---|---|
-  | Intercept | 0.4079 | 0.1228 | 3.323 | <0.001*** |
-  | cond_D | 0.2777 | 0.081 | 3.429 | <0.001*** |
-  | cond_C | 0.8384 | 0.0851 | 9.856 | <0.001*** |
-  | pers_rfl | 0.0507 | 0.0348 | 1.458 | 0.1449 n.s. |
-  | pers_rum | 0.3425 | 0.0353 | 9.701 | <0.001*** |
-  | temp_z | -0.0287 | 0.0159 | -1.804 | 0.0713 (borderline) |
+  | Intercept | 0.4276 | 0.1225 | 3.489 | <0.001*** |
+  | cond_D | 0.2621 | 0.0775 | 3.38 | <0.001*** |
+  | cond_C | 0.779 | 0.081 | 9.622 | <0.001*** |
+  | pers_rfl | 0.0556 | 0.034 | 1.637 | 0.1015 n.s. |
+  | pers_rum | 0.3423 | 0.0345 | 9.928 | <0.001*** |
+  | temp_z | -0.023 | 0.0154 | -1.492 | 0.1356 n.s. |
 
 ### Negative emotion rate (`negemo_rate`)
-  N=6,636
+  N=6709
 
   | Predictor | Estimate | SE | z | p |
   |---|---|---|---|---|
-  | Intercept | 0.0601 | 0.0209 | 2.879 | 0.0040** |
-  | cond_D | 0.1331 | 0.0242 | 5.498 | <0.001*** |
-  | cond_C | 0.0827 | 0.0248 | 3.34 | <0.001*** |
-  | pers_rfl | 0.0021 | 0.015 | 0.14 | 0.8883 n.s. |
-  | pers_rum | 0.0102 | 0.0152 | 0.669 | 0.5032 n.s. |
-  | temp_z | -0.0075 | 0.0067 | -1.127 | 0.2597 n.s. |
+  | Intercept | 0.0599 | 0.0203 | 2.947 | 0.0032** |
+  | cond_D | 0.13 | 0.0235 | 5.534 | <0.001*** |
+  | cond_C | 0.08 | 0.024 | 3.339 | <0.001*** |
+  | pers_rfl | 0.0033 | 0.0146 | 0.225 | 0.8217 n.s. |
+  | pers_rum | 0.0112 | 0.0148 | 0.756 | 0.4494 n.s. |
+  | temp_z | -0.006 | 0.0064 | -0.929 | 0.3527 n.s. |
 
-## Descriptive: Condition means (N=6,636)
+## Descriptive: Condition means (N=6709)
 
 | Condition | N | Welch D vs N (regret) | d | Welch D vs N (emb_bias) | d |
 |---|---|---|---|---|---|
-| neutral | 2153 | — | — | — | — |
-| deprivation | 2181 | t=16.885, p<0.001 | 0.511 | t=64.613, p<0.001 | 1.963 |
-| counterfactual | 2188 | t=9.184, p<0.001 | 0.277 | t=75.912, p<0.001 | 2.305 |
+| neutral | 2225 | — | — | — | — |
+| deprivation | 2234 | t=16.895, p<0.001 | 0.505 | t=64.882, p<0.001 | 1.943 |
+| counterfactual | 2250 | t=9.19, p<0.001 | 0.274 | t=76.201, p<0.001 | 2.279 |
 
 ## Cross-model: Embedding Regret Bias by Model (D condition)
 
 | Model | n_D | D_bias | N_bias | d(D-N) |
 |---|---|---|---|---|
 | allam-2-7b | 38 | 0.1185 | -0.0092 | 1.525 |
-| gemini-2.5-flash | 351 | 0.0941 | -0.0518 | 1.344 |
+| gemini-2.5-flash | 387 | 0.0844 | -0.0562 | 1.299 |
 | gemini-2.5-flash-lite | 72 | 0.1123 | 0.0246 | 0.986 |
 | gemini-2.5-pro | 71 | 0.0976 | 0.0141 | 1.250 |
 | gemini-3-flash-preview | 54 | 0.1145 | -0.0154 | 1.516 |
@@ -90,8 +90,8 @@ Models (32): allam-2-7b, gemini-2.5-flash, gemini-2.5-flash-lite, gemini-2.5-pro
 | llama-4-scout-17b-16e-instruct | 72 | 0.1103 | 0.0432 | 0.779 |
 | kimi-k2-instruct | 54 | 0.0702 | -0.0256 | 1.417 |
 | kimi-k2-instruct-0905 | 54 | 0.0736 | -0.0223 | 1.412 |
-| o1 | 24 | 0.0928 | -0.0971 | 1.816 |
-| o3 | 19 | 0.0682 | -0.0853 | 1.859 |
+| o1 | 30 | 0.1033 | -0.1042 | 1.806 |
+| o3 | 30 | 0.0685 | -0.0957 | 1.858 |
 | o3-mini | 30 | 0.1359 | -0.0654 | 1.777 |
 | o4-mini | 36 | 0.0730 | -0.0169 | 1.221 |
 | gpt-oss-120b | 38 | 0.1128 | -0.0568 | 1.772 |
@@ -102,15 +102,15 @@ Models (32): allam-2-7b, gemini-2.5-flash, gemini-2.5-flash-lite, gemini-2.5-pro
 All 32 models: D_bias > N_bias direction checked; supports H3 (cross-model replication).
 
 ## Interpretation Summary
-- **H1a (lexical)**: Confirmed — regret-word rate (p=0.0000), negemo rate (p=0.0000), CF rate (p=0.0006, sig)
-- **H1b (semantic)**: Confirmed — embedding bias significant for both D (z=41.971, p<0.001) and C (z=51.408, p<0.001)
-- **H2 (persona)**: Confirmed — ruminative persona z=19.305, p<0.001 (strongest predictor)
+- **H1a (lexical)**: Confirmed — regret-word rate (p=0.0000), negemo rate (p=0.0000), CF rate (p=0.00072, sig)
+- **H1b (semantic)**: Confirmed — embedding bias significant for both D (z=42.975, p<0.001) and C (z=52.811, p<0.001)
+- **H2 (persona)**: Confirmed — ruminative persona z=19.517, p<0.001 (strongest predictor)
 - **H3 (cross-model)**: Supported — D>N directionally across all 32 models with embedding data
 
 ## Semantic-layer dissociation
-CF framing elevates embedding regret bias (beta=0.2298, z=51.408, p<0.001) comparably to deprivation (beta=0.1785, z=41.971, p<0.001). CF rate (deprivation): p=0.0006. This confirms counterfactual framing activates regret-associated semantic representations at the embedding layer.
+CF framing elevates embedding regret bias (beta=0.2328, z=52.811, p<0.001) comparably to deprivation (beta=0.1811, z=42.975, p<0.001). CF rate (deprivation): p=0.00072. This confirms counterfactual framing activates regret-associated semantic representations at the embedding layer.
 
 ## Reproducibility
 Run: `python3 scripts/run_lme_analysis.py` from project root with .env.real_model sourced.
-Full results JSON: results/real_experiments/lme_analysis.json (authoritative, N=6,636)
+Full results JSON: results/real_experiments/lme_analysis.json (authoritative, N=6709)
 Legacy lme_results.json = earlier partial-dataset run (N=216), not for verification.
