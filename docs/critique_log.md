@@ -1364,3 +1364,40 @@ All primary statistical claims are now consistent with the N=6,709 authoritative
 
 ### Verdict: Submission-ready (confirmed)
 All 8 stat-sync issues resolved. No content errors remain; paper matches lme_analysis.json N=6,709 on all reported values.
+
+---
+
+## Critique Cycle 16 [2026-03-26 16:01] — o1/o3 n & d sync; §3.3 model scope fix; Table 1 model list fix
+
+### Issues Found
+
+1. **Table 7 (tab:multimodel) o1/o3 n values**: o1 n=63, o3 n=44 — stale (pre-v33). Actual N=90 each (all conditions 30/30/30). CRITICAL.
+2. **Table 7 o1/o3 d values**: Stale values computed on partial data (n_N=12).
+   - o1: d_DN=3.65 → **4.13** [3.31, 5.52]; d_CN=4.01 → **4.46** [3.53, 6.51]
+   - o3: d_DN=4.37 → **4.94** [4.12, 6.46]; d_CN=5.80 → **7.20** [6.15, 9.01]
+3. **§3.3 (Models and API contract)**: "We queried GPT-4o and Gemini-2.5-Flash" — misleading for a 32-model study. MODERATE.
+4. **Table 1 (tab:design) model list**: o1, o3 missing from 30-item list (claimed 32 models). CRITICAL.
+5. **§Discussion cross-model paragraph**: o3-mini/o4-mini highlighted as CoT examples, but o1/o3 (stronger d values) not mentioned alongside. MODERATE.
+6. **§Limitations LME scope**: o1 d=3.65, o3 d=4.37 cited — stale. CRITICAL.
+
+### Fixes Applied (this commit)
+
+- `paper/main.tex`: 6 targeted edits
+- Table 7: o1 n=63→90, d_DN=3.65→4.13 [3.31,5.52], d_CN=4.01→4.46 [3.53,6.51] ✅
+- Table 7: o3 n=44→90, d_DN=4.37→4.94 [4.12,6.46], d_CN=5.80→7.20 [6.15,9.01] ✅
+- Table 1: Added o1, o3 to model list (30→32 entries) ✅
+- §3.3: Rewritten to accurately describe 32-model scope ✅
+- §Discussion (H3 paragraph): All four o-series models now listed with updated d values ✅
+- §Limitations (LME scope): o1 d=4.13, o3 d=4.94 ✅
+- `results/real_experiments/model_comparison_table.json`: o1/o3 updated with N=90 stats ✅
+- Recompiled: 128 KB PDF, warnings only (hbox/vbox)
+
+### Remaining Issues
+
+1. **Single human annotator** (κ=0.44, N=36) — structural limitation, acknowledged
+2. **Mistral/DeepSeek replication** — desirable future work, acknowledged
+3. **Stimulus bank imbalance (v1.0)** — disclosed in Limitations
+4. **hbox/vbox overfull warnings** — cosmetic only, no content error
+
+### Verdict: Submission-ready (confirmed)
+All 6 Cycle 16 stat-sync issues resolved. Paper fully matches actual N=90 data for o1/o3 (batch v32–v33 combined).
