@@ -2,6 +2,199 @@
 
 ---
 
+## Critique [2026-03-27 06:52] — 47th cycle
+### Scores: Soundness 3/5 | Significance 4/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 46th Cycle (04:23)
+
+Cycle 45 applied three targeted fixes (CF off-topic corpus audit; crossed RE z-increase explanation; pers_rfl negemo completeness). Cycle 46 was a fresh critical read post-Cycle 45. Between Cycles 46 and 47:
+- The paper's claimed N has been updated to **N=7,524 / 56 batches** (up from N=7,440 / 53 batches at Cycle 46)
+- A **mechanistic speculation paragraph** has been added to §5 Discussion (distributional semantics account vs. representational suppression account) — this directly addresses Cycle 44's item #3 and the main-track gap
+- The explicit-instruction baseline discussion is more prominent
+
+---
+
+### DATA INTEGRITY CHECK (47th cycle)
+
+Full cross-check of paper statistics against lme_report.md (authoritative):
+
+| Statistic | Paper | lme_report | Match? |
+|---|---|---|---|
+| N total | **7,524** | **7,440** | ❌ Δ=+84 |
+| Batches | **56** | **54** | ❌ Δ=+2 |
+| Models | 37 | 37 | ✅ |
+| Condition N (dep/CF/neu) | **2463/2541/2520** | **2436/2514/2490** | ❌ all off by ~27 |
+| β_D (emb bias) | 0.179 (z=52.21) | 0.1787 (z=52.214) | ✅ (match within rounding) |
+| β_C (emb bias) | 0.243 (z=70.17) | 0.243 (z=70.168) | ✅ |
+| pers_rum emb z | 19.42 | 19.423 | ✅ |
+| pers_rfl emb β/z | 0.019 (z=10.38) | 0.019 (z=10.378) | ✅ |
+| CF rate β_D | 0.236 (z=3.90) | 0.2358 (z=3.898) | ✅ |
+| CF rate β_C | 0.656 (z=10.83) | 0.6558 (z=10.829) | ✅ |
+| Regret rate β_D | 0.220 (z=4.80) | 0.2201 (z=4.801) | ✅ |
+| Regret rate β_C | 0.232 (z=5.08) | 0.2324 (z=5.078) | ✅ |
+| NegEmo β_D | 0.115 (z=5.72) | 0.115 (z=5.716) | ✅ |
+| NegEmo β_C | 0.073 (z=3.65) | 0.0732 (z=3.647) | ✅ |
+| NegEmo pers_rum | z=0.61, p=0.54 n.s. | z=0.61, p=0.5418 n.s. | ✅ |
+| C>N models | 36/37 | 36/37 (GPT-5.4-mini exception) | ✅ |
+
+**Assessment: PARTIAL DATA INTEGRITY — all LME β/z statistics match the N=7,440 lme_report run to 3 decimal places. However, the paper claims N=7,524 / 56 batches / condition counts 2463/2541/2520, while the committed lme_report shows N=7,440 / 54 batches / 2436/2514/2490. The LME was not re-run on the 84 new samples (or the re-run was not committed). This is the same recurring pattern seen in Cycles 9, 13, 16, 18.**
+
+---
+
+### Key Weaknesses
+
+#### Soundness (3/5)
+
+**CRITICAL (NEW, 47th cycle — same structural pattern as Cycles 9, 13, 16, 18): Paper claims N=7,524 / 56 batches but committed lme_report.md reflects N=7,440 / 54 batches.**
+
+The paper consistently states "N_total=7,524" and "56 batches" throughout (Abstract, Table 2, §4.3, §6.5, Conclusion). The authoritative `lme_report.md` states: "N total: 7440 | N per condition: deprivation=2436, counterfactual=2514, neutral=2490" — the paper's condition counts are 2463/2541/2520, each ~27 higher.
+
+The β/z values in the paper match the N=7,440 LME run exactly (verified above). This means: two new batches were added (bringing total to 56 batches, +84 samples), the condition counts in the paper's prose and tables were updated, but the LME was not re-run on the full 56-batch corpus and committed.
+
+Since the β/z values are unchanged (the 84 additional samples are ~1.1% of N=7,440 and would not materially shift large-N coefficients), this is a reproducibility concern rather than a claims-accuracy concern. **But the Reproducibility section states "authoritative output is lme_analysis.json (N=7,524, 56 batches)"** — this claim is false since the committed JSON reflects N=7,440. Any reviewer who clones the repo and runs `python3 scripts/run_lme_analysis.py` will get N=7,440 outputs, contradicting the paper's stated N.
+
+Fix: Run the LME on the full N=7,524 corpus, verify coefficients are stable, commit lme_analysis.json and regenerate lme_report.md. Expected outcome: all β/z values unchanged within rounding (given 1.1% N increase). The condition counts in the paper will then match the committed file. This is a **30-minute fix** that has been the same 30-minute fix in Cycles 9, 13, 16, 18.
+
+**SERIOUS (NEW, 47th cycle): The CF off-topic audit (§3.4) creates an unresolved internal consistency question regarding the LME stimulus scope.**
+
+The paper states (§2.2): "Internal pipeline-management scenarios were excluded; only three stimulus-relevant categories were used." The CF off-topic audit (§3.4) identifies that "a single technical AI scenario (prompt_bank_evidence_anchor_recovery_drill, n=425, 17.5%) generated technical content rather than personal regret narratives."
+
+The paper describes this scenario as a "pipeline management scenario" that should have been excluded from the LME. But the CF off-topic audit was conducted on "all N=2,431 non-empty CF outputs" — which implies these outputs ARE in the LME dataset (the LME uses N=7,440 total). If the technical scenario was excluded from the LME stimulus bank, its outputs should not appear among the CF condition outputs in the LME. If it WAS included in the LME (despite being "internal pipeline-management"), then:
+1. The 17.5% suppression of CF rate markers for these 425 outputs would have depressed β_C for CF rate — consistent with the paper's own claim that "β_C=0.243 is a conservative lower bound"
+2. But this contradicts the exclusion claim in §2.2
+
+The paper says: "On-topic CF outputs (77.3% of non-empty responses) would exhibit proportionally larger embedding bias effects if analyzed separately, indicating that the embedding LME estimate of β_C=0.243 is a conservative lower bound." This framing implicitly acknowledges these off-topic outputs ARE in the LME — which contradicts the "excluded" claim for pipeline scenarios.
+
+One sentence clarifying whether `prompt_bank_evidence_anchor_recovery_drill` is or is not in the LME would resolve this. If it IS in the LME (making β_C=0.243 conservative), the §2.2 exclusion language should be updated.
+
+**SERIOUS (persistent, Cycle 17 → 47): Crossed RE z-statistic increase — explanation now present but still mechanistically thin.**
+
+Cycle 45 added: "The increase in z-statistics reflects that the model random intercept absorbs between-model heterogeneity in baseline embedding bias—which varies systematically by model architecture and training recipe—rather than condition-dependent variance; with between-model baseline variation partitioned into the random effect, the residual variance attributed to each observation decreases, yielding smaller standard errors for the fixed-effect condition estimates."
+
+This is correct. However, a reviewer with formal lme4 background will want one more step: if between-model baseline variance (ICC_model) is absorbed, the residual variance decreases, which *does* decrease SEs and increase z. But the paper should also note that the *point estimates change only by Δβ<0.016* — so the model RE absorbs baseline variance without shifting the fixed-effect estimates, confirming the scenario-only model's estimates are not biased (just slightly conservative on SEs). The explanation as written focuses only on the SE mechanism; it does not explicitly state "therefore the scenario-only estimates are valid (unbiased), merely slightly conservative." One sentence addition would complete the argument.
+
+**SERIOUS (structural, 47 cycles): Single annotator, unblinded (κ=0.44, N=36).**
+
+Still unaddressed. The paper's annotation caveats are now exemplary ("not blinded... GPT-4o as second rater does not constitute independent human validation"), but the structural limitation persists. After 47 cycles the recommended minimum-effort fix remains: annotate a 20-item random subsample blind to condition (randomized order, no labels) and report self-consistency. This would take ~30 minutes and provide at least preliminary blinding evidence. If this remains infeasible, framing the annotation as "informal convergent validation (single-author)" rather than "inter-rater κ=0.44" would be more appropriate given the κ reporting convention.
+
+**MODERATE (persistent): Pre-expansion LME on post-expansion data only — still the single most tractable unacted recommendation.**
+
+The 30-minute analysis recommended in Cycles 44 and 46 (run confirmatory LME on post-expansion batches v27+ only, N≈1,700, 42 scenarios) remains undone. This would directly answer: "Do your headline findings hold in the scenario-diverse portion of your data, independent of the template-inflated pre-expansion batches?" Given that the LOSO already shows stability (β_D=0.165, SD=0.003), the post-expansion-only LME would almost certainly confirm consistent coefficients — adding a one-sentence validation that closes Reviewer 3's most likely concern about ICC=0.66.
+
+**MINOR (NEW, 47th cycle): The mechanistic paragraph (distributional semantics vs. representational suppression) is valuable but contains an unqualified claim that needs hedging.**
+
+The representational suppression account states: "This would predict that the dissociation should be stronger in heavily RLHF-tuned models (e.g., GPT-5.4-mini, d_DN=0.42) and weaker in instruction-following base models or open-weight variants—a pattern that is directionally consistent with Table~\ref{tab:multimodel}, where GPT-5.4-mini shows notably dampened effects relative to the GPT-5 base variants (d_DN≈1.76–1.85)."
+
+This framing treats the GPT-5.4-mini vs GPT-5 contrast as evidence for the representational suppression account, but the paper elsewhere acknowledges "this confounds RLHF tuning with other architectural differences." The prediction is stated as "directionally consistent" which is appropriate hedging. However, the sentence "consistent with the interpretation that semantic priming is downstream of training data rather than safety fine-tuning" in the distributional semantics account contradicts the representational suppression account — both accounts are stated as potentially valid, but these sentences pull in different directions without acknowledging the tension. A brief "These two accounts make different predictions about model-level heterogeneity and can in principle be distinguished by probing studies" would make the framing cleaner.
+
+---
+
+#### Significance (4/5)
+
+**The mechanistic paragraph is the most important substantive addition since Cycle 36's inverse dissociation finding.**
+
+Two theoretically grounded accounts (distributional semantics + representational suppression) are now provided with explicit falsifiable predictions. This is exactly what was missing for main-track consideration (Cycle 46 identified this as "the primary gap" for main track). The paragraph correctly labels both accounts as speculative and notes that "circuit-level analysis (e.g., causal intervention studies on residual stream activations) would be required for stronger mechanistic claims." This is appropriate epistemic modesty that top-venue reviewers will respect.
+
+**Current contribution architecture (as of Cycle 47):**
+
+1. **37-model directional D>N replication with bootstrap CIs** — empirical backbone, robust ✅
+2. **Bidirectional embedding/lexical independence** — framing → embedding ↑ without lexical (main); Gemini EI → lexical ↑↑ without embedding increment ✅
+3. **Persona gradient (baseline < reflective < ruminative)** — persona-level parallel to framing dissociation ✅
+4. **GPT-5 base (d≈1.85) vs. GPT-5.4 mini/nano (d≈0.42–0.49) within-generation contrast** ✅
+5. **CF off-topic corpus audit (22.7% vs. 50% subsample)** — β_C conservative lower bound confirmed ✅
+6. **Two mechanistic accounts with falsifiable predictions** ✅ (NEW since Cycle 46)
+
+This is now a genuinely strong Findings-level submission. The remaining gap for main track is narrowed but not closed: the mechanistic accounts are speculative and lack empirical tests. One targeted probing experiment (e.g., measuring the cosine similarity between deprivation/CF prompt representations and regret vocabulary in the model's embedding matrix) would test the distributional semantics account directly. But this is future work, not a submission requirement for Findings.
+
+**One underexplored opportunity (flagged since Cycle 46, still unacted):**
+
+The CF off-topic audit identifies 425 outputs from `prompt_bank_evidence_anchor_recovery_drill` that produced technical content. If these are in the LME dataset (see Soundness concern above), comparing the embedding bias of on-topic vs. off-topic CF outputs would test whether semantic priming requires narrative engagement — a secondary finding that converts a defensive disclosure into an affirmative result. The analysis (filter CF outputs by whether they contain "prompt" / "시스템" vocabulary, compare embedding bias) is 1 hour of work.
+
+---
+
+#### Presentation (3/5)
+
+**Fully confirmed resolved (47th cycle verification):**
+- ✅ All LME β/z statistics match lme_report.md (verified above)
+- ✅ Reflective persona narrative (Cycle 35)
+- ✅ Gemini EI inverse dissociation (Cycle 36)
+- ✅ Generalizability scoping in Abstract/Conclusion (Cycle 37)
+- ✅ C>N 36/37 factual accuracy (Cycle 38)
+- ✅ Ruminative persona "strongest" marker-specific language (Cycle 39)
+- ✅ Conclusion β notation disambiguated (Cycle 40)
+- ✅ Wald z≈13.2 (Cycle 41)
+- ✅ Open-weight count consistent (Cycle 42)
+- ✅ Length residualized d corrected (Cycle 43)
+- ✅ CF off-topic corpus audit added (Cycle 45)
+- ✅ Crossed RE z-increase explanation (Cycle 45)
+- ✅ pers_rfl negemo completeness (Cycle 45)
+- ✅ **Mechanistic speculation paragraph (NEW — added between Cycle 46 and 47)** ✅
+
+**REMAINING PRESENTATION ISSUES:**
+
+**Moderate (persistent, 10+ cycles): Conclusion §7 run-on model enumeration.**
+
+The Conclusion still reads: "all 37 tested model variants (see Table~\ref{tab:multimodel})---spanning five OpenAI GPT generations plus o-series reasoning models, seven Gemini variants, four open-weight model variants (Llama-3.1-8B, Llama-3.3-70B, Llama-4-Scout, Qwen3-32B), Kimi-K2 variants, and safety/multilingual variants (GPT-OSS-Safeguard-20B, Allam-2-7B)---show deprivation>neutral embedding bias."
+
+This has been flagged for 10+ consecutive cycles. The fix is literally changing ~50 words to ~8 words: "all 37 tested model variants across seven organizational families (Table~\ref{tab:multimodel}) show deprivation>neutral embedding bias." The Table reference does the work. This persisting unfixed sentence signals to reviewers that the paper has not been proofread, which reduces confidence in all other claims.
+
+**Moderate (persistent): IEEEtran format — venue still undeclared (47th cycle).**
+
+Every critique since Cycle 1 has noted the format mismatch for an ACL/EMNLP submission. If the target is ACL/EMNLP Findings, the format needs to change before submission. If the target has shifted to an IEEE venue (TASLP, BigData), the content framing needs updating.
+
+**Moderate: The "composite measure" tension in §5 Discussion is still present.**
+
+The limitation paragraph still reads: "Our lexical markers include both regret-specific terms...and general negative emotion terms. This composite measure cannot distinguish regret-specific activation from broader negative-affect priming." But the paper has already demonstrated discriminant validity within the design: NegEmo (general negative affect) is NOT predicted by persona (p=0.54/0.89), while CF rate and regret-word rate ARE. This IS a within-paper decomposition. The "composite measure" language creates a false impression that the paper lacks discriminant evidence when it actually provides it. One scoping sentence would resolve: "Although the composite regret-word rate marker conflates regret-specific and general negative vocabulary, the persona specificity analysis (NegEmo n.s., p=0.54/0.89 for ruminative/reflective persona) provides partial discriminant evidence within this design."
+
+**Moderate (NEW, 47th cycle): The paper's N=7,524 in prose/tables is inconsistent with the committed lme_report's N=7,440.**
+
+This is both a Soundness concern (above) and a Presentation concern: a reviewer who reads "N=7,524 (56 batches)" in the abstract and then checks the publicly available data files will find N=7,440 (54 batches). The Table 3 condition counts (2463/2541/2520) don't match lme_report's (2436/2514/2490). The fix is the same 30-minute analysis re-run.
+
+---
+
+### Actionable Directions (top 3 for top-tier acceptance)
+
+1. **[30 minutes — HIGHEST PRIORITY] Run `python3 scripts/run_lme_analysis.py` on full N=7,524 / 56 batches, commit lme_analysis.json, regenerate lme_report.md.**
+   - Expected outcome: all β/z values unchanged within rounding (1.1% N increase is negligible at z>50). Condition counts will update to match paper's 2463/2541/2520.
+   - This resolves the N mismatch and makes the reproducibility section honest.
+   - Same 30-minute fix requested in Cycles 9, 13, 16, 18, 46. If it has been done, the commit just needs to be pushed.
+
+2. **[1 hour] Clarify whether `prompt_bank_evidence_anchor_recovery_drill` outputs are in the LME, and run on-topic vs. off-topic CF embedding bias comparison.**
+   - One sentence in §2.2 or §3.4 states explicitly: "The technical AI scenario (prompt_bank_evidence_anchor_recovery_drill) [was/was not] included in the LME analysis; it [was excluded from / appears in] the N=2,514 CF condition outputs."
+   - If it IS in the LME: report on-topic CF (N≈1,878) embedding bias vs. overall CF mean (M=0.092 from Table 3). If on-topic CF bias ≈ deprivation bias (M=0.097), the embedding-layer dissociation collapses for on-topic outputs — a significant finding. If on-topic CF bias > 0.097 (as implied by the "conservative lower bound" framing), the dissociation persists — strengthening the claim.
+   - This converts the defensive 22.7% off-topic disclosure into an affirmative "natural experiment" finding.
+
+3. **[45 minutes] Fix Conclusion enumeration + composite measure tension + add one sentence to crossed RE explanation.**
+   - Conclusion: replace 50-word parenthetical enumeration with "seven organizational families (Table~\ref{tab:multimodel})"
+   - §5 Limitations: scope the "composite measure" language with the discriminant evidence caveat
+   - §4.3 crossed RE paragraph: add "Therefore, the scenario-only fixed-effect estimates are unbiased; the crossed RE model confirms this by showing Δβ<0.016 while reducing SEs through variance partitioning."
+   - Combined time: ~45 minutes, closes the last 3+ cycles-old unfixed presentation issues.
+
+---
+
+### Verdict: Weak Accept → Accept (ACL/EMNLP Findings)
+
+**New strength since Cycle 46:**
+- ✅ Mechanistic speculation paragraph (distributional semantics + representational suppression accounts) — closes the main-track gap on theoretical grounding
+- ✅ All LME β/z statistics still match lme_report (N=7,440 run) within rounding
+
+**What blocks confident Accept at Findings:**
+1. N=7,524 paper vs. N=7,440 lme_report — 30-minute commit fixes this definitively (highest priority)
+2. CF off-topic scenario inclusion clarification — 15-minute prose fix
+
+**What blocks Borderline at main track:**
+1. Items (1)+(2) above
+2. Post-expansion-only LME (30-minute analysis) — directly addresses ICC=0.66 concern
+3. On-topic vs. off-topic CF comparison (1-hour analysis) — converts defensive audit to affirmative finding
+
+**For ACL/EMNLP Findings:** The mechanistic paragraph added between Cycles 46 and 47 is the most significant theoretical advance in the paper since the inverse dissociation (Cycle 36). The empirical architecture is strong and well-documented. The only remaining blocker for a confident Accept at Findings is the N=7,524 vs. N=7,440 mismatch in the committed data files — a 30-minute fix. With that done plus the Conclusion enumeration cleanup, this paper is ready to submit.
+
+**For ACL/EMNLP main track:** Borderline Reject → Borderline, contingent on (a) post-expansion-only LME, (b) on-topic CF analysis, and (c) addressing the single annotator limitation with minimum-effort blinding evidence. The mechanistic paragraph moves the significance assessment meaningfully toward main track; what remains is targeted empirical support for those accounts.
+
+---
+
 ## Critique [2026-03-27 04:23] — 46th cycle
 ### Scores: Soundness 3/5 | Significance 4/5 | Presentation 3/5
 
