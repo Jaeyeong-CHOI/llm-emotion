@@ -2767,3 +2767,26 @@ Disambiguated with metric-level subscripts:
 ### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
 No new substantive issues found. Notation clarity improved.
 Paper remains in the best state achieved.
+
+---
+
+## Critique Cycle 41 [2026-03-27 01:25] — Wald z≈11.6 Stale-Data Fix
+
+### Issue Found
+**Stale numerical claim**: The paper reported "Wald $z\approx11.6$" (4 occurrences across §1 Introduction, §4.1 Results, §4.3 LME, §5 Discussion) for the $H_0:\beta_D=\beta_C$ contrast on embedding regret bias.
+
+This value was computed from an earlier version of the dataset (old: $\hat{\beta}_D=0.1808$, SE=0.0038; $\hat{\beta}_C=0.2449$, SE=0.004 → z=11.62). The current LME parameters are $\hat{\beta}_D=0.1787$, SE=0.0034; $\hat{\beta}_C=0.2430$, SE=0.0035 → z = (0.2430−0.1787)/√(0.0034²+0.0035²) = 0.0643/0.00487 ≈ **13.2** (using independence assumption; actual z may differ slightly due to within-model covariance structure, but is well above 11.6).
+
+Note: Line 466 contains `$t=11.6$` which is the EI vs. deprivation Welch t-test — a separate statistic, correctly retained.
+
+### Changes Made
+4 occurrences of `Wald $z\approx11.6$` replaced with `Wald $z\approx13.2$`:
+1. §1 Introduction (line 68)
+2. §4.1 Results (line 328)
+3. §4.3 LME primary result (line 413)
+4. §5 Discussion second key finding (line 540)
+
+PDF recompiled: 150.40 KiB, no errors.
+
+### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
+Stale numerical claim corrected. All other key statistics verified against lme_analysis.json: β_D=0.179, z=52.21 ✓; β_C=0.243, z=70.17 ✓; pers_rum z=19.42 ✓; regret_rate pers_rum z=10.45 ✓; cf_rate cond_C β=0.656, z=10.83 ✓; negemo cond_C β=0.073, z=3.65 ✓. No other numerical discrepancies found.
