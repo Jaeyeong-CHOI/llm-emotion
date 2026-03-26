@@ -1,7 +1,7 @@
 {
   "n_total": 7631,
-  "n_models": 39,
-  "n_batches": 53,
+  "n_models": 38,
+  "n_batches": 55,
   "conditions": {
     "counterfactual": 2541,
     "neutral": 2520,
