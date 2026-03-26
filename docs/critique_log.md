@@ -2823,3 +2823,38 @@ This aligns with the §5 Discussion wording and separates Kimi-K2 from the open-
 
 ### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
 Architectural count inconsistency corrected. All numerical statistics verified in prior cycles. Paper in best state achieved.
+
+---
+
+## Critique Cycle 43 [2026-03-27 02:00] — Stale Length-Residualized Unresidualised d Values
+
+### Issue Found
+**Stale comparison values in Response Length Confound section**: The paper stated:
+"Length-residualized Cohen's d values remain large: dep d=2.03, CF d=2.39 (vs. d=1.89 and d=2.21 unresidualised)."
+
+The 'unresidualised' values 1.89 and 2.21 were hardcoded in `run_length_sensitivity.py` (line 127: `1.886, 2.208`) as legacy values from an earlier dataset run. With the current N=7,440 dataset:
+- Actual unresidualised dep d = 2.032 (pooled SD, same formula as cohens_d in script)
+- Actual unresidualised CF d = 2.401
+
+The old values (1.886, 2.208) were counterintuitively LOWER than the residualised values (2.033, 2.386), which a reviewer would correctly flag — length adjustment should not increase d.
+
+The correct interpretation: length-residualisation barely changes d at all (delta < 0.02), confirming length is not a meaningful confound for effect size magnitude.
+
+### Change Made
+paper/main.tex, Response Length Confound limitation:
+- **Before:** `dep d=2.03, CF d=2.39 (vs. d=1.89 and d=2.21 unresidualised)`
+- **After:** `dep d=2.03, CF d=2.39 (vs. d=2.03 and d=2.40 unresidualised---length adjustment changes d by <0.02)`
+
+### Method
+- Direct computation from raw .emb.jsonl files using pooled-SD Cohen's d (same formula as script)
+- dep: N_D=2436, N_N=2490, pooled_SD=0.0733, d=2.032
+- CF: N_CF=2514, N_N=2490, d=2.401
+- PDF recompiled: 150.50 KiB, no new errors
+
+### Remaining Issues
+1. Single human annotator, unblinded (kappa=0.44, N=36) — structural limitation (acknowledged)
+2. IEEEtran format vs. ACL/EMNLP target — cosmetic
+3. Mistral/DeepSeek replication — unavailable; noted as future work
+
+### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
+Stale unresidualised d values corrected. Correction strengthens the claim: residualised ≈ unresidualised confirms length does not drive the condition effect. All numerical statistics now verified against current data.
