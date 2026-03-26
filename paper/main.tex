@@ -154,7 +154,7 @@ Affect benchmarking & Measurement granularity determines apparent performance; u
   at (3.2, -2.6) {$3 \times 3 = 9$ combinations};
 
 %% ─── Column 3: LLM ───────────────────────────────────────────────────────────
-\node[lblock] (LLM) at (9.2, 0) {Multiple LLMs\\[3pt](4 families)\\[3pt]\normalfont\small$T\in\{0.2,\,0.7\}$};
+\node[lblock] (LLM) at (9.2, 0) {Multiple LLMs\\[3pt](7 families)\\[3pt]\normalfont\small$T\in\{0.2,\,0.7\}$};
 
 %% ─── Column 4: Markers ───────────────────────────────────────────────────────
 \node[mblock] (M1) at (13.3, 1.5) {CF expression rate};
@@ -289,7 +289,7 @@ A stratified subsample of $N=36$ outputs (12 per condition; 18 GPT-4o, 18 Gemini
   enlarge x limits=0.15,
   every axis plot/.append style={line width=0pt},
   ymajorgrids=true, grid style={dashed,gray!40},
-  title={\small Condition-level markers (exploratory, $N_\text{total}=4{,}539$)},
+  title={\small Condition-level markers (exploratory, $N_\text{total}=6{,}709$)},
   title style={font=\small},
 ]
 % Neutral
@@ -314,9 +314,9 @@ A stratified subsample of $N=36$ outputs (12 per condition; 18 GPT-4o, 18 Gemini
 \subsection{Condition effect (H1)}
 
 Figure~\ref{fig:main_result} shows the headline result. Deprivation framing produced higher marker rates on all outcomes (Table~\ref{tab:results}), but the confirmatory LME does not confirm H1a (lexical markers) after accounting for scenario variance.
-Exploratory Welch $t$-tests ($N_\text{total}=6{,}709$, deprivation vs.\ neutral): CF rate $t=20.59$, $p<0.001$, $d=0.62$; regret-word rate $t=16.89$, $p<0.001$, $d=0.51$; negative emotion rate $t=11.80$, $p<0.001$, $d=0.36$; embedding regret bias $t=64.88$, $p<0.001$, $d=1.94$. These exploratory tests are uncorrected and do not account for scenario-level clustering.
+Exploratory Welch $t$-tests ($N_\text{total}=6{,}709$, deprivation vs.\ neutral): CF rate $t=20.55$, $p<0.001$, $d=0.61$; regret-word rate $t=16.90$, $p<0.001$, $d=0.51$; negative emotion rate $t=11.82$, $p<0.001$, $d=0.35$; embedding regret bias $t=64.88$, $p<0.001$, $d=1.94$. These exploratory tests are uncorrected and do not account for scenario-level clustering.
 
-Counterfactual framing also elevated embedding bias comparably ($t=76.20$, $p<0.001$, $d=2.28$ vs.\ neutral), and elevated CF rate ($t=12.55$, $p<0.001$, $d=0.48$) and regret-word rate ($t=11.67$, $p<0.001$, $d=0.44$). Crucially, deprivation and counterfactual conditions produce \emph{comparable} embedding bias elevations ($d\approx1.78$--$2.05$ vs.\ neutral). At the lexical layer the pattern diverges: deprivation drives higher explicit regret-word and negemo rates, while counterfactual framing drives higher CF rate---a \emph{marker-specific dissociation} in which the semantic layer captures common regret-space activation, whereas lexical markers selectively reflect the surface properties of each framing type. This dissociation is the primary finding of this study.
+Counterfactual framing also elevated embedding bias comparably ($t=76.20$, $p<0.001$, $d=2.28$ vs.\ neutral), and elevated CF rate ($t=20.44$, $p<0.001$, $d=0.61$) and regret-word rate ($t=9.19$, $p<0.001$, $d=0.27$). Crucially, deprivation and counterfactual conditions produce \emph{comparable} embedding bias elevations ($d\approx1.94$--$2.28$ vs.\ neutral). At the lexical layer the pattern diverges: deprivation drives higher explicit regret-word and negemo rates, while counterfactual framing drives higher CF rate---a \emph{marker-specific dissociation} in which the semantic layer captures common regret-space activation, whereas lexical markers selectively reflect the surface properties of each framing type. This dissociation is the primary finding of this study.
 
 \begin{table}[t]
 \caption{Condition-level marker means (SD), full dataset $N_\text{total}=6{,}709$ (2234/2250/2225 per condition, D/C/N). Exploratory Welch $t$-tests: *** $p{<}0.001$, ** $p{<}0.01$, * $p{<}0.05$, n.s.\ $p{>}0.05$. LME note shows confirmatory status. Dep CF rate $p<0.001$ in LME (batch v24 confirmed); CF-condition CF rate sig. ($p<0.001$).}
@@ -335,8 +335,8 @@ Neutral & 0.011 {\tiny(0.21)} & 0.000 {\tiny(0.00)} & 0.019 {\tiny(0.15)} & $-$0
 Depriv. & 0.704 {\tiny(1.75)} & 0.660 {\tiny(1.79)} & 0.233 {\tiny(1.10)} & $+$0.097 {\tiny(0.08)} \\
 Counter. & 0.120 {\tiny(0.69)} & 0.086 {\tiny(0.63)} & 0.059 {\tiny(0.40)} & $+$0.092 {\tiny(0.06)} \\
 \midrule
-D vs N & $d=0.66$*** & $d=0.59$*** & $d=0.42$*** & $d=1.74$*** \\
-C vs N & $d=0.48$*** & $d=0.44$*** & $d=0.17$*** & $d=2.28$*** \\
+D vs N & $d=0.61$*** & $d=0.51$*** & $d=0.35$*** & $d=1.94$*** \\
+C vs N & $d=0.61$*** & $d=0.27$*** & $d=0.20$*** & $d=2.28$*** \\
 \midrule
 \multicolumn{5}{@{}l}{\scriptsize LME ($N=6{,}709$): all contrasts $p<0.001$ incl. Dep. CF rate (batch v24 confirmed)} \\
 \bottomrule
