@@ -133,7 +133,8 @@ def main():
     ap.add_argument("--provider", default="openai", choices=["openai", "gemini", "groq", "both"])
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--dry-run", action="store_true", help="print plan without calling API")
-    ap.add_argument("--max-scenarios-per-condition", type=int, default=3)
+    ap.add_argument("--max-scenarios-per-condition", type=int, default=0,
+                        help="max scenarios per condition (0=use all available)")
     args = ap.parse_args()
 
     random.seed(args.seed)
@@ -165,7 +166,8 @@ def main():
     for cond in conditions:
         pool = [s for s in stimuli if s["stimulus_category"] == cond]
         random.shuffle(pool)
-        selected[cond] = pool[:args.max_scenarios_per_condition]
+        limit = args.max_scenarios_per_condition or len(pool)
+        selected[cond] = pool[:limit]
 
     # Build cell plan
     cells = []

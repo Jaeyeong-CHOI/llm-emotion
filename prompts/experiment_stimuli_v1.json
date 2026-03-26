@@ -725,6 +725,231 @@
         "evidence",
         "counterexample"
       ]
+    },
+    {
+      "id": "neutral_hobby_reflection",
+      "stimulus_category": "neutral",
+      "prompt": "최근 즐기고 있는 취미 활동을 6~8문장으로 묘사하라. 어떤 활동인지, 언제 시작했는지, 어떤 과정으로 진행하는지를 사실 중심으로 정리하라.",
+      "tags": [
+        "control",
+        "hobby"
+      ]
+    },
+    {
+      "id": "neutral_learning_new",
+      "stimulus_category": "neutral",
+      "prompt": "최근 새로 배우고 있는 것을 6~8문장으로 서술하라. 배우게 된 계기, 현재 단계, 학습 방식을 감정 과장 없이 기록하라.",
+      "tags": [
+        "control",
+        "learning"
+      ]
+    },
+    {
+      "id": "neutral_nature_observation",
+      "stimulus_category": "neutral",
+      "prompt": "오늘 관찰한 자연 환경(날씨, 식물, 동물 등)을 6~8문장으로 묘사하라. 판단이나 감정 표현 없이 관찰 사실만 기록하라.",
+      "tags": [
+        "control",
+        "nature"
+      ]
+    },
+    {
+      "id": "neutral_planning_tomorrow",
+      "stimulus_category": "neutral",
+      "prompt": "내일 하루의 일정을 6~8문장으로 정리하라. 시간대별 주요 할 일과 준비 사항을 객관적으로 나열하라.",
+      "tags": [
+        "control",
+        "planning"
+      ]
+    },
+    {
+      "id": "neutral_routine_task",
+      "stimulus_category": "neutral",
+      "prompt": "오늘 수행한 일상적 업무나 가사를 6~8문장으로 기록하라. 절차와 결과를 사실 중심으로 서술하라.",
+      "tags": [
+        "control",
+        "routine"
+      ]
+    },
+    {
+      "id": "neutral_professional_log",
+      "stimulus_category": "neutral",
+      "prompt": "이번 주 직장이나 학교에서 진행한 프로젝트의 현황을 6~8문장으로 요약하라. 진행 상태, 다음 단계, 필요한 자원을 객관적으로 서술하라.",
+      "tags": [
+        "control",
+        "professional"
+      ]
+    },
+    {
+      "id": "neutral_reading_summary",
+      "stimulus_category": "neutral",
+      "prompt": "최근 읽은 책이나 본 영상의 내용을 6~8문장으로 요약하라. 줄거리와 주요 논점을 감정 없이 정리하라.",
+      "tags": [
+        "control",
+        "reading"
+      ]
+    },
+    {
+      "id": "neutral_exercise_log",
+      "stimulus_category": "neutral",
+      "prompt": "최근 한 운동이나 신체 활동을 6~8문장으로 기록하라. 종류, 시간, 강도, 장소를 사실 중심으로 서술하라.",
+      "tags": [
+        "control",
+        "exercise"
+      ]
+    },
+    {
+      "id": "neutral_cooking_record",
+      "stimulus_category": "neutral",
+      "prompt": "최근 요리한 음식의 과정을 6~8문장으로 서술하라. 재료, 순서, 결과물을 객관적으로 기록하라.",
+      "tags": [
+        "control",
+        "cooking"
+      ]
+    },
+    {
+      "id": "neutral_travel_plan",
+      "stimulus_category": "neutral",
+      "prompt": "가고 싶은 여행지의 일정을 6~8문장으로 계획하라. 교통, 숙소, 방문지를 사실 중심으로 정리하라.",
+      "tags": [
+        "control",
+        "travel"
+      ]
+    },
+    {
+      "id": "neutral_workspace_description",
+      "stimulus_category": "neutral",
+      "prompt": "현재 작업 공간(책상, 사무실, 카페 등)의 배치와 특징을 6~8문장으로 묘사하라. 물건의 위치와 환경을 객관적으로 서술하라.",
+      "tags": [
+        "control",
+        "workspace"
+      ]
+    },
+    {
+      "id": "neutral_commute_description",
+      "stimulus_category": "neutral",
+      "prompt": "오늘의 출퇴근 또는 이동 경로를 6~8문장으로 기록하라. 교통수단, 소요 시간, 경유지를 사실 중심으로 서술하라.",
+      "tags": [
+        "control",
+        "commute"
+      ]
+    },
+    {
+      "id": "neutral_meal_record",
+      "stimulus_category": "neutral",
+      "prompt": "오늘 먹은 식사를 6~8문장으로 기록하라. 메뉴, 장소, 함께한 사람을 감정 없이 나열하라.",
+      "tags": [
+        "control",
+        "meal"
+      ]
+    },
+    {
+      "id": "neutral_weather_report",
+      "stimulus_category": "neutral",
+      "prompt": "이번 주의 날씨 변화를 6~8문장으로 정리하라. 기온, 강수, 바람 등을 관측 기록처럼 객관적으로 서술하라.",
+      "tags": [
+        "control",
+        "weather"
+      ]
+    },
+    {
+      "id": "neutral_tool_description",
+      "stimulus_category": "neutral",
+      "prompt": "자주 사용하는 도구나 앱의 기능을 6~8문장으로 설명하라. 용도, 사용 빈도, 주요 기능을 사실 중심으로 기술하라.",
+      "tags": [
+        "control",
+        "tool"
+      ]
+    },
+    {
+      "id": "cf_career_path",
+      "stimulus_category": "counterfactual",
+      "prompt": "다른 직업이나 전공을 선택했다면 지금 어떤 하루를 보내고 있을지 7~9문장으로 상상하라. 구체적 장면과 활동 차이를 중심으로 서술하라.",
+      "tags": [
+        "counterfactual",
+        "career"
+      ]
+    },
+    {
+      "id": "cf_education_choice",
+      "stimulus_category": "counterfactual",
+      "prompt": "다른 학교나 학과에 진학했다면 배웠을 내용과 만났을 사람들을 7~9문장으로 비교 서술하라. 현재와 대안 경로의 차이점을 구체적으로 나열하라.",
+      "tags": [
+        "counterfactual",
+        "education"
+      ]
+    },
+    {
+      "id": "cf_relationship_timing",
+      "stimulus_category": "counterfactual",
+      "prompt": "중요한 만남의 시기가 1년 달랐다면 이후 관계가 어떻게 전개됐을지 7~9문장으로 서술하라. 시점 차이가 만들 수 있는 구체적 변화를 중심으로 쓰라.",
+      "tags": [
+        "counterfactual",
+        "relationship"
+      ]
+    },
+    {
+      "id": "cf_decision_timing",
+      "stimulus_category": "counterfactual",
+      "prompt": "중요한 결정을 6개월 더 일찍 또는 늦게 내렸다면 달라졌을 결과를 7~9문장으로 분석하라. 시간 차이가 만든 조건 변화를 구체적으로 서술하라.",
+      "tags": [
+        "counterfactual",
+        "timing"
+      ]
+    },
+    {
+      "id": "cf_resource_allocation",
+      "stimulus_category": "counterfactual",
+      "prompt": "시간이나 돈을 다른 곳에 투자했다면 현재 어떤 상태일지 7~9문장으로 비교하라. 투자 방향의 차이와 예상 결과를 구체적으로 대비하라.",
+      "tags": [
+        "counterfactual",
+        "resource"
+      ]
+    },
+    {
+      "id": "cf_creative_direction",
+      "stimulus_category": "counterfactual",
+      "prompt": "프로젝트에서 다른 접근법을 택했다면 결과물이 어떻게 달랐을지 7~9문장으로 서술하라. 방법론 차이와 예상 산출물을 구체적으로 비교하라.",
+      "tags": [
+        "counterfactual",
+        "creative"
+      ]
+    },
+    {
+      "id": "cf_location_change",
+      "stimulus_category": "counterfactual",
+      "prompt": "다른 도시나 나라에서 살았다면 일상이 어떻게 달라졌을지 7~9문장으로 상상하라. 생활 환경, 문화, 일과의 구체적 차이를 중심으로 쓰라.",
+      "tags": [
+        "counterfactual",
+        "location"
+      ]
+    },
+    {
+      "id": "cf_skill_investment",
+      "stimulus_category": "counterfactual",
+      "prompt": "어릴 때 다른 기술이나 언어를 배웠다면 현재 역량이 어떻게 달라졌을지 7~9문장으로 분석하라. 기술 차이와 활용 가능성을 구체적으로 비교하라.",
+      "tags": [
+        "counterfactual",
+        "skill"
+      ]
+    },
+    {
+      "id": "cf_team_composition",
+      "stimulus_category": "counterfactual",
+      "prompt": "팀 구성이 달랐다면 프로젝트 진행이 어떻게 변했을지 7~9문장으로 서술하라. 역할 분배, 의사소통 방식, 산출물의 차이를 구체적으로 비교하라.",
+      "tags": [
+        "counterfactual",
+        "team"
+      ]
+    },
+    {
+      "id": "cf_information_access",
+      "stimulus_category": "counterfactual",
+      "prompt": "특정 정보를 더 일찍 알았다면 의사결정이 어떻게 달라졌을지 7~9문장으로 분석하라. 정보 접근 시점과 결정 경로의 차이를 구체적으로 서술하라.",
+      "tags": [
+        "counterfactual",
+        "information"
+      ]
     }
   ]
 }
