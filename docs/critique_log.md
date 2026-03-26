@@ -2,6 +2,176 @@
 
 ---
 
+## Critique [2026-03-26 14:21] — 13th cycle
+### Scores: Soundness 3/5 | Significance 3/5 | Presentation 2/5
+
+---
+
+### Context: What Changed Since 12th Cycle (09:42)
+
+The authoritative `lme_report.md` has been regenerated on a **new expanded dataset**: N=6,709 (47 batches, 32 models). The git log shows the most recent commit (838abae) fixed model counts (29→32), batch counts (45→46), and reported lme_report N=6,636 — but the current lme_report.md reads N=6,709, 47 batches, reflecting a further expansion beyond what the paper currently claims (paper: N=6,636, 46 batches, 32 models).
+
+**The core recurring pattern continues:** the lme_report.md has been regenerated on a larger dataset than the paper currently claims, creating a fresh N-discrepancy. This is now the 13th consecutive critique cycle to observe a paper ↔ data mismatch, though the direction has shifted: previously the paper overclaimed relative to the data; now the data has moved beyond the paper's stated N.
+
+---
+
+### DATA INTEGRITY AUDIT (13th cycle)
+
+**Paper claims (main.tex) vs. current lme_report.md (authoritative):**
+
+| Statistic | Paper (main.tex) | lme_report.md (current) | Match? |
+|---|---|---|---|
+| N total | 6,636 | 6,709 | ❌ Δ=+73 |
+| Batches | 46 | 47 | ❌ (1 new batch) |
+| Models | 32 | 32 | ✅ |
+| β_D (emb bias) | 0.178 | 0.1811 | ❌ Δ=0.003 |
+| z_D (emb bias) | 41.10 | 42.975 | ❌ Δ=1.87 |
+| β_C (emb bias) | 0.229 | 0.2328 | ❌ Δ=0.004 |
+| z_C (emb bias) | 50.41 | 52.811 | ❌ Δ=2.4 |
+| pers_rum z (emb) | 18.21 | 19.517 | ❌ Δ=1.3 |
+| CF rate cond_D β | 0.278 | 0.2621 | ❌ Δ=0.016 |
+| CF rate cond_D z | 3.45 | 3.38 | ❌ (minor) |
+| CF rate cond_C β | 0.838 | 0.779 | ❌ Δ=0.059 |
+| CF rate cond_C z | 9.79 | 9.622 | ❌ |
+| Regret rate cond_D β | 0.286/0.287 | 0.2728 | ❌ Δ≈0.014 |
+| Regret rate cond_C β | 0.319/0.344 | 0.2985 | ❌ Δ≈0.020–0.045 |
+| Regret rate pers_rum β | 0.278 | 0.2896 | ❌ Δ=0.012 |
+| NegEmo cond_D β | 0.133 | 0.1300 | ❌ minor |
+| NegEmo cond_C β | 0.089 | 0.0800 | ❌ Δ=0.009 |
+| pers_rum NegEmo p | <0.001 (implied) | p=0.4494 n.s. | ❌ CRITICAL |
+| Condition N (dep) | 2,217 | 2,234 | ❌ |
+| Condition N (CF) | 2,230 | 2,250 | ❌ |
+| Condition N (neu) | 2,189 | 2,225 | ❌ |
+
+**Assessment:** All coefficient values in the paper are slightly stale, reflecting the N=6,636 run rather than the current N=6,709 authoritative run. The differences are small (Δβ < 0.06) and do not change any directional conclusions. However, the N discrepancy (6,636 vs 6,709) and the z-statistic differences will be visible to any reviewer cross-checking the paper against its "publicly available" data files.
+
+**CRITICAL NEW FINDING: pers_rum NegEmo is NOT significant (p=0.4494) in lme_report — but the paper appears to imply it is.**
+- lme_report: NegEmo pers_rum β=0.0112, z=0.756, **p=0.4494 n.s.** — persona has essentially zero effect on negative emotion rate.
+- The paper's Discussion (§5): "ruminative persona instructions were the strongest predictor across all outcomes and across all tested model variants (z=18.21, p<0.001 for embedding bias; z≈8.3–9.3, p<0.001 for lexical markers)." The z≈8.3–9.3 range refers to CF rate (z=9.928) and regret-word rate (z=10.546) — NOT NegEmo. But the phrase "across all outcomes" is technically misleading since NegEmo is not predicted by persona (p=0.4494). The paper's hypothesis table (tab:hypothesis) and the scope of the H2 claim need careful qualification: persona amplifies affect-specific regret markers (CF rate, regret-word rate) and semantic bias, but NOT general negative affect.
+- This was flagged as "moderate" in the 12th cycle and remains unaddressed.
+
+**Cross-model d-value audit (lme_report authoritative d(D-N) vs paper Table 7):**
+
+| Model | Paper d_DN | lme_report d_DN | Ratio |
+|---|---|---|---|
+| GPT-3.5-turbo | 3.62 | 1.755 | 2.06× ❌ |
+| GPT-4o | 2.77 | 1.662 | 1.67× ❌ |
+| GPT-4.1 | 2.05 | 1.440 | 1.42× ❌ |
+| GPT-4.1-mini | 2.64 | 1.597 | 1.65× ❌ |
+| GPT-4.1-nano | 4.63 | 1.841 | 2.51× ❌ |
+| GPT-5.4 | 4.96 | 1.859 | 2.67× ❌ |
+| GPT-5.4-mini | 0.42 | 0.419 | ~1.00× ✅ |
+| GPT-5.4-nano | 0.50 | 0.491 | ~1.02× ✅ |
+| Gemini-2.5-Flash | 1.81 | 1.299 | 1.39× ❌ |
+| Groq Compound-Mini | 4.80 | 1.856 | 2.59× ❌ |
+| GPT-OSS-120B | 3.62 | 1.772 | 2.04× ❌ |
+| Llama-3.1-8B | 3.39 | 1.728 | 1.96× ❌ |
+| o3-mini | 3.81 | 1.777 | 2.14× ❌ |
+| o1 | 3.65 | 1.806 | 2.02× ❌ |
+| o3 | 4.37 | 1.858 | 2.35× ❌ |
+
+The pattern is now definitively clear and consistent: **paper d-values are inflated by 1.4–2.7× relative to lme_report for all models with non-negligible d, with GPT-5.4 variants (d≈0.42–0.50) as the only exception** (near-zero d, so denominator sensitivity irrelevant). The lme_report d-values range from 0.419 to 1.859 across all 32 models — a far more uniform distribution than the paper's 0.42–4.97 range. The lme_report's d=1.8–1.9 ceiling for most models reveals that the "effect size varies enormously from d=0.42 to d=4.97" claim in the paper is an artifact of d-calculation methodology, not a real behavioral heterogeneity across models. The actual model-to-model d variation is modest (0.42–1.86 in lme_report), with GPT-5.4 mini/nano as genuine outliers.
+
+**Specifically, the paper's headline claim "Cohen's d ranging from 0.42 to 4.97" misrepresents the cross-model effect-size heterogeneity.** The correct range per lme_report is 0.42–1.86. This is a substantial narrative difference: the paper implies order-of-magnitude variation in how strongly different LLMs are affected, while the data shows modest ~4× variation (with GPT-5.4 mini/nano at the low end).
+
+---
+
+### Key Weaknesses
+
+#### Soundness (3/5)
+
+**CRITICAL (persistent, 13th cycle): Cross-model d-values in Table 7 are systematically inflated 1.4–2.7× vs. authoritative lme_report.**
+- This has been flagged since the 6th cycle. The methodology is now clear: the paper computes d from per-model samples across all batches (including temperature variants 0.4, 0.8, 0.9, 1.0 which have more concentrated response distributions), while lme_report uses primary embedding batches. However, the paper's caption says "two-sample pooled-SD" without specifying which batch subset. The result is that headline effect-size claims (d=4.97 for GPT-5.4, d=4.63 for GPT-4.1-nano, d=4.80 for Groq Compound-Mini, d=4.37 for o3) are ~2.5× inflated. A reviewer who computes d from the reported mean differences (D_bar − N_bar) and the lme_report's per-model SDs will immediately identify the inflation. **The actual d range is 0.42–1.86, not 0.42–4.97.**
+
+**CRITICAL: Abstract broken sentence — unfixed for 5 consecutive cycles (9th–13th).**
+- "...revealing a marker-type dissociation---deprivation and counterfactual framings differ in lexical-layer signatures (CF rate both p<0.001$, suggesting counterfactual semantic priming does not require overt if-then linguistic structures."
+- The unclosed parenthesis and the dangling "suggesting" have appeared in the abstract since at least the 9th cycle (2026-03-26 07:30) and remain in the current main.tex. This is the most visible quality signal for any reviewer who reads the abstract carefully. It suggests the abstract is not proofread after each revision.
+
+**SERIOUS: Paper LME statistics are stale relative to current authoritative lme_report.md (N=6,709).**
+- The paper reports N=6,636 (46 batches), lme_report has been re-run on N=6,709 (47 batches). All β and z values differ by small but detectable amounts. The paper is not currently internally consistent with its own "publicly available" authoritative output file. For a paper advertising full reproducibility ("Code, stimuli, and outputs are publicly available"), this discrepancy is particularly damaging. **The fix is mechanical: run `python3 scripts/run_lme_analysis.py`, update paper stats from the new lme_analysis.json (N=6,709), and recompile.** Given the small Δ, all directional conclusions remain identical.
+
+**SERIOUS (persistent): pers_rum NegEmo is p=0.4494 (not significant) — the paper's H2 "across all outcomes" framing is misleading.**
+- The Discussion states persona is the strongest predictor "across all outcomes." The lme_report definitively shows NegEmo is NOT predicted by persona (p=0.4494, β=0.0112). Persona predicts: embedding bias (z=19.5, p<0.001), CF rate (z=9.9, p<0.001), regret-word rate (z=10.5, p<0.001). Persona does NOT predict NegEmo. This is actually a substantively interesting finding: persona injection specifically targets regret-semantics (counterfactual and regret-specific vocabulary), not general negative affect. The paper is obscuring a genuinely interesting specificity result by overstating persona's reach. The Discussion needs: "Ruminative personas significantly elevated CF rate (z=9.9, p<0.001), regret-word rate (z=10.5, p<0.001), and embedding bias (z=19.5, p<0.001), but NOT negative emotion rate (z=0.76, p=0.45), suggesting persona activation is specific to regret-associated representations rather than general affective negativity."
+
+**SERIOUS: Abstract claims "ruminative persona effect (z=18.21, p<0.001 for embedding bias)" — but lme_report shows z=19.517. This is the primary abstract statistic and it is wrong.**
+- The abstract's lead quantitative claim for the headline finding is incorrect by a Δz=1.3. Combined with stale β values for the dissociation claim, the abstract is reporting from a deprecated LME run throughout.
+
+**MODERATE (persistent): LOSO estimate (mean β_D=0.165) exceeds full-LME estimate (β_D=0.1811 in current lme_report / 0.178 in paper) — and the gap has grown.**
+- Prior cycles noted LOSO β_D=0.165 > paper LME β_D=0.162 (12th cycle) — a 1.8% upward deviation explained as "marginally higher average." Now with lme_report β_D=0.1811, the LOSO mean 0.165 is actually BELOW the full-LME, which is what we would expect from leave-one-out. The prior explanation was that the 42-scenario 8-model subset had a "marginally higher average deprivation effect" — but the current lme_report (which includes the full 32 models and 47 batches) shows β_D=0.1811, well above the LOSO mean of 0.165. This means the LOSO is now correctly below the full-dataset estimate, as expected. The paper's LOSO explanation may need updating to reflect this new relationship.
+
+**MODERATE: Single-annotator human validation (κ=0.44), 50% CF off-topic rate unscaled — persistent through all 13 cycles.**
+- No second human rater has been added. The 50% CF off-topic hallucination rate (N=36 subsample) has never been checked at scale. If the CF condition has a high off-topic rate in the full corpus (N=2,250), CF condition effect sizes are substantially underestimated and comparisons between D and CF are confounded.
+
+**MODERATE: Welch t-statistics in paper §4.1 are inconsistent with lme_report descriptives.**
+- Paper (§4.1): "embedding regret bias t=64.00, p<0.001, d=1.93." lme_report: "t=64.882, p<0.001, d=1.943." Close but different — t=64.00 vs. 64.882, d=1.93 vs. 1.943. These are the exploratory tests on the full N=6,636 (paper) vs N=6,709 (lme_report) — the difference comes from the 73 additional samples. The paper's exploratory t-values throughout §4.1 will similarly be stale.
+
+---
+
+#### Significance (3/5)
+
+**The 32-model cross-model directional replication is the paper's strongest claim — but the effect-size narrative is misleading.**
+- D>N direction confirmed for all 32 models in both paper and lme_report: this is a real and robust finding across 7 organizations, 4 open-weight architectures, reasoning models (o1/o3/o3-mini/o4-mini), and a cross-lingual Arabic model (Allam-2-7B). This is publishable.
+- However, the paper's framing of "Cohen's d ranging from 0.42 to 4.97" implies enormous heterogeneity in effect magnitude that is largely an artifact of d-calculation methodology. The lme_report's d-values (0.42–1.86) show that effect sizes are actually fairly consistent across models, with the GPT-5.4 mini/nano family as the only genuine low-d outliers. The "alignment dampening" narrative built on extreme d-value contrasts (GPT-5.4 d=4.96 vs GPT-5.4-mini d=0.42 in the paper) is partially an artifact: GPT-5.4 full's lme_report d=1.859 vs GPT-5.4-mini's d=0.419 is a real 4.4× within-family difference — this is the genuine signal, and it IS notable. But the absolute magnitude claims (d=4.97) are inflated and should be corrected to d=1.86.
+
+**The persona specificity finding (NegEmo n.s.) is the most underutilized insight in the paper.**
+- lme_report confirms: persona predicts CF rate, regret-word rate, and embedding bias — but NOT NegEmo (p=0.45). Condition (D) predicts NegEmo (z=5.53, p<0.001) but persona does not. This dissociation (persona → regret-specific language but not general negativity; condition → both) is a substantively richer finding than the current "persona is the strongest predictor" framing. It suggests ruminative personas activate regret-schema-specific representations while deprivation framing activates broader negative affect circuits. For a top-tier venue, this specificity claim would be the most theoretically interesting contribution.
+
+**The "alignment dampening" narrative is now more credible but still confounded.**
+- Within the GPT-5.4 family: full (d=1.859) > mini (d=0.419) > nano (d=0.491 per lme_report). The within-family scale effect is real. However, across generations: GPT-5.4 full (d=1.86) ≈ GPT-4.1-nano (d=1.84) ≈ GPT-3.5-turbo (d=1.76) in lme_report. When d-values are correctly computed, there is NO monotonic alignment dampening trend across generations — instead, there is within-family scale variation (large model > small model) and across-family variance (GPT-5.4-mini is uniquely low, not all newer models). The "progressive alignment dampening" interpretation in the Discussion overstates what the corrected d-values show.
+
+**Still missing: explicit-instruction baseline.**
+- This is the 13th critique requesting this experiment. It remains absent. Without it, the causal interpretation of "deprivation framing" effects is indistinguishable from "instruction following." This is the single most important experiment for main-track submission.
+
+---
+
+#### Presentation (2/5)
+
+**Abstract broken sentence: 5 consecutive critique cycles, unfixed. Priority 1.**
+- The sentence starting "...revealing a marker-type dissociation---deprivation and counterfactual framings differ in lexical-layer signatures (CF rate both p<0.001$, suggesting..." has an unclosed parenthesis, a dollar sign mid-sentence (LaTeX artifact), and a dangling modifier. This appears in the first paragraph of the abstract. No NLP/AI reviewer will miss this.
+
+**Abstract statistics are stale (z=18.21 for pers_rum instead of z=19.52; N=6,636 instead of 6,709; β values throughout).**
+- The abstract is the most-read part of a submission. Having the wrong z-statistic for the headline finding in the abstract, combined with an N that doesn't match the data files, will immediately signal to reviewers that the paper is not being carefully maintained.
+
+**Table 7 (cross-model) presents d=4.97 (GPT-5.4) and d=4.80 (Groq Compound-Mini) as headline numbers.**
+- When the correct pooled-SD formula gives d=1.86 (GPT-5.4) and d=1.86 (Groq Compound-Mini) per lme_report, presenting d=4.97 in the main table is misleading. The bootstrap CI [4.26, 6.39] for GPT-5.4 and [4.21, 5.83] for Groq Compound-Mini appear tight and credible but are computed from the inflated d. Any reviewer who computes `(D_mean - N_mean) / pooled_SD` from the table's means and any reasonable SD estimate will get d≈1.8, not d=4.97. This will be caught.
+
+**Discussion §5 regret vs. general negative affect paragraph references lme_report data inconsistency.**
+- The Discussion says "Ruminative persona instructions were the strongest predictor across all outcomes." lme_report shows NegEmo is not significantly predicted by persona (p=0.4494). The Discussion is using "all outcomes" to mean "all significant outcomes" but a reader will understand it as literally all four measured outcomes. This overstates the persona finding.
+
+**Table 4 (LME summary) vs. current lme_report — all coefficients slightly stale.**
+- The paper's Table 4 reports emb bias cond_D β=0.180 (z=40.72), while lme_report shows 0.1811 (z=42.975). emb bias cond_C: paper 0.230 (z=49.50), lme_report 0.2328 (z=52.811). CF rate cond_C: paper 0.921 (z=10.36), lme_report 0.779 (z=9.622). These differences reflect the 73-sample expansion from N=6,636 to N=6,709. The table caption says "N=6,636" which contradicts the reproducibility section's "authoritative output is lme_analysis.json." If lme_analysis.json now shows N=6,709, the paper and the data file are inconsistent.
+
+**Models section (§3.3) still says "We queried GPT-4o and Gemini-2.5-Flash" in the body text — a vestigial sentence from when the paper covered 2 models, now in a paper covering 32.**
+- This has been noted since cycle 13's scope covers 32 models across 7 families. The introductory sentence of the models section is simply wrong.
+
+---
+
+### Actionable Directions
+
+1. **[1-hour fix] Run `python3 scripts/run_lme_analysis.py`, update all paper statistics from lme_analysis.json (N=6,709), fix abstract broken sentence, update condition Ns in Table 3, and recompile.** This resolves: (a) N=6,636→6,709, (b) all stale β/z values in abstract/tables/prose, (c) the abstract LaTeX dollar-sign artifact. Thirteen consecutive critique cycles with a paper-data mismatch should be resolved as a mandatory pre-submission step. A simple script that extracts all key statistics from lme_analysis.json and checks them against paper text would prevent this recurring pattern.
+
+2. **[Analysis, 2–3 hours] Recompute Table 7 d-values using the same formula and batch-scope as lme_report, replace headline numbers (d=0.42–1.86, not 0.42–4.97), and revise the "alignment dampening" narrative accordingly.** The lme_report already provides correct per-model d-values for all 32 models. Using these in Table 7 directly would: (a) make d-values reproducible from committed data, (b) eliminate the implausible headline numbers (d=4.97), (c) make the within-family GPT-5.4 scale effect (full d=1.86 vs mini d=0.42) the credible "alignment dampening" finding rather than the cross-generation comparison that does not hold up. The "d ranging from 0.42 to 1.86" story is still impressive (4× range) and cross-model directional D>N (all 32 models) remains intact.
+
+3. **[Prose, 30 minutes] Add one sentence to Discussion §5 explicitly noting that persona does NOT significantly predict NegEmo (p=0.45), and reframe H2 as "persona is specific to regret-schema activation, not general negative affect."** This turns a current misleading claim into a theoretically richer specificity finding. The sentence: "Notably, ruminative persona instructions did not significantly predict negative emotion rate (z=0.76, p=0.45), indicating that persona-level activation is specific to regret-associated representations (counterfactual language and regret vocabulary) rather than general affective negativity — a dissociation that parallels the psycholinguistic distinction between regret-specific and general negative affect."
+
+---
+
+### Verdict: Borderline (Reject until abstract is fixed; Weak Accept for ACL/EMNLP Findings pending mechanical fixes)
+
+**Rationale (13th cycle):** The paper's data is now in its best state yet: lme_report.md (N=6,709, 47 batches, 32 models) is correctly auto-generated, all 32 models show D>N directionally, and the core statistical findings (semantic dissociation, persona specificity, cross-model replication) are robust. However, **the paper is not synchronized with its own data files** — N=6,636 (paper) vs N=6,709 (lme_report), stale z-statistics in the abstract and Table 4, and a LaTeX syntax error in the abstract that has been present for 5 cycles. The d-value inflation (1.4–2.7×) in Table 7 remains the most substantive methodological issue, misrepresenting both the magnitude and heterogeneity of cross-model effects.
+
+**What would change the verdict:**
+- Abstract broken sentence: fix → moves Presentation from 2/5 to 3/5
+- Paper stats synced to N=6,709: fix → removes the recurring data integrity concern
+- Table 7 d-values corrected to lme_report values: fix → removes the most significant methodological credibility issue
+- Persona NegEmo non-significance noted: fix → turns an overclaim into a richer finding
+- Explicit-instruction baseline experiment: adds → moves toward Accept for main track
+
+**For ACL/EMNLP Findings**: Weak Accept if items 1–4 above are addressed (all mechanical fixes taking < 4 hours). The directional 32-model replication and semantic dissociation findings are genuinely publishable at this level.
+**For ACL/EMNLP main track**: Reject — requires explicit-instruction baseline, second human rater, and corrected d-value narrative.
+
+---
+
 ## Critique [2026-03-26 07:30] — 9th cycle
 ### Scores: Soundness 2/5 | Significance 3/5 | Presentation 3/5
 
