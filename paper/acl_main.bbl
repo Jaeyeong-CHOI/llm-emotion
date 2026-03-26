@@ -1,0 +1,174 @@
+\begin{thebibliography}{23}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bell(1982)]{bell1982}
+David~E. Bell.
+\newblock Regret in decision making under uncertainty.
+\newblock \emph{Operations Research}, 30\penalty0 (5):\penalty0 961--981, 1982.
+\newblock \doi{10.1287/opre.30.5.961}.
+
+\bibitem[Bender et~al.(2021)Bender, Gebru, McMillan-Major, and
+  Shmitchell]{bender2021stochastic}
+Emily~M. Bender, Timnit Gebru, Angelina McMillan-Major, and Shmargaret
+  Shmitchell.
+\newblock On the dangers of stochastic parrots: Can language models be too big?
+\newblock \emph{Proceedings of the 2021 ACM Conference on Fairness,
+  Accountability, and Transparency (FAccT)}, pages 610--623, 2021.
+\newblock \doi{10.1145/3442188.3445922}.
+
+\bibitem[Bianchi et~al.(2024)]{tombench2024}
+Francesco Bianchi et~al.
+\newblock Tombench: Benchmarking theory of mind in large language models.
+\newblock In \emph{Findings of the 2024 ACL}, 2024.
+
+\bibitem[Byrne(2016)]{byrne2016}
+Ruth M.~J. Byrne.
+\newblock Counterfactual thought.
+\newblock \emph{Annual Review of Psychology}, 67\penalty0 (1):\penalty0
+  135--157, 2016.
+\newblock \doi{10.1146/annurev-psych-122414-033249}.
+
+\bibitem[Demszky et~al.(2020)Demszky, Movshovitz-Attias, Ko, Cowen, Nemade, and
+  Ravi]{demszky2020}
+Dorottya Demszky, Dana Movshovitz-Attias, Jeongwoo Ko, Alan Cowen, Gaurav
+  Nemade, and Sujith Ravi.
+\newblock Goemotions: A dataset of fine-grained emotions.
+\newblock In \emph{Proceedings of the 58th Annual Meeting of the Association
+  for Computational Linguistics}, pages 4040--4054, 2020.
+\newblock \doi{10.18653/v1/2020.acl-main.372}.
+
+\bibitem[Gilovich and Medvec(1995)]{gilovichmedvec1995}
+Thomas Gilovich and Victoria~Husted Medvec.
+\newblock The experience of regret: What, when, and why.
+\newblock \emph{Psychological Review}, 102\penalty0 (2):\penalty0 379--395,
+  1995.
+\newblock \doi{10.1037/0033-295X.102.2.379}.
+
+\bibitem[Kahneman and Miller(1986)]{kahneman1986norm}
+Daniel Kahneman and Dale~T. Miller.
+\newblock Norm theory: Comparing reality to its alternatives.
+\newblock In \emph{Psychological Review}, volume~93, pages 136--153. 1986.
+
+\bibitem[Kosinski et~al.(2024)]{kosinski2024tom}
+Mateusz Kosinski et~al.
+\newblock Evaluating large language models in theory of mind tasks.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 121\penalty0
+  (10):\penalty0 e2314571121, 2024.
+
+\bibitem[Loomes and Sugden(1982)]{loomes1982}
+Graham Loomes and Robert Sugden.
+\newblock Regret theory: An alternative theory of rational choice under
+  uncertainty.
+\newblock \emph{The Economic Journal}, 92\penalty0 (368):\penalty0 805--824,
+  1982.
+\newblock \doi{10.2307/2232669}.
+
+\bibitem[Mohammad et~al.(2018)Mohammad, Bravo-Marquez, Salameh, and
+  Kiritchenko]{mohammad2018semeval}
+Saif~M. Mohammad, Felipe Bravo-Marquez, Mohammad Salameh, and Svetlana
+  Kiritchenko.
+\newblock Semeval-2018 task 1: Affect in tweets.
+\newblock In \emph{Proceedings of The 12th International Workshop on Semantic
+  Evaluation}, pages 1--17, 2018.
+\newblock \doi{10.18653/v1/S18-1001}.
+
+\bibitem[Niu et~al.(2025)Niu, Shen, Zhang, Wu, Lu, and
+  Cui]{fragileemotionreasoning2025}
+Yilun Niu, Siqi Shen, Haotian Zhang, Mian Wu, Hong Lu, and Leyang Cui.
+\newblock Large language models show fragile cognitive reasoning about human
+  emotions.
+\newblock \emph{PLOS One}, 20\penalty0 (6):\penalty0 e0322398, 2025.
+\newblock \doi{10.1371/journal.pone.0322398}.
+
+\bibitem[Pennebaker et~al.(2015)Pennebaker, Boyd, Jordan, and
+  Blackburn]{pennebaker2015liwc}
+James~W. Pennebaker, Ryan~L. Boyd, Kayla Jordan, and Kate Blackburn.
+\newblock \emph{The Development and Psychometric Properties of LIWC2015}.
+\newblock University of Texas at Austin, 2015.
+
+\bibitem[Pereira et~al.(2024)]{emobench2024}
+Victor Pereira et~al.
+\newblock Emobench: Evaluating the emotional intelligence of large language
+  models.
+\newblock \emph{arXiv preprint arXiv:2402.12071}, 2024.
+
+\bibitem[Rashkin et~al.(2019)Rashkin, Smith, Li, and Boureau]{rashkin2019}
+Hannah Rashkin, Eric~Michael Smith, Margaret Li, and Y-Lan Boureau.
+\newblock Towards empathetic open-domain conversation models: A new benchmark
+  and dataset.
+\newblock \emph{Proceedings of the 57th Annual Meeting of the Association for
+  Computational Linguistics}, pages 5370--5381, 2019.
+\newblock \doi{10.18653/v1/P19-1534}.
+
+\bibitem[Roese and Epstude(2017)]{roese2017}
+Neal~J. Roese and Katrin Epstude.
+\newblock What have we learned about regret?
+\newblock \emph{Current Directions in Psychological Science}, 26\penalty0
+  (5):\penalty0 381--386, 2017.
+\newblock \doi{10.1177/0963721417718919}.
+
+\bibitem[Roese and Olson(2014)]{roeseolson2014}
+Neal~J. Roese and James~M. Olson.
+\newblock \emph{What Might Have Been: The Social Psychology of Counterfactual
+  Thinking}.
+\newblock Psychology Press, 2014.
+
+\bibitem[Salewski et~al.(2024)Salewski, Alaniz, Rio-Torto, Schulz, and
+  Akata]{salewski2024impersonation}
+Leonard Salewski, Stephan Alaniz, Isabel Rio-Torto, Eric Schulz, and Zeynep
+  Akata.
+\newblock In-context impersonation reveals large language models strengths and
+  biases.
+\newblock In \emph{NeurIPS}, 2024.
+
+\bibitem[Schaeffer et~al.(2023)Schaeffer, Miranda, and
+  Koyejo]{schaeffer2023mirage}
+Rylan Schaeffer, Brando Miranda, and Sanmi Koyejo.
+\newblock Are emergent abilities of large language models a mirage?
+\newblock In \emph{Advances in Neural Information Processing Systems 36
+  (NeurIPS 2023)}, 2023.
+\newblock arXiv:2304.15004.
+
+\bibitem[Shanahan et~al.(2023)Shanahan, McDonell, and
+  Reynolds]{shanahan2023roleplay}
+Murray Shanahan, Kyle McDonell, and Laria Reynolds.
+\newblock Role play with large language models.
+\newblock \emph{Nature}, 623:\penalty0 493--498, 2023.
+\newblock \doi{10.1038/s41586-023-06647-8}.
+
+\bibitem[Shapira et~al.(2024)Shapira, Zohar, Goldberg, and
+  Berant]{shapira2023cleverhans}
+Naama Shapira, Mosh Zohar, Yoav Goldberg, and Jonathan Berant.
+\newblock Clever hans or neural theory of mind? stress testing social reasoning
+  in large language models.
+\newblock In \emph{Proceedings of the 18th Conference of the European Chapter
+  of the Association for Computational Linguistics (EACL)}, pages 2257--2273,
+  2024.
+\newblock \doi{10.18653/v1/2024.eacl-long.138}.
+
+\bibitem[Ullman and Jernite(2023)]{ullman2023}
+Tomer Ullman and Yacine Jernite.
+\newblock Large language models fail on trivial alterations to theory-of-mind
+  tasks.
+\newblock \emph{arXiv preprint arXiv:2302.08399}, 2023.
+\newblock \doi{10.48550/arXiv.2302.08399}.
+
+\bibitem[Weidinger et~al.(2021)]{weidinger2021risks}
+Laura Weidinger et~al.
+\newblock Ethical and social risks of harm from language models.
+\newblock \emph{arXiv preprint arXiv:2112.04359}, 2021.
+
+\bibitem[Zeelenberg et~al.(1998)Zeelenberg, van Dijk, Manstead, and van~der
+  Pligt]{zeelenberg1998}
+Marcel Zeelenberg, Wilco~W. van Dijk, Antony S.~R. Manstead, and Joop van~der
+  Pligt.
+\newblock The experience of regret and disappointment.
+\newblock \emph{Cognition and Emotion}, 12\penalty0 (2):\penalty0 221--230,
+  1998.
+\newblock \doi{10.1080/026999398379727}.
+
+\end{thebibliography}
