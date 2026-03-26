@@ -184,7 +184,7 @@ def main():
     output = {
         "n_total": len(df),
         "n_models": int(df["model"].nunique()),
-        "n_batches": 52,
+        "n_batches": 53,
         "conditions": df["condition"].value_counts().to_dict(),
         "welch_tests": welch,
         "lme": lme,
