@@ -2790,3 +2790,36 @@ PDF recompiled: 150.40 KiB, no errors.
 
 ### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
 Stale numerical claim corrected. All other key statistics verified against lme_analysis.json: β_D=0.179, z=52.21 ✓; β_C=0.243, z=70.17 ✓; pers_rum z=19.42 ✓; regret_rate pers_rum z=10.45 ✓; cf_rate cond_C β=0.656, z=10.83 ✓; negemo cond_C β=0.073, z=3.65 ✓. No other numerical discrepancies found.
+
+---
+
+## Critique Cycle 42 [2026-03-27 01:36] — Conclusion Open-Weight Architecture Count Fix
+
+### Issue Found
+**Internal inconsistency in Conclusion**: Line 668 (§7 Conclusion) stated:
+> "four open-weight architectures (Llama, Qwen3, Kimi-K2)"
+
+This is doubly inconsistent:
+1. Lists 3 architecture families in parentheses (Llama, Qwen3, Kimi-K2) but claims "four"
+2. Kimi-K2 is a MoonshotAI model — classifying it as "open-weight" is debatable; in the table it has its own section separate from the Llama/Qwen3 open-weight section
+3. Inconsistent with §5 Discussion line 553 which correctly enumerates "four open-weight architectures (Llama-3.1-8B, Llama-3.3-70B, Llama-4-Scout, Qwen3-32B)" — four model *variants* from two families (Llama + Qwen3)
+
+### Change Made
+Conclusion line 668 revised:
+- **Before:** "seven Gemini variants, four open-weight architectures (Llama, Qwen3, Kimi-K2), and safety/multilingual variants"
+- **After:** "seven Gemini variants, four open-weight model variants (Llama-3.1-8B, Llama-3.3-70B, Llama-4-Scout, Qwen3-32B), Kimi-K2 variants, and safety/multilingual variants"
+
+This aligns with the §5 Discussion wording and separates Kimi-K2 from the open-weight Llama/Qwen3 group.
+
+### Method
+- Surgical edit to Conclusion §7, line 668
+- PDF recompiled: 150.47 KiB, no new errors
+- Committed: 67f44a3 and pushed to GitHub
+
+### Remaining Issues
+1. **Single human annotator, unblinded** (κ=0.44, N=36) — structural limitation (acknowledged in text)
+2. **IEEEtran format vs. ACL/EMNLP target** — cosmetic/venue alignment
+3. **Mistral/DeepSeek replication** — unavailable; noted as future work
+
+### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
+Architectural count inconsistency corrected. All numerical statistics verified in prior cycles. Paper in best state achieved.
