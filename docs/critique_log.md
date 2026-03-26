@@ -2147,3 +2147,31 @@ Cycle 24 fixes stale Table 3 per-condition counts and LOSO beta reference. All s
 
 ### Verdict: Submission-ready (confirmed, strengthened)
 Table 7 d-values are now credible (max d=1.86 vs. prior max d=9.38). The "implausibility concern" from all prior critiques is resolved. Paper can now be submitted to ACL/EMNLP Findings without reviewer incredulity on Table 7.
+
+---
+
+## Critique Cycle 27 — 2026-03-26 21:59 (Asia/Seoul)
+
+### Issues Found & Fixed
+
+1. **NegEmo rate cond_C p-value: `p<0.01` → `p<0.001` — CRITICAL**
+   - Table 4 (tab:lme_summary) line 441: `& cond_C & 0.073 (3.65) & $<$0.01`
+   - Prose line 412: `($\hat{\beta}=0.073$, $p<0.01$)`
+   - Authoritative JSON: `negemo_rate.cond_C: z=3.647, p=0.00027`
+   - p=0.00027 < 0.001, so correct threshold is `p<0.001`, not `p<0.01`
+   - Fixed in both Table 4 and prose
+
+### Method
+- Cross-checked all LME p-values in paper against lme_analysis.json params
+- Recompiled PDF successfully (136K, same cosmetic warnings, no new errors)
+- Committed (9667078) and pushed to GitHub
+
+### Remaining Issues
+
+1. **Model-as-random-effect: promote crossed RE to co-primary specification** — 2-4h restructuring
+2. **Explicit-instruction baseline** — missing, requires 1-2 days API work
+3. **Single human annotator, unblinded** (κ=0.44, N=36) — structural limitation
+4. **IEEEtran format vs. ACL/EMNLP target** — cosmetic/venue alignment
+
+### Verdict: Submission-ready (confirmed, corrected)
+NegEmo cond_C p-value corrected. All LME stats now verified against lme_analysis.json.
