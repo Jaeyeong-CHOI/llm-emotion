@@ -14,3 +14,4 @@
 - [2026-03-23 18:42:42] papers=279 | evidence=279 | samples=6779800 | continuous=enabled | live=enabled | last_success=2026-03-23T18:34:36
 - [2026-03-23 18:53:15] papers=279 | evidence=279 | samples=7103250 | continuous=enabled | live=enabled | last_success=2026-03-23T18:36:34
 - [2026-03-23 18:59:08] papers=279 | evidence=279 | samples=7103250 | continuous=enabled | live=enabled | last_success=2026-03-23T18:59:07
+- [2026-03-27 04:44:45] papers=279 | evidence=279 | samples=7103250 | continuous=enabled | live=missing | last_success=2026-03-23T18:59:07

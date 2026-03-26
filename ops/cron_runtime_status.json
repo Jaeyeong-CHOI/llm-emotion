@@ -5,24 +5,19 @@
     "enabled": true,
     "status": "enabled",
     "lastRunStatus": "ok",
-    "lastRunAtMs": 1774259199438,
+    "lastRunAtMs": 1774551971719,
     "consecutiveErrors": 0,
-    "nextRunAtMs": 1774259993833
+    "nextRunAtMs": 1774552613833
   },
   "live_report": {
-    "name": "llm-emotion-important-live-report",
-    "resolved_id": "2a4cf4a2-8b68-4661-8b57-52ff0829cf71",
-    "enabled": true,
-    "status": "enabled",
-    "lastRunStatus": "ok",
-    "lastRunAtMs": 1774259633923,
-    "consecutiveErrors": 0,
-    "nextRunAtMs": 1774259693923
+    "status": "missing",
+    "enabled": false,
+    "resolved_id": null
   },
   "_meta": {
     "resolved": {
       "continuous": "name:llm-emotion-continuous-research",
-      "live_report": "name:llm-emotion-important-live-report"
+      "live_report": "fallback-id"
     }
   }
 }
