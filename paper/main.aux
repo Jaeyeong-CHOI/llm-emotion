@@ -3,15 +3,13 @@
 \citation{weidinger2021risks}
 \citation{bender2021stochastic,ullman2023}
 \citation{kosinski2024tom,tombench2024}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{}\protected@file@percent }
 \citation{roese2017,byrne2016,kahneman1986norm}
 \citation{bell1982,loomes1982,zeelenberg1998,gilovichmedvec1995}
-\@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{}\protected@file@percent }
 \citation{ullman2023,shapira2023cleverhans,schaeffer2023mirage}
 \citation{rashkin2019,demszky2020}
 \citation{emobench2024,fragileemotionreasoning2025}
 \citation{shanahan2023roleplay,salewski2024impersonation}
-\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Prior-work streams and their linkage to the study hypotheses}}{2}{}\protected@file@percent }
-\newlabel{tab:litmap}{{I}{2}}
 \@writefile{toc}{\contentsline {section}{\numberline {II}Related Work}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {II-}0a}Regret and counterfactual psychology.}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {II-}0b}LLM behavioral evaluation.}{2}{}\protected@file@percent }
@@ -19,6 +17,8 @@
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {II-}0d}Persona-conditioned generation.}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {III}Methods}{2}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Hypotheses}{2}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Prior-work streams and their linkage to the study hypotheses}}{2}{}\protected@file@percent }
+\newlabel{tab:litmap}{{I}{2}}
 \@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Experimental design summary ($N_\text  {total}=7{,}440$; 53 batches total, 37 model variants; confirmatory LME uses full dataset)}}{2}{}\protected@file@percent }
 \newlabel{tab:design}{{II}{2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-B}}Stimuli and experimental design}{2}{}\protected@file@percent }
@@ -31,15 +31,15 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-C}}Models and API contract}{3}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-D}}Marker extraction}{3}{}\protected@file@percent }
 \citation{mohammad2018semeval}
-\@writefile{toc}{\contentsline {section}{\numberline {IV}Results}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Condition effect (H1)}{4}{}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Condition-level marker means ($N_\text  {total}=7{,}440$; multiple model variants). \textbf  {D $>$ N on regret/negemo lexical markers; C $\approx $ D on embedding bias; C $\gg $ D on CF rate.} EmbBias is sentence-transformer embedding cosine bias. Bars: condition means across 3 personas and multiple temperatures. Tests: exploratory; LME cf\_rate (deprivation) $p<0.001$.}}{4}{}\protected@file@percent }
 \newlabel{fig:main_result}{{3}{4}}
-\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Condition-level marker means (SD), full dataset $N_\text  {total}=7{,}440$ (2436/2514/2490 per condition, D/C/N). Exploratory Welch $t$-tests: *** $p{<}0.001$, ** $p{<}0.01$, * $p{<}0.05$, n.s.\ $p{>}0.05$. LME note shows confirmatory status. Dep CF rate $p<0.001$ in LME (batch v24 confirmed); CF-condition CF rate sig. ($p<0.001$).}}{4}{}\protected@file@percent }
-\newlabel{tab:results}{{III}{4}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Results}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-A}}Condition effect (H1)}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Cross-model replication (H3)}{4}{}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Condition-level marker means (SD), full dataset $N_\text  {total}=7{,}440$ (2436/2514/2490 per condition, D/C/N). Exploratory Welch $t$-tests: *** $p{<}0.001$, ** $p{<}0.01$, * $p{<}0.05$, n.s.\ $p{>}0.05$. LME note shows confirmatory status. Dep CF rate $p<0.001$ in LME (batch v24 confirmed); CF-condition CF rate sig. ($p<0.001$).}}{5}{}\protected@file@percent }
+\newlabel{tab:results}{{III}{5}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Embedding regret bias by condition across diverse model families. All models show D\,>\,N; 36/37 show CF\,>\,N (exception: GPT-5.4-mini, $d_\text  {CN}=0.07$, 95\% CI crossing zero); CF produces a 36\% larger LME coefficient than D ($\hat  {\beta }_C=0.243$ vs.\ $\hat  {\beta }_D=0.179$). Magnitude varies across families and generations.}}{5}{}\protected@file@percent }
 \newlabel{fig:model_comparison}{{4}{5}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Cross-model replication (H3)}{5}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Mixed-effects analysis}{5}{}\protected@file@percent }
 \newlabel{sec:lme}{{\mbox  {IV-C}}{5}}
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {IV-C}0a}Scenario generalizability (LOSO).}{5}{}\protected@file@percent }
@@ -59,15 +59,14 @@
 \citation{roese2017,zeelenberg1998}
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0a}Regret versus general negative affect.}{8}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0b}Ablation vs.\ main dataset CF rate reversal.}{8}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0c}Cross-model robustness as a major finding.}{8}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0d}Scope of claims.}{9}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0c}Cross-model robustness as a major finding.}{9}{}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {VII}{\ignorespaces Cross-model replication: embedding regret bias (37 models, 7 families; all batches combined). $d_\text  {DN}$/$d_\text  {CN}$: standardized effect size vs.\ neutral (mean difference divided by population SD of the pooled D$+$N distribution); 95\% CI from 1{,}000 bootstrap resamples. All 37 models show D$>$N ($d_\text  {DN}=0.42$--$1.86$); 36/37 show C$>$N with 95\% CI excluding zero ($d_\text  {CN}=0.07$--$2.10$; exception: GPT-5.4-mini $d_\text  {CN}=0.07$ [$-$0.34, 0.47]). $n$ = total per model. All 37 models are fully stable ($\qopname  \relax m{min}(n_D,n_N)\geq 30$). \textbf  {Methodology note:} Effect sizes use population SD of the pooled D$+$N sample as denominator, which accounts for between-condition separation in the standardization (consistent with the cross-model table in \textsf  {lme\_report.md}). Confirmatory LME fixed-effect estimates ($\hat  {\beta }_D=0.179$, $\hat  {\beta }_C=0.243$; Table\nobreakspace  {}IV\hbox {}) provide the primary per-condition effect estimates controlling for persona and scenario random effects.}}{9}{}\protected@file@percent }
 \newlabel{tab:multimodel}{{VII}{9}}
+\@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0d}Scope of claims.}{10}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Limitations}{10}{}\protected@file@percent }
 \newlabel{sec:limitations}{{\mbox  {V-A}}{10}}
 \@writefile{lot}{\contentsline {table}{\numberline {VIII}{\ignorespaces Minimal-pair ablation: semantic regret bias by topic ($N=196$). D=deprivation, CF=counterfactual, N=neutral; $d$ is Cohen's $d$ vs.\ neutral (pooled-SD; neutral $SD=0$ for all topics---see note). $\dagger $Per-topic $d$ inflated: neutral $SD=0$ causes pooled $SD$ to equal treatment $SD$; combined $d$ uses cross-topic pooling.}}{10}{}\protected@file@percent }
 \newlabel{tab:ablation_topic}{{VIII}{10}}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Reproducibility}{11}{}\protected@file@percent }
 \bibstyle{IEEEtran}
 \bibdata{references}
 \bibcite{roese2017}{1}
@@ -85,6 +84,9 @@
 \bibcite{gilovichmedvec1995}{13}
 \bibcite{shapira2023cleverhans}{14}
 \bibcite{schaeffer2023mirage}{15}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Reproducibility}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{12}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{References}{12}{}\protected@file@percent }
 \bibcite{rashkin2019}{16}
 \bibcite{demszky2020}{17}
 \bibcite{emobench2024}{18}
@@ -93,6 +95,4 @@
 \bibcite{salewski2024impersonation}{21}
 \bibcite{pennebaker2015liwc}{22}
 \bibcite{mohammad2018semeval}{23}
-\@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{12}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{References}{12}{}\protected@file@percent }
-\gdef \@abspage@last{12}
+\gdef \@abspage@last{13}

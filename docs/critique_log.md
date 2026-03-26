@@ -2739,3 +2739,31 @@ The persona IS strongest for: **regret_word_rate** (pers_rum z=10.45 > cond_D z=
 ### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
 Factual accuracy of persona vs. framing comparison improved across paper.
 No outstanding factual errors identified after this audit.
+
+---
+
+## Critique Cycle 40 [2026-03-27 01:09] — Conclusion Ambiguous Beta Notation Fix
+
+### Issue Found
+**Notation ambiguity**: Conclusion paragraph contained:
+> "framing conditions dominate CF rate and embedding bias ($\hat{\beta}_C=0.656$, $\hat{\beta}_C=0.243$)"
+
+Both coefficients shared the same `_C` subscript (counterfactual condition), but referred to *different metrics* — first is CF rate, second is embedding bias. A reader unfamiliar with the paper could misread these as two estimates of the same quantity.
+
+### Change Made
+Disambiguated with metric-level subscripts:
+- `$\hat{\beta}_C=0.656$` → `$\hat{\beta}_{\text{CF-rate},C}=0.656$`
+- `$\hat{\beta}_C=0.243$` → `$\hat{\beta}_{\text{emb},C}=0.243$`
+
+### Method
+- Surgical edit to Conclusion §7, line 667
+- PDF recompiled: 150.40 KiB, no new errors
+
+### Remaining Issues
+1. **Single human annotator, unblinded** (κ=0.44, N=36) — structural limitation (acknowledged in text)
+2. **IEEEtran format vs. ACL/EMNLP target** — cosmetic/venue alignment
+3. **Mistral/DeepSeek replication** — unavailable; noted as future work
+
+### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
+No new substantive issues found. Notation clarity improved.
+Paper remains in the best state achieved.
