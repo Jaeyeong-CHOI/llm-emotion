@@ -2292,3 +2292,36 @@ All model-count claims now consistent across Abstract, Introduction, §4.3, and 
 
 ### Verdict: Submission-ready (confirmed, internally consistent)
 All three internal contradictions resolved. Paper is now free of known H1a confirmation inconsistencies, d-value mismatches, and design table undercounts.
+
+---
+
+## Critique Cycle 32 — 2026-03-26 23:30 (Asia/Seoul)
+
+### Issues Fixed
+
+1. **Stale Gemini-2.5-Flash n-counts and t-statistics in §4.5 EI baseline table — INTERNAL INCONSISTENCY**
+   - Table 5 (EI baseline) reported Gemini-2.5-Flash comparison samples as neutral=503, dep=459, CF=423.
+   - Actual emb.jsonl counts (excl. explicit_instruction batch): neutral=455, dep=387, CF=351.
+   - Condition means also slightly off: paper had N=-0.049/D=+0.089/CF=+0.085; actual N=-0.056/D=+0.084/CF=+0.077.
+   - t-statistics incorrect: paper had t(EI vs N)=10.9 d=1.52, t(EI vs Dep)=-0.28 d=-0.04, t(EI vs CF)=0.05 d=0.01.
+   - Actual values: t(EI vs N)=11.93 d=1.65, t(EI vs Dep)=0.07 d=0.01, t(EI vs CF)=0.73 d=0.10.
+   - Root cause: the Gemini EI section was written using an earlier data snapshot count (503/459/423) that predated final emb.jsonl generation, and t-stats were computed on that earlier subset.
+   - Fix: Table corrected, t-stats/d-values updated in §4.5 text, Discussion §5 updated with correct d-values.
+
+### Method
+- Python recomputation of actual Gemini-2.5-Flash emb.jsonl counts and t-statistics using scipy.stats.ttest_ind
+- Surgical LaTeX edits to §4.5 subsection text, Table 5, §5 Discussion
+- PDF recompiled successfully (143K, same cosmetic warnings, no new errors)
+- Committed (a9c1127) and pushed to GitHub
+
+### Key finding unchanged
+- Qualitative result holds in both old and new values: Gemini EI indistinguishable from Dep (d=0.01) and CF (d=0.10, p=0.46), while significantly above neutral (d=1.65). Cross-model heterogeneity interpretation intact.
+
+### Remaining Issues
+
+1. **Single human annotator, unblinded** (κ=0.44, N=36) — structural limitation (acknowledged in paper)
+2. **IEEEtran format vs. ACL/EMNLP target** — cosmetic/venue alignment
+3. **Mistral/DeepSeek replication** — unavailable; noted as future work
+
+### Verdict: Submission-ready (confirmed, internal consistency improved)
+EI section now has correct n-counts, means, and t-statistics. All known internal inconsistencies resolved.
