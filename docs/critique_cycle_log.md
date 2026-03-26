@@ -26,3 +26,30 @@ Both accounts agree on the empirical conclusion and practical implications. Para
 3. Mistral/DeepSeek replication — unavailable; noted as future work
 
 ### Verdict: Accept (ACL/EMNLP Main) — mechanistic section complete; all previous open items resolved
+
+## Critique Cycle 47 [2026-03-27 02:42] — Full-State Audit (94aef6d)
+
+**Purpose:** Post-Cycle 46 clean-slate audit. Verify paper is submission-ready.
+
+**Data integrity (re-verified with fresh LME run):**
+- N=7,440 | 53 batches | 37 models confirmed
+- All LME stats consistent (no drift from previous tick)
+- PDF recompiled: 155.09 KiB, no errors (layout warnings only)
+
+**Review findings:**
+- No TODO/FIXME/PLACEHOLDER/STUB markers in main.tex ✅
+- No undefined citations in .blg ✅
+- All hypothesis table rows have confirmatory status ✅
+- Limitations section: 10 items, all addressed ✅
+- Mechanistic speculation paragraph (§5): both distributional and representational-suppression accounts present ✅
+- Future work clearly scoped: Mistral/DeepSeek replication, multi-rater validation, GPT-5.4 scale-within-generation ✅
+- IEEEtran format acknowledged as cosmetic issue (ACL/EMNLP reformatting needed pre-submission)
+
+**Remaining gaps (structural, not fixable in one tick):**
+1. Single human annotator, unblinded — acknowledged in limitations
+2. IEEEtran format — requires reformatting to ACL/EMNLP template for target venue
+3. Mistral/DeepSeek replication — noted as future work
+
+**Verdict: PAPER IS COMPLETE AND INTERNALLY CONSISTENT. Ready for venue-specific reformatting.**
+
+**Commit:** 94aef6d (PDF recompile only; no content change)
