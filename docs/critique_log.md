@@ -1847,3 +1847,32 @@ All Cycle 20 stat-sync issues resolved. Table 7 fully matches model_d_corrected.
 
 ### Verdict: Submission-ready (confirmed)
 Cycle 21 fixes three data-consistency issues. Temperature distribution now sums correctly to N=7,440.
+
+---
+
+## Critique Cycle 22 — 2026-03-26 21:14 (Asia/Seoul)
+
+### Issues Found & Fixed
+
+1. **§4.3 (§H1a block, line 410): stale `β_D=0.188` in CF rate practical significance sentence** — CRITICAL
+   - Text: "The deprivation CF rate coefficient ($\hat{\beta}_D=0.188$) corresponds to approximately 0.19 additional counterfactual expressions per 100 characters"
+   - Actual cf_rate cond_D β = 0.2358 (reported correctly as 0.236 everywhere else in the paper)
+   - Value 0.188 appears to be an orphan from an earlier dataset version; the practical-significance paragraph was not updated when the LME was re-run on N=7,440
+   - Fix: updated to $\hat{\beta}_D=0.236$, approximately 0.24 additional counterfactual expressions per 100 characters
+   - Source: `results/real_experiments/lme_analysis.json` → `lme.cf_rate.params.cond_D.beta = 0.2358`
+
+### Method
+- Automated full-paper stat scan: compared all β values in prose against lme_analysis.json
+- Table 7 (36 named rows + 4 o-series rows): all match authoritative model_d_corrected.json (37 models) ✓
+- All LME stats (embedding_regret_bias, regret_rate, negemo_rate, cf_rate) match JSON ✓
+- Only the orphan 0.188 was found
+
+### Remaining Issues
+
+1. **Model-as-random-effect omission** — z-statistics may be inflated; addressed via crossed RE sensitivity (§6.4)
+2. **Single human annotator** (κ=0.44, N=36) — acknowledged structural limitation
+3. **IEEEtran venue not declared** — cosmetic
+4. **hbox/vbox overfull** — cosmetic only
+
+### Verdict: Submission-ready (confirmed)
+Cycle 22 fixes one orphan stat value (β=0.188→0.236). All other stats verified consistent with authoritative JSON.
