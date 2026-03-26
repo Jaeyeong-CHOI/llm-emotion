@@ -55,6 +55,7 @@ BATCH_FILES = [
     "batch_v24_fill_cells",
     "batch_v25_groq_compound_balance",
     "batch_v26_lowcount_fill",
+    "batch_v27_o3mini",
 ]
 
 # Regret prototype sentences (Korean)

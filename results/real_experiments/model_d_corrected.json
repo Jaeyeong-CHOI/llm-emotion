@@ -443,6 +443,28 @@
       ]
     },
     {
+      "model": "o3-mini",
+      "n_deprivation": 18,
+      "n_neutral": 18,
+      "n_counterfactual": 18,
+      "n_total": 54,
+      "mean_D": 0.15544005555555557,
+      "mean_N": -0.06155599999999999,
+      "mean_C": 0.24127983333333333,
+      "d_DN": 4.156,
+      "d_DN_CI95": [
+        3.077,
+        6.434
+      ],
+      "d_DN_flag": "unstable (n<30)",
+      "d_CN": 9.011,
+      "d_CN_CI95": [
+        7.616,
+        12.537
+      ],
+      "d_CN_flag": "unstable (n<30)"
+    },
+    {
       "model": "o4-mini",
       "n_deprivation": 34,
       "n_neutral": 35,
