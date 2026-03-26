@@ -344,15 +344,25 @@
     },
     {
       "model": "gpt-5-pro",
-      "n_deprivation": 0,
-      "n_neutral": 3,
-      "n_counterfactual": 0,
-      "n_total": 3,
-      "mean_D": null,
-      "mean_N": -0.042126666666666666,
-      "mean_C": null,
-      "d_DN": null,
-      "d_CN": null
+      "n_deprivation": 6,
+      "n_neutral": 9,
+      "n_counterfactual": 6,
+      "n_total": 21,
+      "mean_D": 0.0,
+      "mean_N": -0.014042222222222222,
+      "mean_C": 0.0,
+      "d_DN": 0.67,
+      "d_DN_CI95": [
+        0.425,
+        1.277
+      ],
+      "d_DN_flag": "unstable (n<30)",
+      "d_CN": 0.67,
+      "d_CN_CI95": [
+        0.425,
+        1.277
+      ],
+      "d_CN_flag": "unstable (n<30)"
     },
     {
       "model": "gpt-5.1",
