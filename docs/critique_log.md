@@ -2,6 +2,167 @@
 
 ---
 
+## Critique [2026-03-26 21:32] — 25th cycle
+### Scores: Soundness 3/5 | Significance 4/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 24th Cycle (21:32)
+
+The 24th cycle was a mechanical stat-sync patch (Table 3 per-condition counts, LOSO β reference). The 18th/19th cycles resolved the "comparable" overclaim and addressed data integrity for N=7,440. The lme_report.md now reflects the authoritative N=7,440 run (53 batches, 37 models). This 25th cycle performs a **fresh critical reading** of the full paper as a senior PC member would read a submission — looking for remaining issues that could cause rejection at ACL/EMNLP, not incremental stat-sync problems.
+
+---
+
+### DATA INTEGRITY CHECK (25th cycle)
+
+**Paper claims vs. current lme_report.md (N=7,440, authoritative):**
+
+| Statistic | Paper | lme_report | Match? |
+|---|---|---|---|
+| N total | 7,440 | 7,440 | ✅ |
+| Batches | 53 | 53 | ✅ |
+| Models | 37 | 37 | ✅ |
+| β_D (emb bias) | 0.179 (z=52.21) | 0.1787 (z=52.214) | ✅ |
+| β_C (emb bias) | 0.243 (z=70.17) | 0.243 (z=70.168) | ✅ |
+| pers_rum z (emb) | 19.42 | 19.423 | ✅ |
+| CF rate β_D | 0.236 (z=3.90) | 0.2358 (z=3.898) | ✅ |
+| CF rate β_C | 0.656 (z=10.83) | 0.6558 (z=10.829) | ✅ |
+| Regret rate β_D | 0.220 (z=4.80) | 0.2201 (z=4.801) | ✅ |
+| Condition N (dep/CF/neu) | 2436/2514/2490 | 2436/2514/2490 | ✅ |
+| NegEmo pers_rum | p=0.54 n.s. | p=0.5418 n.s. | ✅ |
+
+**Assessment: FULL DATA INTEGRITY — all LME statistics in the paper match lme_report.md to 3 decimal places.** This is the first clean data integrity pass in 25 cycles without a single mismatch. The recurring paper-data sync issue that characterized cycles 4–18 is resolved.
+
+---
+
+### Key Weaknesses
+
+#### Soundness (3/5)
+
+**CRITICAL (persistent, cycles 17–25): Model-as-random-effect omission.**
+- The LME spec (Eq. 1) remains `marker ~ cond_D + cond_C + pers_rum + pers_rfl + temp_z + (1|scenario)`. With 37 heterogeneous models contributing N=7,440 observations, model identity is not included as a grouping factor.
+- The lme_report now shows the crossed RE sensitivity (`(1|scenario) + (1|model_id)`) yields β_D=0.172 (z=58.6), β_C=0.228 (z=77.1) — z-statistics actually *increased*, confirming no pseudo-replication inflation. This is disclosed in Limitation §6.8 and is a strong result. **However:** this sensitivity analysis is buried in Limitations and not presented as a confirmatory finding. A reviewer will note that the primary model spec omits model random effects and that the sensitivity analysis exists — but the paper's inferential engine is still the scenario-only model. For a top venue, the crossed RE model should be the *primary* specification or at least given equal billing. The current framing makes it look like a post-hoc check rather than a design choice.
+- **Recommended:** Promote the crossed RE result to the primary LME table (or a co-primary table), with a sentence explaining why z-statistics are stable or larger after accounting for model clustering.
+
+**CRITICAL (new, 25th cycle): The research design conflates "framing effect" with "instruction compliance" — and the paper has not resolved this despite 25 cycles of flagging.**
+- The deprivation prompt explicitly instructs: "write 7–9 sentences including what was lost and **the emotions that remain**." The neutral prompt says "avoid emotional exaggeration." These prompts differ in emotional instruction, not just framing. The paper's claim — that prompt framing activates regret-like language — is indistinguishable from the claim that explicit emotional instructions produce emotional outputs.
+- The counterfactual condition (which contains no explicit emotional instruction yet produces β_C=0.243 > β_D=0.179 for embedding bias) is the paper's own strongest counter-evidence. The paper correctly highlights this in §3.3 (marker extraction) and §4.1. But the CF condition's embedding superiority raises a new problem: if CF framing (no emotional instruction) produces *larger* semantic activation than D framing (explicit emotional instruction), then what is the mechanism? The paper does not answer this.
+- The ablation study (N=196, 3 topics) partially addresses the confound but: (a) N=196 with ~10 samples/cell is statistically fragile; (b) the ablation shows "topic-dependent" Gemini effects, meaning the main finding may be scenario-driven; (c) the ablation's combined d=0.90 for deprivation (vs. d=2.52 for CF) in the ablation is directionally consistent with the main corpus dissociation, but the absolute magnitudes differ substantially from the main corpus (D: β=0.179, CF: β=0.243 in main LME). The no-explicit-instruction baseline — what happens when you prompt "write a reflective passage about your past" without emotional instruction — remains absent after 25 cycles.
+
+**SERIOUS (persistent): Stimulus bank imbalance — scenario generalizability is limited for most of the dataset.**
+- §6.3 (Limitations) discloses: batches v1–v26 (N≈5,700, ~77% of total) used only 2 neutral and 4 counterfactual templates. The LOSO analysis (42 scenarios, N=2,748, 8-model subset) covers the post-expansion batches (v27+, N≈1,500).
+- This means 77% of the data underlying the confirmatory LME (N=7,440) has no genuine scenario diversity for neutral and CF conditions — the scenario random intercept for these batches is capturing template-level repetition, not scenario-level variance. The ICC=0.66 for embedding bias is therefore substantially inflated by this repetition.
+- The paper discloses this, but the disclosure is in the Limitations section and the main LME still uses the full N=7,440 including the imbalanced batches. A senior reviewer will note that the confirmatory statistics are driven primarily by a severely stimulus-unbalanced design, and that "generalizability" claims are supported only by 23% of the data (post-expansion batches). The LOSO's narrow β range (0.156–0.172) actually **understates** the scenario instability because it is restricted to the 42 post-expansion scenarios — but the main LME is dominated by the 2-template pre-expansion data.
+
+**SERIOUS (persistent): Cross-model d-values in Table 7 remain inflated vs. primary-batch estimates.**
+- The lme_report provides authoritative per-model d-values (range: 0.419–1.859 for all 37 models). Table 7 still shows headline values of d=4.96 (GPT-5.4), d=4.94 (o3), d=8.77 (GPT-5.4 counterfactual), d=9.38 (GPT-5-mini CF). The methodology note in the caption now explicitly states "Some models show inflated d relative to primary-batch estimates (d=0.42–1.86)." This is honest — but d=4.96 and d=8.77 are still the first numbers a reviewer sees in the table. A reviewer who computes d from D_bias − N_bias and any reasonable pooled SD will get ~1.86, not 4.96. The methodology note does not prevent this from generating a rejection comment.
+- The lme_report's authoritative range (0.42–1.86) is the credible finding. The paper should either (a) present lme_report d-values as the primary column, or (b) move the pooled-batch d to a secondary column. This is a 1-hour fix that has been recommended in every critique since cycle 13.
+
+**MODERATE: GPT-3.5-turbo D=C=0.221 in Table 7 — 13th cycle of flagging, still unresolved.**
+- The lme_report shows GPT-3.5-turbo D_bias=0.2278, n_D=72. No C-condition mean is reported separately in lme_report. The paper's Table 7 shows exact three-decimal equality (0.221=0.221) for D and C means in this model. With n=204 total samples, exact equality to three decimal places for two independent prompting conditions is statistically implausible (probability under any continuous distribution is effectively zero). This is almost certainly a copy-paste error. It has been flagged since cycle 13 and has not been investigated or corrected.
+
+**MODERATE: Single-annotator validation — structural limitation, 25 cycles unaddressed.**
+- κ=0.44 (N=36, first author vs. GPT-4o) remains the sole human validation. The paper now explicitly acknowledges: "the primary annotator is a paper author (not blinded to condition assignment)...GPT-4o as second rater does not constitute independent human validation." These are strong, honest disclosures. But the limitation is structural: no second independent human rater has been added across 25 cycles. For a paper claiming marker validity as a key methodological contribution, this is a top-tier blocker.
+
+**MODERATE: "Progressive alignment dampening" narrative contradicted by data.**
+- The paper's alignment narrative ("newer frontier models show dampened but non-zero effects") is contradicted by GPT-5.4-full (d=1.859 per lme_report) exceeding GPT-3.5-turbo (d=1.755) and GPT-4.1 (d=1.440). The paper partially addresses this by framing GPT-5.4-full vs GPT-5.4-mini as "within-family scale effect" (d=1.859 vs d=0.419, 4.4× difference). But the §Discussion text still uses "progressive alignment dampening" as an interpretive frame, which the lme_report data does not support as a cross-generation monotone trend. The within-family contrast is real and interesting; the cross-generation "dampening" narrative is speculative and should be explicitly dropped.
+
+**MINOR: Temperature distribution sum inconsistency (§6 item 4).**
+- Cycle 21 updated the temperature counts. Let's verify: T=0.7 (2,946) + T=0.2 (1,475) + T=0.4 (1,092) + T=1.0 (733) + T=0.9 (693) + T=0.8 (254) + T=default/none (156) + T=0.3 (84) + T=0.5 (7) = 7,440. **This now sums correctly** — confirmed by Cycle 21 fixes. ✅
+
+---
+
+#### Significance (4/5)
+
+**The 37-model directional replication is the paper's genuine top-tier contribution.**
+- All 37 models showing D>N for embedding regret bias, spanning 7 organizations, o-series reasoning models, and an Arabic-trained model (Allam-2-7B), is an empirically robust and publishable finding. The lme_report's authoritative range (d=0.419–1.859) shows genuine cross-model variation: GPT-5.4-mini (d=0.419) and GPT-5.4-nano (d=0.491) are consistently low while most models cluster at d=1.2–1.9. This is a real and interpretable pattern.
+
+**The persona specificity result (NegEmo n.s.) remains the most theoretically interesting finding.**
+- pers_rum predicts CF rate (z=9.72), regret-word rate (z=10.45), embedding bias (z=19.42) but NOT NegEmo (z=0.61, p=0.54). This dissociation — ruminative personas activate regret-schema-specific representations without elevating general negative affect — is now correctly framed in the Discussion. It has genuine psycholinguistic implications. For a top venue, this is the finding worth emphasizing.
+
+**GPT-5-base vs GPT-5.4 within-generation contrast is a new compelling finding.**
+- lme_report: GPT-5-nano d=1.854, GPT-5.4-nano d=0.491 — a 3.8× within-size-tier difference. This controlled within-generation comparison (same approximate model size, different training recipe) is more credible than cross-generation comparisons and warrants more emphasis. The paper mentions it in Discussion and Conclusion but does not make it a named finding.
+
+**LOSO stability (mean β=0.165, SD=0.003, 42 scenarios) provides strong scenario-generalization evidence for post-expansion data.**
+- The tight LOSO range [0.156, 0.172] confirms no single scenario drives the post-expansion results. This is well-executed and should be prominently featured.
+
+**Novelty concerns remain.**
+- The core finding — that prompt framing shifts lexical/semantic output distributions — is predictable. The non-obvious contributions are: (1) persona > framing ordering, (2) persona specificity (NegEmo dissociation), (3) CF framing produces larger embedding activation than D framing despite no explicit emotional instruction, (4) 37-model directional consistency. Of these, (1)–(3) need stronger theoretical grounding and (4) is the strongest empirical contribution. The paper has shifted toward emphasizing (4), which is correct.
+
+**The "explicit-instruction baseline" remains absent — the single most impactful missing experiment.**
+- After 25 cycles of requesting, this experiment is still absent. Its absence means Reviewer 2 at any top venue will ask: "How does 'deprivation framing' differ from 'please write about regret'?" The current ablation (N=196, 3 topics) partially addresses this but is statistically underpowered and does not include the explicit-instruction comparison directly.
+
+---
+
+#### Presentation (3/5)
+
+**Resolved issues (confirmed by full paper read):**
+- ✅ All LME statistics match lme_report.md to 3 decimal places
+- ✅ Abstract broken sentence: fixed (syntactically complete)
+- ✅ "Comparable" embedding overclaim: fixed (now quantified with Wald z≈11.6)
+- ✅ NegEmo persona non-significance: explicitly stated (p=0.54 n.s.)
+- ✅ Figure 2 N updated to 7,440
+- ✅ Temperature distribution sums to 7,440
+- ✅ Crossed RE sensitivity present in Limitations
+
+**REMAINING PRESENTATION ISSUES:**
+
+**Moderate: The IEEEtran format — 25th cycle, venue undeclared.**
+- The paper uses IEEEtran. The abstract, content, and citation style target ACL/EMNLP. No venue is stated anywhere in the paper or title page. A PC member reading this will either: (a) assume it is a workshop or Findings submission (correct for the current state), or (b) note the format mismatch and flag it. If the target is ACL/EMNLP Findings, the format should be changed. If the target is an IEEE venue (TASLP, ICASSP), the content needs venue-appropriate framing.
+
+**Moderate: Table 7 d-values — methodology note present but insufficient at this scale.**
+- d=4.96 (GPT-5.4), d=8.77 (GPT-5.4 CF), d=9.38 (GPT-5-mini CF) are still the visible headline numbers in the primary cross-model replication table. The lme_report's authoritative range (0.42–1.86) is mentioned only in the caption note and in prose. A reviewer's first impression will be that these are the effect sizes. This credibility gap has been present since cycle 6.
+
+**Moderate: The Conclusion section contains ~250-word parenthetical model enumeration.**
+- The final result paragraph in Conclusion still enumerates model variants parenthetically in a 200+-word run. This is compressed IEEEtran prose that reads as an appendix, not a conclusion. For any top venue, a Table reference and 2-sentence summary would be cleaner.
+
+**Minor: The "crossed random effects sensitivity" result (§6.8) shows z-statistics *increase* after adding model random effects.**
+- This is actually a positive result for the paper — z increases from 52.21 to 58.6 for β_D — but it is buried in Limitations and framed defensively. The correct framing: "To test whether model-level clustering inflated our z-statistics, we added model as a crossed random intercept. Condition effects were unchanged (β_D: 0.179→0.172, β_C: 0.243→0.228) and z-statistics remained large (z_D=58.6, z_C=77.1), confirming that the primary model's scenario-only random effect does not artificially inflate inference." This should be in the Results section, not Limitations.
+
+**Minor: §6.1 (Limitations: Marker validity) now contains an extensive annotation methodology discussion.**
+- The discussion of blinding, GPT-4o as second rater, and required improvements is thorough and honest. However, at ~200 words it reads more like an author response than a Limitations paragraph. Consider condensing to ~75 words and moving methodological detail to a footnote.
+
+---
+
+### Actionable Directions (top 3 for top-tier acceptance)
+
+1. **[2–4 hours] Promote the crossed RE model (`(1|scenario) + (1|model_id)`) to the primary LME specification or co-primary table.**
+   - The sensitivity analysis in §6.8 already exists and shows z-statistics increase rather than decrease. Moving this to the Results section (Table 4 or a companion Table 4b) eliminates the primary modeling concern. Add a sentence: "Model-as-random-effect sensitivity (crossed RE) yields β_D=0.172 (z=58.6), β_C=0.228 (z=77.1) — condition effects unchanged, z-statistics stable or larger, confirming no pseudo-replication in the primary specification." This directly addresses the strongest methodological objection at any top venue.
+
+2. **[1 hour] Replace Table 7 headline d-values with lme_report authoritative per-model values (d=0.419–1.859), and demote pooled-batch d to a secondary column or appendix.**
+   - The lme_report provides all 37 model d-values. Using these: (a) makes Table 7 reproducible from committed data; (b) removes the d=4.96/8.77/9.38 implausibility from the main table; (c) makes the within-generation GPT-5-nano (d=1.854) vs GPT-5.4-nano (d=0.491) contrast the correct headline; (d) closes the GPT-3.5-turbo D=C=0.221 anomaly if C-condition means are re-extracted from the data. This is the single most impactful remaining credibility fix.
+
+3. **[One experiment, 1–2 days] Add explicit-instruction baseline condition: "Please write a 7–9 sentence passage in Korean expressing deep regret about a missed opportunity."**
+   - Run N≈100 outputs on GPT-4o and Gemini-2.5-Flash. Compare embedding bias and regret-word rate to deprivation framing. If D-framing < explicit-instruction → framing effect is partially instruction-following; paper should reframe contribution as "how much activation does framing alone provide?" If D-framing ≈ explicit-instruction → the framing IS the instruction, and the CF result (larger embedding bias from no emotional instruction) becomes the primary finding. Either result is publishable and directly responds to what every reviewer will ask.
+
+---
+
+### Verdict: Borderline → Weak Accept (ACL/EMNLP Findings)
+
+**What is genuinely strong:**
+- Full data integrity for the first time in 25 cycles ✅
+- 37-model directional D>N replication, all models, 7 organizations ✅
+- Persona specificity (NegEmo n.s.) correctly framed ✅
+- LOSO stability (SD=0.003 across 42 scenarios) ✅
+- Length sensitivity analysis (β attenuated <4%) ✅
+- Crossed RE sensitivity analysis showing z-statistics robust ✅
+- CF framing > D framing on embedding bias (β_C=0.243 > β_D=0.179, Wald z≈11.6) — novel and non-obvious ✅
+
+**What blocks ACL/EMNLP main track:**
+1. Model-as-random-effect omission from primary LME (sensitivity exists but not primary)
+2. Table 7 d-value inflation (d=4.96/8.77 still headline; lme_report range is 0.42–1.86)
+3. Explicit-instruction baseline missing (25 cycles)
+4. Single human annotator, unblinded (κ=0.44, N=36)
+5. Stimulus bank imbalance (77% of data from 2–4 templates — LOSO covers only post-expansion 23%)
+
+**For ACL/EMNLP Findings**: Weak Accept if items 1 (promote crossed RE) and 2 (Table 7 d correction) are addressed. These are 3–5 hours of work.
+
+**For ACL/EMNLP main track**: Reject — requires explicit-instruction baseline, second human rater, and Table 7 d correction. Core findings are publishable; methodology needs tightening.
+
+---
+
+---
+
 ## Fix [2026-03-26 20:30] — 19th cycle fixes applied (commit 806e534)
 
 ### Changes Made
