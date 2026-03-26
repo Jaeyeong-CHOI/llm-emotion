@@ -164,22 +164,22 @@
     },
     {
       "model": "gpt-3.5-turbo",
-      "n_deprivation": 60,
-      "n_neutral": 54,
-      "n_counterfactual": 54,
-      "n_total": 168,
-      "mean_D": 0.22908488333333335,
-      "mean_N": -0.036283,
-      "mean_C": 0.22784455555555555,
-      "d_DN": 3.831,
+      "n_deprivation": 72,
+      "n_neutral": 66,
+      "n_counterfactual": 66,
+      "n_total": 204,
+      "mean_D": 0.22777981944444445,
+      "mean_N": -0.03537063636363637,
+      "mean_C": 0.22845630303030304,
+      "d_DN": 3.617,
       "d_DN_CI95": [
-        3.034,
-        5.106
+        2.931,
+        4.627
       ],
-      "d_CN": 4.239,
+      "d_CN": 4.07,
       "d_CN_CI95": [
-        3.285,
-        5.966
+        3.239,
+        5.51
       ]
     },
     {
@@ -346,17 +346,17 @@
     },
     {
       "model": "groq/compound-mini",
-      "n_deprivation": 35,
+      "n_deprivation": 47,
       "n_neutral": 37,
       "n_counterfactual": 50,
-      "n_total": 122,
-      "mean_D": 0.12607917142857145,
+      "n_total": 134,
+      "mean_D": 0.1218785319148936,
       "mean_N": -0.06442959459459457,
       "mean_C": 0.21296412,
-      "d_DN": 4.8,
+      "d_DN": 4.712,
       "d_DN_CI95": [
-        4.206,
-        5.835
+        4.126,
+        5.571
       ],
       "d_CN": 8.057,
       "d_CN_CI95": [
@@ -548,22 +548,22 @@
     },
     {
       "model": "openai/gpt-oss-safeguard-20b",
-      "n_deprivation": 54,
-      "n_neutral": 32,
-      "n_counterfactual": 35,
-      "n_total": 121,
-      "mean_D": 0.10911200000000003,
-      "mean_N": -0.05747315625,
-      "mean_C": 0.18448157142857144,
-      "d_DN": 2.604,
+      "n_deprivation": 62,
+      "n_neutral": 44,
+      "n_counterfactual": 41,
+      "n_total": 147,
+      "mean_D": 0.10282409677419356,
+      "mean_N": -0.05316018181818183,
+      "mean_C": 0.17636351219512195,
+      "d_DN": 2.405,
       "d_DN_CI95": [
-        2.166,
-        3.266
+        2.012,
+        2.883
       ],
-      "d_CN": 3.588,
+      "d_CN": 3.267,
       "d_CN_CI95": [
-        2.728,
-        5.138
+        2.556,
+        4.482
       ]
     },
     {
