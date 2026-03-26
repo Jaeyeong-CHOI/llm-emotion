@@ -343,6 +343,18 @@
       ]
     },
     {
+      "model": "gpt-5-pro",
+      "n_deprivation": 0,
+      "n_neutral": 3,
+      "n_counterfactual": 0,
+      "n_total": 3,
+      "mean_D": null,
+      "mean_N": -0.042126666666666666,
+      "mean_C": null,
+      "d_DN": null,
+      "d_CN": null
+    },
+    {
       "model": "gpt-5.1",
       "n_deprivation": 30,
       "n_neutral": 30,
@@ -381,6 +393,28 @@
         2.223,
         4.523
       ]
+    },
+    {
+      "model": "gpt-5.3-chat-latest",
+      "n_deprivation": 27,
+      "n_neutral": 27,
+      "n_counterfactual": 27,
+      "n_total": 81,
+      "mean_D": 0.14138455555555554,
+      "mean_N": -0.03996437037037036,
+      "mean_C": 0.18135237037037036,
+      "d_DN": 3.881,
+      "d_DN_CI95": [
+        3.297,
+        4.765
+      ],
+      "d_DN_flag": "unstable (n<30)",
+      "d_CN": 5.039,
+      "d_CN_CI95": [
+        4.327,
+        6.256
+      ],
+      "d_CN_flag": "unstable (n<30)"
     },
     {
       "model": "gpt-5.4",
