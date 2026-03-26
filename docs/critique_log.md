@@ -2606,3 +2606,44 @@ This parallel strengthens the paper's core dissociation claim by showing it oper
 ### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
 Item 4 (pers_rfl) from Cycle 34 resolved. One of the five blocking items (for ACL/EMNLP Findings) addressed.
 Next priority: Cycle 34 item #2 (generalizability scoping in Abstract/Conclusion — 2-hour task) or item #3 (Gemini EI lexical baseline — 1-hour task).
+
+---
+
+## Critique Cycle 36 — 2026-03-27 00:02 (Asia/Seoul)
+
+### Issues Fixed
+
+3. **§4.5 EI baseline (Cycle 34 item #3): Gemini-2.5-Flash lexical marker comparison — MISSING ANALYSIS**
+   - Computed Gemini EI lexical regret_rate from batch v38: M_EI=0.453 (N=53)
+   - vs. Deprivation: M_D=0.124, t=4.63, p<0.001, d=0.93 (large)
+   - vs. Counterfactual: M_CF=0.057, t=5.64, p<0.001, d=1.40 (large)
+   - Embedding comparison: M_EI=0.085 ≈ M_D=0.084, t=0.07, p=0.94, d=0.01 (nil)
+   - This is an **inverse dissociation**: EI inflates lexical markers strongly but leaves embedding bias unchanged
+   - Fix (§4.5): Added paragraph on Gemini EI lexical results; upgraded Interpretation from 3→4 points with bidirectional independence as Point 4
+   - Fix (§5 Discussion): Replaced partial corroboration with bidirectional independence argument
+   - Fix (§4.5 table caption): Corrected EI vs CF stats (t=0.73→0.60, p=0.46→0.55, d=0.10→0.11)
+
+### Theoretical Value Added
+This inverse dissociation strengthens the paper's core claim:
+- Main finding: framing → embedding ↑, lexical roughly unchanged (semantic-without-lexical direction)
+- Gemini EI finding: explicit instruction → lexical ↑↑, embedding unchanged (lexical-without-semantic direction)
+- Bidirectional independence = strongest evidence that embedding and lexical channels are genuinely distinct behavioral dimensions, not redundant measurements
+
+### Method
+- Loaded batch_v38_explicit_instruction.emb.jsonl + batch_v38_explicit_instruction.jsonl
+- Filtered gemini-2.5-flash rows (EI N=53); compared against gem_emb non-EI rows (D N=387, CF N=351)
+- Lexical marker: Korean+English regret word list on 'output' field
+- Welch t-tests + Cohen's d computed in Python
+- Surgical LaTeX edits to §4.5 + §5; PDF recompiled (147.19 KiB, same cosmetic warnings, no new errors)
+- Committed (685dbda) and pushed to GitHub
+
+### Remaining Issues
+
+1. **Single human annotator, unblinded** (κ=0.44, N=36) — structural limitation (acknowledged)
+2. **IEEEtran format vs. ACL/EMNLP target** — cosmetic/venue alignment
+3. **Mistral/DeepSeek replication** — unavailable; noted as future work
+4. **Generalizability scoping** (Cycle 34 item #2): explicitly scope pre-expansion vs. post-expansion in Abstract/Conclusion — ~2-hour task, still pending
+
+### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
+Cycle 34 item #3 (Gemini EI lexical baseline) resolved.
+Next priority: Cycle 34 item #2 (generalizability scoping in Abstract/Conclusion).
