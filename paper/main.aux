@@ -5,10 +5,10 @@
 \citation{kosinski2024tom,tombench2024}
 \citation{roese2017,byrne2016,kahneman1986norm}
 \citation{bell1982,loomes1982,zeelenberg1998,gilovichmedvec1995}
-\citation{ullman2023,shapira2023cleverhans,schaeffer2023mirage}
 \@writefile{toc}{\contentsline {section}{\numberline {I}Introduction}{1}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {II}Related Work}{1}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {II-}0a}Regret and counterfactual psychology.}{1}{}\protected@file@percent }
+\citation{ullman2023,shapira2023cleverhans,schaeffer2023mirage}
 \citation{rashkin2019,demszky2020}
 \citation{emobench2024,fragileemotionreasoning2025}
 \citation{shanahan2023roleplay,salewski2024impersonation}
@@ -38,9 +38,9 @@
 \@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Condition-level marker means (SD), full dataset $N_\text  {total}=7{,}440$ (2393/2448/2388 per condition, D/C/N). Exploratory Welch $t$-tests: *** $p{<}0.001$, ** $p{<}0.01$, * $p{<}0.05$, n.s.\ $p{>}0.05$. LME note shows confirmatory status. Dep CF rate $p<0.001$ in LME (batch v24 confirmed); CF-condition CF rate sig. ($p<0.001$).}}{4}{}\protected@file@percent }
 \newlabel{tab:results}{{III}{4}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-B}}Cross-model replication (H3)}{4}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Mixed-effects analysis}{4}{}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Embedding regret bias by condition across diverse model families. All models show D\,>\,N; CF and D produce comparable bias. Magnitude varies across families and generations.}}{5}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Embedding regret bias by condition across diverse model families. All models show D\,>\,N and CF\,>\,N; CF produces a 36\% larger LME coefficient than D ($\hat  {\beta }_C=0.243$ vs.\ $\hat  {\beta }_D=0.179$). Magnitude varies across families and generations.}}{5}{}\protected@file@percent }
 \newlabel{fig:model_comparison}{{4}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-C}}Mixed-effects analysis}{5}{}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {IV}{\ignorespaces Confirmatory LME results ($N=7{,}440$, 53 batches, 37 models). Embedding bias uses sentence-transformer cosine similarity. Deprivation CF rate $p<0.001$. Cross-model descriptive results in Table\nobreakspace  {}VI\hbox {}.}}{5}{}\protected@file@percent }
 \newlabel{tab:lme_summary}{{IV}{5}}
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {IV-C}0a}Scenario generalizability (LOSO).}{5}{}\protected@file@percent }
@@ -48,17 +48,16 @@
 \newlabel{fig:qualitative}{{5}{6}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-D}}Persona effect (H2)}{6}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {IV-E}}Qualitative examples}{6}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {V}Discussion}{6}{}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {V}{\ignorespaces Hypothesis confirmation summary. H1a and H1b are separated to distinguish lexical from semantic evidence.}}{6}{}\protected@file@percent }
 \newlabel{tab:hypothesis}{{V}{6}}
+\@writefile{toc}{\contentsline {section}{\numberline {V}Discussion}{6}{}\protected@file@percent }
 \citation{roese2017,zeelenberg1998}
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0a}Regret versus general negative affect.}{7}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0b}Ablation vs.\ main dataset CF rate reversal.}{7}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0c}Cross-model robustness as a major finding.}{7}{}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0d}Scope of claims.}{7}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\numberline {\mbox  {V-}0d}Scope of claims.}{8}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Limitations}{8}{}\protected@file@percent }
 \newlabel{sec:limitations}{{\mbox  {V-A}}{8}}
-\@writefile{toc}{\contentsline {section}{\numberline {VI}Reproducibility}{9}{}\protected@file@percent }
 \bibstyle{IEEEtran}
 \bibdata{references}
 \bibcite{roese2017}{1}
@@ -81,10 +80,11 @@
 \bibcite{emobench2024}{18}
 \bibcite{fragileemotionreasoning2025}{19}
 \bibcite{shanahan2023roleplay}{20}
-\bibcite{salewski2024impersonation}{21}
-\bibcite{pennebaker2015liwc}{22}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Reproducibility}{10}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {VII}Conclusion}{10}{}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{References}{10}{}\protected@file@percent }
+\bibcite{salewski2024impersonation}{21}
+\bibcite{pennebaker2015liwc}{22}
 \bibcite{mohammad2018semeval}{23}
 \@writefile{lot}{\contentsline {table}{\numberline {VI}{\ignorespaces Cross-model replication: embedding regret bias (37 models, 7 families; all batches combined). $d_\text  {DN}$/$d_\text  {CN}$: Cohen's $d$ vs.\ neutral (two-sample pooled-SD); 95\% CI from 1{,}000 bootstrap resamples. All 37 models show D$>$N. $n$ = total per model. All 37 models are fully stable ($\qopname  \relax m{min}(n_D,n_N)\geq 30$; batch v36 upgraded GPT-5, GPT-5-nano, GPT-5.1, and GPT-5.2 from near-stability to full stability; batch v33 upgraded o1/o3 to $n_N=30$). \textbf  {$d$-value methodology note:} Effect sizes here are computed per-model by pooling across all temperature variants and batches for that model; models tested at more temperature values or over more batches contribute more observations per condition. Some models (e.g., GPT-5.4 full: $d=4.96$; GPT-4.1-nano: $d=4.63$) show inflated $d$ relative to primary-batch estimates ($d=0.42$--$1.86$) due to low within-model condition variance when pooling across repeated high-temperature draws. Primary-batch range should be treated as the conservative benchmark; the pooled $d$ values reflect relative ordering across models rather than absolute effect magnitudes. This table is descriptive alongside the confirmatory LME ($N=7{,}440$; Table\nobreakspace  {}IV\hbox {}).}}{11}{}\protected@file@percent }
 \newlabel{tab:multimodel}{{VI}{11}}
