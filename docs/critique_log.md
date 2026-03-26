@@ -808,3 +808,70 @@ The 9th cycle critique identified a persistent pattern: each new batch expansion
 The paper is now in a state where all primary statistical claims are reproducible from committed data. The remaining issues are methodological (d-value CIs, response length confound, annotation coverage) rather than data integrity. Soundness score raised from 2/5 → 3/5.
 
 ---
+
+---
+
+## Critique [2026-03-26 09:23] — 11th cycle
+### Scores: Soundness 4/5 | Significance 3/5 | Presentation 4/5
+
+---
+
+### Context: What Changed Since 10th Cycle (08:20)
+
+Full LME stats sync pass — every coefficient in paper/main.tex now matches lme_analysis.json (N=6,072, the single authoritative source). Length sensitivity re-run on full N=6,072 (was stale N=5,877 run).
+
+### Changes Applied (commit 3701c5a)
+
+**Table 4 (tab:lme_summary) — all rows corrected:**
+- Emb bias cond_D: 0.149(26.98) → 0.162(32.99) ✅
+- Emb bias cond_C: 0.200(34.89) → 0.210(40.60) ✅
+- Emb bias pers_rum: 0.038(18.88) → 0.037(18.58) ✅
+- CF rate cond_D: 0.463(3.96) → 0.340(3.42) ✅
+- CF rate cond_C: 0.910(6.31) → 1.126(10.71) ✅
+- CF rate pers_rum: 0.321(9.24) → 0.312(8.30) ✅
+- Regret rate cond_D: 0.438(5.29) → 0.335(4.65) ✅
+- Regret rate cond_C: 0.344(3.16) → 0.403(5.35) ✅
+- Regret rate pers_rum: 0.296(9.38) → 0.280(9.33) ✅
+- NegEmo cond_D: 0.179(10.25) → 0.153(5.69) ✅
+- NegEmo cond_C: 0.119(6.76) → 0.094(3.39) ✅
+
+**Dissociation paragraph (§4.3): all betas synced**
+- β_D/β_C emb bias: 0.150/0.201 → 0.162/0.210
+- CF rate: 1.454/0.466 → 1.126/0.340
+- Regret rate: 0.434/0.492 → 0.335/0.403
+- NegEmo: 0.173/0.102 → 0.153/0.094
+
+**Persona effect (H2): z values corrected across all occurrences**
+- pers_rum z (emb): 18.75 → 18.58 (abstract, §4.4, Discussion, Conclusion, Methods)
+- CF rate z: 9.24 → 8.30
+- Regret rate z: 9.38 → 9.33
+- H2 evidence z-range: 9.24--19.46 → 8.30--18.58
+
+**LOSO paragraph: fixed stale LME reference**
+- "full-dataset LME estimate of 0.149" → 0.162 (correct)
+
+**Length sensitivity (§6, Limitations): re-run on N=6,072**
+- Pearson r: 0.265 → 0.235
+- Dep reduction: 7.5% (β=0.138) → 2.5% (β=0.158, z=32.44)
+- CF reduction: 5.7% (β=0.190) → 3.3% (β=0.203, z=39.77)
+- Residualized d: dep 1.80→1.86, CF 2.16→2.20
+
+### Remaining Issues (structural)
+
+1. **Cross-model d-values in Table 7**: still no CIs/SEs for per-model effect sizes with small n. Footnotes (§, ¶) mitigate but don't fully address.
+2. **Single annotator**: κ=0.44 (human vs GPT-4o, N=36) — no second human rater.
+3. **Mistral/DeepSeek replication** still absent (noted as desirable in §6).
+4. **Semantic metric independence**: sentence-transformer is much better than BoW, but full external validation against psycholinguistic scales not yet done.
+
+### Verifiable State (all claims now match lme_analysis.json N=6,072)
+- Emb bias dep: β=0.162, z=32.99, p<0.001 ✅
+- Emb bias CF: β=0.210, z=40.60, p<0.001 ✅
+- CF rate dep: β=0.340, z=3.42, p<0.001 ✅
+- Regret rate dep: β=0.335, z=4.65, p<0.001 ✅
+- NegEmo dep: β=0.153, z=5.69, p<0.001 ✅
+- Persona rum (emb): β=0.037, z=18.58, p<0.001 ✅
+- Length sensitivity re-run: r=0.235; dep β=0.158(−2.5%), CF β=0.203(−3.3%) ✅
+
+### Verdict: Accept (with minor revisions)
+All primary statistical claims are now reproducible from a single authoritative committed data file. The remaining issues are structural improvements (CIs, second rater) rather than data integrity problems. Paper is in submission-ready state for a peer-reviewed venue with the current evidence base.
+
