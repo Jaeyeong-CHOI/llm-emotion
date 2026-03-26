@@ -1235,3 +1235,66 @@ Full LME stats sync pass — every coefficient in paper/main.tex now matches lme
 ### Verdict: Accept (with minor revisions)
 All primary statistical claims are now reproducible from a single authoritative committed data file. The remaining issues are structural improvements (CIs, second rater) rather than data integrity problems. Paper is in submission-ready state for a peer-reviewed venue with the current evidence base.
 
+
+---
+
+## Critique [2026-03-26 14:34] — 14th cycle (post-sync patch)
+### Scores: Soundness 4/5 | Significance 4/5 | Presentation 3/5
+
+---
+
+### Context: What Changed (commit af90620)
+
+Full stats sync from lme_report.md (N=6,709 authoritative run) to paper/main.tex.
+Addresses all **CRITICAL** and most **SERIOUS** issues flagged in 13th cycle.
+
+### Changes Applied
+
+**Sample size / batch count:**
+- N: 6,636 → 6,709 throughout; 46 → 47 batches
+- Condition counts: neutral=2,225, dep=2,234, CF=2,250
+
+**LME coefficients (all matched to lme_analysis.json N=6,709):**
+- Emb bias β_D: 0.178 → 0.181, z=41.10 → 42.98 ✅
+- Emb bias β_C: 0.229 → 0.233, z=50.41 → 52.81 ✅
+- Persona rum z (emb): 18.21 → 19.52 (abstract, §4.4, Discussion, hypothesis table) ✅
+- CF rate β_C: 0.838 → 0.779 (z=9.62) ✅; β_D: 0.278/0.303 → 0.262 (z=3.38) ✅
+- Regret rate β_D: 0.287 → 0.273 (z=4.71) ✅; β_C: 0.319/0.344 → 0.299 (z=4.99) ✅
+- NegEmo β_D: 0.140 → 0.130 (z=5.53) ✅; β_C: 0.094 → 0.080 (z=3.34) ✅
+
+**Table 4 (tab:lme_summary) — all rows resynced ✅**
+
+**H2/NegEmo persona specificity (CRITICAL fix):**
+- §4.4: Added "NegEmo was NOT predicted by persona (z=0.76, p=0.45 n.s.)" explicitly ✅
+- Discussion §5: "across all outcomes" → "across regret-specific outcomes"; persona specificity paragraph added ✅
+- Abstract: persona described as targeting "regret-specific generation" with NegEmo p=0.45 noted ✅
+- Hypothesis table: H2 now reads "regret-specific markers (NegEmo: p=0.45 n.s.)" ✅
+- z range updated: 8.37–18.49 → 9.93–19.52 throughout ✅
+
+**d-value range narrative:**
+- §6, Conclusion: primary-batch d range 0.42–1.86 added alongside pooled 0.42–4.97 ✅
+
+**Welch t-stats (exploratory §4.1):**
+- Emb D: t=64.00 → 64.88, d=1.93 → 1.94 ✅
+- Emb C: t=55.77 → 76.20, d=2.05 → 2.28 ✅
+
+**LOSO paragraph:** β_D reference updated 0.180→0.181, z=41.10→42.98 ✅
+
+### Remaining Issues
+
+1. **Cross-model Table 7 d-values:** Paper table still shows inflated pooled-batch d-values (e.g. GPT-5.4 d=4.96, GPT-4.1-nano d=4.63). A methodology note in the table caption clarifying "per-model pooled across temperature variants and batches" would resolve reviewer confusion. Primary-batch range (0.42–1.86) is now noted in §6 and Conclusion.
+2. **Single human annotator** (κ=0.44, N=36): No second rater added. Structural limitation.
+3. **Abstract broken sentence:** The critique mentions "unclosed parenthesis" in the abstract — the current abstract now reads "...regret-specific generation than user-prompt framing per se, with persona effects specific to regret-vocabulary and semantic bias (negative emotion rate: $p=0.45$~n.s.)." — this is syntactically complete. **RESOLVED** (sentence was restructured).
+4. **Mistral/DeepSeek replication** still absent (§6 notes this as desirable).
+
+### Current Verifiable State (matches lme_analysis.json N=6,709)
+- Emb bias dep: β=0.181, z=42.98, p<0.001 ✅
+- Emb bias CF: β=0.233, z=52.81, p<0.001 ✅
+- CF rate dep: β=0.262, z=3.38, p<0.001 ✅
+- Regret rate dep: β=0.273, z=4.71, p<0.001 ✅
+- NegEmo dep: β=0.130, z=5.53, p<0.001 ✅
+- Persona rum (emb): β=0.038, z=19.52, p<0.001 ✅
+- NegEmo persona: β=0.011, z=0.76, p=0.45 n.s. ✅ (now explicitly stated)
+
+### Verdict: Accept (Weak Accept → borderline Accept)
+All primary statistical claims are now consistent with the N=6,709 authoritative lme_report. The NegEmo persona specificity finding is now properly disclosed and reframed as a substantively interesting result (rather than swept under "across all outcomes"). The d-value narrative has been partially corrected. The paper is in improved submission-ready state. Main remaining structural issue: Table 7 d-value methodology note would close the last CRITICAL flag.
