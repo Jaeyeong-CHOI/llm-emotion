@@ -4,7 +4,7 @@
 Loads all .emb.jsonl files, computes:
   - Per model: mean embedding_regret_bias per condition (D, N, C)
   - Cohen's d (D vs N, C vs N) using pooled SD within each model
-  - Bootstrap 95% CI (1000 samples) for models with n < 50
+  - Bootstrap 95% CI (1000 samples) for ALL models (regardless of n)
   - Flags models with n < 30 as unstable
 
 Output: results/real_experiments/model_d_corrected.json
@@ -104,9 +104,9 @@ def main():
         if len(d_vals) >= 2 and len(n_vals) >= 2:
             entry["d_DN"] = round(cohen_d(d_vals, n_vals), 3)
             min_n = min(len(d_vals), len(n_vals))
-            if min_n < 50:
-                ci = bootstrap_d(d_vals, n_vals)
-                entry["d_DN_CI95"] = [round(ci[0], 3), round(ci[1], 3)]
+            # Always compute bootstrap CI regardless of n
+            ci = bootstrap_d(d_vals, n_vals)
+            entry["d_DN_CI95"] = [round(ci[0], 3), round(ci[1], 3)]
             if min_n < 30:
                 entry["d_DN_flag"] = "unstable (n<30)"
         else:
@@ -116,9 +116,9 @@ def main():
         if len(c_vals) >= 2 and len(n_vals) >= 2:
             entry["d_CN"] = round(cohen_d(c_vals, n_vals), 3)
             min_n = min(len(c_vals), len(n_vals))
-            if min_n < 50:
-                ci = bootstrap_d(c_vals, n_vals)
-                entry["d_CN_CI95"] = [round(ci[0], 3), round(ci[1], 3)]
+            # Always compute bootstrap CI regardless of n
+            ci = bootstrap_d(c_vals, n_vals)
+            entry["d_CN_CI95"] = [round(ci[0], 3), round(ci[1], 3)]
             if min_n < 30:
                 entry["d_CN_flag"] = "unstable (n<30)"
         else:
