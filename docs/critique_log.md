@@ -2710,3 +2710,32 @@ This is **wrong**: GPT-5.4-mini has $d_\text{CN}=0.07$ [−0.34, 0.47] — 95% C
 ### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
 Factual accuracy improved. D>N all-37 claim correct; C>N now correctly reported as 36/37.
 Paper is in the best state achieved.
+
+---
+
+## Critique Cycle 39 [2026-03-27 00:50] — Ruminative Persona "Strongest" Claim Corrected
+
+### Issue Found
+**Factual overclaim**: Abstract, Introduction (§1), and Discussion (§5/§7) repeatedly claimed:
+- "The strongest finding is the ruminative persona effect"
+- "system-prompt persona instructions are stronger predictors than user-prompt framing"
+
+This is **wrong** for most markers:
+- **Embedding bias**: cond_C z=70.17, cond_D z=52.21 >> pers_rum z=19.42
+- **CF rate**: cond_C β=0.656 >> pers_rum β=0.310; cond_C z=10.83 > pers_rum z=9.72
+- **Negemo rate**: cond_D z=5.72 >> pers_rum z=0.61 (n.s.)
+
+The persona IS strongest for: **regret_word_rate** (pers_rum z=10.45 > cond_D z=4.80 > cond_C z=5.08)
+
+### Changes Made
+
+1. **Abstract**: Rephrased to "strongest LME predictor for regret-word rate (z=10.45)" with explicit persona specificity note
+2. **§1 Introduction, finding (1)**: Changed to "strongest for regret-word rate specifically; persona and framing are complementary, marker-specific levers"
+3. **§2 Related Work context**: "strongest predictor for regret-word rate specifically (z=10.45)"
+4. **§5 Discussion opening**: Replaced "most robust and consistent finding" overstatement with precise marker-specific characterization, including per-marker comparisons
+5. **§5 Discussion mid**: Updated "headline finding" to complementarity framing
+6. **§7 Conclusion**: Updated persona claim with correct marker-specific language
+
+### Verdict: Weak Accept → Weak Accept (ACL/EMNLP Findings)
+Factual accuracy of persona vs. framing comparison improved across paper.
+No outstanding factual errors identified after this audit.
