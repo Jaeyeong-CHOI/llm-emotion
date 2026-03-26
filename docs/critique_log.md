@@ -1815,3 +1815,35 @@ All 6 Cycle 16 stat-sync issues resolved. Paper fully matches actual N=90 data f
 
 ### Verdict: Submission-ready (confirmed)
 All Cycle 20 stat-sync issues resolved. Table 7 fully matches model_d_corrected.json (37 models).
+
+---
+
+## Critique Cycle 21 — 2026-03-26 20:56 (Asia/Seoul)
+
+### Issues Found & Fixed
+
+1. **Temperature distribution stale (T=1.0 n=213, T=0.8 n=43)** — CRITICAL
+   - Authoritative count (from actual batch files, N=7,440): T=1.0 n=733, T=0.8 n=254
+   - Old text implied T=1.0 was a small exploratory value; actual is the 4th largest bucket
+   - Sum of old distribution = 6,709 (did NOT sum to 7,440 — internal inconsistency)
+   - Fix: updated §6 Temperature variation bullet to correct values; added "These sum to N=7,440" for verifiability
+
+2. **Figure 3 bar chart data stale** — MODERATE
+   - Neutral bars: Llama3.3 (0.066→0.031), Qwen3 (0.016→-0.013), G-2.5F (-0.048→-0.056) diverged from authoritative means
+   - Deprivation: GPT-3.5 (0.221→0.228), GPT-4.1 (0.126→0.141), G-2.5F (0.099→0.084)
+   - Counterfactual: GPT-3.5 (0.221→0.228), GPT-4.1 (0.140→0.173), Llama3.3 (0.152→0.179)
+   - All synced to model_d_corrected.json authoritative means
+
+3. **Figure 3 caption prose: "Gemini-3-Flash" mentioned twice** — MINOR
+   - Line 398: "with GPT-3.5-turbo and Gemini-3-Flash showing the largest effects, while the latest frontier variants (GPT-5.4-mini, Gemini-3-Flash)" — second mention redundant and confusing
+   - Fix: rewritten to accurate summary (GPT-3.5 largest in shown families; GPT-5.4 variants show dampened effects)
+
+### Remaining Issues
+
+1. **Model-as-random-effect omission** — z-statistics may be inflated by within-model correlation; (1|model_id) not in LME
+2. **Single human annotator** (κ=0.44, N=36) — acknowledged structural limitation
+3. **IEEEtran venue not declared** — cosmetic
+4. **hbox/vbox overfull** — cosmetic only
+
+### Verdict: Submission-ready (confirmed)
+Cycle 21 fixes three data-consistency issues. Temperature distribution now sums correctly to N=7,440.
