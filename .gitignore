@@ -10,3 +10,9 @@ results/*
 !results/.gitkeep
 .env.real_model
 !results/real_experiments/
+paper/*.aux
+paper/*.out
+paper/*.log
+paper/*.blg
+paper/*.bbl
+paper/*.synctex.gz
