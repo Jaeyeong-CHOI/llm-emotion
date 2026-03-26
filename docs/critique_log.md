@@ -811,6 +811,196 @@ The paper is now in a state where all primary statistical claims are reproducibl
 
 ---
 
+## Critique [2026-03-26 09:42] — 12th cycle
+### Scores: Soundness 3/5 | Significance 3/5 | Presentation 3/5
+
+---
+
+### Context: What Changed Since 11th Cycle (09:23)
+
+The 11th cycle completed a full LME stats sync pass: **Table 4 (tab:lme_summary) now matches lme_analysis.json (N=6,072) exactly** across all 11 coefficient rows. lme_report.md is also correctly generated on N=6,072, 39 batches, 27 models. The paper is in the best data-integrity state it has ever been.
+
+However, a **new structural discrepancy** has emerged: the 11th cycle updated Table 4 but **did not propagate the corrected β values to the Discussion prose**, leaving stale coefficient values in the narrative text that contradict the table in the same paper.
+
+---
+
+### DATA INTEGRITY AUDIT (12th cycle)
+
+**Table 4 vs. lme_report.md: MATCH ✅**
+
+All 11 rows of Table 4 (tab:lme_summary) verified against lme_analysis.json / lme_report.md:
+
+| Predictor | Table 4 | lme_report | Match? |
+|---|---|---|---|
+| Emb bias cond_D | 0.162 (32.99) | 0.1617 (32.989) | ✅ |
+| Emb bias cond_C | 0.210 (40.60) | 0.2097 (40.598) | ✅ |
+| Emb bias pers_rum | 0.037 (18.58) | 0.0374 (18.581) | ✅ |
+| CF rate cond_D | 0.340 (3.42) | 0.3396 (3.422) | ✅ |
+| CF rate cond_C | 1.126 (10.71) | 1.1256 (10.706) | ✅ |
+| CF rate pers_rum | 0.312 (8.30) | 0.3118 (8.301) | ✅ |
+| Regret rate cond_D | 0.335 (4.65) | 0.3352 (4.654) | ✅ |
+| Regret rate cond_C | 0.403 (5.35) | 0.4026 (5.353) | ✅ |
+| Regret rate pers_rum | 0.280 (9.33) | 0.2799 (9.331) | ✅ |
+| NegEmo cond_D | 0.153 (5.69) | 0.153 (5.692) | ✅ |
+| NegEmo cond_C | 0.094 (3.39) | 0.0938 (3.394) | ✅ |
+
+**Discussion prose vs. Table 4: MISMATCH ❌ (critical new issue)**
+
+The Discussion section (§5) contains narrative betas that were NOT updated when Table 4 was corrected in the 11th cycle:
+
+| Claim in Discussion text | Table 4 (correct) | Status |
+|---|---|---|
+| "deprivation elevates regret-word rate (β̂=0.434, p<0.001)" | β=0.335 | ❌ stale by +0.099 |
+| "negemo rate (β̂=0.173, p<0.001)" | β=0.153 | ❌ stale by +0.020 |
+| "counterfactual framing dominates CF rate (β̂=1.454 vs deprivation β̂=0.466)" | 1.126 vs 0.340 | ❌ both stale |
+| "regret-word rate is comparable between conditions (β̂_D=0.434 vs β̂_C=0.492)" | 0.335 vs 0.403 | ❌ both stale |
+| Conclusion: "deprivation CF rate is significant (β̂=1.454, p<0.001)" | β=1.126 | ❌ stale |
+| Conclusion: "counterfactual framing dominates CF rate by magnitude (β̂=1.454, p<0.001)" | β=1.126 | ❌ stale |
+| Conclusion: "negemo rate (p<0.001) and regret-word rate (p<0.001) and counterfactual framing dominates CF rate by magnitude (β̂=1.454, p<0.001); deprivation CF rate is significant (p<0.001) in the expanded confirmatory LME" | — | ❌ stale |
+
+These are **not round-off differences** — the Discussion references a prior LME run's coefficients (from the 10th-cycle analysis, N=5,877) while Table 4 reflects the current N=6,072 run. A reviewer reading Discussion text and Table 4 side-by-side will immediately notice they are internally inconsistent.
+
+**Cross-model Table 7 (tab:multimodel) d-values: MISMATCH vs. lme_report ❌ (persistent)**
+
+The 12th-cycle lme_report now provides authoritative d(D-N) for all 27 models. Comparison:
+
+| Model | Paper d_DN | lme_report d_DN | Ratio |
+|---|---|---|---|
+| GPT-4o | 2.77 | 1.662 | 1.67× |
+| GPT-3.5-turbo | 3.83 | 1.778 | 2.15× |
+| Gemini-2.5-Flash | 1.81 | 1.344 | 1.35× |
+| GPT-4.1 | 2.05 | 1.440 | 1.42× |
+| GPT-4.1-mini | 2.64 | 1.597 | 1.65× |
+| Llama-3.3-70B | 1.41 | 1.168 | 1.21× |
+| GPT-OSS-120B | 3.62 | 1.772 | 2.04× |
+| Groq Compound | 3.78 | 1.796 | 2.10× |
+| GPT-5.4-mini | 0.42 | 0.419 | ~1.00× ✅ |
+| GPT-5.4-nano | 0.50 | 0.491 | ~1.02× ✅ |
+
+The inflation pattern is **systematic and consistent** across all high-n models: ~1.2–2.15× inflation except for GPT-5.4 variants (near-zero d, so denominator sensitivity negligible). The paper claims these values use "two-sample pooled-SD" (caption: "Cohen's d vs. neutral (two-sample pooled-SD); 95% CI from 1,000 bootstrap resamples"), but the lme_report cross-model table also uses pooled-SD. The discrepancy must arise from a **different dataset scope**: the paper's Table 7 d-values appear to be computed from all batches combined per model (including temperature 0.4, 0.8, 0.9, 1.0 batches which were not in the lme_report's primary 14-batch subset), while the lme_report uses only the primary embedding-annotated batch subset. This is methodologically legitimate — but the caption does not say "all batches" vs "primary batches." The larger multi-batch d values will be flagged by any reviewer who cross-checks one against lme_report.
+
+**Groq Compound-Mini d_CN=8.06 and GPT-OSS-120B d_CN=8.03: still implausible at n<50**
+- Paper Table 7 now includes "§Unstable" footnotes for these entries, which is an improvement.
+- However, d=8.06 (Groq Compound-Mini, n_CF=50) and d=8.03 (GPT-OSS-120B, n_CF estimated <15) remain in the main table as headline numbers. These values are statistically unreliable and the CI [6.88, 9.90] for Groq Compound-Mini is itself an artifact of near-zero within-group variance. The paper discusses these as supporting the cross-model replication without adequately caveating that they may reflect degenerate model outputs.
+
+**Abstract broken sentence: PERSISTS ❌ (flagged since 9th cycle)**
+
+The abstract contains a syntactically incomplete sentence:
+> "...revealing a marker-type dissociation---deprivation and counterfactual framings differ in lexical-layer signatures (CF rate both p<0.001$, suggesting counterfactual semantic priming does not require overt if-then linguistic structures."
+
+This sentence opens a parenthesis that is never closed and the subject of "suggesting" is unclear. This has been flagged in the 9th cycle critique and remains unfixed. Any NLP reviewer will notice this in the first paragraph.
+
+**Welch t-test statistics in Results §4.1: plausibility check**
+- Paper: "CF rate t=20.30, p<0.001, d=0.66; regret-word rate t=16.55, p<0.001, d=0.53; negative emotion rate t=11.82, p<0.001, d=0.38; embedding regret bias t=58.81, p<0.001, d=1.89"
+- lme_report descriptives: Welch D vs N: regret d=0.517; emb_bias d=1.901. The CF-rate Welch t=20.30 cannot be verified from lme_report (which only reports t for regret and embedding bias descriptives). The d=0.66 for CF rate is inconsistent with the lme_report d=0.517 for regret-word rate. These exploratory t-tests are labelled "uncorrected and do not account for scenario-level clustering" — this is honest, but mixing exploratory t-test d-values alongside confirmatory LME β values in a way that overstates the consistency is a presentation concern.
+
+---
+
+### Key Weaknesses
+
+#### Soundness (3/5)
+
+**CRITICAL (new, 12th cycle): Discussion section β-values are stale from a prior LME run.**
+- Table 4 was synced to lme_analysis.json (N=6,072) in the 11th cycle. The Discussion narrative was not updated. The result is that Table 4 and Discussion §5 contradict each other on core effect sizes. Specifically:
+  - Table 4: regret-word rate cond_D β=0.335; Discussion text: "β̂=0.434"
+  - Table 4: regret-word rate cond_C β=0.403; Discussion text: "β̂_C=0.492"
+  - Table 4: CF rate cond_C β=1.126, cond_D β=0.340; Discussion/Conclusion text: "β̂=1.454 vs β̂=0.466"
+  - Table 4: NegEmo cond_D β=0.153; Discussion text: "β̂=0.173"
+- This internal contradiction will be caught by any reviewer who reads table and text. The fix is mechanical: update 8–10 β values in the Discussion and Conclusion text. Until fixed, the paper is internally inconsistent.
+
+**SERIOUS (persistent, 12th cycle): Cross-model d-values in Table 7 are systematically inflated ~1.2–2.15× vs. lme_report.**
+- The lme_report now provides authoritative per-model d-values from the same embedding data. The paper's Table 7 systematically exceeds these by 1.2–2.15× for all models except GPT-5.4 variants (near-zero d). The most likely explanation: Table 7 was computed from all batches per model (which may include batches with more extreme temperature settings or unbalanced scenarios that amplify the effect), while lme_report uses the primary embedding-annotated subsets.
+- The caption says "two-sample pooled-SD" — this is the correct formula — but if the dataset scope differs between the paper's calculation and lme_report's calculation, the d-values are not comparable. The paper should either: (a) recompute Table 7 d-values from the same dataset scope as lme_report and verify they match within rounding, or (b) add a caption note: "d computed from all batches per model (including exploratory batches not in primary LME)."
+- Groq Compound-Mini d=4.80 (D vs N) and d=8.06 (C vs N), and GPT-OSS-120B d=8.03 (C vs N) remain in the main table. These extreme values at small n should be relegated to a footnote or supplementary material with a strong caveat.
+
+**SERIOUS (persistent): LOSO mean β_D=0.165 > full-LME β_D=0.162 — minor upward deviation now explained, but explanation is unconvincing.**
+- The paper explains: "the small upward deviation reflects the 42-scenario subsample having a marginally higher average deprivation effect than the full 39-batch corpus." This explanation is plausible (the 42-scenario subsample was selected from a specific 8-model, primary-batch subset with higher average d), but the LOSO mean of 0.165 is 1.8% above the full-LME 0.162 — this is genuinely small and the explanation is adequate. However, the LOSO was run on N=2,748 (8 models) while the full LME uses N=6,072 (27 models) — the datasets differ substantially in scope. The LOSO provides scenario-stability evidence for the 8-model subset, not for the full 27-model corpus. This distinction should be explicit.
+
+**MODERATE (persistent): Single-annotator human validation (κ=0.44) vs. GPT-4o, unblinded.**
+- Thirteen cycles in, no second human rater. The paper's convergent validity claim rests on κ=0.44 agreement between the first author and GPT-4o on N=36 outputs. This is not independent validation. The 50% CF off-topic rate (6/12 CF outputs were irrelevant hallucinations in the N=36 subsample) has not been scaled to the full corpus. If ~50% of the 2,044 CF-condition outputs in the main corpus are off-topic, the CF condition's d=2.05 (embedding bias vs. neutral) is substantially underestimated for on-topic outputs and the condition comparison is confounded by content relevance.
+
+**MODERATE: Negemo rate for pers_rum is NOT significant in lme_report (p=0.9397) — paper omits this from the persona discussion.**
+- lme_report: NegEmo pers_rum β=-0.0012, p=0.9397 (essentially zero). The paper's Discussion says "ruminative persona instructions were the strongest predictor across all outcomes." The NegEmo outcome is NOT significantly predicted by persona (p=0.94) — persona only predicts embedding bias, CF rate, and regret-word rate. The claim "strongest predictor across all outcomes" overstates the persona effect. NegEmo is only condition-driven (not persona-driven). This should be noted.
+
+**MODERATE: "Alignment dampening" narrative remains confounded by model size and architecture.**
+- The paper argues that newer frontier models (GPT-5.4: d≈0.42–0.50) show dampened effects vs. older models (GPT-3.5: d=3.83 in paper / 1.778 in lme_report). This is presented as evidence that "alignment optimization reduces but does not eliminate the underlying semantic priming effect." However: model size, training data recency, Korean language capability, and RLHF intensity are all jointly confounded. The fact that smaller open-weight models (Llama-3.1-8B: d=3.39) show larger effects than larger frontier models (GPT-4.1: d=2.05) is not purely explained by "alignment dampening" — it is also consistent with Korean language proficiency differences (Llama-3.1-8B may produce lower-quality Korean outputs that are semantically closer to prototype sentences by chance). Without a capability-controlled comparison, this narrative is speculative.
+
+---
+
+#### Significance (3/5)
+
+**The 27-model cross-model replication remains the paper's strongest contribution — but effect-size claims are overstated.**
+- D>N direction confirmed across all 27 models at N=6,072 is a genuine and publishable finding. The coverage (7 organizations, 4 open-weight architectures, a reasoning model, a cross-lingual Arabic model) is unusual in breadth. The directional consistency alone is publishable at ACL/EMNLP Findings.
+- However, the headline d-values (paper: d=3.83 for GPT-3.5, d=4.80 for Groq Compound-Mini) vs. lme_report values (d=1.778 for GPT-3.5, d=1.851 for Groq Compound) suggest the cross-model effect sizes are overstated by ~2× for prominent models. Correcting these would reduce the paper's apparent impact without eliminating the directional finding.
+
+**The ruminative persona finding is actionable and novel — still underemphasized for its safety implications.**
+- pers_rum z=18.58 for embedding bias is a strong effect that directly addresses adversarial system-prompt persona injection as a safety vector. The paper calls it "the strongest cross-condition predictor" in the abstract but frames the condition effects as equally important in the Discussion. For a top venue, the persona > framing finding should be the organizing narrative, not a supporting observation.
+- One important nuance now visible in lme_report: NegEmo is NOT predicted by persona (p=0.94). So persona elevates CF-specific and regret-specific language but NOT general negative affect. This is actually a more precise and interesting finding than "persona elevates all markers" — it suggests persona injection specifically targets regret-semantics, not general negativity. This specificity should be highlighted.
+
+**The "marker-type dissociation" is now well-evidenced but theoretically underspecified.**
+- The dissociation (CF framing: large CF-rate effect β=1.126, moderate regret-word effect β=0.403; Deprivation: smaller CF-rate effect β=0.340, comparable regret-word effect β=0.335) is robustly replicated and the NegEmo asymmetry (D: β=0.153 vs C: β=0.094) adds another dimension. What is missing is a theoretical account. Why would counterfactual framing produce more overt CF expressions than deprivation? The answer is structurally obvious (CF prompt explicitly asks for if-then chains), but the fact that embedding bias is comparable (0.210 CF vs 0.162 D) despite this surface difference is non-trivial. A theoretical framing — perhaps borrowing from counterfactual thought research (Roese 1994, Byrne 2016) on the difference between induced vs spontaneous counterfactual generation — would elevate this from a measurement observation to a substantive behavioral finding.
+
+**Missing comparison: explicit-instruction baseline.**
+- Eleven cycles in, the explicit-instruction baseline experiment has not been added. A condition that directly instructs "write a passage expressing regret" would either: (a) show comparable or larger effects than deprivation framing (→ framing effect is primarily instruction-following), or (b) show smaller embedding bias than both D and CF (→ framing provides genuine semantic activation beyond explicit instruction). The current design cannot distinguish these. For ACL/EMNLP main track, this experiment is necessary.
+
+---
+
+#### Presentation (3/5)
+
+**Critical: Abstract broken sentence (flagged cycles 9–12, still unfixed).**
+> "...revealing a marker-type dissociation---deprivation and counterfactual framings differ in lexical-layer signatures (CF rate both p<0.001$, suggesting counterfactual semantic priming does not require overt if-then linguistic structures."
+
+This is not a minor typo — it is a syntactically broken sentence in the abstract. "CF rate both p<0.001$" is not a grammatical phrase, the parenthesis is never closed, and "suggesting" has no grammatical subject. This will flag the paper for careless editing at any venue. Priority 1 fix.
+
+**Serious: Discussion betas do not match Table 4 (detailed above).**
+- Eight specific β-values in Discussion/Conclusion text are stale from a prior LME run. Reviewers who read the table and then the discussion will note the inconsistency. This is the most critical mechanical fix after the abstract sentence.
+
+**Moderate: Caption note "§Unstable" for small-n models in Table 7 is insufficient.**
+- The d=8.06 (Groq Compound-Mini) and d=8.03 (GPT-OSS-120B) values are flagged with §Unstable but still appear in the main table with confidence intervals presented. A d=8.06 with CI [6.88, 9.90] at n_CF=50 would require that all 50 CF outputs cluster at nearly the same embedding value. This needs either (a) raw means ± SD to allow reviewer verification, or (b) removal from the main table to a supplementary note. Presenting extreme, likely-artifactual d-values with tight-looking CIs in the main replication table misleads readers about the magnitude of the cross-model effect.
+
+**Moderate: Models section footnote inconsistency.**
+- §3.3 (Models and API contract) says "We queried GPT-4o and Gemini-2.5-Flash" as if these are the only models — then footnotes mention GPT-5.4 and Gemini-3 preview access. The section body should be updated to reflect that 27 models were queried. This is a vestigial paragraph from when the paper covered only 2 models that has never been updated.
+
+**Moderate: The paper's Hypothesis table (Table 5 / tab:hypothesis) cites exploratory d-values (0.53–0.66) in the H1a evidence column.**
+- These exploratory Welch-t effect sizes are presented alongside confirmatory LME evidence without clearly distinguishing them. At a top venue, the hypothesis confirmation evidence should be the LME p-values only, with exploratory values clearly secondary.
+
+**Minor: Temperature distribution note in Limitations (§6 item 4) is honest and good — but the claimed temperature distribution has internal consistency issues.**
+- "T=0.7 (n=5,314), T=0.2 (n=2,926), T=0.4 (n=1,743), T=0.9 (n=1,333)" — these four alone sum to 11,316, which exceeds the total N=6,072. This appears to be a count of API calls (not samples), but it is presented after "N_total" language in a way that may confuse. This should be clarified or corrected.
+
+---
+
+### Actionable Directions
+
+1. **[30-minute fix] Update Discussion/Conclusion β-values to match Table 4 (N=6,072 LME).**
+   Specifically:
+   - "regret-word rate β̂=0.434" → 0.335; "β̂_C=0.492" → 0.403
+   - "negemo rate β̂=0.173" → 0.153
+   - "CF rate β̂=1.454 vs β̂=0.466" → 1.126 vs 0.340
+   - Same updates in Conclusion paragraph
+   Also fix abstract broken sentence (open parenthesis, dangling "suggesting"). These two fixes together resolve the most visible editorial red flags.
+
+2. **[Analysis] Recompute Table 7 d-values from the same dataset scope as lme_report (primary embedding batches only), verify against lme_report's per-model d-values, and document the methodology difference.**
+   The lme_report now provides authoritative d-values for all 27 models using the same formula. Either (a) use these values in Table 7 directly (credible, reproducible from committed data), or (b) use all-batches values but add a caption note distinguishing them from lme_report subset values. Either way, remove Groq Compound-Mini d=8.06 and GPT-OSS-120B d=8.03 from the main table body and move to a supplementary unstable-estimates note.
+
+3. **[Analysis] Add explicit-instruction baseline condition.**
+   This is the single experiment that would most strengthen the paper for ACL/EMNLP main track. Add N≈100 outputs per model for GPT-4o and Gemini-2.5-Flash under the instruction "Write a 7–9 sentence passage in Korean expressing regret about a missed opportunity." Compare embedding bias and lexical markers to the deprivation condition. If deprivation ≈ explicit instruction → framing is instruction-following. If deprivation < explicit instruction → deprivation framing is a weaker activator (more conservative). If deprivation > explicit instruction → genuine framing effect beyond direct instruction. Any of these outcomes would substantially clarify the paper's central contribution.
+
+---
+
+### Verdict: Borderline (Weak Accept trajectory for ACL/EMNLP Findings, with two mechanical fixes required)
+
+**Rationale:** The 12th cycle confirms that **data integrity is now maintained for Table 4 and lme_report.md** — the most recurring issue across 12 cycles is resolved at the table level. The paper has reached the point where the confirmatory statistics are reproducible from committed data.
+
+However, the Discussion/Conclusion text still contains stale β-values from a prior LME run that contradict Table 4 — this internal inconsistency was introduced by the 11th cycle's table-only sync and not yet resolved. Combined with the broken abstract sentence (unfixed since cycle 9) and the persistently inflated cross-model d-values in Table 7, the paper has three editorial red flags that remain mechanically fixable.
+
+**For ACL/EMNLP Findings**: Weak Accept *if* (1) Discussion betas are synced, (2) abstract broken sentence is fixed, and (3) Table 7 d-values are clarified with a methodology note. These are hours of work, not weeks.
+
+**For ACL/EMNLP main track**: Reject — requires explicit-instruction baseline experiment, second human rater for annotation, and theoretical grounding for the marker-type dissociation beyond post-hoc description.
+
+**Positive trajectory**: The 27-model cross-model replication with bootstrap CIs, the LOSO scenario stability analysis, the length sensitivity analysis, the stimulus bank expansion disclosure, and the clear scope-of-claims §5 paragraph all represent genuine improvements. The paper is substantially stronger than its first version. The remaining issues are editorial and methodological refinements, not fundamental validity problems.
+
+---
+
 ## Critique [2026-03-26 09:23] — 11th cycle
 ### Scores: Soundness 4/5 | Significance 3/5 | Presentation 4/5
 
