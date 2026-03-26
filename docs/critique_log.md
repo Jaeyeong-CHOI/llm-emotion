@@ -2202,3 +2202,29 @@ NegEmo cond_C p-value corrected. All LME stats now verified against lme_analysis
 
 ### Verdict: Submission-ready (confirmed, strengthened)
 The top reviewer concern (crossed RE buried in Limitations) is resolved. Crossed RE evidence is now visible in the Results section with explicit reference. Paper is stronger for ACL/EMNLP Findings submission.
+
+---
+
+## Critique Cycle 29 — 2026-03-26 22:13 (Asia/Seoul)
+
+### Issues Fixed
+
+1. **"Pilot study" label in Introduction — CRITICAL credibility issue**
+   - Line 70: "We address this gap with a pilot study..." → changed to "We address this gap with a controlled behavioral study ($N=7{,}440$, 37 model variants across 7 organizations)."
+   - Line 268: "Core pilot models were GPT-4o..." → changed to "Initial data collection began with GPT-4o..."
+   - At N=7,440 across 37 models, calling this a "pilot study" actively undermines the paper's scope claims and is a reviewer red flag.
+
+### Method
+- Surgical LaTeX edits to §1 (Introduction) and §3.1 (Design)
+- PDF recompiled successfully (138K, same cosmetic warnings, no new errors)
+- Committed (0039f6d) and pushed to GitHub
+
+### Remaining Issues
+
+1. **Explicit-instruction baseline** — missing, requires 1-2 days API work
+2. **Single human annotator, unblinded** (κ=0.44, N=36) — structural limitation (acknowledged)
+3. **IEEEtran format vs. ACL/EMNLP target** — cosmetic/venue alignment
+4. **Mistral/DeepSeek replication** — desirable for Conclusion "future work"
+
+### Verdict: Submission-ready (confirmed, refined)
+"Pilot study" label removed. Paper now correctly describes itself as a controlled behavioral study with full dataset scope throughout.
