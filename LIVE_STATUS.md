@@ -1,6 +1,6 @@
 # 📡 실시간 연구 진행 현황 (llm-emotion)
 
-- 마지막 갱신: **2026-03-27 04:13 (Asia/Seoul)**
+- 마지막 갱신: **2026-03-27 04:43 (Asia/Seoul)**
 - 현재 단계: **논문 완성 / 제출 준비**
 
 ## 데이터 현황
@@ -19,8 +19,8 @@
 ## 논문 상태
 - paper/main.tex: 684줄, IEEE 8p format — **제출 준비 완료**
 - paper/acl_main.tex: ACL/EMNLP 포맷 버전 — 완료
-- 빌드: 오류 없음 (overfull hbox 미미한 layout 경고만 존재)
-- Critique Cycle: **51** (완료)
+- 빌드: 오류 없음 (overfull hbox 3건, <4pt — 무시 가능)
+- Critique Cycle: **53** (완료)
 
 ## 완료된 작업
 - [x] Embedding metric migration (bag-of-words → sentence-transformer)
@@ -34,6 +34,7 @@
 - [x] CF off-topic audit at scale (22.7%, vs 50% subsample artifact)
 - [x] 논문 ACL/EMNLP 포맷 변환
 - [x] Korean font warning 제거 (Cycle 50)
+- [x] Cycle 53 health check — 모든 stats verified, overfull hbox <4pt (non-blocking)
 
 ## 다음 단계 (선택)
 - [ ] Venue 결정 후 제출 (ACL 2026 / EMNLP 2026)
