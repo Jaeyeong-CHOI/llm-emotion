@@ -2254,3 +2254,41 @@ The top reviewer concern (crossed RE buried in Limitations) is resolved. Crossed
 
 ### Verdict: Submission-ready (confirmed, internally consistent)
 All model-count claims now consistent across Abstract, Introduction, §4.3, and §7 Conclusion.
+
+---
+
+## Critique Cycle 31 — 2026-03-26 22:32 (Asia/Seoul)
+
+### Issues Fixed
+
+1. **Stale "does not confirm H1a" claim in §4.1 Condition Effect (H1) — CRITICAL contradiction**
+   - Line 324 stated: "the confirmatory LME does not confirm H1a (lexical markers) after accounting for scenario variance."
+   - This directly contradicts §4.3 (line 408): "all LME contrasts remain significant, fully confirming H1a" and §5 Discussion (line 515): "H1a is fully confirmed by the confirmatory LME."
+   - Root cause: This sentence was written for an earlier partial-dataset run and never updated when N expanded from ~216 to 7,440.
+   - Fix: Updated to "the confirmatory LME fully confirms H1a: all lexical markers are significantly elevated under deprivation framing after controlling for scenario random effects (β̂=0.220–0.236, all p<0.001)."
+
+2. **Stale d-values for exploratory t-tests in H-table and Discussion**
+   - H-table (line 491) cited "d=0.52–0.63 (dep vs. neutral)" — stale values not matching Table 2.
+   - Discussion (line 515) cited "d=0.53–0.66 (dep vs. neutral)" — 0.66 doesn't match any value in Table 2.
+   - Actual Table 2 values: CF rate d=0.60, regret-word rate d=0.49, negemo rate d=0.35.
+   - Fix: Both corrected to "d=0.35–0.60" with explicit breakdown (CF d=0.60, regret d=0.49, negemo d=0.35).
+
+3. **Design table missing GPT-5.1 and GPT-5.2 — count mismatch vs. paper's claimed 37 models**
+   - Table 2 model list had 35 models (missing GPT-5.1 and GPT-5.2 added in batch v35).
+   - Paper consistently claims 37 models throughout — design table was simply never updated after v35.
+   - Fix: Added "GPT-5.1, GPT-5.2" to the design table model list (now 37 entries).
+
+### Method
+- Surgical LaTeX edits to §4.1, Table 4 (hypothesis summary), §5 Discussion, Table 2 (design)
+- PDF recompiled successfully (138K, same cosmetic warnings, no new errors)
+- Committed and pushed to GitHub
+
+### Remaining Issues
+
+1. **Explicit-instruction baseline** — missing, requires 1-2 days API work
+2. **Single human annotator, unblinded** (κ=0.44, N=36) — structural limitation (acknowledged)
+3. **IEEEtran format vs. ACL/EMNLP target** — cosmetic/venue alignment
+4. **Mistral/DeepSeek replication** — unavailable on Groq; would require separate API access
+
+### Verdict: Submission-ready (confirmed, internally consistent)
+All three internal contradictions resolved. Paper is now free of known H1a confirmation inconsistencies, d-value mismatches, and design table undercounts.
