@@ -76,6 +76,7 @@ BATCH_FILES = [
     "batch_v42_cf_neutral_balance",
     "batch_v43_gpt5pro_stabilize",
     "batch_v44_nano_o3mini_stabilize",
+    "batch_v45_stabilize_final",
 ]
 
 # Regret prototype sentences (Korean)
