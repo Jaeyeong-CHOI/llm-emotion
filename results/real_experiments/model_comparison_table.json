@@ -310,13 +310,13 @@
   {
     "model": "meta-llama/llama-4-scout-17b-16e-instruct",
     "N_bias": 0.0119,
-    "D_bias": 0.1103,
-    "C_bias": 0.143,
-    "d_DN": 1.206,
-    "d_CN": 1.741,
-    "n_D": 72,
+    "D_bias": 0.0779,
+    "C_bias": 0.1009,
+    "d_DN": 0.789,
+    "d_CN": 1.049,
+    "n_D": 102,
     "n_N": 72,
-    "n_C": 72
+    "n_C": 102
   },
   {
     "model": "moonshotai/kimi-k2-instruct",
@@ -420,12 +420,12 @@
   {
     "model": "qwen/qwen3-32b",
     "N_bias": -0.0126,
-    "D_bias": 0.1032,
-    "C_bias": 0.1006,
-    "d_DN": 2.255,
-    "d_CN": 2.37,
-    "n_D": 72,
+    "D_bias": 0.0729,
+    "C_bias": 0.071,
+    "d_DN": 1.446,
+    "d_CN": 1.494,
+    "n_D": 102,
     "n_N": 72,
-    "n_C": 72
+    "n_C": 102
   }
 ]
