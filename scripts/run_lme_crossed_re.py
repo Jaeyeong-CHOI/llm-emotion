@@ -32,7 +32,11 @@ BATCH_LIST = [
     "batch_v27_o3mini","batch_v28_new_openai","batch_v29_stability_fill","batch_v30_stability_fill2",
     "batch_v31_gpt54full","batch_v32_o1_o3","batch_v33_o1_o3_neutral_fill","batch_v34_gpt5_family",
     "batch_v35_gpt51_gpt52","batch_v36_stability_fill","batch_v36b_final_fill","batch_v36c_gpt5_dep",
-    "batch_v37_groq_balance",
+    "batch_v37_groq_balance","batch_v38_explicit_instruction","batch_v39_new_models",
+    "batch_v40_gpt5pro_fill","batch_v41_dep_balance","batch_v42_cf_neutral_balance",
+    "batch_v43_gpt5pro_stabilize","batch_v44_nano_o3mini_stabilize","batch_v45_stabilize_final",
+    "batch_v46_gpt5pro_cf_fill","batch_v47_stability_fill","batch_v48_groq_stabilize",
+    "batch_v49_groq_fill",
 ]
 
 def load_data(data_dir: pathlib.Path) -> pd.DataFrame:
