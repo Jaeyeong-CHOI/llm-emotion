@@ -344,17 +344,17 @@
     },
     {
       "model": "gpt-5-pro",
-      "n_deprivation": 6,
+      "n_deprivation": 15,
       "n_neutral": 9,
       "n_counterfactual": 6,
-      "n_total": 21,
-      "mean_D": 0.0,
+      "n_total": 30,
+      "mean_D": -0.0026122,
       "mean_N": -0.014042222222222222,
       "mean_C": 0.0,
-      "d_DN": 0.67,
+      "d_DN": 0.695,
       "d_DN_CI95": [
-        0.425,
-        1.277
+        -0.755,
+        1.514
       ],
       "d_DN_flag": "unstable (n<30)",
       "d_CN": 0.67,
