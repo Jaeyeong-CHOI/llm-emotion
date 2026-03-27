@@ -1,23 +1,39 @@
 # 📡 실시간 연구 진행 현황 (llm-emotion)
 
-- 마지막 갱신: **2026-03-27 13:44:53 (Asia/Seoul 기준 로컬 실행 시각)**
-- 마지막 실행: **2026-03-26T19:37:42Z**
-- 마지막 성공: **2026-03-26T19:37:42Z**
-- 수집 논문 수(후보): **279편**
-- Evidence Table 행 수: **279행**
-- 생성 샘플 수(파이프라인 검증용): **7173200개**
+- 마지막 갱신: **2026-03-27 17:15:35 (Asia/Seoul)**
+- LME N: **8,299** (65 batches, 39 models)
+- 조건별: deprivation=2,755 / counterfactual=2,737 / neutral=2,700
 
-## 자동화 상태
-- 연구 루프(1분): **enabled**
-- 중요상황 상시 보고(1분): **missing**
-- 최근 연구 루프 결과: **ok**
+## API 상태 (2026-03-27)
+- ❌ OpenAI: **quota exhausted** (insufficient_quota 429)
+- ❌ Gemini: **key leaked** (403 PERMISSION_DENIED)
+- ✅ Groq: **operational** (llama, qwen, kimi, compound, allam)
+
+## 잔여 thin cells (n<30)
+| 모델 | 조건 | n |
+|------|------|---|
+| gpt-5-pro | counterfactual | 25 |
+| gpt-5.3-chat-latest | deprivation | 27 |
+| gpt-5.3-chat-latest | counterfactual | 27 |
+| gpt-5.3-chat-latest | neutral | 27 |
+
+> ⚠️ 위 셀 보충은 OpenAI API 복구 후 batch v52로 진행 예정 (+14 samples → N=8,313)
+
+## 핵심 결과 (현재 안정)
+- ERB LME: β_D=0.172 (p<0.001), β_C=0.229 (p<0.001)
+- Crossed RE: β_D=0.169 (z=61.2), β_C=0.216 (z=77.3) → 강건
+- Welch t (dep vs neutral): d=2.06 (embedding bias)
+- 어휘 마커: LME에서 n.s. → semantic-layer dissociation 확인
 
 ## 현재 단계 요약
 - [x] 체계적 선행연구 수집 파이프라인 구축
-- [x] 증거표(Evidence Table) 자동 생성
-- [x] 연구 자동 루프 + 상태 추적 구축
-- [ ] 핵심 논문(코어셋) 정밀 스크리닝 완료
-- [ ] 실모델 API 기반 본실험 데이터 수집
-- [ ] 통계 검정 + 논문 초안
+- [x] 실모델 API 기반 본실험 데이터 수집 (N=8,299)
+- [x] LME + Crossed RE 확인 분석
+- [x] Sentence-transformer embedding metric
+- [x] Inter-rater reliability (κ=0.44)
+- [x] 논문 초안 (paper/main.tex, IEEE 8p)
+- [ ] Thin cell 보충 (OpenAI API 복구 대기)
+- [ ] 최종 peer review 제출 준비
 
-> 이 파일은 자동 갱신됩니다. (scripts/update_live_status.py가 최근 상태/크론 결과를 갱신)
+> batch v52 스크립트 준비 완료 (scripts/run_batch_v52_thin_cell_fill.py)
+> OpenAI API 복구 후 즉시 실행 가능
