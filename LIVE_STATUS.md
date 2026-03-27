@@ -1,23 +1,28 @@
 # 📡 실시간 연구 진행 현황 (llm-emotion)
 
-- 마지막 갱신: **2026-03-27 10:39:32 (Asia/Seoul 기준 로컬 실행 시각)**
-- 마지막 실행: **2026-03-26T19:37:42Z**
-- 마지막 성공: **2026-03-26T19:37:42Z**
-- 수집 논문 수(후보): **279편**
-- Evidence Table 행 수: **279행**
-- 생성 샘플 수(파이프라인 검증용): **7173200개**
+- 마지막 갱신: **2026-03-27 11:43:27 (Asia/Seoul)**
+- 마지막 실행: **2026-03-27T02:43:27Z**
+- 마지막 성공: **2026-03-27T02:43:27Z**
+- 총 샘플 수(N): **8,038** (60 batches, 39 models)
+- 조건별: deprivation=2,652 / counterfactual=2,643 / neutral=2,636
 
-## 자동화 상태
-- 연구 루프(1분): **enabled**
-- 중요상황 상시 보고(1분): **missing**
-- 최근 연구 루프 결과: **ok**
+## 최신 LME 결과 (Cycle 73)
+- embedding_regret_bias: beta_D=0.176 (z=56.05, p<.001), beta_C=0.231 (z=71.66, p<.001)
+- regret_rate: beta_D=0.241 (z=5.85), beta_C=0.214 (z=5.07), beta_rum=0.258 (z=10.57) all p<.001
+- CF rate: beta_D=0.233 (z=4.14), beta_C=0.684 (z=11.86) all p<.001
+
+## 모델 안정화 상태
+- 완전 안정(n>=30/cond): 37/39
+- 미완 (preliminary): gpt-5-pro (n_D=15), gpt-5.3-chat-latest (n_D=27)
+- Batch v44 완료: gpt-4.1-nano (n=42/cond, d_DN=4.81), o3-mini (n=42/cond, d_DN=4.17)
 
 ## 현재 단계 요약
 - [x] 체계적 선행연구 수집 파이프라인 구축
-- [x] 증거표(Evidence Table) 자동 생성
-- [x] 연구 자동 루프 + 상태 추적 구축
-- [ ] 핵심 논문(코어셋) 정밀 스크리닝 완료
-- [ ] 실모델 API 기반 본실험 데이터 수집
-- [ ] 통계 검정 + 논문 초안
+- [x] 실모델 API 기반 본실험 데이터 수집 (N=8,038)
+- [x] LME 분석 (60 batches, 39 models)
+- [x] Cross-model replication (39/39 D>N; 37 fully stable)
+- [x] Paper: IEEE 8p, stats up-to-date, compiled
+- [ ] gpt-5-pro stabilization (n_D=15 -> 30 needed)
+- [ ] Inter-rater reliability expansion (kappa=0.44, N=36)
 
-> 이 파일은 자동 갱신됩니다. (scripts/update_live_status.py가 최근 상태/크론 결과를 갱신)
+> 이 파일은 자동 갱신됩니다.
