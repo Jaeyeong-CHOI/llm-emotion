@@ -185,7 +185,7 @@ def main():
     output = {
         "n_total": len(df),
         "n_models": int(df["model"].nunique()),
-        "n_batches": 53,
+        "n_batches": len(df["batch"].unique()) if "batch" in df.columns else 56,
         "conditions": df["condition"].value_counts().to_dict(),
         "welch_tests": welch,
         "lme": lme,
