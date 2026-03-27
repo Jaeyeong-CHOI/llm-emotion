@@ -77,6 +77,7 @@ BATCH_FILES = [
     "batch_v43_gpt5pro_stabilize",
     "batch_v44_nano_o3mini_stabilize",
     "batch_v45_stabilize_final",
+    "batch_v46_gpt5pro_cf_fill",
 ]
 
 # Regret prototype sentences (Korean)
