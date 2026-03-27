@@ -134,7 +134,7 @@ def process_file(model, regret_embs, neutral_embs, in_path: pathlib.Path, out_pa
             row = json.loads(line)
         except json.JSONDecodeError:
             continue
-        text = row.get("output") or row.get("text", "")
+        text = row.get("output") or row.get("text") or row.get("response", "")
         bias = compute_bias(model, text, regret_embs, neutral_embs)
         row.update(bias)
         results.append(row)
